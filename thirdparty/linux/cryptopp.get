@@ -1,0 +1,7 @@
+wget http://www.cryptopp.com/cryptopp562.zip 
+unzip cryptopp562.zip -d ./cryptopp
+rm cryptopp562.zip
+
+cd cryptopp
+
+make

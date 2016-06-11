@@ -1,0 +1,27 @@
+cat "downloading Miracl"
+#wget web.engr.oregonstate.edu/~rindalp/MIRACL-master.zip
+#unzip MIRACL-master.zip
+#mv MIRACL-master miracl
+#rm -f MIRACL-master.zip
+
+git clone https://github.com/ladnir/miracl
+
+echo "patching Miracl"
+
+cp ./miracl_patch/big.h ./miracl/miracl/include/big.h
+cp ./miracl_patch/mirdef.hpp ./miracl/miracl/include/mirdef.hpp
+cp ./miracl_patch/mirdef.hpp ./miracl/miracl/include/mirdef.h
+cp ./miracl_patch/linux64_cpp ./miracl/miracl/source/linux64_cpp
+cp ./miracl_patch/big.cpp ./miracl/miracl/source/big.cpp
+
+cp -r ./miracl/miracl/include/* ./miracl/miracl/source/
+
+cd ./miracl/miracl/source
+
+echo "building Mircal"
+
+bash linux64_cpp
+
+
+mv -f ./miracl.a ./libmiracl.a
+

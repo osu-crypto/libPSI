@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule 
+  Name="OCDDebugger"
+  DisplayName="OCD GDB Debugger"
+  PageTemplate="debugger"
+  Order="100"
+  Description="Debugger options"
+  xmlns:sys="clr-namespace:System;assembly=mscorlib"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+  <Rule.DataSource>
+    <DataSource Persistence="UserFile" />
+  </Rule.DataSource>
+  <Rule.Categories>
+    <Category Name="StartOptions" DisplayName="Start Options" Description="Start Options"/>
+  </Rule.Categories>
+
+  <StringProperty Name="OCDDebuggerExecutable"
+                  DisplayName="OCD Debugger Executable"
+                  Description="Full path to OCD debugger executable"
+                  F1Keyword="VC.Project.LinuxDebugger.PackagePath">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="DefaultStringPropertyEditor" DisplayName="&lt;Edit...&gt;"/>
+      <ValueEditor EditorType="DefaultFilePropertyEditor" DisplayName="&lt;Browse...&gt;"/>
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  
+  <StringProperty Name="OCDDebuggerServerAddress"
+                  DisplayName="OCD Debugger Server Address"
+                  Description="OCD Debugger Server Address"
+                  F1Keyword="VC.Project.LinuxDebugger.PackagePath">
+  </StringProperty>
+  
+  <StringProperty Name="OCDDebugBinary"
+                  DisplayName="OCD Debug Binary"
+                  Description="Location of binary file with debug symbols for OCD"
+                  F1Keyword="VC.Project.LinuxDebugger.PackagePath">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="DefaultStringPropertyEditor" DisplayName="&lt;Edit...&gt;"/>
+      <ValueEditor EditorType="DefaultFilePropertyEditor" DisplayName="&lt;Browse...&gt;"/>
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  
+  <!--
+  <StringProperty Name="OCDDebuggerSymbols"
+                  DisplayName="OCD Debugger Symbols"
+                  Description="Full path to debug symbols for binary"
+                  F1Keyword="VC.Project.LinuxDebugger.PackagePath">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="DefaultStringPropertyEditor" DisplayName="&lt;Edit...&gt;"/>
+      <ValueEditor EditorType="DefaultFilePropertyEditor" DisplayName="&lt;Browse...&gt;"/>
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  -->
+</Rule>

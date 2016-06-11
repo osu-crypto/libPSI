@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="Assets\linux_nmake.xaml">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\LinuxDebugger.xaml">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\LocalDebugger.xaml">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Assets\OCDDebugger.xaml">
+      <Filter>Assets</Filter>
+    </None>
+    <None Include="Readme\images\debugproperties.png">
+      <Filter>Readme\images</Filter>
+    </None>
+    <None Include="Readme\images\remotebuild.png">
+      <Filter>Readme\images</Filter>
+    </None>
+    <None Include="Readme\images\remotebuildcmdline.png">
+      <Filter>Readme\images</Filter>
+    </None>
+    <None Include="Readme\images\ocdproperties.png">
+      <Filter>Readme\images</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Readme\readme.html">
+      <Filter>Readme</Filter>
+    </Text>
+    <Text Include="Readme\stylesheet.css">
+      <Filter>Readme</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{08a26e93-524c-4982-a01c-c8d4f223d6be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Readme">
+      <UniqueIdentifier>{35c51339-ba9d-43c8-bd71-5f3199e89878}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Readme\images">
+      <UniqueIdentifier>{fba64bae-4073-4f46-af33-d3b048352479}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
