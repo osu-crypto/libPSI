@@ -113,6 +113,9 @@ namespace libPSI {
 				throw std::runtime_error("rt error at " LOCATION);
 			}
 
+			boost::asio::ip::tcp::no_delay option(true);
+			chl.mSocket->mHandle.set_option(option);
+
 
 			std::stringstream ss;
 			ss << mName << char('`') << localName << char('`') << remoteName;

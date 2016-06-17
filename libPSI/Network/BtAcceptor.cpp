@@ -83,6 +83,9 @@ namespace libPSI {
 					auto buff = new ByteStream(4);
 					buff->setp(buff->capacity());
 
+					boost::asio::ip::tcp::no_delay option(true);
+					newSocket->mHandle.set_option(option);
+
 					newSocket->mHandle.async_receive(boost::asio::buffer(buff->data(), buff->size()), 
 						[newSocket, buff, this](const boost::system::error_code& ec2, u64 bytesTransferred)
 					{
