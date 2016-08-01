@@ -12,7 +12,14 @@ if(!(Test-Path "$PWD\boost"))
         Write-Host 'downloading ' $uri ' to ' $destination
         Write-Host 'It is 131.7 MB '
 
-        Invoke-WebRequest -Uri $uri -OutFile $destination -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::internetexplorer
+        try
+        { 
+            Invoke-WebRequest -Uri $uri -OutFile $destination -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::internetexplorer
+        }catch
+        {
+
+            return;
+        }
 
         Write-Host 'Download Complete'
     }
@@ -35,3 +42,9 @@ if(!(Test-Path "$PWD\b2.exe"))
 }
 
 .\b2.exe  toolset=msvc-14.0 architecture=x86 address-model=64 --with-thread --with-filesystem --with-regex --with-date_time stage link=static variant=debug,release runtime-link=static threading=multi
+
+
+
+cd ..
+
+rm $destination

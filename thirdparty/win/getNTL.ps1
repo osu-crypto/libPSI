@@ -49,10 +49,20 @@ else
 {
     Write-Host "$folder already exists. Skipping dowload and extract."
 }
-echo ""
-echo ""
-echo "      you're on your own to make a solution and build NTL. It can be done with VSC but NTL suggestions linux emulator compiler." 
-echo ""
-echo ""
+#echo ""
+#echo ""
+#echo "      you're on your own to make a solution and build NTL. It can be done with VSC but NTL suggestions linux emulator compiler." 
+#echo ""
+#echo ""
+
+cp NTL_patch/* $folder -Force
+
+cd $folder
+
+
+
+& $MSBuild ntl.sln  /p:Configuration=Release /p:Platform=x64
+& $MSBuild ntl.sln  /p:Configuration=Debug /p:Platform=x64
 
 cd $startDir
+

@@ -55,12 +55,18 @@ cp "$PWD\mpirxx.cpp" "$folder\mpirxx.cpp"
 
 cd $folder/build.vc14
 
-# NOTE: if this isn't a heswell CPU, change this accordingly
-& $MSBuild lib_mpir_haswell\lib_mpir_haswell.vcxproj  /p:Configuration=Release /p:Platform=x64
-& $MSBuild lib_mpir_haswell\lib_mpir_haswell.vcxproj  /p:Configuration=Debug /p:Platform=x64
+# NOTE: you can change this to your architecture for better performance
+& $MSBuild lib_mpir_gc\lib_mpir_gc.vcxproj  /p:Configuration=Release /p:Platform=x64
+& $MSBuild lib_mpir_gc\lib_mpir_gc.vcxproj  /p:Configuration=Debug /p:Platform=x64
 
 # this is common to all CPUs
 & $MSBuild lib_mpir_cxx\lib_mpir_cxx.vcxproj  /p:Configuration=Release /p:Platform=x64
 & $MSBuild lib_mpir_cxx\lib_mpir_cxx.vcxproj  /p:Configuration=Debug /p:Platform=x64
+
+echo ""
+echo ""
+echo "      A generic c implementation was built. Architecture specific builds are available. checkout ./mpir/build.vs14/* for more options." 
+echo ""
+echo ""
 
 cd $startDir

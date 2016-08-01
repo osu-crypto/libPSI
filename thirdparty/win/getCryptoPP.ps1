@@ -2,7 +2,7 @@
 
 # Update this if needed
 $MSBuild = 'C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe'
-
+# 
 if(!(Test-Path $MSBuild))
 {
     Write-Host "Could not find MSBuild as"
@@ -10,14 +10,20 @@ if(!(Test-Path $MSBuild))
     Write-Host ""
     Write-Host "Please update its lication in the script"
 
-
-
     exit
 }
-else
+
+$DEVENV = "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe"
+
+
+if(!(Test-Path $DEVENV))
 {
-    #$version = (& $MSBuild /version) | Out-String
-    #Write-Host $version
+    Write-Host "Could not find devend.exe as"
+    Write-Host "     $DEVENV"
+    Write-Host ""
+    Write-Host "Please update its lication in the script"
+
+    exit
 }
 
 #cd 'C:\Users\peter\Source\Repos\mpsi\thirdparty\win'
@@ -52,6 +58,9 @@ else
 {
     Write-Host "./cryptopp already exists. Skipping dowload and extract."
 }
+
+
+cp "$PWD\cryptopp_patch\*" "$PWD\cryptopp" -Force
 
 cd "$PWD\cryptopp"
 
