@@ -1,6 +1,8 @@
 #include "OTOracleReceiver.h"
 #include "Common/Exceptions.h"
 #include "Common/Log.h"
+#include "Common/BitVector.h"
+
 using namespace libPSI;
 
 
@@ -16,7 +18,7 @@ OTOracleReceiver::~OTOracleReceiver()
 
 
 
-void OTOracleReceiver::Extend(
+void OTOracleReceiver::receive(
 	const BitVector& choices,
 	ArrayView<block> messages,
 	PRNG& prng,

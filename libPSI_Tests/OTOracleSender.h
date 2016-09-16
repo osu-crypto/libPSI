@@ -1,13 +1,15 @@
 #pragma once
 #include "OT/OTExtInterface.h"
-#include "Common/Defines.h"
-#include <unordered_map> 
-
-using namespace libPSI;
-
 #ifdef GetMessage
 #undef GetMessage
 #endif
+
+#include "Common/Defines.h"
+#include <unordered_map> 
+#include "Crypto/PRNG.h"
+
+using namespace libPSI;
+
 
 class OTOracleSender :
 	public OtExtSender
@@ -28,7 +30,7 @@ public:
 		return std::move(ret);
 	}
 
-	void Extend(
+	void send(
 		ArrayView<std::array<block,2>> messages,
 		PRNG& prng,
 		Channel& chl) override;

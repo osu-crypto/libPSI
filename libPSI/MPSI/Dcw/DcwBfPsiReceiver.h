@@ -1,8 +1,9 @@
 #pragma once
 #include "Common/Defines.h"
 #include "Network/Channel.h"
-
-
+#include "Crypto/sha1.h"
+#include "Common/BitVector.h"
+#include <vector>
 #include "OT/OTExtInterface.h"
 namespace libPSI
 {

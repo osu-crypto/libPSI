@@ -11,6 +11,7 @@ namespace libPSI {
 	const block AllOneBlock = _mm_set_epi64x(u64(-1), u64(-1));
 	const block CCBlock = ([]() {block cc; memset(&cc, 0xcc, sizeof(block)); return cc; })();
 
+
 	std::ostream& operator<<(std::ostream& out, const block& blk)
 	{
 		out << std::hex;

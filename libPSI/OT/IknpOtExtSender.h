@@ -1,15 +1,10 @@
 #pragma once 
 #include "OT/OTExtInterface.h"
 #include "Common/BitVector.h"
-#include "OT/Base/PvwBaseOT.h"
-
-#include "Network/Channel.h"
+#include "Crypto/PRNG.h"
 
 #include <array>
-#include <vector>
-#ifdef GetMessage
-#undef GetMessage
-#endif
+
 namespace libPSI {
 
 	class IknpOtExtSender :
@@ -18,7 +13,7 @@ namespace libPSI {
 	public: 
 
 
-		std::array<PRNG, BASE_OT_COUNT> mGens;
+		std::array<PRNG, gOtExtBaseOtCount> mGens;
 		BitVector mBaseChoiceBits;
 		std::unique_ptr<OtExtSender> split() override;
 
@@ -32,7 +27,7 @@ namespace libPSI {
 			const BitVector& choices) override;
 
 
-		void Extend(
+		void send(
 			ArrayView<std::array<block, 2>> messages,
 			PRNG& prng,
 			Channel& chl/*,

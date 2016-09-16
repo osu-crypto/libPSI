@@ -29,6 +29,9 @@ void InitDebugPrinting(std::string filePath)
 		throw UnitTestFail();
 
 	time_t now = time(0);
-	Log::SetSink(*file); 
+
+	std::cout.rdbuf(file->rdbuf());
+	std::cerr.rdbuf(file->rdbuf());
+	//Log::SetSink(*file); 
 }
 

@@ -1,7 +1,4 @@
 #pragma once
-#include "OT/Base/Math/modp.h"
-//#include "OT/Extention/Tools/sha1.h"
-//#include "OT/Extention/Tools/aes.h"
 #include "Common/Defines.h"
 #include "Crypto/AES.h"
 #include "Crypto/sha1.h"

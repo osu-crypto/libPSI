@@ -76,6 +76,8 @@
     <ClCompile Include="BtChannel_Tests.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="DcwBfPsi_Tests.cpp" />
+    <ClCompile Include="DktMPsi_Tests.cpp" />
+    <ClCompile Include="Ecc_Tests.cpp" />
     <ClCompile Include="OTOracleReceiver.cpp" />
     <ClCompile Include="OTOracleSender.cpp" />
     <ClCompile Include="OT_Tests.cpp" />
@@ -89,6 +91,8 @@
     <ClInclude Include="BtChannel_Tests.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="DcwBfPsi_Tests.h" />
+    <ClInclude Include="DktMPsi_Tests.h" />
+    <ClInclude Include="Ecc_Tests.h" />
     <ClInclude Include="OTOracleReceiver.h" />
     <ClInclude Include="OTOracleSender.h" />
     <ClInclude Include="OT_Tests.h" />

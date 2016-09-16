@@ -25,10 +25,10 @@ namespace libPSI
 
 		if (ots.hasBaseOts() == false)
 		{ 
-			std::array<std::array<block, 2>, BASE_OT_COUNT> baseMsg;
+			std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
 
 			NaorPinkas base;
-			base.Sender(baseMsg, chl0, prng, 2);
+			base.send(baseMsg, prng, chl0, 2);
 			ots.setBaseOts(baseMsg);
 		}
 		 
@@ -67,7 +67,7 @@ namespace libPSI
 			// do the OT extension for this range of messages.
 			PRNG prng(extSeed);
 			//Log::out << Log::lock << "recv 0 "  << end << Log::endl;
-			otExt.Extend(choices, range, prng, chl);
+			otExt.receive(choices, range, prng, chl);
 
 
 			//for (u64 k = 0; k < range.size();++k)

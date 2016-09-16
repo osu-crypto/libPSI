@@ -19,8 +19,9 @@
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
+#include <fstream>
 
-
+using namespace libPSI;
 
 void DcwSend()
 {

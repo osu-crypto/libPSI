@@ -8,7 +8,7 @@ namespace libPSI {
 
 	ByteStream::ByteStream(u64 maxlen)
 	{
-		mCapacity = maxlen; mPutHead = 0; mGetHead = 0;
+		mCapacity = maxlen; mPutHead = maxlen; mGetHead = 0;
 		mData = mCapacity ? new u8[mCapacity]() : nullptr;
 	}
 

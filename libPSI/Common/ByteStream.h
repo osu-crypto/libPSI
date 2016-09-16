@@ -133,7 +133,7 @@ namespace libPSI {
 		friend class PRNG;
 
 	public: 
-		ByteStream(u64 maxlen = 0);
+		ByteStream(u64 size = 0);
 		ByteStream(const ByteStream& os);
 		ByteStream(const u8* data, u64 length);
 
@@ -206,7 +206,7 @@ namespace libPSI {
 		u64 mPutHead, mCapacity, mGetHead;
 		u8 *mData;
 	};
-
+	typedef ByteStream Buff;
 
 	template<class T>
 	inline BSIterator<T> ByteStream::begin()

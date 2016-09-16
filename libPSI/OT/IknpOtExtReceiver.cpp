@@ -1,7 +1,8 @@
-#include "OT/Base/PvwBaseOT.h"
 #include "IknpOtExtReceiver.h"
 #include "OT/Base/Tools.h"
 #include "Common/Log.h"
+#include "Common/ByteStream.h"
+#include "Common/BitVector.h"
 
 using namespace std;
 
@@ -10,10 +11,10 @@ namespace libPSI
 
 	void IknpOtExtReceiver::setBaseOts(ArrayView<std::array<block, 2>> baseOTs)
 	{
-		if (baseOTs.size() != BASE_OT_COUNT)
+		if (baseOTs.size() != gOtExtBaseOtCount)
 			throw std::runtime_error(LOCATION);
 
-		for (int i = 0; i < BASE_OT_COUNT; i++)
+		for (int i = 0; i < gOtExtBaseOtCount; i++)
 		{
 			mGens[i][0].SetSeed(baseOTs[i][0]);
 			mGens[i][1].SetSeed(baseOTs[i][1]);
@@ -26,7 +27,7 @@ namespace libPSI
 
 	std::unique_ptr<OtExtReceiver> IknpOtExtReceiver::split()
 	{
-		std::array<std::array<block, 2>, BASE_OT_COUNT>baseRecvOts;
+		std::array<std::array<block, 2>, gOtExtBaseOtCount>baseRecvOts;
 
 		for (u64 i = 0; i < mGens.size(); ++i)
 		{
@@ -42,7 +43,7 @@ namespace libPSI
 	}
 
 
-	void IknpOtExtReceiver::Extend(
+	void IknpOtExtReceiver::receive(
 		const BitVector& choices,
 		ArrayView<block> messages,
 		PRNG& prng,
@@ -58,12 +59,12 @@ namespace libPSI
 		auto numOTExt = ((choices.size() + 127) / 128) * 128;
 
 		// we are going to process OTs in blocks of 128 messages.
-		u64 numBlocks = numOTExt / BASE_OT_COUNT;
+		u64 numBlocks = numOTExt / gOtExtBaseOtCount;
 
 		// column vector form of t0, the receivers primary masking matrix
 		// We only ever have 128 of them in memory at a time. Since we only
 		// use it once and dont need to keep it around.
-		std::array<block, BASE_OT_COUNT> t0;
+		std::array<block, gOtExtBaseOtCount> t0;
 
 
 		SHA1 sha;
@@ -86,13 +87,13 @@ namespace libPSI
 		for (u64 blkIdx = 0; blkIdx < numBlocks; ++blkIdx)
 		{
 			// this will store the next 128 rows of the matrix u
-			std::unique_ptr<ByteStream> uBuff(new ByteStream(BASE_OT_COUNT * sizeof(block)));
-			uBuff->setp(BASE_OT_COUNT * sizeof(block));
+			std::unique_ptr<ByteStream> uBuff(new ByteStream(gOtExtBaseOtCount * sizeof(block)));
+			uBuff->setp(gOtExtBaseOtCount * sizeof(block));
 
 			// get an array of blocks that we will fill. 
 			auto u = uBuff->getArrayView<block>();
 
-			for (u64 colIdx = 0; colIdx < BASE_OT_COUNT; colIdx++)
+			for (u64 colIdx = 0; colIdx < gOtExtBaseOtCount; colIdx++)
 			{
 				// use the base key material from the base OTs to 
 				// extend the i'th column of t0 and t1	
@@ -111,7 +112,7 @@ namespace libPSI
 			chl.asyncSend(std::move(uBuff));
 
 			// transpose t0 in place
-			eklundh_transpose128(t0);
+			sse_transpose128(t0);
 
 #ifdef OTEXT_DEBUG 
 			chl.recv(debugBuff); assert(debugBuff.size() == sizeof(t0));
@@ -119,7 +120,7 @@ namespace libPSI
 #endif
 			// now finalize and compute the correlation value for this block that we just processes
 			u32 blkRowIdx;
-			u32 stopIdx = (u32)std::min(u64(BASE_OT_COUNT), messages.size() - doneIdx);
+			u32 stopIdx = (u32)std::min(u64(gOtExtBaseOtCount), messages.size() - doneIdx);
 			for (blkRowIdx = 0; blkRowIdx < stopIdx; ++blkRowIdx, ++doneIdx)
 			{
 #ifdef OTEXT_DEBUG
@@ -144,6 +145,6 @@ namespace libPSI
 		}
 
 
-		static_assert(BASE_OT_COUNT == 128, "expecting 128");
+		static_assert(gOtExtBaseOtCount == 128, "expecting 128");
 	}
 }

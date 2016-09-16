@@ -55,7 +55,7 @@ void bfSend()
 	for (auto pow : { 8,12, 16,20 })
 	{
 
-		for (auto cc : { 1,/*2,*/4,/*8,16,*/32,64 })
+		for (auto cc : { 1,/*2,4,8,16,32,64 */ })
 		{
 			std::vector<Channel*> sendChls;
 
@@ -158,7 +158,7 @@ void bfRecv()
 	//for (auto pow : {/* 8,12,*/16/*,20*/ })
 	for (auto pow : { 8,12,16,20 })
 	{
-		for (auto cc : { 1,4,32,64 })
+		for (auto cc : { 1/*,4,32,64 */})
 		{
 			std::vector<Channel*> recvChls;
 

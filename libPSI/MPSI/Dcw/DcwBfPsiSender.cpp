@@ -77,14 +77,14 @@ namespace libPSI {
 			//gTimer.setTimePoint("base start");
 			//PvwBaseOT base(chl0, OTRole::Receiver);
 			//base.exec_base(prng);
-			//std::array<std::array<block, 2>, BASE_OT_COUNT> baseMsg;
-			std::array<block, BASE_OT_COUNT> baseMsg;
-			BitVector choices(BASE_OT_COUNT);
+			//std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
+			std::array<block, gOtExtBaseOtCount> baseMsg;
+			BitVector choices(gOtExtBaseOtCount);
 			choices.randomize(prng);
 
 			//crypto crpto(128, prng.get_block());
 			NaorPinkas base;
-			base.Receiver(baseMsg, choices, chl0, prng, 2);
+			base.receive(choices, baseMsg, prng, chl0, 2);
 
 			otExt.setBaseOts(baseMsg, choices);
 
@@ -114,7 +114,7 @@ namespace libPSI {
 				PRNG prng(seed);
 
 				// do the extension.
-				ots.Extend(range, prng, chl);
+				ots.send(range, prng, chl);
 			}
 
 		};

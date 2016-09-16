@@ -3,6 +3,7 @@
 #include "OTOracleSender.h"
 #include "Common/Log.h"
 #include <mutex>
+#include "Network/Channel.h"
 
 
 using namespace libPSI;
@@ -19,7 +20,7 @@ OTOracleSender::~OTOracleSender()
 
 
 
-void OTOracleSender::Extend(
+void OTOracleSender::send(
 	ArrayView<std::array<block,2>> messages,
 	PRNG& prng,
 	Channel& chl)

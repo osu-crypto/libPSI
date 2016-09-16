@@ -2,7 +2,8 @@
 #include "Common/Defines.h"
 #include "Network/Channel.h"
 
-
+#include "Crypto/sha1.h"
+#include "Common/BitVector.h"
 #include "OT/OTExtInterface.h"
 namespace libPSI
 {

@@ -1,7 +1,9 @@
-#include "OT/Base/PvwBaseOT.h"
 #include "LzKosOtExtReceiver.h"
 #include "OT/Base/Tools.h"
 #include "Common/Log.h"
+#include "Common/BitVector.h"
+#include "Crypto/Commit.h"
+#include "Common/ByteStream.h"
 
 using namespace std;
 
@@ -9,10 +11,10 @@ namespace libPSI
 {
 	void LzKosOtExtReceiver::setBaseOts(ArrayView<std::array<block, 2>> baseOTs)
 	{
-		if (baseOTs.size() != BASE_OT_COUNT)
+		if (baseOTs.size() != gOtExtBaseOtCount)
 			throw std::runtime_error(LOCATION);
 
-		for (int i = 0; i < BASE_OT_COUNT; i++)
+		for (int i = 0; i < gOtExtBaseOtCount; i++)
 		{
 			mGens[i][0].SetSeed(baseOTs[i][0]);
 			mGens[i][1].SetSeed(baseOTs[i][1]);
@@ -23,7 +25,7 @@ namespace libPSI
 	}
 	std::unique_ptr<OtExtReceiver> LzKosOtExtReceiver::split()
 	{
-		std::array<std::array<block, 2>, BASE_OT_COUNT>baseRecvOts;
+		std::array<std::array<block, 2>, gOtExtBaseOtCount>baseRecvOts;
 
 		for (u64 i = 0; i < mGens.size(); ++i)
 		{
@@ -39,12 +41,12 @@ namespace libPSI
 	}
 
 
-	void LzKosOtExtReceiver::Extend(
+	void LzKosOtExtReceiver::receive(
 		const BitVector& choices,
 		ArrayView<block> messages,
 		PRNG& prng,
 		Channel& chl/*,
-		std::atomic<u64>& doneIdx*/)
+					std::atomic<u64>& doneIdx*/)
 	{
 		if (choices.size() == 0) return;
 
@@ -54,34 +56,22 @@ namespace libPSI
 		// round up
 		auto numOTExt = ((choices.size() + 127) / 128) * 128;
 
-				// we are going to process OTs in blocks of 128 messages.
-		u64 numBlocks = numOTExt / BASE_OT_COUNT + 1;
+		// we are going to process OTs in blocks of 128 messages.
+		u64 numBlocks = numOTExt / gOtExtBaseOtCount + 1;
 
 		// column vector form of t0, the receivers primary masking matrix
 		// We only ever have 128 of them in memory at a time. Since we only
 		// use it once and dont need to keep it around.
-		std::array<block, BASE_OT_COUNT> t0;
+		std::array<block, gOtExtBaseOtCount> t0;
 
 
 		SHA1 sha;
 		u8 hashBuff[SHA1::HashSize];
 
-		// For the malicious secure OTs, we need a random PRNG that is chosen random 
-		// for both parties. So that is what this is. 
-		PRNG G;
-		block seed;
-		random_seed_commit(ByteArray(seed), chl, SEED_SIZE, prng.get_block());
-		G.SetSeed(seed);
-
-		// this buffer will be sent to the other party to prove we used the 
-		// same value of r in all of the column vectors...
-		std::unique_ptr<ByteStream> correlationData(new ByteStream(3 * sizeof(block)));
-		correlationData->setp(correlationData->capacity());
-		block& x = correlationData->getArrayView<block>()[0];
-		block& t = correlationData->getArrayView<block>()[1];
-		block& t2 = correlationData->getArrayView<block>()[2];
-		x = t = t2 = ZeroBlock;
-		block chij, ti, ti2;
+		// commit to as seed which will be used to 
+		block seed = prng.get_block();
+		Commit myComm(seed);
+		chl.asyncSend(myComm.data(), myComm.size());
 
 		// turn the choice vbitVector into an array of blocks. 
 		BitVector choices2(numBlocks * 128);
@@ -97,17 +87,20 @@ namespace libPSI
 		Log::out << "delta" << Log::endl << debugDelta << Log::endl;
 #endif 
 
+		std::vector<block> extraBlocks;
+		extraBlocks.reserve(256);
+
 		u64 dIdx(0), doneIdx(0);
 		for (u64 blkIdx = 0; blkIdx < numBlocks; ++blkIdx)
 		{
 			// this will store the next 128 rows of the matrix u
-			std::unique_ptr<ByteStream> uBuff(new ByteStream(BASE_OT_COUNT * sizeof(block)));
-			uBuff->setp(BASE_OT_COUNT * sizeof(block));
+			std::unique_ptr<ByteStream> uBuff(new ByteStream(gOtExtBaseOtCount * sizeof(block)));
+			uBuff->setp(gOtExtBaseOtCount * sizeof(block));
 
 			// get an array of blocks that we will fill. 
 			auto u = uBuff->getArrayView<block>();
 
-			for (u64 colIdx = 0; colIdx < BASE_OT_COUNT; colIdx++)
+			for (u64 colIdx = 0; colIdx < gOtExtBaseOtCount; colIdx++)
 			{
 				// use the base key material from the base OTs to 
 				// extend the i'th column of t0 and t1	
@@ -126,7 +119,7 @@ namespace libPSI
 			chl.asyncSend(std::move(uBuff));
 
 			// transpose t0 in place
-			eklundh_transpose128(t0);
+			sse_transpose128(t0);
 
 #ifdef OTEXT_DEBUG 
 			chl.recv(debugBuff); assert(debugBuff.size() == sizeof(t0));
@@ -134,7 +127,7 @@ namespace libPSI
 #endif
 			// now finalize and compute the correlation value for this block that we just processes
 			u32 blkRowIdx;
-			u32 stopIdx = (u32) std::min(u64(BASE_OT_COUNT), messages.size() - doneIdx);
+			u32 stopIdx = (u32)std::min(u64(gOtExtBaseOtCount), messages.size() - doneIdx);
 			for (blkRowIdx = 0; blkRowIdx < stopIdx; ++blkRowIdx, ++dIdx)
 			{
 #ifdef OTEXT_DEBUG
@@ -148,43 +141,85 @@ namespace libPSI
 					throw std::runtime_error(LOCATION);
 				}
 #endif
+				messages[dIdx] = t0[blkRowIdx];
 
-				// hash it
-				//sha.Reset();
-				//sha.Update((u8*)&t0[blkRowIdx], sizeof(block));
-				//sha.Final(hashBuff);
-				//messages[dIdx] = t0[blkRowIdx];// *(block*)hashBuff;
-
-				// and check for correlation
-				chij = G.get_block();
-				if (choices2[dIdx])
-				{
-					x = x ^ chij;
-					sha.Reset();
-					sha.Update((u8*)&t0[blkRowIdx], sizeof(block));
-					sha.Final(hashBuff);
-					messages[dIdx] =  *(block*)hashBuff;
-
-				}
-				else
-				{
-					messages[dIdx] = t0[blkRowIdx];// *(block*)hashBuff;
-				}
-				// multiply over polynomial ring to avoid reduction
-				mul128(t0[blkRowIdx], chij, &ti, &ti2);
-
-				t = t ^ ti;
-				t2 = t2 ^ ti2;
 			}
-			 
-			for (; blkRowIdx < BASE_OT_COUNT; ++blkRowIdx, ++dIdx)
+
+			for (; blkRowIdx < gOtExtBaseOtCount; ++blkRowIdx, ++dIdx)
 			{
+				extraBlocks.push_back(t0[blkRowIdx]);
+			}
+
+			doneIdx = std::min((u64)dIdx, messages.size());
+
+		}
+
+
+		// do correlation check and hashing
+		// For the malicious secure OTs, we need a random PRNG that is chosen random 
+		// for both parties. So that is what this is. 
+		PRNG commonPrng;
+		//random_seed_commit(ByteArray(seed), chl, SEED_SIZE, prng.get_block());
+		block theirSeed;
+		chl.recv(&theirSeed, sizeof(block));
+		chl.asyncSendCopy(&seed, sizeof(block));
+		commonPrng.SetSeed(seed ^ theirSeed);
+
+		// this buffer will be sent to the other party to prove we used the 
+		// same value of r in all of the column vectors...
+		std::unique_ptr<ByteStream> correlationData(new ByteStream(3 * sizeof(block)));
+		correlationData->setp(correlationData->capacity());
+		block& x = correlationData->getArrayView<block>()[0];
+		block& t = correlationData->getArrayView<block>()[1];
+		block& t2 = correlationData->getArrayView<block>()[2];
+		x = t = t2 = ZeroBlock;
+		block chij, ti, ti2;
+
+		//std::array<block, gOtExtBaseOtCount> enc;
+
+		dIdx = (0), doneIdx = (0);
+		auto extraBlocksIter = extraBlocks.begin();
+		for (u64 blkIdx = 0; blkIdx < numBlocks; ++blkIdx)
+		{
+			u32 blkRowIdx;
+			u32 stopIdx = (u32)std::min(u64(gOtExtBaseOtCount), messages.size() - doneIdx);
+
+			//mAesFixedKey.ecbEncBlocks(messages.data() + dIdx, stopIdx, enc.data());
+
+			for (blkRowIdx = 0; blkRowIdx < stopIdx; ++blkRowIdx, ++dIdx)
+			{
+
 				// and check for correlation
-				chij = G.get_block();
+				chij = commonPrng.get_block();
 				if (choices2[dIdx]) x = x ^ chij;
 
 				// multiply over polynomial ring to avoid reduction
-				mul128(t0[blkRowIdx], chij, &ti, &ti2);
+				mul128(messages[dIdx], chij, ti, ti2);
+
+				t = t ^ ti;
+				t2 = t2 ^ ti2;
+
+				//messages[dIdx] = messages[dIdx] ^ enc[blkRowIdx];
+				// hash it
+				if (choices2[dIdx])
+				{
+					sha.Reset();
+					sha.Update((u8*)&messages[dIdx], sizeof(block));
+					sha.Final(hashBuff);
+					messages[dIdx] = *(block*)hashBuff;
+				}
+			}
+
+
+
+			for (; blkRowIdx < gOtExtBaseOtCount; ++blkRowIdx, ++dIdx)
+			{
+				// and check for correlation
+				chij = commonPrng.get_block();
+				if (choices2[dIdx]) x = x ^ chij;
+
+				// multiply over polynomial ring to avoid reduction
+				mul128(*extraBlocksIter++, chij, ti, ti2);
 
 				t = t ^ ti;
 				t2 = t2 ^ ti2;
@@ -194,7 +229,7 @@ namespace libPSI
 		}
 		chl.asyncSend(std::move(correlationData));
 
-		static_assert(BASE_OT_COUNT == 128, "expecting 128");
+		static_assert(gOtExtBaseOtCount == 128, "expecting 128");
 	}
 
 }

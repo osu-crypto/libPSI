@@ -8,9 +8,13 @@
 #include "boost/lexical_cast.hpp"
 #include <emmintrin.h>
 #include <smmintrin.h>
+#include <memory>
 #include "Common/Timer.h"
 //#include <mmintrin.h>
 //#include <xmmintrin.h>
+#ifdef GetMessage
+#undef GetMessage
+#endif
 
 #ifdef _MSC_VER 
 #define __STR2__(x) #x
@@ -33,7 +37,9 @@
 
 
 namespace libPSI {
-
+	template<typename T> using ptr = T*;
+	template<typename T> using uPtr = std::unique_ptr<T>;
+	template<typename T> using sPtr = std::shared_ptr<T>;
 
 	typedef uint64_t u64;
 	typedef int64_t i64;
@@ -58,7 +64,8 @@ namespace libPSI {
 	}
 
 	typedef  __m128i block;
-
+	inline block toBlock(u8*data)
+	{ return _mm_set_epi64x(((u64*)data)[0], ((u64*)data)[1]);}
 
 	
 

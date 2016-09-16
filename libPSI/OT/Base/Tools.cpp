@@ -1,169 +1,37 @@
 #include "Tools.h"
 #include "Common/Defines.h"
-#include "Crypto/PRNG.h"
-#include "Common/Log.h"
 #include <wmmintrin.h>
 
 #ifndef _MSC_VER
 #include <x86intrin.h>
 #endif 
 
+#include "Common/BitVector.h"
+
+using std::array;
+
 namespace libPSI {
 
-	void random_seed_commit(u8* seed, Channel& channel, int len, const block& prngSeed)
+	void mul128(block x, block y, block& xy1, block& xy2)
 	{
-		PRNG G;
-		//G.ReSeed();
-		G.SetSeed(prngSeed);
+		auto t1 = _mm_clmulepi64_si128(x, y, (int)0x00);
+		auto t2 = _mm_clmulepi64_si128(x, y, 0x10);
+		auto t3 = _mm_clmulepi64_si128(x, y, 0x01);
+		auto t4 = _mm_clmulepi64_si128(x, y, 0x11);
 
-		//ByteStream mySeed, myComm, myOpen;
-		//ByteStream theirSeed, theirComm, theirOpen;
+		t2 = _mm_xor_si128(t2, t3);
+		t3 = _mm_slli_si128(t2, 8);
+		t2 = _mm_srli_si128(t2, 8);
+		t1 = _mm_xor_si128(t1, t3);
+		t4 = _mm_xor_si128(t4, t2);
 
-		block mySeed, myMask, theirSeed, theirMask;
-
-		mySeed = G.get_block();
-		myMask = G.get_block();
-
-		//G.get_ByteStream(mySeed, len);
-		Commit myComm(mySeed, myMask);
-		Commit theirCommit;
-		//CommitComm(myComm, myOpen, mySeed, G);
-
-		channel.send(myComm.data(), myComm.size());
-		channel.recv(theirCommit.data(), theirCommit.size());
-
-		channel.send((u8*)&mySeed, sizeof(block));
-		channel.send((u8*)&myMask, sizeof(block));
-		channel.recv((u8*)&theirSeed, sizeof(block));
-		channel.recv((u8*)&theirMask, sizeof(block));
-
-		if (Commit(theirSeed, theirMask) != theirCommit)
-		{
-			Log::out << "commitment Open failed" << Log::endl;
-			throw invalid_commitment();
-		}
-
-		PRNG gen(mySeed ^ theirSeed);
-		gen.get_u8s(seed, len);
-
-		//Log::out << "Their str  " <<  theirSeed  << Log::endl;
-		//for (int i = 0; i < len; i++)
-		//{
-		//	seed[i] = mySeed.data()[i] ^ theirSeed.data()[i];
-		//}
-	}
-	
-	//void shiftl128(u64 x1, u64 x2, u64& res1, u64& res2, size_t k)
-	//{
-	//   if (k > 128)
-	//      throw invalid_length();
-	//   if (k >= 64) // shifting a 64-bit integer by more than 63 bits is "undefined"
-	//   {
-	//      x1 = x2;
-	//      x2 = 0;
-	//      shiftl128(x1, x2, res1, res2, k - 64);
-	//   }
-	//   else
-	//   {
-	//      res1 = (x1 << k) | (x2 >> (64 - k));
-	//      res2 = (x2 << k);
-	//   }
-	//}
-
-	void mul128(__m128i a, __m128i b, __m128i *res1, __m128i *res2)
-	{
-		__m128i tmp3, tmp4, tmp5, tmp6;
-
-		tmp3 = _mm_clmulepi64_si128(a, b, (int)0x00);
-		tmp4 = _mm_clmulepi64_si128(a, b, 0x10);
-		tmp5 = _mm_clmulepi64_si128(a, b, 0x01);
-		tmp6 = _mm_clmulepi64_si128(a, b, 0x11);
-
-		tmp4 = _mm_xor_si128(tmp4, tmp5);
-		tmp5 = _mm_slli_si128(tmp4, 8);
-		tmp4 = _mm_srli_si128(tmp4, 8);
-		tmp3 = _mm_xor_si128(tmp3, tmp5);
-		tmp6 = _mm_xor_si128(tmp6, tmp4);
-		// initial mul now in tmp3, tmp6
-		*res1 = tmp3;
-		*res2 = tmp6;
+		xy1 = t1;
+		xy2 = t4;
 	}
 
-	// reduce modulo x^128 + x^7 + x^2 + x + 1
-	// NB this is incorrect as it bit-reflects the result as required for
-	// GCM mode
-	void gfred128(__m128i tmp3, __m128i tmp6, __m128i *res)
-	{
-		__m128i tmp2, tmp4, tmp5, tmp7, tmp8, tmp9;
-		tmp7 = _mm_srli_epi32(tmp3, 31);
-		tmp8 = _mm_srli_epi32(tmp6, 31);
-
-		tmp3 = _mm_slli_epi32(tmp3, 1);
-		tmp6 = _mm_slli_epi32(tmp6, 1);
-
-		tmp9 = _mm_srli_si128(tmp7, 12);
-		tmp8 = _mm_slli_si128(tmp8, 4);
-		tmp7 = _mm_slli_si128(tmp7, 4);
-		tmp3 = _mm_or_si128(tmp3, tmp7);
-		tmp6 = _mm_or_si128(tmp6, tmp8);
-		tmp6 = _mm_or_si128(tmp6, tmp9);
-
-		tmp7 = _mm_slli_epi32(tmp3, 31);
-		tmp8 = _mm_slli_epi32(tmp3, 30);
-		tmp9 = _mm_slli_epi32(tmp3, 25);
-
-		tmp7 = _mm_xor_si128(tmp7, tmp8);
-		tmp7 = _mm_xor_si128(tmp7, tmp9);
-		tmp8 = _mm_srli_si128(tmp7, 4);
-		tmp7 = _mm_slli_si128(tmp7, 12);
-		tmp3 = _mm_xor_si128(tmp3, tmp7);
-
-		tmp2 = _mm_srli_epi32(tmp3, 1);
-		tmp4 = _mm_srli_epi32(tmp3, 2);
-		tmp5 = _mm_srli_epi32(tmp3, 7);
-		tmp2 = _mm_xor_si128(tmp2, tmp4);
-		tmp2 = _mm_xor_si128(tmp2, tmp5);
-		tmp2 = _mm_xor_si128(tmp2, tmp8);
-		tmp3 = _mm_xor_si128(tmp3, tmp2);
-
-		tmp6 = _mm_xor_si128(tmp6, tmp3);
-		*res = tmp6;
-	}
-
-	// Based on Intel's code for GF(2^128) mul, with reduction
-	void gfmul128(__m128i a, __m128i b, __m128i *res)
-	{
-		__m128i tmp3, tmp6;
-		mul128(a, b, &tmp3, &tmp6);
-		// Now do the reduction
-		gfred128(tmp3, tmp6, res);
-	}
-
-	//std::string u64_to_bytes(const u64 w)
-	//{
-	//	std::stringstream ss;
-	//	u8* bytes = (u8*)&w;
-	//	ss << std::hex;
-	//	for (unsigned int i = 0; i < sizeof(u64); i++)
-	//		ss << (int)bytes[i] << " ";
-	//	return ss.str();
-	//}
-
-	//void transpose512(void* data)
-	//{
-	//	for (...)
-	//	{
-	//		for (...)
-	//		{
-	//			eklundh_transpose128
-
-	//			move...
-	//		}
-	//	}
-	//}
 
 
-	void eklundh_transpose128(std::array<block, 128>& inOut)
+	void eklundh_transpose128(array<block, 128>& inOut)
 	{
 		const static u64 TRANSPOSE_MASKS128[7][2] = {
 			{ 0x0000000000000000, 0xFFFFFFFFFFFFFFFF },
@@ -189,7 +57,7 @@ namespace libPSI {
 			u64 mask1 = TRANSPOSE_MASKS128[i][1], mask2 = TRANSPOSE_MASKS128[i][0];
 			u64 inv_mask1 = ~mask1, inv_mask2 = ~mask2;
 
-			// for width >= 64, shift is undefined so treat as a special case
+			// for width >= 64, shift is undefined so treat as x special case
 			// (and avoid branching in inner loop)
 			if (width < 64)
 			{
@@ -283,7 +151,102 @@ namespace libPSI {
 				exit(1);
 			}
 		}
-		cout << "\ttranspose with offset " << offset << " ok\n";
+		Log::out << "\ttranspose with offset " << offset << " ok\n";
 #endif
 	}
+
+
+
+
+
+
+	//  load          column  y,y+1          (byte index)
+	//                   __________________
+	//                  |                  |
+	//                  |                  |
+	//                  |                  |
+	//                  |                  |
+	//  row  16*x, ..., |     # #          |
+	//  row  16*(x+1)   |     # #          |     into  out  column wise
+	//                  |                  |
+	//                  |                  |
+	//                  |                  |
+	//                   ------------------
+	//				    
+	// note: out is a 16x16 bit matrix = 16 rows of 2 bytes each.
+	//       out[0] stores the first column of 16 bytes,
+	//       out[1] stores the second column of 16 bytes.
+	void sse_loadSubSquare(array<block, 128>& in, array<block, 2>& out, u64 x, u64 y)
+	{
+		static_assert(sizeof(array<array<u8, 16>, 2>) == sizeof(array<block, 2>), "");
+		static_assert(sizeof(array<array<u8, 16>, 128>) == sizeof(array<block, 128>), "");
+
+		array<array<u8, 16>, 2>& outByteView = *(array<array<u8, 16>, 2>*)&out;
+		array<array<u8, 16>, 128>& inByteView = *(array<array<u8, 16>, 128>*)&in;
+
+		for (int l = 0; l < 16; l++)
+		{
+			outByteView[0][l] = inByteView[16 * x + l][2 * y];
+			outByteView[1][l] = inByteView[16 * x + l][2 * y + 1];
+		}
+	}
+
+
+
+	// given a 16x16 sub square, place its transpose into out at 
+	// rows  16*x, ..., 16 *(x+1)  in byte  columns y, y+1. 
+	void sse_transposeSubSquare(array<block, 128>& out, array<block, 2>& in, u64 x, u64 y)
+	{
+		static_assert(sizeof(array<array<u16, 8>, 128>) == sizeof(array<block, 128>), "");
+
+		array<array<u16, 8>, 128>& outU16View = *(array<array<u16, 8>, 128>*)&out;
+		
+
+		for (int j = 0; j < 8; j++)
+		{
+			outU16View[16 * x + 7 - j][y] = _mm_movemask_epi8(in[0]);
+			outU16View[16 * x + 15 - j][y] = _mm_movemask_epi8(in[1]);
+
+			in[0] = _mm_slli_epi64(in[0], 1);
+			in[1] = _mm_slli_epi64(in[1], 1);
+		}
+	}
+
+	//void print(array<block, 128>& inOut)
+	//{
+	//	BitVector temp(128);
+
+	//	for (u64 i = 0; i < 128; ++i)
+	//	{
+
+	//		temp.assign(inOut[i]);
+	//		Log::out << temp << Log::endl;
+	//	}
+	//	Log::out << Log::endl;
+	//}
+	
+	
+	void sse_transpose128(array<block, 128>& inOut)
+	{
+		array<block, 2> a, b;
+
+		for (int j = 0; j < 8; j++)
+		{
+			sse_loadSubSquare(inOut, a, j, j);
+			sse_transposeSubSquare(inOut, a, j, j);
+
+			for (int k = 0; k < j; k++)
+			{
+				sse_loadSubSquare(inOut, a, k, j);
+				sse_loadSubSquare(inOut, b, j, k);
+				sse_transposeSubSquare(inOut, a, j, k);
+				sse_transposeSubSquare(inOut, b, k, j);
+			}
+		}
+	}
+
+
 }
+
+
+

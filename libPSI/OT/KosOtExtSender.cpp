@@ -1,8 +1,9 @@
 #include "KosOtExtSender.h"
 
-#include "OT/Base/PvwBaseOT.h"
 #include "OT/Base/Tools.h"
 #include "Common/Log.h"
+#include "Common/ByteStream.h"
+#include "Crypto/Commit.h"
 
 namespace libPSI
 {
@@ -18,7 +19,7 @@ namespace libPSI
 
 		std::unique_ptr<OtExtSender> ret(new KosOtExtSender());
 		
-		std::array<block, BASE_OT_COUNT> baseRecvOts;
+		std::array<block, gOtExtBaseOtCount> baseRecvOts;
 
 		for (u64 i = 0; i < mGens.size(); ++i)
 		{
@@ -32,18 +33,18 @@ namespace libPSI
 
 	void KosOtExtSender::setBaseOts(ArrayView<block> baseRecvOts, const BitVector & choices)
 	{
-		if (baseRecvOts.size() != BASE_OT_COUNT || choices.size() != BASE_OT_COUNT)
+		if (baseRecvOts.size() != gOtExtBaseOtCount || choices.size() != gOtExtBaseOtCount)
 			throw std::runtime_error("not supported/implemented");
 
 
 		mBaseChoiceBits = choices;
-		for (int i = 0; i < BASE_OT_COUNT; i++)
+		for (int i = 0; i < gOtExtBaseOtCount; i++)
 		{
 			mGens[i].SetSeed(baseRecvOts[i]);
 		}
 	}
 
-	void KosOtExtSender::Extend(
+	void KosOtExtSender::send(
 		ArrayView<std::array<block, 2>> messages,
 		PRNG& prng,
 		Channel& chl/*,
@@ -51,7 +52,7 @@ namespace libPSI
 	{
 		if (messages.size() == 0) return;
 
-		if (mBaseChoiceBits.size() != BASE_OT_COUNT)
+		if (mBaseChoiceBits.size() != gOtExtBaseOtCount)
 			throw std::runtime_error("must set base first");
 
 		// round up
@@ -61,9 +62,10 @@ namespace libPSI
 		SHA1 sha;
 		u8 hashBuff[SHA1::HashSize];
 
+		block delta = *(block*)mBaseChoiceBits.data();
 
 		u64 doneIdx = 0;
-		std::array<block, BASE_OT_COUNT> q;
+		std::array<block, gOtExtBaseOtCount> q;
 		ByteStream buff;
 #ifdef OTEXT_DEBUG
 		Log::out << "sender delta " << delta << Log::endl;
@@ -79,17 +81,17 @@ namespace libPSI
 		extraBlocks.reserve(256);
 
 		// add one for the extra 128 OTs used for the correlation check
-		u64 numBlocks = numOTExt / BASE_OT_COUNT + 1;
+		u64 numBlocks = numOTExt / gOtExtBaseOtCount + 1;
 		for (u64 blkIdx = 0; blkIdx < numBlocks; ++blkIdx)
 		{
 
 			chl.recv(buff);
-			assert(buff.size() == sizeof(block) * BASE_OT_COUNT);
+			assert(buff.size() == sizeof(block) * gOtExtBaseOtCount);
 
 			// u = t0 + t1 + x 
 			auto u = buff.getArrayView<block>();
 
-			for (int colIdx = 0; colIdx < BASE_OT_COUNT; colIdx++)
+			for (int colIdx = 0; colIdx < gOtExtBaseOtCount; colIdx++)
 			{
 				// a column vector sent by the receiver that hold the correction mask.
 				q[colIdx] = mGens[colIdx].get_block();
@@ -101,7 +103,7 @@ namespace libPSI
 				}
 			}
 
-			eklundh_transpose128(q);
+			sse_transpose128(q);
 
 #ifdef OTEXT_DEBUG
 			buff.setp(0);
@@ -110,13 +112,14 @@ namespace libPSI
 #endif
 
 			u32 blkRowIdx = 0;
-			u32 stopIdx = (u32)std::min(u64(BASE_OT_COUNT), messages.size() - doneIdx);
+			u32 stopIdx = (u32)std::min(u64(gOtExtBaseOtCount), messages.size() - doneIdx);
 			for (; blkRowIdx < stopIdx; ++blkRowIdx, ++doneIdx)
 			{
 				messages[doneIdx][0] = q[blkRowIdx];
+				messages[doneIdx][1] = q[blkRowIdx] ^ delta;
 			}
 
-			for (; blkRowIdx < BASE_OT_COUNT; ++blkRowIdx)
+			for (; blkRowIdx < gOtExtBaseOtCount; ++blkRowIdx)
 			{
 				extraBlocks.push_back(q[blkRowIdx]);
 			}
@@ -137,40 +140,48 @@ namespace libPSI
 		block  chii, qi, qi2;
 		block q2 = ZeroBlock;
 		block q1 = ZeroBlock;
-		block delta = *(block*)mBaseChoiceBits.data();
 
 		//Log::out << "sender size " << messages.size() + extraBlocks.size() << Log::endl;
 
+		//std::array<std::array<block,2>, gOtExtBaseOtCount> enc;
 
 		doneIdx = 0;
 		for (u64 blkIdx = 0; blkIdx < numBlocks; ++blkIdx)
 		{
 
 			u32 blkRowIdx = 0;
-			u32 stopIdx =(u32) std::min(u64(BASE_OT_COUNT), messages.size() - doneIdx);
+			u32 stopIdx =(u32) std::min(u64(gOtExtBaseOtCount), messages.size() - doneIdx);
+
+
+			//mAesFixedKey.ecbEncBlocks(messages.data()->data() + 2 * doneIdx, stopIdx * 2, enc.data()->data());
+
 			for (; blkRowIdx < stopIdx; ++blkRowIdx, ++doneIdx)
 			{
-				auto& msg0 = messages[doneIdx][0];
-				auto msg1 = msg0 ^ delta;
+				//auto& msg0 = messages[doneIdx][0];
+				//auto msg1 = msg0 ^ delta;
 
 				chii = commonPrng.get_block();
 
 				//Log::out << "s " << doneIdx << "  " << msg0 << Log::endl;
 
 
-				mul128(msg0, chii, &qi, &qi2);
+				mul128(messages[doneIdx][0], chii, qi, qi2);
 				q1 = q1  ^ qi;
 				q2 = q2 ^ qi2;
 
 				// hash the message without delta
+
+				//messages[doneIdx][0] = messages[doneIdx][0] ^ enc[blkRowIdx][0];
+				//messages[doneIdx][1] = messages[doneIdx][1] ^ enc[blkRowIdx][1];
+
 				sha.Reset();
-				sha.Update((u8*)&msg0, sizeof(block));
+				sha.Update((u8*)&messages[doneIdx][0], sizeof(block));
 				sha.Final(hashBuff);
 				messages[doneIdx][0] = *(block*)hashBuff;
 
 				// hash the message with delta
 				sha.Reset();
-				sha.Update((u8*)&msg1, sizeof(block)); 
+				sha.Update((u8*)&messages[doneIdx][1], sizeof(block));
 				sha.Final(hashBuff);
 				messages[doneIdx][1] = *(block*)hashBuff;
 			}
@@ -180,7 +191,7 @@ namespace libPSI
 		{
 			//Log::out << "s " << doneIdx++ << "  " << blk << Log::endl;
 			chii = commonPrng.get_block();
-			mul128(blk, chii, &qi, &qi2);
+			mul128(blk, chii, qi, qi2);
 			q1 = q1  ^ qi;
 			q2 = q2 ^ qi2;
 		}
@@ -195,7 +206,7 @@ namespace libPSI
 		block& received_t2 = ((block*)data.data())[2];
 
 		// check t = x * Delta + q 
-		mul128(received_x, delta, &t1, &t2);
+		mul128(received_x, delta, t1, t2);
 		t1 = t1 ^ q1;
 		t2 = t2 ^ q2;
 
@@ -212,7 +223,7 @@ namespace libPSI
 			throw std::runtime_error("Exit");;
 		}
 
-		static_assert(BASE_OT_COUNT == 128, "expecting 128");
+		static_assert(gOtExtBaseOtCount == 128, "expecting 128");
 	}
 
 

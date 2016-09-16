@@ -2,6 +2,7 @@
 #include "OT/OTExtInterface.h"
 #include <unordered_set>
 #include "OTOracleSender.h"
+#include "Crypto/PRNG.h"
 
 using namespace libPSI;
 
@@ -17,7 +18,7 @@ public:
 
 	void setBaseOts(
 		ArrayView<std::array<block, 2>> baseSendOts) override {};
-	void Extend(
+	void receive(
 		const BitVector& choices,
 		ArrayView<block> messages,
 		PRNG& prng,

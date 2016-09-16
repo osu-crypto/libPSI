@@ -4,10 +4,11 @@
 #include "Network/Channel.h"
 #include "Crypto/PRNG.h"
 #include "Common/BitIterator.h"
+#include "Common/ArrayView.h"
 namespace libPSI {
 
 
-
+	//class PRNG;
 
 	class BitVector : public ChannelBuffer
 	{

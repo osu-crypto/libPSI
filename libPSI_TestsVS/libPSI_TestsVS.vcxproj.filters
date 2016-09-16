@@ -50,5 +50,11 @@
     <ClCompile Include="BtChannel_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DtkMPsi_TestsVS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Ecc_TestsVS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

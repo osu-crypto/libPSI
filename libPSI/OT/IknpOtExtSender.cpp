@@ -1,8 +1,8 @@
 #include "IknpOtExtSender.h"
 
-#include "OT/Base/PvwBaseOT.h"
 #include "OT/Base/Tools.h"
 #include "Common/Log.h"
+#include "Common/ByteStream.h"
 
 namespace libPSI
 {
@@ -17,7 +17,7 @@ namespace libPSI
 
 		std::unique_ptr<OtExtSender> ret(new IknpOtExtSender());
 
-		std::array<block, BASE_OT_COUNT> baseRecvOts;
+		std::array<block, gOtExtBaseOtCount> baseRecvOts;
 
 		for (u64 i = 0; i < mGens.size(); ++i)
 		{
@@ -31,18 +31,18 @@ namespace libPSI
 
 	void IknpOtExtSender::setBaseOts(ArrayView<block> baseRecvOts, const BitVector & choices)
 	{
-		if (baseRecvOts.size() != BASE_OT_COUNT || choices.size() != BASE_OT_COUNT)
+		if (baseRecvOts.size() != gOtExtBaseOtCount || choices.size() != gOtExtBaseOtCount)
 			throw std::runtime_error("not supported/implemented");
 
 
 		mBaseChoiceBits = choices;
-		for (int i = 0; i < BASE_OT_COUNT; i++)
+		for (int i = 0; i < gOtExtBaseOtCount; i++)
 		{
 			mGens[i].SetSeed(baseRecvOts[i]);
 		}
 	}
 
-	void IknpOtExtSender::Extend(
+	void IknpOtExtSender::send(
 		ArrayView<std::array<block, 2>> messages,
 		PRNG& prng,
 		Channel& chl/*,
@@ -50,7 +50,7 @@ namespace libPSI
 	{
 		if (messages.size() == 0) return;
 
-		if (mBaseChoiceBits.size() != BASE_OT_COUNT)
+		if (mBaseChoiceBits.size() != gOtExtBaseOtCount)
 			throw std::runtime_error("must set base first");
 
 		// round up
@@ -61,7 +61,7 @@ namespace libPSI
 
 
 		u64 doneIdx = 0;
-		std::array<block, BASE_OT_COUNT> q;
+		std::array<block, gOtExtBaseOtCount> q;
 		block delta = *(block*)mBaseChoiceBits.data();
 		ByteStream buff;
 #ifdef OTEXT_DEBUG
@@ -71,17 +71,17 @@ namespace libPSI
 #endif
 
 		// add one for the extra 128 OTs used for the correlation check
-		u64 numBlocks = numOTExt / BASE_OT_COUNT;
+		u64 numBlocks = numOTExt / gOtExtBaseOtCount;
 		for (u64 blkIdx = 0; blkIdx < numBlocks; ++blkIdx)
 		{
 
 			chl.recv(buff);
-			assert(buff.size() == sizeof(block) * BASE_OT_COUNT);
+			assert(buff.size() == sizeof(block) * gOtExtBaseOtCount);
 
 			// u = t0 + t1 + x 
 			auto u = buff.getArrayView<block>();
 
-			for (int colIdx = 0; colIdx < BASE_OT_COUNT; colIdx++)
+			for (int colIdx = 0; colIdx < gOtExtBaseOtCount; colIdx++)
 			{
 				// a column vector sent by the receiver that hold the correction mask.
 				q[colIdx] = mGens[colIdx].get_block();
@@ -93,14 +93,14 @@ namespace libPSI
 				}
 			}
 
-			eklundh_transpose128(q);
+			sse_transpose128(q);
 
 #ifdef OTEXT_DEBUG
 			buff.setp(0);
 			buff.append((u8*)&q, sizeof(q));
 			chl.AsyncSendCopy(buff);
 #endif
-			u32 stopIdx = (u32)std::min(u64(BASE_OT_COUNT), messages.size() - doneIdx);
+			u32 stopIdx = (u32)std::min(u64(gOtExtBaseOtCount), messages.size() - doneIdx);
 			u32 blkRowIdx = 0;
 			for (; blkRowIdx < stopIdx; ++blkRowIdx, ++doneIdx)
 			{

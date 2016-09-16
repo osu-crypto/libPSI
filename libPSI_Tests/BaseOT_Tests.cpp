@@ -3,7 +3,6 @@
 #include "OT/OTExtInterface.h"
 
 #include "OT/Base/Tools.h"
-#include "OT/Base/typedefs.h"
 #include "Network/BtChannel.h"
 #include "Network/BtEndpoint.h"
 
@@ -13,6 +12,7 @@
 #include "Common.h"
 #include <thread>
 #include <vector>
+#include "Common/BitVector.h"
 
 #ifdef GetMessage
 #undef GetMessage
@@ -55,7 +55,7 @@ void NaorPinkasOt_Test_Impl()
 			
 			//baseOTs(recvChannel, OTRole::Sender);
 
-			baseOTs.Sender(sendMsg, recvChannel, prng1, 4);
+			baseOTs.send(sendMsg, prng1, recvChannel, 4);
 			//baseOTs.exec_base(prng0);
 
 
@@ -71,7 +71,7 @@ void NaorPinkasOt_Test_Impl()
 		//crypto crpt(128, prng0.get_block());
 		NaorPinkas baseOTs;
 
-		baseOTs.Receiver(recvMsg, choices, senderChannel, prng0, 4);
+		baseOTs.receive(choices, recvMsg, prng0, senderChannel, 4);
 
 		thrd.join();
 

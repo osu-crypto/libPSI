@@ -1,22 +1,23 @@
 #pragma once 
 #include "OT/OTExtInterface.h"
-#include "Common/BitVector.h"
-#include "OT/Base/PvwBaseOT.h"
 
-#include "Network/Channel.h"
 
 #include <array>
-#include <vector>
+#include "Crypto/PRNG.h"
+#include "Common/BitVector.h"
+
 #ifdef GetMessage
 #undef GetMessage
 #endif
 namespace libPSI {
 
+	class Channel;
+
 	class LzKosOtExtSender :
 		public OtExtSender
 	{
 	public: 
-		std::array<PRNG, BASE_OT_COUNT> mGens;
+		std::array<PRNG, gOtExtBaseOtCount> mGens;
 		BitVector mBaseChoiceBits;
 
 		bool hasBaseOts() const override
@@ -30,20 +31,10 @@ namespace libPSI {
 			ArrayView<block> baseRecvOts,
 			const BitVector& choices) override;
 
-
-		void Extend(
+		void send(
 			ArrayView<std::array<block, 2>> messages,
 			PRNG& prng,
-			Channel& chl/*,
-			std::atomic<u64>& doneIdx*/) override;
-
-		//void Extend(
-		//	decltype(BaseOT::receiver_outputs)& base,
-		//	decltype(BaseOT::receiver_inputs)& bits,
-		//	u64 numOTExt, 
-		//	PRNG& prng,
-		//	Channel& chl,
-		//	std::atomic<u64>& doneIdx) override;
+			Channel& chl) override;
 
 	};
 }

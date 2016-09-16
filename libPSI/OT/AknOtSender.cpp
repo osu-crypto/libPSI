@@ -2,6 +2,7 @@
 #include "OT/Base/naor-pinkas.h"
 #include "Common/Log.h"
 #include "OT/LzKosOtExtSender.h"
+#include "Common/ByteStream.h"
 
 namespace libPSI
 {
@@ -43,14 +44,14 @@ namespace libPSI
 			//timer.setTimePoint("base start");
 			//PvwBaseOT base(chl0, OTRole::Receiver);
 			//base.exec_base(prng);
-			//std::array<std::array<block, 2>, BASE_OT_COUNT> baseMsg;
-			std::array<block, BASE_OT_COUNT> baseMsg;
-			BitVector choices(BASE_OT_COUNT);
+			//std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
+			std::array<block, gOtExtBaseOtCount> baseMsg;
+			BitVector choices(gOtExtBaseOtCount);
 			choices.randomize(prng);
 
 			//crypto crpto(128, prng.get_block());
 			NaorPinkas base;
-			base.Receiver(baseMsg, choices, chl0, prng, 2);
+			base.receive(choices, baseMsg,prng, chl0, 2);
 
 			ots.setBaseOts(baseMsg, choices);
 
@@ -97,7 +98,7 @@ namespace libPSI
 			u8 shaBuff[SHA1::HashSize];
 
 
-			otExt.Extend(range, prng, chl);
+			otExt.send(range, prng, chl);
 
 
 			//Log::out << Log::unlock;

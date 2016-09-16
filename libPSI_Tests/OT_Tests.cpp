@@ -244,11 +244,11 @@ void KosOtExt_100Receive_Test_Impl()
 		Log::setThreadName("receiver");
 
 		recv.setBaseOts(baseSend);
-		recv.Extend(choices, recvMsg, prng0, recvChannel);
+		recv.receive(choices, recvMsg, prng0, recvChannel);
 	});
 
 	sender.setBaseOts(baseRecv, baseChoice);
-	sender.Extend(sendMsg, prng1, senderChannel);
+	sender.send(sendMsg, prng1, senderChannel);
 	thrd.join();
 
 	//for (u64 i = 0; i < baseOTs.receiver_outputs.size(); ++i)
@@ -371,7 +371,7 @@ void IknpOtExt_100Receive_Test_Impl()
 
 
 		recv.setBaseOts(baseSend);
-		recv.Extend(choices, recvMsg, prng0, recvChannel);
+		recv.receive(choices, recvMsg, prng0, recvChannel);
 	});
 
 
@@ -384,7 +384,7 @@ void IknpOtExt_100Receive_Test_Impl()
 	//	}
 	//}
 	sender.setBaseOts(baseRecv, baseChoice);
-	sender.Extend(sendMsg, prng1, senderChannel);
+	sender.send(sendMsg, prng1, senderChannel);
 	thrd.join();
 
 	//for (u64 i = 0; i < baseOTs.receiver_outputs.size(); ++i)

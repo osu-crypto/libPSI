@@ -1,15 +1,15 @@
 #pragma once
 #include "OT/OTExtInterface.h"
-#include "OT/Base/PvwBaseOT.h"
-#include "Network/Channel.h"
-#include <vector>
 
 #ifdef GetMessage
 #undef GetMessage
 #endif
 
+#include "Crypto/PRNG.h"
+
 namespace libPSI
 {
+
 
 	class LzKosOtExtReceiver :
 		public OtExtReceiver
@@ -25,7 +25,7 @@ namespace libPSI
 		}
 
 		bool mHasBase;
-		std::array<std::array<PRNG, 2>, BASE_OT_COUNT> mGens;
+		std::array<std::array<PRNG, 2>, gOtExtBaseOtCount> mGens;
 
 		void setBaseOts(
 			ArrayView<std::array<block, 2>> baseSendOts)override;
@@ -33,7 +33,7 @@ namespace libPSI
 
 		std::unique_ptr<OtExtReceiver> split() override;
 
-		void Extend(
+		void receive(
 			const BitVector& choices,
 			ArrayView<block> messages,
 			PRNG& prng,

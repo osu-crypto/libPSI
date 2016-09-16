@@ -118,10 +118,10 @@ namespace libPSI
 
 		if (otExt.hasBaseOts() == false)
 		{
-			std::array<std::array<block, 2>, BASE_OT_COUNT> baseMsg;
+			std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
 
 			NaorPinkas base;
-			base.Sender(baseMsg, chl, prng, 2);
+			base.send(baseMsg, prng, chl, 2);
 			otExt.setBaseOts(baseMsg);
 		}
 
@@ -149,7 +149,7 @@ namespace libPSI
 				PRNG prng(seed);
 
 				// do the extension
-				ots.Extend(choices, range, prng, chl);
+				ots.receive(choices, range, prng, chl);
 			}
 
 		};

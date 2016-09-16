@@ -108,18 +108,6 @@
     <ClCompile Include="OT\AknOtReceiver.cpp">
       <Filter>Source Files\OT</Filter>
     </ClCompile>
-    <ClCompile Include="OT\Base\Math\bigint.cpp">
-      <Filter>Source Files\OT\Base\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\Base\Math\DMC.cpp">
-      <Filter>Source Files\OT\Base\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\Base\Math\modp.cpp">
-      <Filter>Source Files\OT\Base\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\Base\Math\Zp_Data.cpp">
-      <Filter>Source Files\OT\Base\Tools</Filter>
-    </ClCompile>
     <ClCompile Include="OT\Base\Tools.cpp">
       <Filter>Source Files\OT\Base\Tools</Filter>
     </ClCompile>
@@ -129,16 +117,7 @@
     <ClCompile Include="MPSI\AknBfMPsiSender.cpp">
       <Filter>Source Files\MPSI</Filter>
     </ClCompile>
-    <ClCompile Include="OT\Base\PvwBaseOT.cpp">
-      <Filter>Source Files\OT\Base</Filter>
-    </ClCompile>
     <ClCompile Include="OT\Base\naor-pinkas.cpp">
-      <Filter>Source Files\OT\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\Base\crypto\ecc-pk-crypto.cpp">
-      <Filter>Source Files\OT\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\Base\crypto\crypto.cpp">
       <Filter>Source Files\OT\Base</Filter>
     </ClCompile>
     <ClCompile Include="OT\LzKosOtExtSender.cpp">
@@ -162,9 +141,6 @@
     <ClCompile Include="Common\BitIterator.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="OT\Base\BaseOT.cpp">
-      <Filter>Source Files\OT\Base</Filter>
-    </ClCompile>
     <ClCompile Include="Crypto\ShamirSSScheme.cpp">
       <Filter>Source Files\Crypto</Filter>
     </ClCompile>
@@ -182,6 +158,15 @@
     </ClCompile>
     <ClCompile Include="Network\Channel.cpp">
       <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Crypto\Curve.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -207,9 +192,6 @@
       <Filter>Header Files\Crypto</Filter>
     </ClInclude>
     <ClInclude Include="Crypto\AES.h">
-      <Filter>Header Files\Crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="Crypto\PRF.h">
       <Filter>Header Files\Crypto</Filter>
     </ClInclude>
     <ClInclude Include="Crypto\PRNG.h">
@@ -245,18 +227,6 @@
     <ClInclude Include="OT\AknOtReceiver.h">
       <Filter>Header Files\OT</Filter>
     </ClInclude>
-    <ClInclude Include="OT\Base\Math\bigint.h">
-      <Filter>Header Files\OT\Base\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\Math\DMC.h">
-      <Filter>Header Files\OT\Base\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\Math\modp.h">
-      <Filter>Header Files\OT\Base\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\Math\Zp_Data.h">
-      <Filter>Header Files\OT\Base\tools</Filter>
-    </ClInclude>
     <ClInclude Include="OT\Base\Tools.h">
       <Filter>Header Files\OT\Base\tools</Filter>
     </ClInclude>
@@ -269,25 +239,7 @@
     <ClInclude Include="Common\BitIterator.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="OT\Base\BaseOT.h">
-      <Filter>Header Files\OT\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\crypto\crypto.h">
-      <Filter>Header Files\OT\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\crypto\ecc-pk-crypto.h">
-      <Filter>Header Files\OT\Base</Filter>
-    </ClInclude>
     <ClInclude Include="OT\Base\naor-pinkas.h">
-      <Filter>Header Files\OT\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\crypto\pk-crypto.h">
-      <Filter>Header Files\OT\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\PvwBaseOT.h">
-      <Filter>Header Files\OT\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\typedefs.h">
       <Filter>Header Files\OT\Base</Filter>
     </ClInclude>
     <ClInclude Include="OT\LzKosOtExtSender.h">
@@ -331,6 +283,15 @@
     </ClInclude>
     <ClInclude Include="Network\Endpoint.h">
       <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\DKT\DktMPsiSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Crypto\Curve.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
