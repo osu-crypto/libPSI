@@ -36,11 +36,12 @@ the CertiVox MIRACL Crypto SDK with a closed source product.               *
 *   Benchmarking program for PK implementations
 *
 */
+
 #include "Crypto/Curve.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "miracl_gmt/include/miracl.h"
+#include "miracl/include/miracl.h"
 //#include "miracl.h"
 
 /* define minimum duration of each timing, and min. number of iterations */

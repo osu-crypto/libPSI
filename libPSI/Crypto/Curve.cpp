@@ -2,7 +2,7 @@
 
 #include "Common/Log.h"
 
-#include "miracl_gmt/include/miracl.h"
+#include "miracl/include/miracl.h"
 #include "Common/ByteStream.h"
 
 namespace libPSI

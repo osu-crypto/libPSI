@@ -1,11 +1,10 @@
 #pragma once
 
 
-#include "miracl_gmt/include/miracl.h"
+#include "miracl/include/miracl.h"
 #include "Common/Defines.h"
 #include "Crypto/PRNG.h"
 #include <memory>
-
 namespace libPSI
 {
 
