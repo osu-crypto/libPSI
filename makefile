@@ -36,11 +36,11 @@ PRIMARY_SRC=\
 	$(wildcard $(PRIMARY_DIR)/Common/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/Crypto/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/MPSI/*.cpp) \
+	$(wildcard $(PRIMARY_DIR)/MPIS/Dcw/*.cpp)\
+        $(wildcard $(PRIMARY_DIR)/MPIS/DKT/*.cpp)\
 	$(wildcard $(PRIMARY_DIR)/RiotPSI/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/OT/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/OT/Base/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/OT/Base/Math/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/OT/Base/crypto/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/Network/*.cpp) 
 
 
