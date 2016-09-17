@@ -119,7 +119,7 @@ namespace libPSI
 
 		if (mMiracl) mirexit(mMiracl);
 
-		mMiracl = mirsys(params.bitCount, 2);
+		mMiracl = mirsys(params.bitCount * 2, 2);
 		mMiracl->IOBASE = 16;
 
 		mirkill(BA);
@@ -618,6 +618,7 @@ namespace libPSI
 		else
 		{
 			convert(mCurve.mMiracl, i, mVal);
+			reduce();
 			//nres(mCurve.mMiracl, mVal, mVal); 
 		}
 		return *this;
@@ -1014,7 +1015,18 @@ namespace libPSI
 
 		if (exsign(mVal) == -1)
 		{
-			*this += mCurve.getOrder();
+			//Log::out << "neg                  " << *this << Log::endl;
+
+
+			add(mCurve.mMiracl, mVal, mCurve.getOrder().mVal, mVal);
+			//*this += mCurve.getOrder();
+
+			if (exsign(mVal) == -1)
+			{
+				Log::out << "neg reduce error " << *this << Log::endl;
+				Log::out << "                  " << mCurve.getOrder() << Log::endl;
+				throw std::runtime_error(LOCATION);
+			}
 		}
 			
 		if(*this >= mCurve.getOrder())
@@ -1172,31 +1184,31 @@ namespace libPSI
 			if (val.mCurve.mIsPrimeField)
 			{
 				epoint_norm(val.mCurve.mMiracl, val.mVal);
+				big x = mirvar(val.mCurve.mMiracl, 0);
+				big y = mirvar(val.mCurve.mMiracl, 0);
+
+				redc(val.mCurve.mMiracl, val.mVal->X, x);
+				redc(val.mCurve.mMiracl, val.mVal->Y, y);
+
+				cotstr(val.mCurve.mMiracl, x, val.mCurve.mMiracl->IOBUFF);
+				out << val.mCurve.mMiracl->IOBUFF << " ";
+				cotstr(val.mCurve.mMiracl, y, val.mCurve.mMiracl->IOBUFF);
+				out << val.mCurve.mMiracl->IOBUFF;
+
+				mirkill(x);
+				mirkill(y);
+
 			}
 			else
 			{
 				epoint2_norm(val.mCurve.mMiracl, val.mVal);
+
+				cotstr(val.mCurve.mMiracl, val.mVal->X, val.mCurve.mMiracl->IOBUFF);
+				out << val.mCurve.mMiracl->IOBUFF << " ";
+				cotstr(val.mCurve.mMiracl, val.mVal->Y, val.mCurve.mMiracl->IOBUFF);
+				out << val.mCurve.mMiracl->IOBUFF;
+
 			}
-			big x = mirvar(val.mCurve.mMiracl, 0);
-			big y = mirvar(val.mCurve.mMiracl, 0);
-
-			redc(val.mCurve.mMiracl, val.mVal->X, x);
-			redc(val.mCurve.mMiracl, val.mVal->Y, y);
-
-#if defined(MR_SIMPLE_BASE) || defined(MR_SIMPLE_IO)
-			otstr(val.mCurve.mMiracl, val.mVal->X, val.mCurve.mMiracl->IOBUFF);
-			out << val.mCurve.mMiracl->IOBUFF;
-			otstr(val.mCurve.mMiracl, val.mVal->Y, val.mCurve.mMiracl->IOBUFF);
-			out << val.mCurve.mMiracl->IOBUFF;
-#else
-			cotstr(val.mCurve.mMiracl, x, val.mCurve.mMiracl->IOBUFF);
-			out << val.mCurve.mMiracl->IOBUFF << " ";
-			cotstr(val.mCurve.mMiracl, y, val.mCurve.mMiracl->IOBUFF);
-			out << val.mCurve.mMiracl->IOBUFF;
-#endif
-
-			mirkill(x);
-			mirkill(y);
 
 		}
 

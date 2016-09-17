@@ -83,6 +83,20 @@ namespace libPSI
 	};
 
 
+	const EccpParams Curve25519
+	{
+		256, //bitCount
+		"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed", // prime p
+		"80000000000000000000000000000000A6F7CEF517BCE6B2C09318D2E7AE9F68", // order n (prime)
+		"2aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa984914a144", // coefficient a
+		"7b425ed097b425ed097b425ed097b425ed097b425ed097b4260b5e9c7710c864", // coefficient b
+		// generator X
+		"2aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaad245a,3f267c73b659f84aff395f3fe0192d49c2fec1b08d9c71bc244f2a77ab5b9213,266ab69088cd09d2f6f774004d15cc5d46e5b8481ad56e30dbe08f18cdf6c4c", 
+		// generator Y
+		"20ae19a1b8a086b4e01edd2c7748d14c923d4d7e6d7c61b229e9c5a27eced3d9,5df0b7dac0994826e3ea1d0bbb5e0bab45537a3929fceb47329c35fd02edfe72,9740583582a16a3d924f6a70da8849d54f9939de3cc7fb6bbb71ef982918eb1" 
+	};
+
+
 
 
 	// elliptic curve parameters for binary fields F_{2^m}
@@ -139,8 +153,8 @@ namespace libPSI
 		283,
 		0,  // BA
 		1,  // BB 
-		"503213f78ca44883f1a3b8162f188e553cd265f23c1567a16876913b0c2ac2458492836", // X
-		"1ccda380f1c9e318d90f95d07e5426fe87e45c0e8184698e45962364e34116177dd2259", // Y
+		"503213f78ca44883f1a3b8162f188e553cd265f23c1567a16876913b0c2ac2458492836,503213f78ca44883f1a3b8162f188e553cd265f23c1567a16876913b0c2ac2458492836,503213f78ca44883f1a3b8162f188e553cd265f23c1567a16876913b0c2ac2458492836", // X
+		"1ccda380f1c9e318d90f95d07e5426fe87e45c0e8184698e45962364e34116177dd2259,1ccda380f1c9e318d90f95d07e5426fe87e45c0e8184698e45962364e34116177dd2259,1ccda380f1c9e318d90f95d07e5426fe87e45c0e8184698e45962364e34116177dd2259", // Y
 		283, // m
 		12,  // a
 		7,   // b

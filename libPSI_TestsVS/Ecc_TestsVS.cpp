@@ -15,10 +15,10 @@ namespace libPSI_tests
 	{
 	public:
 
-		TEST_METHOD(Ecc_Number_TestVS)
+		TEST_METHOD(Eccp_Number_TestVS)
 		{
 			InitDebugPrinting();
-			EccNumber_Test();
+			EccpNumber_Test();
 		}
 
 		TEST_METHOD(Eccp_Point_TestVS)
@@ -27,6 +27,17 @@ namespace libPSI_tests
 			EccpPoint_Test();
 		}
 
+		TEST_METHOD(Ecc2m_Number_TestVS)
+		{
+			InitDebugPrinting();
+			Ecc2mNumber_Test();
+		}
+
+		TEST_METHOD(Ecc2m_Point_TestVS)
+		{
+			InitDebugPrinting();
+			Ecc2mPoint_Test();
+		}
 	};
 }
 #endif

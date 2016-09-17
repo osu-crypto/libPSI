@@ -35,7 +35,7 @@ namespace libPSI
 		u64 theirInputSize = inputs.size();
 
 		// curve must be prime order...
-		EllipticCurve curve(p224, mPrng.get_block());
+		EllipticCurve curve(Curve25519, mPrng.get_block());
 
 		if (curve.getGenerators().size() < 3)
 		{
@@ -102,8 +102,23 @@ namespace libPSI
 
 
 		EccPoint X(curve), sigmaA(curve);
+		auto gRc = gBrick * Rc;
+		X = pch + gRc;
 
-		X = pch + gBrick * Rc;
+		//if (g * Rc != gRc)
+		//{
+		//	Log::out << "neq" << Log::endl;
+		//}
+		//Log::out << "g      " << g << Log::endl;
+		//Log::out << "gRc    " << gRc << Log::endl;
+		//Log::out << "gRc    " << g * Rc << Log::endl;
+		//Log::out << "X      " << X << Log::endl;
+		//Log::out << "X2     " << X2 << Log::endl;
+		//Log::out << "pch    " << pch << Log::endl;
+		//Log::out << "Rc     " << Rc << Log::endl;
+
+
+
 		sigmaA = gBrick * sigmaD;
 		sha.Reset();
 
@@ -209,15 +224,24 @@ namespace libPSI
 				sigmaPhis[i] = sigmaDs[i] + Rcs[i] * sigmaE;
 
 				sigmaPhis[i].toBytes(iter); iter += sigmaPhis[i].sizeBytes();
+				//Log::out << "X      " << X << Log::endl;
+				//Log::out << "Ms[i]  " << Ms[i] << Log::endl;
+				//Log::out << "Ns[i]  " << Ns[i] << Log::endl;
 
 				auto XMN = (X - (Ms[i] + Ns[i]));
-				auto proof = (sigmaA - sigmaBs[i]) + XMN * sigmaE;
+
+				
+				//Log::out << "XMN    " << XMN << Log::endl;
+				//Log::out << "sigmaE " << sigmaE << Log::endl;
+				auto t = XMN * sigmaE;
+
+				auto proof = (sigmaA - sigmaBs[i]) + t;
 				auto checkVal = (g * sigmaPhi) - ((gg + ggg) * sigmaPhis[i]);
 
-					Log::out << "r expected " << checkVal << Log::endl;
-					Log::out << "r actual   " << proof << Log::endl << Log::endl;
 				if (checkVal != proof)
 				{
+					Log::out << "r expected " << checkVal << Log::endl;
+					Log::out << "r actual   " << proof << Log::endl << Log::endl;
 					// bad sigma proof
 					throw std::runtime_error(LOCATION);
 				}

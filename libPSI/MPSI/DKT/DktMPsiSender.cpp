@@ -30,7 +30,7 @@ namespace libPSI
 		SHA1 sha, sha2;
 
 		// curve must be prime order...
-		EllipticCurve curve(p224, mPrng.get_block());
+		EllipticCurve curve(Curve25519, mPrng.get_block());
 		if (curve.getGenerators().size() < 3)
 		{
 			Log::out << ("DktMPsi require at least 3 generators") << Log::endl;
