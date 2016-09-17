@@ -2,7 +2,7 @@
 #include "Common/Log.h"
 #include <memory>
 #include "Common/Timer.h"
-#include "crypto/Curve.h"
+#include "Crypto/Curve.h"
 
 #define PARALLEL
 
