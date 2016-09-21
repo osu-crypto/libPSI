@@ -97,10 +97,12 @@
   <!-- To Enable linux debugger End -->
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NMakeBuildCommandLine>C:\tools\WinSCP.com  /command "open $(RemoteUserName)@$(RemoteHostName) -privatekey=""$(PrivateKey)""" "synchronize Remote $(SolutionDir) $(RemoteWorkingDirectory) -filemask=""**.cpp;**.h;makefile;**.mak;thirdparty/linux/**.get|.git/;thirdparty/;Debug/;Release/;x64/;ipch/;""" "synchronize remote $(SolutionDir)thirdparty/linux/ $(RemoteWorkingDirectory)/thirdparty/linux/ -filemask=""**.get""" "exit"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>C:\tools\WinSCP.com  /command "open $(RemoteUserName)@$(RemoteHostName) -privatekey=""$(PrivateKey)""" "synchronize Remote $(SolutionDir) $(RemoteWorkingDir) -filemask=""**.cpp;**.h;makefile;**.mak;thirdparty/linux/**.get|.git/;thirdparty/;Debug/;Release/;x64/;ipch/;""" "synchronize remote $(SolutionDir)thirdparty/linux/ $(RemoteWorkingDir)/thirdparty/linux/ -filemask=""**.get""" "exit"</NMakeBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NMakeBuildCommandLine>C:\tools\WinSCP.com  /command "open $(RemoteUserName)@$(RemoteHostName) -privatekey=""$(PrivateKey)""" "synchronize Remote $(SolutionDir) $(RemoteWorkingDirectory) -filemask=""**.cpp;**.h;makefile;**.mak;thirdparty/linux/**.get|.git/;thirdparty/;Debug/;Release/;x64/;ipch/;""" "synchronize remote $(SolutionDir)thirdparty/linux/ $(RemoteWorkingDirectory)/thirdparty/linux/ -filemask=""**.get""" "exit"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>C:\tools\WinSCP.com  /command "open $(RemoteUserName)@$(RemoteHostName) -privatekey=""$(PrivateKey)""" "synchronize Remote $(SolutionDir) $(RemoteWorkingDir) -filemask=""**.cpp;**.h;makefile;**.mak;thirdparty/linux/**.get|.git/;thirdparty/;Debug/;Release/;x64/;ipch/;""" "synchronize remote $(SolutionDir)thirdparty/linux/ $(RemoteWorkingDir)/thirdparty/linux/ -filemask=""**.get""" "exit"</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>
+    </NMakeCleanCommandLine>
   </PropertyGroup>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

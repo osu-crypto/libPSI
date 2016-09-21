@@ -10,7 +10,9 @@ namespace libPSI
 	EllipticCurve::EllipticCurve(const Ecc2mParams & params, const block& seed)
 		:
 		mMiracl(nullptr),
-		mOrder(nullptr)
+		mOrder(nullptr),
+		BB(nullptr),
+		BA(nullptr)
 	{
 		setParameters(params);
 		setPrng(seed);
@@ -19,7 +21,9 @@ namespace libPSI
 	EllipticCurve::EllipticCurve(const EccpParams & params, const block & seed)
 		:
 		mMiracl(nullptr),
-		mOrder(nullptr)
+		mOrder(nullptr),
+		BB(nullptr),
+		BA(nullptr)
 	{
 		setParameters(params);
 		setPrng(seed);
@@ -44,6 +48,7 @@ namespace libPSI
 
 	void EllipticCurve::setParameters(const EccpParams & params)
 	{
+
 		mIsPrimeField = true;
 		mEcc2mParams = Ecc2mParams();
 		mEccpParams = params;
@@ -51,6 +56,7 @@ namespace libPSI
 		if (mMiracl) mirexit(mMiracl);
 
 		mMiracl = mirsys(params.bitCount * 2, 2);
+
 		//mMiracl = mirsys(300,0);
 		mMiracl->IOBASE = 16;
 
@@ -113,6 +119,8 @@ namespace libPSI
 
 	void EllipticCurve::setParameters(const Ecc2mParams & params)
 	{
+
+
 		mIsPrimeField = false;
 		mEcc2mParams = params;
 		mEccpParams = EccpParams();
@@ -120,11 +128,12 @@ namespace libPSI
 		if (mMiracl) mirexit(mMiracl);
 
 		mMiracl = mirsys(params.bitCount * 2, 2);
+
 		mMiracl->IOBASE = 16;
 
-		mirkill(BA);
-		mirkill(BB);
-
+		if(BA) mirkill(BA);
+		if(BB) mirkill(BB);
+	
 		BA = mirvar(mMiracl, 0);
 		BB = mirvar(mMiracl, 0);
 
