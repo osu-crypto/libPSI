@@ -36,8 +36,8 @@ PRIMARY_SRC=\
 	$(wildcard $(PRIMARY_DIR)/Common/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/Crypto/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/MPSI/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/MPIS/Dcw/*.cpp)\
-        $(wildcard $(PRIMARY_DIR)/MPIS/DKT/*.cpp)\
+	$(wildcard $(PRIMARY_DIR)/MPSI/Dcw/*.cpp)\
+        $(wildcard $(PRIMARY_DIR)/MPSI/DKT/*.cpp)\
 	$(wildcard $(PRIMARY_DIR)/RiotPSI/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/OT/*.cpp) \
 	$(wildcard $(PRIMARY_DIR)/OT/Base/*.cpp) \
@@ -91,12 +91,7 @@ CXXFLAGS += $(addprefix -D,$(PREPROCESSOR_MACROS))
 
 
 
-##########################################################################################
-
-
-all_objs := \
-	$(PRIMARY_OBJ)\
-	$(FRONTEND_OBJ)
+#######################################################################################
 
 
 PRIMARY_OUTPUTS := \
@@ -115,11 +110,13 @@ $(BINARYDIR):
 	mkdir $(BINARYDIR)
 
 
-$(BINARYDIR)/$(TARGETNAME): $(all_objs) $(EXTERNAL_LIBS) $(PRIMARY_LIB) $(PRIMARYTESTS_LIB)
-	$(LD) -o $@ $(LDFLAGS) $(START_GROUP) $(all_objs) $(LIBRARY_LDFLAGS)\
+$(BINARYDIR)/$(TARGETNAME): $(FRONTEND_OBJ) $(EXTERNAL_LIBS) $(PRIMARY_LIB) $(PRIMARYTESTS_LIB)
+	$(LD) -o $@ $(LDFLAGS) $(START_GROUP) $(FRONTEND_OBJ) $(LIBRARY_LDFLAGS)\
          -Wl,-Bstatic  $(addprefix -l,$(STATIC_LIBRARY_NAMES))\
 	 -Wl,-Bdynamic  $(addprefix -l,$(SHARED_LIBRARY_NAMES))\
 	 -Wl,--as-needed  $(END_GROUP)
+
+#	 -Wl,--verbose
 
 
 
