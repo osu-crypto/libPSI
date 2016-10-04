@@ -17,8 +17,11 @@ using namespace libPSI;
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
+#include <numeric>
 
 #define LAZY_OT
+#define pows  { 8,12,16,20 }
+#define threadss {/*1,4,16,*/64}
 
 void bfSend()
 {
@@ -30,7 +33,7 @@ void bfSend()
 	std::fstream online, offline;
 	online.open("./online.txt", online.trunc | online.out);
 	offline.open("./offline.txt", offline.trunc | offline.out);
-	u64 numTrial(4);
+	u64 numTrial(1);
 
 
 	Log::out << "role  = sender (" << numThreads << ") akn" << Log::endl;
@@ -49,13 +52,13 @@ void bfSend()
 	u8 dummy[1];
 
 	senderGetLatency(*sendChls_[0]);
-
+	sendChls_[0]->resetStats();
 
 	//for (auto pow : {/* 8,12,*/ 16/*, 20 */ })
-	for (auto pow : { 8,12, 16,20 })
+	for (auto pow : pows)
 	{
 
-		for (auto cc : { 1,/*2,4,8,16,32,64 */ })
+		for (auto cc : threadss)
 		{
 			std::vector<Channel*> sendChls;
 
@@ -106,11 +109,24 @@ void bfSend()
 
 				//return;
 				sendChls[0]->asyncSend(dummy, 1);
+				sendChls[0]->recv(dummy, 1);
 				//Log::out << "sender init done" << Log::endl;
 
 				sendPSIs.sendInput(sendSet, sendChls);
 
+				u64 dataSent = 0;
+				for(u64 g = 0; g < sendChls.size(); ++g)
+				{
+					dataSent += sendChls[g]->getTotalDataSent();
+				}
 
+				//std::accumulate(sendChls[0]->getTotalDataSent())
+
+				Log::out << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << Log::endl;
+				for (u64 g = 0; g < sendChls.size(); ++g)
+					sendChls[g]->resetStats();
+
+				//Log::out << gTimer << Log::endl;
 			}
 
 		}
@@ -138,7 +154,7 @@ void bfRecv()
 	std::fstream online, offline;
 	online.open("./online.txt", online.trunc | online.out);
 	offline.open("./offline.txt", offline.trunc | offline.out);
-	u64 numTrial(4);
+	u64 numTrial(1);
 
 	std::string name("psi");
 
@@ -156,9 +172,9 @@ void bfRecv()
 	recverGetLatency(*recvChls_[0]);
 
 	//for (auto pow : {/* 8,12,*/16/*,20*/ })
-	for (auto pow : { 8,12,16,20 })
+	for (auto pow : pows)
 	{
-		for (auto cc : { 1/*,4,32,64 */})
+		for (auto cc : threadss)
 		{
 			std::vector<Channel*> recvChls;
 
@@ -217,13 +233,19 @@ void bfRecv()
 				recvPSIs.init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
 				//return;
 
+
+				//std::vector<u64> sss(recvChls.size());
+				//for (u64 g = 0; g < recvChls.size(); ++g)
+				//{
+				//	sss[g] =  recvChls[g]->getTotalDataSent();
+				//}
+
+				recvChls[0]->asyncSend(dummy, 1);
 				recvChls[0]->recv(dummy, 1);
 				auto mid = timer.setTimePoint("init");
 
-
-				AknBfMPsiReceiver& recv = recvPSIs;
-
-				recv.sendInput(recvSet, recvChls);
+				 
+				recvPSIs.sendInput(recvSet, recvChls);
 				auto end = timer.setTimePoint("done");
 
 				auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
@@ -232,8 +254,23 @@ void bfRecv()
 
 				offlineTimeTot += offlineTime;
 				onlineTimeTot += onlineTime;
-				Log::out << setSize << "  " << offlineTime << "  " << onlineTime << Log::endl;
+				//auto byteSent = recvChls[0]->getTotalDataSent() *recvChls.size();
 
+				u64 dataSent = 0;
+				for (u64 g = 0; g < recvChls.size(); ++g)
+				{
+					dataSent += recvChls[g]->getTotalDataSent();
+					//Log::out << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << Log::endl;
+				}
+
+				double time = offlineTime + onlineTime;
+				time /= 1000;
+				auto Mbps = dataSent * 8 / time / (1 << 20);
+
+				Log::out << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB"  << Log::endl;
+
+				for (u64 g = 0; g < recvChls.size(); ++g)
+					recvChls[g]->resetStats();
 
 				//Log::out << "threads =  " << numThreads << Log::endl << timer << Log::endl << Log::endl << Log::endl;
 
@@ -295,7 +332,7 @@ void bf(int role)
 
 	Log::out << "role  = " << role << Log::endl;
 
-	for (auto pow : { 8,12,16,20 })
+	for (auto pow : pows)
 	{
 
 		u64 offlineTimeTot(0);

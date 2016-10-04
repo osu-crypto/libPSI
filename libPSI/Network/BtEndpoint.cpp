@@ -116,6 +116,11 @@ namespace libPSI {
 			boost::asio::ip::tcp::no_delay option(true);
 			chl.mSocket->mHandle.set_option(option);
 
+			//boost::asio::socket_base::receive_buffer_size option2((1 << 20) * 16);
+			//chl.mSocket->mHandle.set_option(option2);
+
+			//boost::asio::socket_base::send_buffer_size option3((1 << 20) * 16);
+			////chl.mSocket->mHandle.set_option(option3);
 
 			std::stringstream ss;
 			ss << mName << char('`') << localName << char('`') << remoteName;

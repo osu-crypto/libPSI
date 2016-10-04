@@ -30,6 +30,7 @@ namespace libPSI {
 		/// <summary>Returns the name of the remote endpoint.</summary>
 		std::string getRemoteName() const;
 
+		void resetStats() override;
 
 		u64 getTotalDataSent() const override;
 

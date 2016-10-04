@@ -3,11 +3,11 @@
 #include <cinttypes>
 #include <iomanip>
 #include <vector>
+#include <emmintrin.h>
+#include <smmintrin.h>
 #include <sstream>
 #include <iostream>
 #include "boost/lexical_cast.hpp"
-#include <emmintrin.h>
-#include <smmintrin.h>
 #include <memory>
 #include "Common/Timer.h"
 //#include <mmintrin.h>

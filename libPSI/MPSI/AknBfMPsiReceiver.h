@@ -13,14 +13,15 @@ namespace libPSI
 	class AknBfMPsiReceiver
 	{
 	public:
-	
+		typedef u32 LogOtCount_t;
+
 		
 		AknBfMPsiReceiver();
 		~AknBfMPsiReceiver();
 
 		AknOtReceiver mAknOt;
 		std::vector<SHA1> mHashs;
-		u64 mMyInputSize, mTheirInputSize, mBfBitCount, mStatSecParam;
+		u64 mMyInputSize, mTheirInputSize, mBfBitCount, mStatSecParam, mTotalOtCount;
 		block mHashingSeed, mSeed;
 		std::vector<u64> mIntersection;
 

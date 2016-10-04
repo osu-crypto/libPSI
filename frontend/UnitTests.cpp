@@ -80,7 +80,6 @@ void OT_all()
 void Ecc_all()
 {
 	Log::out << Log::endl;
-	Log::out << "ssss" << Log::endl;
 
 	run("Ecc2mNumber_Test                        ", Ecc2mNumber_Test);
 	run("Ecc2mPoint_Test                         ", Ecc2mPoint_Test);
@@ -125,15 +124,10 @@ void ShamirSSScheme_all()
 void run_all()
 {
 
-	Log::out << "1 " << Log::endl;
 	NetWork_all();
-	Log::out << "2 " << Log::endl;
 	bitVec_all();
-	Log::out << "3 " << Log::endl;
 	Ecc_all();
-	Log::out << "4 " << Log::endl;
 	OT_all();
-	Log::out << "5 " << Log::endl;
 	AknBfPsi_all();
 	DcwPsi_all();
 	DktPsi_all();

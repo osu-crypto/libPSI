@@ -243,6 +243,7 @@ namespace libPSI
 		void fromDec(char* src);
 
 		void randomize(PRNG& prng);
+		void randomize(const block& seed);
 
 
 	private:
@@ -262,7 +263,7 @@ namespace libPSI
 
 	public:
 		big mVal;
-		EllipticCurve& mCurve;
+		EllipticCurve* mCurve;
 
 		friend class EllipticCurve;
 		friend EccBrick;
@@ -305,13 +306,17 @@ namespace libPSI
 		void fromNum(EccNumber& x, EccNumber& y);
 
 		void randomize(PRNG& prng);
+		void randomize(const block& seed);
+
+		void setCurve(EllipticCurve& curve);
 
 		epoint* mVal;
 	private:
 
 		void init();
 		char* mMem;
-		EllipticCurve& mCurve;
+		EllipticCurve* mCurve;
+		//EllipticCurve& getCurve();
 
 		friend EccBrick;
 		friend EccNumber;
@@ -334,7 +339,7 @@ namespace libPSI
 
 		ebrick2 mBrick2;
 		ebrick mBrick;
-		EllipticCurve& mCurve;
+		EllipticCurve* mCurve;
 
 	};
 

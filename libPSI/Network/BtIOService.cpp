@@ -13,7 +13,8 @@
 
 #include <sstream>
 
-namespace libPSI {
+namespace libPSI
+{
 
 	extern void split(const std::string &s, char delim, std::vector<std::string> &elems);
 	extern std::vector<std::string> split(const std::string &s, char delim);
@@ -155,7 +156,7 @@ namespace libPSI {
 					{
 						throw BadReceiveBufferSize(e.what(), boost::asio::buffer_size(op.mBuffs[1]), std::move(newBuff));
 					}
-					catch(...){
+					catch (...) {
 						op.mException = std::current_exception();
 						op.mPromise->set_exception(op.mException);
 						delete op.mPromise;
@@ -171,7 +172,7 @@ namespace libPSI {
 					//////////////////////////////////////////////////////////////////////////
 					//// This is *** NOT *** within the stand. Dont touch the recv queue! ////
 					//////////////////////////////////////////////////////////////////////////
-					
+
 
 					if (bytesTransfered != boost::asio::buffer_size(op.mBuffs[1]) || ec)
 						throw std::runtime_error("rt error at " LOCATION);
@@ -189,7 +190,7 @@ namespace libPSI {
 						////////////////////////////////////////////////////////////////////////////////
 						//// This is within the stand. We have sequential access to the recv queue. ////
 						////////////////////////////////////////////////////////////////////////////////
-						
+
 						socket->mRecvQueue.pop_front();
 
 						// is there more messages to recv?
@@ -222,7 +223,7 @@ namespace libPSI {
 		////////////////////////////////////////////////////////////////////////////////
 		//// This is within the stand. We have sequential access to the send queue. ////
 		////////////////////////////////////////////////////////////////////////////////
-		
+
 		BoostIOOperation& op = socket->mSendQueue.front();
 
 
@@ -259,7 +260,7 @@ namespace libPSI {
 					////////////////////////////////////////////////////////////////////////////////
 					//// This is within the stand. We have sequential access to the send queue. ////
 					////////////////////////////////////////////////////////////////////////////////
-					
+
 					socket->mSendQueue.pop_front();
 
 					// Do we have more messages to be sent?
@@ -292,7 +293,7 @@ namespace libPSI {
 
 	void BtIOService::dispatch(BtSocket* socket, BoostIOOperation& op)
 	{
-		if(&op == nullptr)
+		if (&op == nullptr)
 		{
 			Log::out << "bad op ref";
 		}
@@ -415,5 +416,6 @@ namespace libPSI {
 			throw std::runtime_error("rt error at " LOCATION);
 		}
 	}
-}
 
+
+}

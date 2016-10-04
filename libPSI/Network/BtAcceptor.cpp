@@ -86,6 +86,17 @@ namespace libPSI {
 					boost::asio::ip::tcp::no_delay option(true);
 					newSocket->mHandle.set_option(option);
 
+					//boost::asio::socket_base::receive_buffer_size option2(262144);
+					//newSocket->mHandle.set_option(option2);
+					//newSocket->mHandle.get_option(option2);
+					//Log::out << option2.value() << Log::endl;
+
+
+					//boost::asio::socket_base::send_buffer_size option3((1 << 20 )/8);
+					//newSocket->mHandle.set_option(option3);
+					//newSocket->mHandle.get_option(option3);
+					//Log::out << option3.value() << Log::endl;
+
 					newSocket->mHandle.async_receive(boost::asio::buffer(buff->data(), buff->size()), 
 						[newSocket, buff, this](const boost::system::error_code& ec2, u64 bytesTransferred)
 					{

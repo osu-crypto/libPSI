@@ -22,7 +22,7 @@ namespace libPSI
 		void init(u64 n, u64 secParam, block seed);
 
 
-		void sendInput(ArrayView<block> inputs, Channel& chl0);
+		void sendInput(ArrayView<block> inputs, std::vector<Channel*>& chl0);
 
 	};
 
