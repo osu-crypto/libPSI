@@ -3,7 +3,7 @@
 #define AES_DECRYPTION
 #include <wmmintrin.h>
 
-namespace libPSI {
+namespace osuCrypto {
 
 #define AES_BLK_SIZE 16
 

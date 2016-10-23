@@ -5,7 +5,7 @@
 #include "Common/Defines.h"
 #include "Crypto/PRNG.h"
 #include <memory>
-namespace libPSI
+namespace osuCrypto
 {
 
 #ifndef MR_GENERIC_MT

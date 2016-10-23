@@ -3,7 +3,7 @@
 #include "Common/BitVector.h"
 //#include "Common/Timer.h"
 
-namespace libPSI {
+namespace osuCrypto {
 
 	Timer gTimer;
 	const block ZeroBlock = _mm_set_epi64x(0, 0);
@@ -25,7 +25,8 @@ namespace libPSI {
 		return out;
 	}
 
-	std::ostream& operator<<(std::ostream& out, const blockRIOT& blk)
+	template<size_t N>
+	std::ostream& operator<<(std::ostream& out, const MultiBlock<N>& blk)
 	{
 		out << std::hex;
 		u64* data = (u64*)&blk;
@@ -36,7 +37,7 @@ namespace libPSI {
 			//<< std::setw(16) << std::setfill('0') << data[3]
 			//<< std::setw(16) << std::setfill('0') << data[4]
 			//<< std::setw(16) << std::setfill('0') << data[5]
-			<< std::setw(16) << std::setfill('0') << data[6];
+			<< std::setw(16) << std::setfill('0') << data[blk.size() * 2 - 1];
 
 		out << std::dec << std::setw(0);
 

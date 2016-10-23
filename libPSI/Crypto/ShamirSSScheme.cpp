@@ -12,7 +12,7 @@ using namespace NTL;
 
 
 
-namespace libPSI
+namespace osuCrypto
 {
 
 

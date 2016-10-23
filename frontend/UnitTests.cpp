@@ -11,13 +11,13 @@
 #include "AknOt_Tests.h"
 #include "AknBfPsi_Tests.h"
 #include "Ecc_Tests.h"
-
+#include "BinOtPsi_Tests.h"
 
 #include "ShamirSSScheme_Tests.h"
 #include "DcwBfPsi_Tests.h"
 #include "DktMPsi_Tests.h"
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 void run(std::string name, std::function<void(void)> func)
 {
@@ -73,6 +73,7 @@ void OT_all()
 	run("KosOtExt_100Receive_Test_Impl           ", KosOtExt_100Receive_Test_Impl);
 	run("IknpOtExt_100Receive_Test_Impl          ", IknpOtExt_100Receive_Test_Impl);
 	run("AknOt_sendRecv1000_Test                 ", AknOt_sendRecv1000_Test);
+	run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
 	run("NaorPinkasOt_Test                       ", NaorPinkasOt_Test_Impl);
 }
 
@@ -115,6 +116,13 @@ void AknBfPsi_all()
 	run("AknBfPsi_FullSet_Test_Impl              ", AknBfPsi_FullSet_Test_Impl);
 	run("AknBfPsi_SingltonSet_Test_Impl          ", AknBfPsi_SingltonSet_Test_Impl);
 }
+void OtBinPsi_all()
+{
+	Log::out << Log::endl;
+	//run("OtBinPsi_EmptrySet_Test_Impl            ", OtBinPsi_EmptrySet_Test_Impl);
+	//run("OtBinPsi_FullSet_Test_Impl              ", OtBinPsi_FullSet_Test_Impl);
+	run("OtBinPsi_SingltonSet_Test_Impl          ", OtBinPsi_SingltonSet_Test_Impl);
+}
 void ShamirSSScheme_all()
 {
 	Log::out << Log::endl;
@@ -124,11 +132,12 @@ void ShamirSSScheme_all()
 void run_all()
 {
 
-	NetWork_all();
-	bitVec_all();
-	Ecc_all();
-	OT_all();
-	AknBfPsi_all();
-	DcwPsi_all();
-	DktPsi_all();
+	//NetWork_all();
+	//bitVec_all();
+	//Ecc_all();
+	//OT_all();
+	//AknBfPsi_all();
+	OtBinPsi_all();
+	//DcwPsi_all();
+	//DktPsi_all();
 }

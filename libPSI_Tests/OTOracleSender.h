@@ -1,5 +1,5 @@
 #pragma once
-#include "OT/OTExtInterface.h"
+#include "OT/TwoChooseOne/OTExtInterface.h"
 #ifdef GetMessage
 #undef GetMessage
 #endif
@@ -8,7 +8,7 @@
 #include <unordered_map> 
 #include "Crypto/PRNG.h"
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 
 class OTOracleSender :
@@ -26,7 +26,7 @@ public:
 
 	std::unique_ptr<OtExtSender> split() override
 	{
-		std::unique_ptr<OtExtSender> ret(new OTOracleSender(mPrng.get_block()));
+		std::unique_ptr<OtExtSender> ret(new OTOracleSender(mPrng.get<block>()));
 		return std::move(ret);
 	}
 

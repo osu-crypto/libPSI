@@ -490,7 +490,7 @@ double powers_precomp(int gb, int eb, big p)
 }
 #include <string>
 #include "Common/Log.h"
-using namespace libPSI;
+using namespace osuCrypto;
 
 void print(std::string s, big x)
 {

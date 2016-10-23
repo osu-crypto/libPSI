@@ -2,7 +2,7 @@
 #include "Common/Defines.h"
 #include "cryptopp/sha.h"
 
-namespace libPSI {
+namespace osuCrypto {
 	class SHA1
 	{
 	public:
@@ -22,10 +22,11 @@ namespace libPSI {
 		{
 			Update(ByteArray(blk), sizeof(block));
 		}
-		inline void Update(const blockRIOT& blk, u64 length)
-		{
-			Update(ByteArray(blk), length);
-		}
+
+		//inline void Update(const blockRIOT& blk, u64 length)
+		//{
+		//	Update(ByteArray(blk), length);
+		//}
 
 		inline void Final(u8* DataOut)
 		{

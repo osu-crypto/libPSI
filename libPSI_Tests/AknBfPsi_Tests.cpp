@@ -2,8 +2,8 @@
 
 #include "Common.h"
 #include "Common/Defines.h"
-#include "MPSI/AknBfMPsiReceiver.h"
-#include "MPSI/AknBfMPsiSender.h"
+#include "MPSI/Rr16/AknBfMPsiReceiver.h"
+#include "MPSI/Rr16/AknBfMPsiSender.h"
 #include "Network/BtEndpoint.h"
 #include "OTOracleReceiver.h"
 #include "OTOracleSender.h"
@@ -14,7 +14,7 @@
 //#include "MyAssert.h"
 #include <array>
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 
 
@@ -26,8 +26,8 @@ void AknBfPsi_EmptrySet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = prng.get_block();
-		recvSet[i] = prng.get_block();
+		sendSet[i] = prng.get<block>();
+		recvSet[i] = prng.get<block>();
 	}
 
 	std::string name("psi");
@@ -50,7 +50,7 @@ void AknBfPsi_EmptrySet_Test_Impl()
 	AknBfMPsiReceiver recv;
 	std::thread thrd([&]() {
 
-		send.init(setSize, psiSecParam, otSend, sendChl, prng.get_block());
+		send.init(setSize, psiSecParam, otSend, sendChl, prng.get<block>());
 		send.sendInput(sendSet, *sendChl[0]);
 	});
 
@@ -78,7 +78,7 @@ void AknBfPsi_FullSet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = recvSet[i] = prng.get_block();
+		sendSet[i] = recvSet[i] = prng.get<block>();
 	}
 
 	std::shuffle(sendSet.begin(), sendSet.end(), prng);
@@ -106,7 +106,7 @@ void AknBfPsi_FullSet_Test_Impl()
 	AknBfMPsiReceiver recv;
 	std::thread thrd([&]() {
 
-		send.init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
+		send.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 		send.sendInput(sendSet, sendChls);
 	});
 
@@ -140,8 +140,8 @@ void AknBfPsi_SingltonSet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = prng.get_block();
-		recvSet[i] = prng.get_block();
+		sendSet[i] = prng.get<block>();
+		recvSet[i] = prng.get<block>();
 	}
 
 	sendSet[0] = recvSet[0];
@@ -165,7 +165,7 @@ void AknBfPsi_SingltonSet_Test_Impl()
 	AknBfMPsiReceiver recv;
 	std::thread thrd([&]() {
 
-		send.init(setSize, psiSecParam, otSend, sendChl, prng.get_block());
+		send.init(setSize, psiSecParam, otSend, sendChl, prng.get<block>());
 		send.sendInput(sendSet, sendChl);
 	});
 

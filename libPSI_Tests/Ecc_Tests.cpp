@@ -10,7 +10,7 @@
 #include "Common/Log.h"
 #include "Common/ByteStream.h"
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 
 
@@ -58,12 +58,12 @@ void EccpNumber_Test()
 		for (u64 j = 0; j < 20; ++j)
 		{
 			// sample Z*_p
-			auto mult = (prng.get_u64() % (mod - 1)) + 1;
+			auto mult = (prng.get<u64>() % (mod - 1)) + 1;
 
 			//Log::out << "mult in " << mult << Log::endl;
 
 			// sample Z_p
-			auto add = prng.get_u64() % mod;
+			auto add = prng.get<u64>() % mod;
 
 			mult_expected = mult_expected * mult % mod;
 			mult_var = mult_var * mult;
@@ -343,13 +343,13 @@ void Ecc2mNumber_Test()
 		for (u64 j = 0; j < 20; ++j)
 		{
 			// sample Z*_p
-			auto mult = prng.get_u32() >> 1;
+			auto mult = prng.get<u32>() >> 1;
 			//Log::out << mult_var << " * " << mult << Log::endl;
 
 			//Log::out << "mult in " << mult << Log::endl;
 
 			// sample Z_p
-			auto add = prng.get_u32() >> 1;
+			auto add = prng.get<u32>() >> 1;
 
 			mult_var = mult_var * mult;
 			mult_var2 = mult_var2 * EccNumber(curve, mult);

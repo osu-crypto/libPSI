@@ -4,7 +4,7 @@
 #include <sstream>
 #include "Crypto/Commit.h"
 
-namespace libPSI {
+namespace osuCrypto {
 
 	ByteStream::ByteStream(u64 maxlen)
 	{
@@ -120,11 +120,11 @@ namespace libPSI {
 		append((const u8*)(&b), sizeof(block));
 	}	
 	
-	void ByteStream::append(const blockRIOT& b, u64 l)
-	{
-		append((const u8*)(&b), l); 
-	}
-	
+	//void ByteStream::append(const blockRIOT& b, u64 l)
+	//{
+	//	append((const u8*)(&b), l); 
+	//}
+	//
 	void ByteStream::append(const Commit& b)
 	{
 		append((const u8*)(&b), sizeof(Commit));

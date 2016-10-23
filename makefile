@@ -18,14 +18,14 @@ error:
 endif
 
 
-PRIMARY_LIB=$(BINARYDIR)/libPSI.a 
-PRIMARYTESTS_LIB=$(BINARYDIR)/libPSITests.a
+PRIMARY_LIB=$(BINARYDIR)/osuCrypto.a 
+PRIMARYTESTS_LIB=$(BINARYDIR)/osuCryptoTests.a
 
 SRC=.
 
 FRONTEND_DIR=$(SRC)/frontend
-PRIMARY_DIR=$(SRC)/libPSI
-PRIMARYTESTS_DIR=$(SRC)/libPSI_Tests
+PRIMARY_DIR=$(SRC)/osuCrypto
+PRIMARYTESTS_DIR=$(SRC)/osuCrypto_Tests
 
 
 FRONTEND_SRC=$(wildcard $(FRONTEND_DIR)/*.cpp)
@@ -57,8 +57,8 @@ TPL=thirdparty/linux
 BOOST=thirdparty/linux/boost
 
 
-INC=-I./libPSI/\
-    -I./libPSI_Tests/\
+INC=-I./osuCrypto/\
+    -I./osuCrypto_Tests/\
     -I$(TPL)\
     -I$(BOOST)/includes/
 

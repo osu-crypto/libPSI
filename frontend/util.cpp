@@ -1,6 +1,6 @@
 #include "util.h"
 
-using namespace libPSI;
+using namespace osuCrypto;
 #include "Common/Log.h"
 #include "Common/ByteStream.h"
 #define tryCount 2

@@ -11,7 +11,7 @@
 #include <future>
 #include <string>
 
-namespace libPSI 
+namespace osuCrypto 
 {
 
 	class BadReceiveBufferSize : public std::exception

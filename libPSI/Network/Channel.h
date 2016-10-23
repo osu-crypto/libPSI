@@ -6,7 +6,7 @@
 
 #include "Common/Defines.h"
 
-namespace libPSI {
+namespace osuCrypto {
 
 	class Channel;  
 	class Endpoint;

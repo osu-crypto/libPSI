@@ -22,7 +22,7 @@
 #undef GetMessage
 #endif
 
-namespace libPSI
+namespace osuCrypto
 {
 
 	//#define LOGGER_DEBUG(x) Log::out x

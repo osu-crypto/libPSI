@@ -7,7 +7,7 @@
 
 #include "boost/lexical_cast.hpp"
 
-namespace libPSI {
+namespace osuCrypto {
 
 
 	BtAcceptor::BtAcceptor(BtIOService& ioService)

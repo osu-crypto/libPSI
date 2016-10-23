@@ -5,7 +5,7 @@
 #include <fstream>
 #include <cassert> 
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 static std::fstream* file = nullptr;
 std::string SolutionDir = "../../";

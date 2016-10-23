@@ -6,7 +6,7 @@
 #include "Network/Channel.h"
 
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 OTOracleSender::OTOracleSender(const block& seed)
 	:mPrng(seed)
@@ -25,15 +25,15 @@ void OTOracleSender::send(
 	PRNG& prng,
 	Channel& chl)
 {
-	block test = mPrng.get_block();
+	block test = mPrng.get<block>();
 	chl.asyncSendCopy((u8*)&test, sizeof(block));
 
 	u64 doneIdx = 0;
 
 	for (doneIdx = 0; doneIdx < messages.size(); ++doneIdx)
 	{
-		messages[doneIdx][0] = mPrng.get_block();
-		messages[doneIdx][1] = mPrng.get_block(); 
+		messages[doneIdx][0] = mPrng.get<block>();
+		messages[doneIdx][1] = mPrng.get<block>(); 
 
 		//Log::out << " idx  " << doneIdx << "   " << messages[doneIdx][0] << "   " << messages[doneIdx][1] << Log::endl;
 

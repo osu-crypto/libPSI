@@ -6,7 +6,7 @@
 #include "Network/Channel.h"
 #include <future>
 
-namespace libPSI {
+namespace osuCrypto {
 
 
 	class BtSocket;

@@ -1,19 +1,19 @@
 #include "bloomFilterMain.h"
 
-#include "MPSI/AknBfMPsiReceiver.h"
-#include "MPSI/AknBfMPsiSender.h"
+#include "MPSI/Rr16/AknBfMPsiReceiver.h"
+#include "MPSI/Rr16/AknBfMPsiSender.h"
 
 #include <fstream>
-using namespace libPSI;
+using namespace osuCrypto;
 #include "util.h"
 
 #include "Common/Defines.h"
 #include "Network/BtEndpoint.h" 
-#include "OT/KosOtExtReceiver.h"
-#include "OT/KosOtExtSender.h"
+#include "OT/TwoChooseOne/KosOtExtReceiver.h"
+#include "OT/TwoChooseOne/KosOtExtSender.h"
 
-#include "OT/LzKosOtExtReceiver.h"
-#include "OT/LzKosOtExtSender.h"
+#include "OT/TwoChooseOne/LzKosOtExtReceiver.h"
+#include "OT/TwoChooseOne/LzKosOtExtSender.h"
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
@@ -85,7 +85,7 @@ void bfSend()
 
 				for (u64 i = 0; i < setSize; ++i)
 				{
-					sendSet[i] = prng.get_block();
+					sendSet[i] = prng.get<block>();
 				}
 
 
@@ -105,7 +105,7 @@ void bfSend()
 
 				u64 otIdx = 0;
 				//Log::out << "sender init" << Log::endl;
-				sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
+				sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 
 				//return;
 				sendChls[0]->asyncSend(dummy, 1);
@@ -204,7 +204,7 @@ void bfRecv()
 
 				for (u64 i = 0; i < setSize; ++i)
 				{
-					sendSet[i] = recvSet[i] = prng.get_block();
+					sendSet[i] = recvSet[i] = prng.get<block>();
 				}
 
 
@@ -353,7 +353,7 @@ void bf(int role)
 
 			for (u64 i = 0; i < setSize; ++i)
 			{
-				sendSet[i] = recvSet[i] = prng.get_block();
+				sendSet[i] = recvSet[i] = prng.get<block>();
 			}
 
 
@@ -394,7 +394,7 @@ void bf(int role)
 
 				u64 otIdx = 0;
 
-				sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
+				sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 				sendPSIs.sendInput(sendSet, sendChls);
 
 			});

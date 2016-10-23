@@ -3,10 +3,11 @@
 #include "Common/Defines.h"
 #include "Network/Channel.h" 
 #include "ArrayView.h"
+#include "MatrixView.h"
 #include "Common/BitIterator.h"
 
 
-namespace libPSI { 
+namespace osuCrypto { 
 
 	class Commit; 
 
@@ -178,7 +179,7 @@ namespace libPSI {
 		void consume(u8* dest, const u64 length);
 
 		void append(const block& b);
-		void append(const blockRIOT& b, const u64 length);
+		//void append(const blockRIOT& b, const u64 length);
 		void append(const Commit& b);
 
 		ByteStream& operator=(const ByteStream& os);
@@ -193,6 +194,11 @@ namespace libPSI {
 
 		template<class T>
 		ArrayView<T> getArrayView() const;
+
+
+		template<class T>
+		MatrixView<T> getMatrixView(u64 columnSize) const;
+
 
 		BitIterator bitIterBegin() const;
 
@@ -226,6 +232,11 @@ namespace libPSI {
 	{
 		return ArrayView<T>((T*)mData, (T*)mData + (mPutHead / sizeof(T)), false);
 	}
-
+	template<class T>
+	inline MatrixView<T> ByteStream::getMatrixView(u64 columnSize) const
+	{
+		u64 numRows = mPutHead / (columnSize * sizeof(T));
+		return MatrixView<T>((T*)mData, numRows, columnSize, false);
+	}
 }
 

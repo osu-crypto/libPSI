@@ -10,7 +10,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 
-namespace libPSI_tests
+namespace osuCrypto_tests
 {
 	TEST_CLASS(ShamirSSScheme_Tests)
 	{

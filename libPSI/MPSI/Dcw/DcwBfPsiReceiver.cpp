@@ -1,7 +1,7 @@
 #include "DcwBfPsiReceiver.h"
 #include "Crypto/PRNG.h"
 #include "Crypto/Commit.h"
-#include "OT/KosOtExtReceiver.h"
+#include "OT/TwoChooseOne/KosOtExtReceiver.h"
 #include "Common/Log.h"
 #include <unordered_map>
 #include "Common/Timer.h"
@@ -10,7 +10,7 @@
 
 #include <set>
 
-namespace libPSI
+namespace osuCrypto
 {
 
 	DcwBfPsiReceiver::DcwBfPsiReceiver()
@@ -86,8 +86,8 @@ namespace libPSI
 		//mBinSize = logn * std::log2(logn);
 
 		PRNG prng(seed);
-		mSeed = prng.get_block();
-		auto myHashSeed = prng.get_block();
+		mSeed = prng.get<block>();
+		auto myHashSeed = prng.get<block>();
 
 
 		auto & chl = *chls[0];
@@ -172,7 +172,7 @@ namespace libPSI
 		for (u64 i = 0; i < numRecvThreads; ++i)
 		{
 			// each need a seed.
-			auto seed = prng.get_block();
+			auto seed = prng.get<block>();
 
 			// the split function allows us to create a new extension that has
 			// more or less the same base. This allows us to do only 128 base OTs
@@ -190,7 +190,7 @@ namespace libPSI
 
 
 		// now use this thread to do a recv routine.
-		seed = prng.get_block();
+		seed = prng.get<block>();
 		recvOtRountine(0, numRecvThreads + 1, otExt, seed, chl);
 
 
@@ -199,7 +199,7 @@ namespace libPSI
 
 		for (u64 i = 0; i < mHashs.size(); ++i)
 		{
-			mHashs[i].Update(hashSeedGen.get_block());
+			mHashs[i].Update(hashSeedGen.get<block>());
 		}
 
 

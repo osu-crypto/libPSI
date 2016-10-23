@@ -10,7 +10,7 @@
 #include "boost/asio.hpp"
 #include "Network/BtIOService.h"
 
-namespace libPSI { 
+namespace osuCrypto { 
 
 	class WinNetIOService;
 	class ChannelBuffer;

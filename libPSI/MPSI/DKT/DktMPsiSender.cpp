@@ -4,9 +4,8 @@
 #include "Common/Log.h"
 
 #include "Common/ByteStream.h"
-#include "Common/CountdownSemaphore.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 
 	DktMPsiSender::DktMPsiSender()
@@ -45,7 +44,7 @@ namespace libPSI
 
 		std::vector<PRNG> thrdPrng(chls.size());
 		for (u64 i = 0; i < thrdPrng.size(); i++)
-			thrdPrng[i].SetSeed(mPrng.get_block());
+			thrdPrng[i].SetSeed(mPrng.get<block>());
 
 		std::promise<std::array<EccPoint*,3>> pchProm;
 		std::shared_future<std::array<EccPoint*,3>> pchFuture(pchProm.get_future().share());
@@ -57,8 +56,8 @@ namespace libPSI
 		//EccNumber Rs(curve);
 		//Rs.randomize(mPrng);
 
-		auto RsSeed = mPrng.get_block();
-		auto sigma2RSeed = mPrng.get_block();
+		auto RsSeed = mPrng.get<block>();
+		auto sigma2RSeed = mPrng.get<block>();
 
 		auto routine = [&](u64 t)
 		{
@@ -73,7 +72,7 @@ namespace libPSI
 			auto& prng = thrdPrng[t];
 			u8 hashOut[SHA1::HashSize];
 
-			EllipticCurve curve(curveParam, prng.get_block());
+			EllipticCurve curve(curveParam, prng.get<block>());
 			const auto& g = curve.getGenerators()[0];
 			const auto& gg = curve.getGenerators()[1];
 			const auto& ggg = curve.getGenerators()[2];

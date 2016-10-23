@@ -1,5 +1,5 @@
 #include "DcwRBfPsiSender.h"
-#include "OT/KosOtExtSender.h"
+#include "OT/TwoChooseOne/KosOtExtSender.h"
 #include "Crypto/PRNG.h"
 #include "Crypto/Commit.h"
 #include "Common/Log.h" 
@@ -8,7 +8,7 @@
 #include "Crypto/ShamirSSScheme.h"  
 
 
-namespace libPSI {
+namespace osuCrypto {
 
 	DcwRBfPsiSender::DcwRBfPsiSender()
 	{
@@ -49,8 +49,8 @@ namespace libPSI {
 		mStatSecParam = statSecParam;
 
 		PRNG prng(seed);
-		mSeed = prng.get_block();
-		auto myHashSeed = prng.get_block();
+		mSeed = prng.get<block>();
+		auto myHashSeed = prng.get<block>();
 
 		Commit comm(myHashSeed), theirComm;
 
@@ -86,7 +86,7 @@ namespace libPSI {
 			BitVector choices(gOtExtBaseOtCount);
 			choices.randomize(prng);
 
-			//crypto crpto(128, prng.get_block());
+			//crypto crpto(128, prng.get<block>());
 			NaorPinkas base;
 			base.receive(choices, baseMsg, prng, chl0, 2);
 
@@ -144,7 +144,7 @@ namespace libPSI {
 		// do the same thing but for the send OT extensions
 		for (u64 i = 0; i < numSendThreads; ++i)
 		{
-			auto seed = prng.get_block();
+			auto seed = prng.get<block>();
 			sendOts[i] = std::move(otExt.split());
 
 			*thrdIter++ = std::thread([&, i, chlIter]()
@@ -157,7 +157,7 @@ namespace libPSI {
 		}
 
 
-		seed = prng.get_block();
+		seed = prng.get<block>();
 		sendOtRountine(0, numSendThreads + 1, otExt, seed, chl0);
 
 
@@ -168,7 +168,7 @@ namespace libPSI {
 
 		for (u64 i = 0; i < mHashs.size(); ++i)
 		{
-			mHashs[i].Update(hashSeedGen.get_block());
+			mHashs[i].Update(hashSeedGen.get<block>());
 		}
 
 		gTimer.setTimePoint("init.OtExtDone");

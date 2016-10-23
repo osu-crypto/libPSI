@@ -9,9 +9,9 @@
 #include "Crypto/ShamirSSScheme.h" 
 #include "Common/Log.h"
 #include "Crypto/PRNG.h"
-using namespace libPSI;
+using namespace osuCrypto;
 
-//namespace libPSI_tests
+//namespace osuCrypto_tests
 //{
 void ShamirSSScheme_Test()
 {

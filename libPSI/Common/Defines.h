@@ -16,6 +16,12 @@
 #undef GetMessage
 #endif
 
+//#ifdef VISUAL_STUDIO_MEM_LEAK_DETECTOR
+//#pragma comment(lib, "vld.lib")
+//#include <vld.h>
+//#endif
+
+
 #ifdef _MSC_VER 
 #define __STR2__(x) #x
 #define __STR1__(x) __STR2__(x)
@@ -36,7 +42,7 @@
 #define LOCATION __FILE__ ":" STRINGIZE(__LINE__)
 
 
-namespace libPSI {
+namespace osuCrypto {
 	template<typename T> using ptr = T*;
 	template<typename T> using uPtr = std::unique_ptr<T>;
 	template<typename T> using sPtr = std::shared_ptr<T>;
@@ -65,26 +71,10 @@ namespace libPSI {
 
 	typedef  __m128i block;
 	inline block toBlock(u8*data)
-	{ return _mm_set_epi64x(((u64*)data)[0], ((u64*)data)[1]);}
+	{ return _mm_set_epi64x(((u64*)data)[1], ((u64*)data)[0]);}
 
-	
-
-struct blockRIOT
-	{
-		block elem[4];
-		//u64 elem3;
-
-		inline  blockRIOT operator=(blockRIOT blk512)
-		{
-			elem[0] = blk512.elem[0];
-			elem[1] = blk512.elem[1];
-			elem[2] = blk512.elem[2];
-			elem[3] = blk512.elem[3];
-			return *this;
-		}
-		
-
-	};
+	template <size_t N>
+	using  MultiBlock = std::array<block, N>;
 
 #ifdef _MSC_VER
 	inline block operator^(const block& lhs, const block& rhs)
@@ -111,24 +101,27 @@ struct blockRIOT
 
 	
 #endif
-	inline blockRIOT operator^(const blockRIOT& lhs, const blockRIOT& rhs)
+
+	template <size_t N>
+	inline MultiBlock<N> operator^(const MultiBlock<N>& lhs, const MultiBlock<N>& rhs)
 	{
-		blockRIOT rs;
-		rs.elem[0] = lhs.elem[0] ^ rhs.elem[0];
-		rs.elem[1] = lhs.elem[1] ^ rhs.elem[1];
-		rs.elem[2] = lhs.elem[2] ^ rhs.elem[2];
-		rs.elem[3] = lhs.elem[3] ^ rhs.elem[3];
+		MultiBlock<N> rs;
+
+		for (u64 i = 0; i < N; ++i)
+		{
+			rs[i] = lhs[i] ^ rhs[i];
+		}
 		return rs;
 	}
-
-	inline blockRIOT operator&(const blockRIOT& lhs, const blockRIOT& rhs)
+	template <size_t N>
+	inline MultiBlock<N> operator&(const MultiBlock<N>& lhs, const MultiBlock<N>& rhs)
 	{
-		blockRIOT rs;
-		rs.elem[0] = lhs.elem[0] & rhs.elem[0];
-		rs.elem[1] = lhs.elem[1] & rhs.elem[1];
-		rs.elem[2] = lhs.elem[2] & rhs.elem[2];
-		rs.elem[3] = lhs.elem[3] & rhs.elem[3];
-		//rs.elem3 = lhs.elem3&rhs.elem3;
+		MultiBlock<N> rs;
+
+		for (u64 i = 0; i < N; ++i)
+		{
+			rs[i] = lhs[i] & rhs[i];
+		}
 		return rs;
 	}
 
@@ -146,13 +139,17 @@ struct blockRIOT
 	{
 		return ((u8 *)(&b));
 	}
-	inline u8* ByteArray(const blockRIOT& b)
+
+	template <size_t N>
+	inline u8* ByteArray(const MultiBlock<N>& b)
 	{
 		return ((u8 *)(&b));
 	}
 
 	std::ostream& operator<<(std::ostream& out, const block& block);
-	std::ostream& operator<<(std::ostream& out, const blockRIOT& block);
+	
+	template <size_t N>
+	std::ostream& operator<<(std::ostream& out, const MultiBlock<N>& block);
 
 	class Commit;
 	class BitVector;
@@ -163,18 +160,6 @@ struct blockRIOT
 
 	block PRF(const block& b, u64 i);
 
-
-	template <u32 N> struct Unroll {
-		template <typename F> static void call(F const& f) {
-			f(N - 1);
-			Unroll<N - 1>::call(f);
-		}
-	};
-
-	template <> struct Unroll < 0u > {
-		template <typename F> static void call(F const&) {}
-	};
-
 	void split(const std::string &s, char delim, std::vector<std::string> &elems);
 	std::vector<std::string> split(const std::string &s, char delim);
 
@@ -184,37 +169,44 @@ struct blockRIOT
 
 }
 
-inline bool eq(const libPSI::block& lhs, const libPSI::block& rhs)
+inline bool eq(const osuCrypto::block& lhs, const osuCrypto::block& rhs)
 {
-	libPSI::block neq = _mm_xor_si128(lhs, rhs);
+	osuCrypto::block neq = _mm_xor_si128(lhs, rhs);
 	return _mm_test_all_zeros(neq, neq) != 0;
 }
 
-inline bool neq(const libPSI::block& lhs, const libPSI::block& rhs)
+inline bool neq(const osuCrypto::block& lhs, const osuCrypto::block& rhs)
 {
-	libPSI::block neq = _mm_xor_si128(lhs, rhs);
+	osuCrypto::block neq = _mm_xor_si128(lhs, rhs);
 	return _mm_test_all_zeros(neq, neq) == 0;
 }
 
-inline bool neq(const libPSI::blockRIOT& lhs, const libPSI::blockRIOT& rhs)
+template<size_t N>
+inline bool neq(const osuCrypto::MultiBlock<N>& lhs, const osuCrypto::MultiBlock<N>& rhs)
 {
-	libPSI::blockRIOT neq = lhs^ rhs;
-	return _mm_test_all_zeros(neq.elem[0], neq.elem[0]) == 0 || _mm_test_all_zeros(neq.elem[0], neq.elem[0]) == 0
-|| _mm_test_all_zeros(neq.elem[0], neq.elem[0]) == 0|| _mm_test_all_zeros(neq.elem[0], neq.elem[0]) == 0;
+	osuCrypto::MultiBlock<N> neq = lhs^ rhs;
+
+
+	int ret = 0;
+	for (u64 i = 0; i < N; ++i)
+	{
+		ret || = _mm_test_all_zeros(neq[i], neq[i]);
+	}
+	return ret;
 }
 
 
 #ifdef _MSC_VER
-inline bool operator==(const libPSI::block& lhs, const libPSI::block& rhs)
+inline bool operator==(const osuCrypto::block& lhs, const osuCrypto::block& rhs)
 {
 	return eq(lhs, rhs);
 }
 
-inline bool operator!=(const libPSI::block& lhs, const libPSI::block& rhs)
+inline bool operator!=(const osuCrypto::block& lhs, const osuCrypto::block& rhs)
 {
 	return neq(lhs, rhs);
 }
-inline bool operator<(const libPSI::block& lhs, const libPSI::block& rhs)
+inline bool operator<(const osuCrypto::block& lhs, const osuCrypto::block& rhs)
 {
 	return lhs.m128i_u64[1] < rhs.m128i_u64[1] || (eq(lhs, rhs) && lhs.m128i_u64[0] < rhs.m128i_u64[0]);
 }

@@ -3,14 +3,14 @@
 #include "Network/BtIOService.h"
 #include "Network/BtEndpoint.h"
 #include "Common/Log.h"
-#include "OT/AknOtReceiver.h"
-#include "OT/AknOtSender.h"
-#include "OT/KosOtExtReceiver.h"
-#include "OT/KosOtExtSender.h"
+#include "OT/NChooseK/AknOtReceiver.h"
+#include "OT/NChooseK/AknOtSender.h"
+#include "OT/TwoChooseOne/KosOtExtReceiver.h"
+#include "OT/TwoChooseOne/KosOtExtSender.h"
 #include "Common.h"
 #include "OTOracleReceiver.h"
 #include "OTOracleSender.h"
-using namespace libPSI;
+using namespace osuCrypto;
 
 void AknOt_sendRecv1000_Test()
 {

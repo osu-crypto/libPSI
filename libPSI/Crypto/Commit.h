@@ -8,7 +8,7 @@
 #include "Crypto/sha1.h"
 #include <iostream>
 
-namespace libPSI {
+namespace osuCrypto {
 
 #define COMMIT_BUFF_u32_SIZE  5
 static_assert(SHA1::HashSize == sizeof(u32) * COMMIT_BUFF_u32_SIZE, "buffer need to be the same size as hash size");
@@ -30,7 +30,7 @@ class Commit //:  public ChannelBuffer
 
 		Commit(const block& in, PRNG& prng)
 		{
-			block rand = prng.get_block();
+			block rand = prng.get<block>();
 			hash(ByteArray(in), sizeof(block), rand);
 		}
 		Commit(const block& in, block& rand)
@@ -40,7 +40,7 @@ class Commit //:  public ChannelBuffer
 
 		Commit(const ByteStream& in, PRNG& prng)
 		{
-			block rand = prng.get_block();
+			block rand = prng.get<block>();
 			 hash(in.data(), in.size(), rand);
 		}
 		Commit(const ByteStream& in, block& rand)

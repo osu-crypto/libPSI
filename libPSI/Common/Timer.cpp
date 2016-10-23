@@ -3,7 +3,7 @@
 #include <string>
 #include "Common/Defines.h"
 #include "Common/Log.h"
-namespace libPSI
+namespace osuCrypto
 {
 	//const Timer::timeUnit  Timer::mStart(Timer::timeUnit::clock::now());
 

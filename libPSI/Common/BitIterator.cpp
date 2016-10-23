@@ -1,6 +1,6 @@
 #include "BitIterator.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 
 	BitReference::operator u8() const

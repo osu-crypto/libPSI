@@ -10,7 +10,7 @@
 #include "Common/BitVector.h"
 #include "Crypto/sha1.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 	//static const  u64 minMsgPerThread(16);
 
@@ -40,7 +40,7 @@ namespace libPSI
 		//auto numThreads = (messages.size() + minMsgPerThread - 1) / minMsgPerThread;
 		const auto& params = k233;
 
-		block seed = prng.get_block();
+		block seed = prng.get<block>();
 
 		EllipticCurve curve(params, seed);
 		auto& g = curve.getGenerator();
@@ -67,7 +67,7 @@ namespace libPSI
 
 		for (u64 t = 0; t < numThreads; ++t)
 		{
-			seed = prng.get_block();
+			seed = prng.get<block>();
 
 			thrds[t] = std::thread(
 				[t, numThreads, &messages, seed, params,
@@ -79,7 +79,7 @@ namespace libPSI
 				auto mEnd = (t + 1) * messages.size() / numThreads;
 
 				PRNG prng(seed);
-				EllipticCurve curve(params, prng.get_block());
+				EllipticCurve curve(params, prng.get<block>());
 
 				auto& g = curve.getGenerator();
 				u64 fieldElementSize = g.sizeBytes();
@@ -233,7 +233,7 @@ namespace libPSI
 
 
 
-		auto seed = prng.get_block();
+		auto seed = prng.get<block>();
 		EllipticCurve curve(params, seed);
 		//std::unique_ptr<ecc_field> mainPk(new ecc_field(LT, (u8*)&seed));
 

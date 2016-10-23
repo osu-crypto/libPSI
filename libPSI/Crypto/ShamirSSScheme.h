@@ -5,7 +5,7 @@
 #include "Common/ArrayView.h"
 #include "NTL/GF2EX.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 
 	class ShamirSSScheme

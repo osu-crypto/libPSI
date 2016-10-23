@@ -23,7 +23,7 @@
 //
 //
 
-namespace libPSI
+namespace osuCrypto
 {
 
 

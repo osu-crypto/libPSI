@@ -5,7 +5,7 @@
 #include "miracl/include/miracl.h"
 #include "Common/ByteStream.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 	EllipticCurve::EllipticCurve(const Ecc2mParams & params, const block& seed)
 		:
@@ -114,7 +114,7 @@ namespace libPSI
 	void EllipticCurve::setPrng(const block & seed)
 	{
 		mPrng.SetSeed(seed);
-		irand(mMiracl, (int)mPrng.get_u32());
+		irand(mMiracl, (int)mPrng.get<u32>());
 	}
 
 	void EllipticCurve::setParameters(const Ecc2mParams & params)
@@ -497,7 +497,7 @@ namespace libPSI
 			//TODO("replace bigdig with our PRNG");
 
 			//bigdig(mCurve->mMiracl, mCurve->mParams.bitCount, 2, var);
-			prng.get_u8s(buff, byteSize);
+			prng.get(buff, byteSize);
 			buff[byteSize - 1] &= mask;
 
 			bytes_to_big(mCurve->mMiracl, byteSize, (char*)buff, var);
@@ -994,7 +994,7 @@ namespace libPSI
 		{ /* create big rand piece by piece */
 			m++;
 			mVal->len = m;
-			r = prng.get_u64();
+			r = prng.get<u64>();
 
 			if (mCurve->mMiracl->base == 0)
 			{

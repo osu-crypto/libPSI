@@ -2,7 +2,7 @@
 #include "Common/Defines.h"
 #include <vector>
 #include <array>
-namespace libPSI {
+namespace osuCrypto {
 
 	template<class T>
 	class ArrayView
@@ -31,7 +31,7 @@ namespace libPSI {
 		ArrayView(ArrayView&& av) :
 			mData(av.mData),
 			mSize(av.mSize),
-			mOwner(true)
+			mOwner(av.mOwner)
 		{
 			av.mData = nullptr;
 			av.mSize = 0;

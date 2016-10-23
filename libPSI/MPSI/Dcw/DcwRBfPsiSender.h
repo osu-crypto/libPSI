@@ -2,9 +2,9 @@
 #include "Common/Defines.h"
 #include "Network/Channel.h"
 #include "Crypto/sha1.h"
-#include "OT/OTExtInterface.h"
+#include "OT/TwoChooseOne/OTExtInterface.h"
 
-namespace libPSI {
+namespace osuCrypto {
 
 	
 

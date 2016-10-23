@@ -4,7 +4,7 @@
 
 
 
-namespace libPSI {
+namespace osuCrypto {
 	class Channel;
 
 	class Endpoint

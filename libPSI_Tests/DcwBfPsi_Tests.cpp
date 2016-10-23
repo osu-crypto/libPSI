@@ -16,7 +16,7 @@
 //#include "MyAssert.h"
 #include <array>
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 
 
@@ -29,8 +29,8 @@ void DcwBfPsi_EmptrySet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = prng.get_block();
-		recvSet[i] = prng.get_block();
+		sendSet[i] = prng.get<block>();
+		recvSet[i] = prng.get<block>();
 	}
 
 	std::string name("psi");
@@ -56,7 +56,7 @@ void DcwBfPsi_EmptrySet_Test_Impl()
 		for (u64 j = 0; j < repeatCount; ++j)
 		{
 			u64 otIdx = 0;
-			sendPSIs[j].init(setSize, psiSecParam, otSend, sendChl, prng.get_block());
+			sendPSIs[j].init(setSize, psiSecParam, otSend, sendChl, prng.get<block>());
 		}
 	});
 
@@ -112,7 +112,7 @@ void DcwBfPsi_FullSet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = recvSet[i] = prng.get_block();
+		sendSet[i] = recvSet[i] = prng.get<block>();
 	}
 
 	std::shuffle(sendSet.begin(), sendSet.end(), prng);
@@ -140,7 +140,7 @@ void DcwBfPsi_FullSet_Test_Impl()
 	DcwBfPsiReceiver recvPSI;
 	std::thread thrd([&]() {
 
-		sendPSI.init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
+		sendPSI.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 		sendPSI.sendInput(sendSet, sendChls);
 	});
 	recvPSI.init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
@@ -176,8 +176,8 @@ void DcwBfPsi_SingltonSet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = prng.get_block();
-		recvSet[i] = prng.get_block();
+		sendSet[i] = prng.get<block>();
+		recvSet[i] = prng.get<block>();
 	}
 
 	sendSet[0] = recvSet[0];
@@ -201,7 +201,7 @@ void DcwBfPsi_SingltonSet_Test_Impl()
 	DcwBfPsiReceiver recvPSI;
 	std::thread thrd([&]() {
 		std::vector<Channel*> cc{ &sendChl };
-		sendPSI.init(setSize, psiSecParam, otSend, cc, prng.get_block());
+		sendPSI.init(setSize, psiSecParam, otSend, cc, prng.get<block>());
 		sendPSI.sendInput(sendSet, sendChl);
 	});
 
@@ -235,8 +235,8 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = prng.get_block();
-		recvSet[i] = prng.get_block();
+		sendSet[i] = prng.get<block>();
+		recvSet[i] = prng.get<block>();
 	}
 
 	std::string name("psi");
@@ -262,7 +262,7 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
 		for (u64 j = 0; j < repeatCount; ++j)
 		{
 			u64 otIdx = 0;
-			sendPSIs[j].init(setSize, psiSecParam, otSend, sendChl, prng.get_block());
+			sendPSIs[j].init(setSize, psiSecParam, otSend, sendChl, prng.get<block>());
 		}
 	});
 
@@ -319,7 +319,7 @@ void DcwRBfPsi_FullSet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = recvSet[i] = prng.get_block();
+		sendSet[i] = recvSet[i] = prng.get<block>();
 	}
 
 	std::shuffle(sendSet.begin(), sendSet.end(), prng);
@@ -351,7 +351,7 @@ void DcwRBfPsi_FullSet_Test_Impl()
 		{
 			u64 otIdx = 0;
 
-			sendPSIs[j].init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
+			sendPSIs[j].init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 			sendPSIs[j].sendInput(sendSet, sendChls);
 		}
 	});
@@ -397,8 +397,8 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
 	std::vector<block> sendSet(setSize), recvSet(setSize);
 	for (u64 i = 0; i < setSize; ++i)
 	{
-		sendSet[i] = prng.get_block();
-		recvSet[i] = prng.get_block();
+		sendSet[i] = prng.get<block>();
+		recvSet[i] = prng.get<block>();
 	}
 
 	sendSet[0] = recvSet[0];
@@ -427,7 +427,7 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
 			u64 otIdx = 0;
 
 			std::vector<Channel*> cc{ &sendChl };
-			sendPSIs[j].init(setSize, psiSecParam, otSend, cc, prng.get_block());
+			sendPSIs[j].init(setSize, psiSecParam, otSend, cc, prng.get<block>());
 		}
 	});
 

@@ -1,8 +1,8 @@
 #include "OT_Tests.h"
 
-#include "OT/OTExtInterface.h"
+#include "OT/TwoChooseOne/OTExtInterface.h"
 
-#include "OT/Base/Tools.h"
+#include "OT/Tools/Tools.h"
 #include "Network/BtChannel.h"
 #include "Network/BtEndpoint.h"
 
@@ -18,7 +18,7 @@
 #undef GetMessage
 #endif
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 
 
@@ -48,7 +48,7 @@ void NaorPinkasOt_Test_Impl()
 			Log::setThreadName("receiver");
 
 
-			//crypto crpt(128, prng1.get_seed());
+			//crypto crpt(128, prng1.getSeed());
 
 
 			NaorPinkas baseOTs;// (&crpt);
@@ -68,7 +68,7 @@ void NaorPinkasOt_Test_Impl()
 
 		});
 
-		//crypto crpt(128, prng0.get_block());
+		//crypto crpt(128, prng0.get<block>());
 		NaorPinkas baseOTs;
 
 		baseOTs.receive(choices, recvMsg, prng0, senderChannel, 1);

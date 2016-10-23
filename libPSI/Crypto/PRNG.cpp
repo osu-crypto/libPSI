@@ -3,7 +3,7 @@
 #include <cstring>
 #include <Common/Log.h>
 
-namespace libPSI {
+namespace osuCrypto {
 
 #define DEFAULT_BUFF_SIZE 64
 	PRNG::PRNG() : mBytesIdx(0), mBlockIdx(0),
@@ -28,10 +28,23 @@ namespace libPSI {
 		refillBuffer();
 	}
 
-
-	//PRNG::~PRNG()
-	//{
-	//}
+	PRNG::PRNG(PRNG && s) :
+		mSeed(s.mSeed),
+		mBuffer(std::move(s.mBuffer)),
+		mIndexArray(std::move(s.mIndexArray)),
+		mAes(std::move(s.mAes)),
+		mBytesIdx(s.mBytesIdx),
+		mBlockIdx(s.mBlockIdx),
+		mBufferByteCapacity(s.mBufferByteCapacity)
+	{
+		s.mSeed = ZeroBlock;
+		s.mBuffer.resize(0);
+		s.mIndexArray.resize(0);
+		memset(&s.mAes, 0, sizeof(AES));
+		s.mBytesIdx = 0;
+		s.mBlockIdx = 0;
+		s.mBufferByteCapacity = 0;
+	}
 
 
 	void PRNG::SetSeed(const block& seed)
@@ -50,78 +63,14 @@ namespace libPSI {
 
 		refillBuffer();
 	}
-	//const block & PRNG::get_seed() const
-	//{
-	//	return mSeed;
-	//}
-	//void PRNG::setBufferSize(u64 size)
-	//{
-	//	u64 rem = mBytesIdx % sizeof(block);
-	//	mBlockIdx = mBlockIdx - mBuffer.size() + (mBytesIdx / 16);
 
-	//	mBuffer.resize(0);
-	//	mBuffer.resize(size);
+	const block PRNG::getSeed() const
+	{
+		return mSeed;
+	}
 
-	//	mIndexArray.resize(0);
-	//	mIndexArray.resize(size, ZeroBlock);
-	//	mBufferByteCapacity = size * sizeof(block);
-
-	//	refillBuffer();
-
-	//	mBytesIdx = rem;
-	//}
-	//u64 PRNG::getBufferSize()
-	//{
-	//	return mBuffer.size();
-	//}
-	//u8 PRNG::get_bit()
-	//{
-	//	u8 data;
-	//	get_u8s((u8*)&data, 1);
-	//	return data & 1;
-	//}
-	double PRNG::get_double()
+	void PRNG::get(u8 * dest, u64 length)
 	{
-		double data;
-		get_u8s((u8*)&data,sizeof(double));
-		return data;
-	}
-	u8 PRNG::get_uchar()
-	{
-		u8 data;
-		get_u8s((u8*)&data, 1);
-		return data;
-	}
-	u32 PRNG::get_u32()
-	{
-		u32 data;
-		get_u8s((u8*)&data, 4);
-		return data;
-	}
-	//u64 PRNG::get_u64()
-	//{
-	//	u64 data;
-	//	get_u8s((u8*)&data, 8);
-
-	//	return data;
-	//}
-	block PRNG::get_block()
-	{
-		block data;
-		get_u8s((u8*)&data, 16);
-		return data;
-	}
-	blockRIOT PRNG::get_block512(u64 length)
-	{
-		blockRIOT data;
-		get_u8s((u8*)&data, length);
-		return data;
-	}
-	void PRNG::get_u8s(u8 * dest, u64 length)
-	{
-		//TODO("REMOVE THIS");
-		//memset(dest, 0xcc, length);
-		//return;
 
 		u8* destu8 = (u8*)dest;
 		while (length)
@@ -129,10 +78,6 @@ namespace libPSI {
 			u64 step = std::min(length, mBufferByteCapacity - mBytesIdx);
 
 			memcpy(destu8, ((u8*)mBuffer.data()) + mBytesIdx, step);
-
-			//for (u64 i = 0; i < step; ++i)
-			//	if(((u8*)mBuffer.data())[mBytesIdx + i])
-			//		destu8[i] = ((u8*)mBuffer.data())[mBytesIdx + i];
 
 			destu8 += step;
 			length -= step;
@@ -146,32 +91,13 @@ namespace libPSI {
 
 	void PRNG::refillBuffer()
 	{
-		//if (mIndexArray.size() != mBuffer.size())
-		//	throw std::runtime_error("rt error at " LOCATION);
-
 		for (u64 i = 0; i < mBuffer.size(); ++i)
 		{
-			//reinterpret_cast<u64*>(&mIndexArray[i])[0] = mBlockIdx++;
-			//reinterpret_cast<u64*>(&mIndexArray[i])[1] = 0;
-
-			//mIndexArray[i] = _mm_set_epi64x(mBlockIdx++, 0);
 			((u64*)&mIndexArray[i])[0] = mBlockIdx++;
 			((u64*)&mIndexArray[i])[1] = 0;
-
-			//Log::out << mIndexArray[i] << " ";
 		}
-		//Log::out << Log::endl;
-
-		//memset(mBuffer.data(), 0xcc, mBuffer.size() * sizeof(block));
 		mAes.ecbEncBlocks(mIndexArray.data(), mBuffer.size(), mBuffer.data());
 
-		//for (u64 i = 0; i < mBuffer.size(); ++i)
-		//{
-		//if (eq(mBuffer[i], ZeroBlock))
-		//Log::out << "eq" << Log::endl;
-		//}
-
-		//Log::out << Log::endl;
 		mBytesIdx = 0;
 	}
 }

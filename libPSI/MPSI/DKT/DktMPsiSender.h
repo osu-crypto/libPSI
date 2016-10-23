@@ -4,7 +4,7 @@
 #include "Network/Channel.h"
 #include "Crypto/PRNG.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 	class DktMPsiSender
 	{

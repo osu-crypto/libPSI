@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include "Common/ByteStream.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 
 	DktMPsiReceiver::DktMPsiReceiver()
@@ -32,14 +32,14 @@ namespace libPSI
 	{
 		std::vector<PRNG> thrdPrng(chls.size());
 		for (u64 i = 0; i < thrdPrng.size(); i++)
-			thrdPrng[i].SetSeed(mPrng.get_block());
+			thrdPrng[i].SetSeed(mPrng.get<block>());
 
 
 		u64 theirInputSize = inputs.size();
 
 
-		auto RcSeed = mPrng.get_block();
-		auto sigmaDSeed = mPrng.get_block();
+		auto RcSeed = mPrng.get<block>();
+		auto sigmaDSeed = mPrng.get<block>();
 
 
 		std::vector<std::future<block>> 
@@ -94,7 +94,7 @@ namespace libPSI
 			u8 hashOut[SHA1::HashSize];
 
 			// curve must be prime order...
-			EllipticCurve curve(Curve25519, prng.get_block());
+			EllipticCurve curve(Curve25519, prng.get<block>());
 
 			if (curve.getGenerators().size() < 3)
 			{

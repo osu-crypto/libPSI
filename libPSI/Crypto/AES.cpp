@@ -1,7 +1,7 @@
 #include "AES.h"
 
 
-namespace libPSI{
+namespace osuCrypto{
 
 	const AES mAesFixedKey(_mm_set_epi8(36, -100, 50, -22, 92, -26, 49, 9, -82, -86, -51, -96, 98, -20, 29, -13));
 	

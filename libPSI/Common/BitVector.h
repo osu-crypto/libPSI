@@ -5,7 +5,7 @@
 #include "Crypto/PRNG.h"
 #include "Common/BitIterator.h"
 #include "Common/ArrayView.h"
-namespace libPSI {
+namespace osuCrypto {
 
 
 	//class PRNG;
@@ -69,8 +69,12 @@ namespace libPSI {
 		BitVector& operator=(const BitVector& K);
 		BitReference operator[](const u64 idx) const;
 		BitVector operator^(const BitVector& B)const;
+		BitVector operator&(const BitVector& B)const;
+		BitVector operator|(const BitVector& B)const;
+		BitVector operator~()const;
 		void operator^=(const BitVector& A);
 		void operator&=(const BitVector& A);
+		void operator|=(const BitVector& A);
 		bool operator==(const BitVector& k) { return equals(k); }
 		bool operator!=(const BitVector& k)const { return !equals(k); }
 

@@ -18,7 +18,7 @@
 #include "Common.h"
 
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 		void BtNetwork_Connect1_Boost_Test()
 		{

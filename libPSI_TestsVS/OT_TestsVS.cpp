@@ -6,7 +6,7 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace libPSI_tests
+namespace osuCrypto_tests
 {
 	TEST_CLASS(OT_Tests)
 	{
@@ -59,6 +59,14 @@ namespace libPSI_tests
 			InitDebugPrinting();
 			KosOtExt_100Receive_Test_Impl();
 		}
+
+
+		TEST_METHOD(Kkrt_200Receive_TestVS)
+		{
+			InitDebugPrinting();
+			KkrtNcoOt_Test_Impl();
+		}
+
 
 
 		//TEST_METHOD(Kos2_200Receive_TestVS)

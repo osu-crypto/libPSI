@@ -3,7 +3,7 @@
 #include "Common/Log.h"
 #include "Common/BitVector.h"
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 
 OTOracleReceiver::OTOracleReceiver(const block& seed)
@@ -24,14 +24,14 @@ void OTOracleReceiver::receive(
 	PRNG& prng,
 	Channel& chl)
 {
-	block test = mPrng.get_block(); 
+	block test = mPrng.get<block>(); 
 
 	std::array<block, 2> ss;
 
 	for (u64 doneIdx = 0; doneIdx < messages.size(); ++doneIdx)
 	{
-		ss[0] = mPrng.get_block();
-		ss[1] = mPrng.get_block();
+		ss[0] = mPrng.get<block>();
+		ss[1] = mPrng.get<block>();
 
 		messages[doneIdx] =  ss[choices[doneIdx]]; 
 

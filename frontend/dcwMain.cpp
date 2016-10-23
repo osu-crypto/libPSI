@@ -11,17 +11,17 @@
 
 #include "Common/Defines.h"
 #include "Network/BtEndpoint.h" 
-#include "OT/KosOtExtReceiver.h"
-#include "OT/KosOtExtSender.h"
+#include "OT/TwoChooseOne/KosOtExtReceiver.h"
+#include "OT/TwoChooseOne/KosOtExtSender.h"
 
-#include "OT/LzKosOtExtReceiver.h"
-#include "OT/LzKosOtExtSender.h"
+#include "OT/TwoChooseOne/LzKosOtExtReceiver.h"
+#include "OT/TwoChooseOne/LzKosOtExtSender.h"
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
 #include <fstream>
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 void DcwSend()
 {
@@ -71,7 +71,7 @@ void DcwSend()
 
 			for (u64 i = 0; i < setSize; ++i)
 			{
-				sendSet[i] = prng.get_block();
+				sendSet[i] = prng.get<block>();
 			}
 
 
@@ -86,7 +86,7 @@ void DcwSend()
 			Timer timer;
 
 			//auto start = timer.setTimePoint("sender.Start");
-			sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
+			sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 			//auto mid = timer.setTimePoint("sender.InitDOne");
 			sendChls[0]->asyncSend(dummy, 1);
 
@@ -166,7 +166,7 @@ void DcwRecv()
 
 			for (u64 i = 0; i < setSize; ++i)
 			{
-				sendSet[i] = recvSet[i] = prng.get_block();
+				sendSet[i] = recvSet[i] = prng.get<block>();
 			}
 
 
@@ -272,7 +272,7 @@ void DcwRSend()
 
 			for (u64 i = 0; i < setSize; ++i)
 			{
-				sendSet[i] = prng.get_block();
+				sendSet[i] = prng.get<block>();
 			}
 
 
@@ -287,7 +287,7 @@ void DcwRSend()
 			Timer timer;
 
 			//auto start = timer.setTimePoint("sender.Start");
-			sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
+			sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 			//auto mid = timer.setTimePoint("sender.InitDOne");
 			sendChls[0]->asyncSend(dummy, 1);
 
@@ -367,7 +367,7 @@ void DcwRRecv()
 
 			for (u64 i = 0; i < setSize; ++i)
 			{
-				sendSet[i] = recvSet[i] = prng.get_block();
+				sendSet[i] = recvSet[i] = prng.get<block>();
 			}
 
 

@@ -13,7 +13,7 @@
 #include "Crypto/PRNG.h"
 #include <fstream>
 
-using namespace libPSI;
+using namespace osuCrypto;
 std::vector<u32> numThreadss{/*1, 4,16,*/ 64 };
 u64 numTrial(1);
 std::vector<u32> pows{ 8,12,16,20 };
@@ -67,7 +67,7 @@ void DktSend()
 
 				for (u64 i = 0; i < setSize; ++i)
 				{
-					sendSet[i] = prng.get_block();
+					sendSet[i] = prng.get<block>();
 				}
 
 
@@ -80,7 +80,7 @@ void DktSend()
 				Timer timer;
 
 				//auto start = timer.setTimePoint("sender.Start");
-				sendPSIs.init(setSize, psiSecParam, prng.get_block());
+				sendPSIs.init(setSize, psiSecParam, prng.get<block>());
 				//auto mid = timer.setTimePoint("sender.InitDOne");
 				sendChls[0]->asyncSend(dummy, 1);
 
@@ -171,7 +171,7 @@ void DktRecv()
 
 				for (u64 i = 0; i < setSize; ++i)
 				{
-					sendSet[i] = recvSet[i] = prng.get_block();
+					sendSet[i] = recvSet[i] = prng.get<block>();
 				}
 
 

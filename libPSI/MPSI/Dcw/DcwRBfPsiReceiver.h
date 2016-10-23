@@ -4,8 +4,8 @@
 
 #include "Crypto/sha1.h"
 #include "Common/BitVector.h"
-#include "OT/OTExtInterface.h"
-namespace libPSI
+#include "OT/TwoChooseOne/OTExtInterface.h"
+namespace osuCrypto
 {
 
 

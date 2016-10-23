@@ -1,7 +1,7 @@
 #pragma once
 #include "Common/Defines.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 
 	/// <summary>

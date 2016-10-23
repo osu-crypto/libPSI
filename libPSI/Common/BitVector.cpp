@@ -1,7 +1,7 @@
 #include "BitVector.h"
 #include <sstream>
 #include <cstring>
-namespace libPSI {
+namespace osuCrypto {
 
 
 
@@ -152,11 +152,48 @@ namespace libPSI {
 		return ret;
 	}
 
+	BitVector BitVector::operator&(const BitVector & B) const
+	{
+		BitVector ret(*this);
+
+		ret &= B;
+
+		return ret;
+	}
+
+	BitVector BitVector::operator|(const BitVector & B) const
+	{
+		BitVector ret(*this);
+
+		ret |= B;
+
+		return ret;
+	}
+
+	BitVector BitVector::operator~() const
+	{
+		BitVector ret(*this);
+
+		for (u64 i = 0; i < sizeBytes(); i++)
+			ret.mData[i] = ~mData[i];
+
+		return ret;
+	}
+
+
 	void BitVector::operator&=(const BitVector & A)
 	{
 		for (u64 i = 0; i < sizeBytes(); i++)
 		{
 			mData[i] &= A.mData[i];
+		}
+	}
+
+	void BitVector::operator|=(const BitVector & A)
+	{
+		for (u64 i = 0; i < sizeBytes(); i++)
+		{
+			mData[i] |= A.mData[i];
 		}
 	}
 
@@ -198,7 +235,7 @@ namespace libPSI {
 
 	BitIterator BitVector::begin() const
 	{
-		return BitIterator(mData,0);
+		return BitIterator(mData, 0);
 	}
 
 	BitIterator BitVector::end() const
@@ -219,7 +256,7 @@ namespace libPSI {
 
 		for (u64 i = k; i < n; ++i)
 		{
-			u64 j = prng.get_u64() % i;
+			u64 j = prng.get<u64>() % i;
 
 			if (j < k)
 			{
@@ -286,7 +323,7 @@ namespace libPSI {
 	}
 	void BitVector::randomize(PRNG& G)
 	{
-		G.get_u8s(mData, sizeBytes());
+		G.get(mData, sizeBytes());
 	}
 
 	std::string BitVector::hex() const

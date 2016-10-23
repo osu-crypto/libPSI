@@ -9,9 +9,9 @@
 #include "Crypto/AES.h" 
 #include "Common/Log.h"
 
-using namespace libPSI;
+using namespace osuCrypto;
 
-//namespace libPSI_tests
+//namespace osuCrypto_tests
 //{
 
 

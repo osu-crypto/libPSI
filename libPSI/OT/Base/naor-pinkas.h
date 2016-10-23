@@ -1,10 +1,10 @@
 #pragma once
 
-#include "OT/OTExtInterface.h"
+#include "OT/TwoChooseOne/OTExtInterface.h"
 #include "Common/ArrayView.h"
 #include "Crypto/PRNG.h"
 
-namespace libPSI
+namespace osuCrypto
 {
 
 	class NaorPinkas : public OtReceiver, public OtSender

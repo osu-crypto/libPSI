@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iostream>
 
-namespace libPSI {
+namespace osuCrypto {
 
   //class RepeatedOTException : public std::runtime_error
   //	{

@@ -4,7 +4,7 @@
 #include  "Common/Defines.h"
 #include "Common/Log.h"
 
-namespace libPSI {
+namespace osuCrypto {
 
 	BtChannel::BtChannel(
 		BtEndpoint& endpoint,
