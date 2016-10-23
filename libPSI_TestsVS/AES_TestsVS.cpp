@@ -11,15 +11,15 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace osuCrypto_tests
 {
-	TEST_CLASS(LocalChannel_Tests)
-	{
-	public:
+    TEST_CLASS(LocalChannel_Tests)
+    {
+    public:
 
-		TEST_METHOD(AES_EncDec_TestVS)
-		{
-			AES_EncDec_Test();
-		}
+        TEST_METHOD(AES_EncDec_TestVS)
+        {
+            AES_EncDec_Test();
+        }
 
-	};
+    };
 }
 #endif

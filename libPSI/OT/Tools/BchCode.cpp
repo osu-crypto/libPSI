@@ -66,31 +66,31 @@
 ////
 //void BCHSyndromeCompute(vec_GF2E & ss, const vec_GF2E & a, long d)
 //{
-//	GF2E a_i_to_the_j, multiplier;
-//	long i, j;
+//    GF2E a_i_to_the_j, multiplier;
+//    long i, j;
 //
-//	ss.SetLength((d - 1) / 2); // half the syndrome length, 
-//							   // because even power not needed
+//    ss.SetLength((d - 1) / 2); // half the syndrome length, 
+//                               // because even power not needed
 //
-//							   // We will compute the fs in parallel: first add
-//							   // all the powers of a_1, then of a_2, ..., then of a_s
-//	for (i = 0; i < a.length(); ++i)
-//	{
+//                               // We will compute the fs in parallel: first add
+//                               // all the powers of a_1, then of a_2, ..., then of a_s
+//    for (i = 0; i < a.length(); ++i)
+//    {
 //
-//		a_i_to_the_j = a[i];
-//		sqr(multiplier, a[i]); // multiplier = a[i]*a[i];
+//        a_i_to_the_j = a[i];
+//        sqr(multiplier, a[i]); // multiplier = a[i]*a[i];
 //
-//							   // special-case 0, because it doesn't need to be multiplied
-//							   // by the multiplier
-//		ss[0] += a_i_to_the_j;
+//                               // special-case 0, because it doesn't need to be multiplied
+//                               // by the multiplier
+//        ss[0] += a_i_to_the_j;
 //
-//		for (long j = 3; j < d; j += 2)
-//		{
-//			a_i_to_the_j *= multiplier;
-//			ss[(j - 1) / 2] += a_i_to_the_j;
+//        for (long j = 3; j < d; j += 2)
+//        {
+//            a_i_to_the_j *= multiplier;
+//            ss[(j - 1) / 2] += a_i_to_the_j;
 //
-//		}
-//	}
+//        }
+//    }
 //}
 //
 //
@@ -109,17 +109,17 @@
 //static
 //void InterpolateEvens(vec_GF2E & res, const vec_GF2E & ss)
 //{
-//	// uses relation syn(j) = syn(j/2)^2 to recover syn from ss
-//	long i;
+//    // uses relation syn(j) = syn(j/2)^2 to recover syn from ss
+//    long i;
 //
-//	res.SetLength(2 * ss.length());
-//	// odd coordinates (which, confusingly, means even i)
-//	// are just copied from the input
-//	for (i = 0; i < ss.length(); ++i)
-//		res[2 * i] = ss[i];
-//	// even coordinates (odd i) are computed via squaring.
-//	for (i = 1; i < res.length(); i += 2)
-//		sqr(res[i], res[(i - 1) / 2]); // square
+//    res.SetLength(2 * ss.length());
+//    // odd coordinates (which, confusingly, means even i)
+//    // are just copied from the input
+//    for (i = 0; i < ss.length(); ++i)
+//        res[2 * i] = ss[i];
+//    // even coordinates (odd i) are computed via squaring.
+//    for (i = 1; i < res.length(); i += 2)
+//        sqr(res[i], res[(i - 1) / 2]); // square
 //}
 //
 //
@@ -146,23 +146,23 @@
 //static
 //bool CheckIfDistinctRoots(const GF2EX & f)
 //{
-//	if (IsZero(f))
-//		return false;
-//	// We hanlde degree 0 and degree 1 case separately, so that later
-//	// we can assume X mod f is the same as X
-//	if (deg(f) == 0 || deg(f) == 1)
-//		return true;
+//    if (IsZero(f))
+//        return false;
+//    // We hanlde degree 0 and degree 1 case separately, so that later
+//    // we can assume X mod f is the same as X
+//    if (deg(f) == 0 || deg(f) == 1)
+//        return true;
 //
-//	GF2EXModulus F;
-//	// F is the same as f, just more efficient modular operations
-//	build(F, f);
+//    GF2EXModulus F;
+//    // F is the same as f, just more efficient modular operations
+//    build(F, f);
 //
-//	GF2EX h;
-//	FrobeniusMap(h, F); // h = X^{2^m} mod F
+//    GF2EX h;
+//    FrobeniusMap(h, F); // h = X^{2^m} mod F
 //
-//						// If X^{2^m} - X = 0 mod F, then X^{2^m} mod F
-//						// should be just X (because degree of F > 1)
-//	return (IsX(h));
+//                        // If X^{2^m} - X = 0 mod F, then X^{2^m} mod F
+//                        // should be just X (because degree of F > 1)
+//    return (IsX(h));
 //}
 //
 //
@@ -207,110 +207,110 @@
 ////
 //bool BCHSyndromeDecode(vec_GF2E &answer, const vec_GF2E & ssWithoutEvens, long d)
 //{
-//	long i;
-//	vec_GF2E ss;
+//    long i;
+//    vec_GF2E ss;
 //
 //
-//	// This takes O(d) operation in GF(2^m)
-//	InterpolateEvens(ss, ssWithoutEvens);
+//    // This takes O(d) operation in GF(2^m)
+//    InterpolateEvens(ss, ssWithoutEvens);
 //
-//	GF2EX r1, r2, r3, v1, v2, v3, q, temp;
-//	GF2EX *Rold, *Rcur, *Rnew, *Vold, *Vcur, *Vnew, *tempPointer;
+//    GF2EX r1, r2, r3, v1, v2, v3, q, temp;
+//    GF2EX *Rold, *Rcur, *Rnew, *Vold, *Vcur, *Vnew, *tempPointer;
 //
-//	// Use pointers to avoid moving polynomials around
-//	// An assignment of polynomials requires copying the coefficient vector;
-//	// we will not assign polynomials, but will swap pointers instead
-//	Rold = &r1;
-//	Rcur = &r2;
-//	Rnew = &r3;
+//    // Use pointers to avoid moving polynomials around
+//    // An assignment of polynomials requires copying the coefficient vector;
+//    // we will not assign polynomials, but will swap pointers instead
+//    Rold = &r1;
+//    Rcur = &r2;
+//    Rnew = &r3;
 //
-//	Vold = &v1;
-//	Vcur = &v2;
-//	Vnew = &v3;
-//
-//
-//	SetCoeff(*Rold, d - 1, 1); // Rold holds z^{d-1}
-//
-//							   // Rcur=S(z)/z where S is the syndrome poly, Rcur = \sum S_j z^{j-1}
-//							   // Note that because we index arrays from 0, S_j is stored in ss[j-1]
-//	for (i = 0; i<d - 1; i++)
-//		SetCoeff(*Rcur, i, ss[i]);
-//
-//	// Vold is already 0 -- no need to initialize
-//	// Initialize Vcur to 1
-//	SetCoeff(*Vcur, 0, 1); // Vcur = 1
-//
-//						   // Now run Euclid, but stop as soon as degree of Rcur drops below
-//						   // (d-1)/2
-//						   // This will take O(d^2) operations in GF(2^m)
-//
-//	long t = (d - 1) / 2;
+//    Vold = &v1;
+//    Vcur = &v2;
+//    Vnew = &v3;
 //
 //
+//    SetCoeff(*Rold, d - 1, 1); // Rold holds z^{d-1}
 //
-//	while (deg(*Rcur) >= t) {
-//		// Rold = Rcur*q + Rnew
-//		DivRem(q, *Rnew, *Rold, *Rcur);
+//                               // Rcur=S(z)/z where S is the syndrome poly, Rcur = \sum S_j z^{j-1}
+//                               // Note that because we index arrays from 0, S_j is stored in ss[j-1]
+//    for (i = 0; i<d - 1; i++)
+//        SetCoeff(*Rcur, i, ss[i]);
 //
-//		// Vnew = Vold - qVcur)
-//		mul(temp, q, *Vcur);
-//		sub(*Vnew, *Vold, temp);
+//    // Vold is already 0 -- no need to initialize
+//    // Initialize Vcur to 1
+//    SetCoeff(*Vcur, 0, 1); // Vcur = 1
 //
+//                           // Now run Euclid, but stop as soon as degree of Rcur drops below
+//                           // (d-1)/2
+//                           // This will take O(d^2) operations in GF(2^m)
 //
-//		// swap everything
-//		tempPointer = Rold;
-//		Rold = Rcur;
-//		Rcur = Rnew;
-//		Rnew = tempPointer;
-//
-//		tempPointer = Vold;
-//		Vold = Vcur;
-//		Vcur = Vnew;
-//		Vnew = tempPointer;
-//	}
+//    long t = (d - 1) / 2;
 //
 //
 //
-//	// At the end of the loop, sigma(z) is Vcur
-//	// (up to a constant factor, which doesn't matter,
-//	// since we care about roots of sigma).
-//	// The roots of sigma(z) are inverses of the points we
-//	// are interested in.  
+//    while (deg(*Rcur) >= t) {
+//        // Rold = Rcur*q + Rnew
+//        DivRem(q, *Rnew, *Rold, *Rcur);
+//
+//        // Vnew = Vold - qVcur)
+//        mul(temp, q, *Vcur);
+//        sub(*Vnew, *Vold, temp);
 //
 //
-//	// We will check that 0 is not
-//	// a root of Vcur (else its inverse won't exist, and hence
-//	// the right polynomial doesn't exist).
-//	if (IsZero(ConstTerm(*Vcur)))
-//		return false;
+//        // swap everything
+//        tempPointer = Rold;
+//        Rold = Rcur;
+//        Rcur = Rnew;
+//        Rnew = tempPointer;
 //
-//	// Need sigma to be monic for FindRoots
-//	MakeMonic(*Vcur);
-//
-//	// check if sigma(z) has distinct roots if not, return false
-//	// this will take O(e^{\log_2 3} m) operations in GF(2^m),
-//	// where e is the degree of sigma(z)
-//	if (CheckIfDistinctRoots(*Vcur) == false)
-//		return false;
-//
-//	// find roots of sigma(z)
-//	// this will take O(e^2 + e^{\log_2 3} m) operations in GF(2^m),
-//	// where e is the degree of sigma(z)
-//	answer = FindRoots(*Vcur);
-//
-//	// take inverses of roots of sigma(z)
-//	for (i = 0; i < answer.length(); ++i)
-//		answer[i] = inv(answer[i]);
+//        tempPointer = Vold;
+//        Vold = Vcur;
+//        Vcur = Vnew;
+//        Vnew = tempPointer;
+//    }
 //
 //
-//	// It is now necessary to verify if the resulting vector
-//	// has the correct syndrome: it is possible that it does
-//	// not even though the polynomial sigma(z) factors
-//	// completely
-//	// This takes O(de) operations in GF(2^m)
-//	vec_GF2E test;
-//	BCHSyndromeCompute(test, answer, d);
 //
-//	return (test == ssWithoutEvens);
+//    // At the end of the loop, sigma(z) is Vcur
+//    // (up to a constant factor, which doesn't matter,
+//    // since we care about roots of sigma).
+//    // The roots of sigma(z) are inverses of the points we
+//    // are interested in.  
+//
+//
+//    // We will check that 0 is not
+//    // a root of Vcur (else its inverse won't exist, and hence
+//    // the right polynomial doesn't exist).
+//    if (IsZero(ConstTerm(*Vcur)))
+//        return false;
+//
+//    // Need sigma to be monic for FindRoots
+//    MakeMonic(*Vcur);
+//
+//    // check if sigma(z) has distinct roots if not, return false
+//    // this will take O(e^{\log_2 3} m) operations in GF(2^m),
+//    // where e is the degree of sigma(z)
+//    if (CheckIfDistinctRoots(*Vcur) == false)
+//        return false;
+//
+//    // find roots of sigma(z)
+//    // this will take O(e^2 + e^{\log_2 3} m) operations in GF(2^m),
+//    // where e is the degree of sigma(z)
+//    answer = FindRoots(*Vcur);
+//
+//    // take inverses of roots of sigma(z)
+//    for (i = 0; i < answer.length(); ++i)
+//        answer[i] = inv(answer[i]);
+//
+//
+//    // It is now necessary to verify if the resulting vector
+//    // has the correct syndrome: it is possible that it does
+//    // not even though the polynomial sigma(z) factors
+//    // completely
+//    // This takes O(de) operations in GF(2^m)
+//    vec_GF2E test;
+//    BCHSyndromeCompute(test, answer, d);
+//
+//    return (test == ssWithoutEvens);
 //}
 //

@@ -15,36 +15,36 @@
 
 namespace osuCrypto {
 
-	class KkrtNcoOtSender : public NcoOtExtSender
-	{
-	public: 
+    class KkrtNcoOtSender : public NcoOtExtSender
+    {
+    public: 
 
 
-		std::vector<PRNG> mGens;
-		BitVector mBaseChoiceBits;
-		std::vector<block> mChoiceBlks;
+        std::vector<PRNG> mGens;
+        BitVector mBaseChoiceBits;
+        std::vector<block> mChoiceBlks;
 
-		bool hasBaseOts() const override
-		{
-			return mBaseChoiceBits.size() > 0;
-		}
+        bool hasBaseOts() const override
+        {
+            return mBaseChoiceBits.size() > 0;
+        }
 
-		void setBaseOts(
-			ArrayView<block> baseRecvOts,
-			const BitVector& choices) override;
-		
-		std::unique_ptr<NcoOtExtSender> split() override;
-
-
-		void init(
-			MatrixView<block> correlatedMsgs) override;
+        void setBaseOts(
+            ArrayView<block> baseRecvOts,
+            const BitVector& choices) override;
+        
+        std::unique_ptr<NcoOtExtSender> split() override;
 
 
-		void encode(
-			const ArrayView<block> correlatedMgs,
-			const ArrayView<block> codeWord,
-			ArrayView<block> otCorrectionMessage,
-			block& val) override;
-	};
+        void init(
+            MatrixView<block> correlatedMsgs) override;
+
+
+        void encode(
+            const ArrayView<block> correlatedMgs,
+            const ArrayView<block> codeWord,
+            ArrayView<block> otCorrectionMessage,
+            block& val) override;
+    };
 }
 

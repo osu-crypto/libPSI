@@ -9,7 +9,7 @@
 using namespace osuCrypto;
 
 OTOracleSender::OTOracleSender(const block& seed)
-	:mPrng(seed)
+    :mPrng(seed)
 {
 }
 
@@ -21,22 +21,22 @@ OTOracleSender::~OTOracleSender()
 
 
 void OTOracleSender::send(
-	ArrayView<std::array<block,2>> messages,
-	PRNG& prng,
-	Channel& chl)
+    ArrayView<std::array<block,2>> messages,
+    PRNG& prng,
+    Channel& chl)
 {
-	block test = mPrng.get<block>();
-	chl.asyncSendCopy((u8*)&test, sizeof(block));
+    block test = mPrng.get<block>();
+    chl.asyncSendCopy((u8*)&test, sizeof(block));
 
-	u64 doneIdx = 0;
+    u64 doneIdx = 0;
 
-	for (doneIdx = 0; doneIdx < messages.size(); ++doneIdx)
-	{
-		messages[doneIdx][0] = mPrng.get<block>();
-		messages[doneIdx][1] = mPrng.get<block>(); 
+    for (doneIdx = 0; doneIdx < messages.size(); ++doneIdx)
+    {
+        messages[doneIdx][0] = mPrng.get<block>();
+        messages[doneIdx][1] = mPrng.get<block>(); 
 
-		//Log::out << " idx  " << doneIdx << "   " << messages[doneIdx][0] << "   " << messages[doneIdx][1] << Log::endl;
+        //Log::out << " idx  " << doneIdx << "   " << messages[doneIdx][0] << "   " << messages[doneIdx][1] << Log::endl;
 
-	}
+    }
 }
 

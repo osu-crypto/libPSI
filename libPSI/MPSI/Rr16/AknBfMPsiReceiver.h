@@ -7,28 +7,28 @@
 namespace osuCrypto
 {
 
-	void computeAknBfParams(u64 n, u64 statSecParam, u64& totalOtCount, u64& totalOnesCount, u64& cncOnesThreshold, double& cncProb, u64& numHashFunctions, u64& bfBitCount);
+    void computeAknBfParams(u64 n, u64 statSecParam, u64& totalOtCount, u64& totalOnesCount, u64& cncOnesThreshold, double& cncProb, u64& numHashFunctions, u64& bfBitCount);
 
 
-	class AknBfMPsiReceiver
-	{
-	public:
-		typedef u32 LogOtCount_t;
+    class AknBfMPsiReceiver
+    {
+    public:
+        typedef u32 LogOtCount_t;
 
-		
-		AknBfMPsiReceiver();
-		~AknBfMPsiReceiver();
+        
+        AknBfMPsiReceiver();
+        ~AknBfMPsiReceiver();
 
-		AknOtReceiver mAknOt;
-		std::vector<SHA1> mHashs;
-		u64 mMyInputSize, mTheirInputSize, mBfBitCount, mStatSecParam, mTotalOtCount;
-		block mHashingSeed, mSeed;
-		std::vector<u64> mIntersection;
+        AknOtReceiver mAknOt;
+        std::vector<SHA1> mHashs;
+        u64 mMyInputSize, mTheirInputSize, mBfBitCount, mStatSecParam, mTotalOtCount;
+        block mHashingSeed, mSeed;
+        std::vector<u64> mIntersection;
 
-		void init(u64 n, u64 statSecParam, OtExtReceiver& otExt, Channel& chl0, block seed);
-		void init(u64 n, u64 statSecParam, OtExtReceiver& otExt, std::vector<Channel*>& chl0, block seed);
-		void sendInput(std::vector<block>& inputs, Channel& chl);
-		void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl0);
-	};
+        void init(u64 n, u64 statSecParam, OtExtReceiver& otExt, Channel& chl0, block seed);
+        void init(u64 n, u64 statSecParam, OtExtReceiver& otExt, std::vector<Channel*>& chl0, block seed);
+        void sendInput(std::vector<block>& inputs, Channel& chl);
+        void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl0);
+    };
 
 }

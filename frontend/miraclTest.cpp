@@ -176,317 +176,317 @@ char Ky571[] = "0349DC807F4FBF374F4AEADE3BCA95314DD58CEC9F307A54FFC61EFC006D8A2C
 
 void primemod(int bits, big p)
 {
-	do {
-		printf("%d bit prime.....\n", bits);
-		bigbits(m,bits, p);
-		nxprime(m, p, p);
-	} while (logb2(m, p) != bits);
+    do {
+        printf("%d bit prime.....\n", bits);
+        bigbits(m,bits, p);
+        nxprime(m, p, p);
+    } while (logb2(m, p) != bits);
 }
 
 double powers(int gb, int eb, big p)
 {
-	int iterations = 0;
-	big g, e, w;
-	clock_t start;
-	double elapsed;
-	char *mem;
+    int iterations = 0;
+    big g, e, w;
+    clock_t start;
+    double elapsed;
+    char *mem;
 
-	mem = (char *)memalloc(m, 3);
-	g = mirvar_mem(m, mem, 0);
-	e = mirvar_mem(m, mem, 1);
-	w = mirvar_mem(m, mem, 2);
+    mem = (char *)memalloc(m, 3);
+    g = mirvar_mem(m, mem, 0);
+    e = mirvar_mem(m, mem, 1);
+    w = mirvar_mem(m, mem, 2);
 
-	bigbits(m, gb, g);
-	bigbits(m, eb, e);
-	start = clock();
+    bigbits(m, gb, g);
+    bigbits(m, eb, e);
+    start = clock();
 
-	do {
-		powmod(m, g, e, p, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    do {
+        powmod(m, g, e, p, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("R - %8d iterations of %4d/%4d ", iterations, gb, eb);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("R - %8d iterations of %4d/%4d ", iterations, gb, eb);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	memkill(m, mem, 3);
+    memkill(m, mem, 3);
 
-	return elapsed;
+    return elapsed;
 }
 
 double mults(int eb, epoint *g)
 {
-	big e;
-	int iterations = 0;
-	clock_t start;
-	double elapsed;
-	epoint *w, *r;
-	char *mem1;
-	char *mem2;
+    big e;
+    int iterations = 0;
+    clock_t start;
+    double elapsed;
+    epoint *w, *r;
+    char *mem1;
+    char *mem2;
 
-	mem1 = (char *)memalloc(m, 1);
-	mem2 = (char *)ecp_memalloc(m, 2);
+    mem1 = (char *)memalloc(m, 1);
+    mem2 = (char *)ecp_memalloc(m, 2);
 
-	e = mirvar_mem(m, mem1, 0);
-	w = epoint_init_mem(m, mem2, 0);
-	r = epoint_init_mem(m, mem2, 1);
+    e = mirvar_mem(m, mem1, 0);
+    w = epoint_init_mem(m, mem2, 0);
+    r = epoint_init_mem(m, mem2, 1);
 
-	bigbits(m, eb, e);
-	ecurve_mult(m, e, g, r);   /* generate a random point on the curve */
-	bigbits(m, eb, e);
-	start = clock();
+    bigbits(m, eb, e);
+    ecurve_mult(m, e, g, r);   /* generate a random point on the curve */
+    bigbits(m, eb, e);
+    start = clock();
 
-	do {
-		ecurve_mult(m, e, r, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    do {
+        ecurve_mult(m, e, r, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("ER - %8d iterations             ", iterations);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("ER - %8d iterations             ", iterations);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	memkill(m, mem1, 1);
-	ecp_memkill(m, mem2, 2);
-	return elapsed;
+    memkill(m, mem1, 1);
+    ecp_memkill(m, mem2, 2);
+    return elapsed;
 }
 
 #ifndef MR_FP
 
 double mults2(int eb, epoint *g)
 {
-	big e;
-	int iterations = 0;
-	clock_t start;
-	double elapsed;
-	epoint *w;
-	epoint *r;
-	char *mem1;
-	char *mem2;
+    big e;
+    int iterations = 0;
+    clock_t start;
+    double elapsed;
+    epoint *w;
+    epoint *r;
+    char *mem1;
+    char *mem2;
 
-	mem1 = (char *)memalloc(m, 1);
-	mem2 = (char *)ecp_memalloc(m, 2);
+    mem1 = (char *)memalloc(m, 1);
+    mem2 = (char *)ecp_memalloc(m, 2);
 
-	e = mirvar_mem(m, mem1, 0);
-	w = epoint_init_mem(m, mem2, 0);
-	r = epoint_init_mem(m, mem2, 1);
+    e = mirvar_mem(m, mem1, 0);
+    w = epoint_init_mem(m, mem2, 0);
+    r = epoint_init_mem(m, mem2, 1);
 
-	bigbits(m, eb, e);
-	ecurve2_mult(m, e, g, r);   /* generate a random point on the curve */
-	bigbits(m, eb, e);
-	start = clock();
+    bigbits(m, eb, e);
+    ecurve2_mult(m, e, g, r);   /* generate a random point on the curve */
+    bigbits(m, eb, e);
+    start = clock();
 
-	do {
-		ecurve2_mult(m, e, r, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    do {
+        ecurve2_mult(m, e, r, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("ER - %8d iterations             ", iterations);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("ER - %8d iterations             ", iterations);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	memkill(m, mem1, 1);
-	ecp_memkill(m, mem2, 2);
+    memkill(m, mem1, 1);
+    ecp_memkill(m, mem2, 2);
 
-	return elapsed;
+    return elapsed;
 }
 
 #endif
 
 double powers_small_base(int g, int eb, big p)
 {
-	int iterations = 0;
-	big e, w;
-	clock_t start;
-	double elapsed;
-	char *mem;
+    int iterations = 0;
+    big e, w;
+    clock_t start;
+    double elapsed;
+    char *mem;
 
-	mem = (char *)memalloc(m, 2);
+    mem = (char *)memalloc(m, 2);
 
-	e = mirvar_mem(m, mem, 0);
-	w = mirvar_mem(m, mem, 1);
-	bigbits(m, eb, e);
-	start = clock();
+    e = mirvar_mem(m, mem, 0);
+    w = mirvar_mem(m, mem, 1);
+    bigbits(m, eb, e);
+    start = clock();
 
-	do {
-		powltr(m, g, e, p, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    do {
+        powltr(m, g, e, p, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("S - %8d iterations of  g=%d/%4d ", iterations, g, eb);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("S - %8d iterations of  g=%d/%4d ", iterations, g, eb);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	memkill(m, mem, 2);
-	return elapsed;
+    memkill(m, mem, 2);
+    return elapsed;
 }
 
 double powers_double(int gb, int eb, big p)
 {
-	int iterations = 0;
-	clock_t start;
-	double elapsed;
-	big g1, e1, g2, e2, w;
-	char *mem;
+    int iterations = 0;
+    clock_t start;
+    double elapsed;
+    big g1, e1, g2, e2, w;
+    char *mem;
 
-	mem = (char *)memalloc(m, 5);
-	g1 = mirvar_mem(m, mem, 0);
-	e1 = mirvar_mem(m, mem, 1);
-	g2 = mirvar_mem(m, mem, 2);
-	e2 = mirvar_mem(m, mem, 3);
-	w = mirvar_mem(m, mem, 4);
-	bigbits(m, gb, g1);
-	bigbits(m, gb, g2);
-	bigbits(m, eb, e1);
-	bigbits(m, eb, e2);
-	start = clock();
-	do {
-		powmod2(m, g1, e1, g2, e2, p, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    mem = (char *)memalloc(m, 5);
+    g1 = mirvar_mem(m, mem, 0);
+    e1 = mirvar_mem(m, mem, 1);
+    g2 = mirvar_mem(m, mem, 2);
+    e2 = mirvar_mem(m, mem, 3);
+    w = mirvar_mem(m, mem, 4);
+    bigbits(m, gb, g1);
+    bigbits(m, gb, g2);
+    bigbits(m, eb, e1);
+    bigbits(m, eb, e2);
+    start = clock();
+    do {
+        powmod2(m, g1, e1, g2, e2, p, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("D - %8d iterations of %4d/%4d ", iterations, gb, eb);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("D - %8d iterations of %4d/%4d ", iterations, gb, eb);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	memkill(m, mem, 4);
+    memkill(m, mem, 4);
 
-	return elapsed;
+    return elapsed;
 }
 
 double mult_double(int eb, epoint *g)
 {
-	big e1, e2;
-	int iterations = 0;
-	clock_t start;
-	double elapsed;
-	char *mem1;
-	char *mem2;
-	epoint *w;
-	epoint *r1;
-	epoint *r2;
+    big e1, e2;
+    int iterations = 0;
+    clock_t start;
+    double elapsed;
+    char *mem1;
+    char *mem2;
+    epoint *w;
+    epoint *r1;
+    epoint *r2;
 
-	mem1 = (char *)memalloc(m, 2);
-	mem2 = (char *)ecp_memalloc(m, 3);
+    mem1 = (char *)memalloc(m, 2);
+    mem2 = (char *)ecp_memalloc(m, 3);
 
-	e1 = mirvar_mem(m, mem1, 0);
-	e2 = mirvar_mem(m, mem1, 1);
-	w = epoint_init_mem(m, mem2, 0);
-	r1 = epoint_init_mem(m, mem2, 1);
-	r2 = epoint_init_mem(m, mem2, 2);
+    e1 = mirvar_mem(m, mem1, 0);
+    e2 = mirvar_mem(m, mem1, 1);
+    w = epoint_init_mem(m, mem2, 0);
+    r1 = epoint_init_mem(m, mem2, 1);
+    r2 = epoint_init_mem(m, mem2, 2);
 
-	bigbits(m, eb, e1);
-	ecurve_mult(m, e1, g, r1);   /* generate a random point on the curve */
-	bigbits(m, eb, e2);
-	ecurve_mult(m, e2, g, r2);   /* generate a random point on the curve */
-	bigbits(m, eb, e1);
-	bigbits(m, eb, e2);
-	start = clock();
+    bigbits(m, eb, e1);
+    ecurve_mult(m, e1, g, r1);   /* generate a random point on the curve */
+    bigbits(m, eb, e2);
+    ecurve_mult(m, e2, g, r2);   /* generate a random point on the curve */
+    bigbits(m, eb, e1);
+    bigbits(m, eb, e2);
+    start = clock();
 
-	do {
-		ecurve_mult2(m, e1, r1, e2, r2, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    do {
+        ecurve_mult2(m, e1, r1, e2, r2, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("ED - %8d iterations             ", iterations);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("ED - %8d iterations             ", iterations);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	ecp_memkill(m, mem2, 3);
-	memkill(m, mem1, 2);
+    ecp_memkill(m, mem2, 3);
+    memkill(m, mem1, 2);
 
-	return elapsed;
+    return elapsed;
 }
 
 #ifndef MR_FP
 
 double mult2_double(int eb, epoint *g)
 {
-	big e1, e2;
-	int iterations = 0;
-	clock_t start;
-	double elapsed;
-	char *mem1;
-	char *mem2;
-	epoint *w;
-	epoint *r1;
-	epoint *r2;
+    big e1, e2;
+    int iterations = 0;
+    clock_t start;
+    double elapsed;
+    char *mem1;
+    char *mem2;
+    epoint *w;
+    epoint *r1;
+    epoint *r2;
 
-	mem1 = (char *)memalloc(m, 2);
-	mem2 = (char *)ecp_memalloc(m, 3);
+    mem1 = (char *)memalloc(m, 2);
+    mem2 = (char *)ecp_memalloc(m, 3);
 
-	e1 = mirvar_mem(m, mem1, 0);
-	e2 = mirvar_mem(m, mem1, 1);
-	w = epoint_init_mem(m, mem2, 0);
-	r1 = epoint_init_mem(m, mem2, 1);
-	r2 = epoint_init_mem(m, mem2, 2);
+    e1 = mirvar_mem(m, mem1, 0);
+    e2 = mirvar_mem(m, mem1, 1);
+    w = epoint_init_mem(m, mem2, 0);
+    r1 = epoint_init_mem(m, mem2, 1);
+    r2 = epoint_init_mem(m, mem2, 2);
 
-	bigbits(m, eb, e1);
-	ecurve2_mult(m, e1, g, r1);   /* generate a random point on the curve */
-	bigbits(m, eb, e2);
-	ecurve2_mult(m, e2, g, r2);   /* generate a random point on the curve */
-	bigbits(m, eb, e1);
-	bigbits(m, eb, e2);
-	start = clock();
+    bigbits(m, eb, e1);
+    ecurve2_mult(m, e1, g, r1);   /* generate a random point on the curve */
+    bigbits(m, eb, e2);
+    ecurve2_mult(m, e2, g, r2);   /* generate a random point on the curve */
+    bigbits(m, eb, e1);
+    bigbits(m, eb, e2);
+    start = clock();
 
-	do {
-		ecurve2_mult2(m, e1, r1, e2, r2, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    do {
+        ecurve2_mult2(m, e1, r1, e2, r2, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("ED - %8d iterations             ", iterations);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("ED - %8d iterations             ", iterations);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	ecp_memkill(m, mem2, 3);
-	memkill(m, mem1, 2);
+    ecp_memkill(m, mem2, 3);
+    memkill(m, mem1, 2);
 
-	return elapsed;
+    return elapsed;
 }
 
 #endif
 
 double powers_precomp(int gb, int eb, big p)
 {
-	int iterations = 0;
-	clock_t start;
-	double elapsed;
-	brick binst;
-	big g, e, w;
-	char *mem;
+    int iterations = 0;
+    clock_t start;
+    double elapsed;
+    brick binst;
+    big g, e, w;
+    char *mem;
 
-	mem = (char *)memalloc(m, 3);
-	g = mirvar_mem(m, mem, 0);
-	e = mirvar_mem(m, mem, 1);
-	w = mirvar_mem(m, mem, 2);
-	bigbits(m, gb, g);
+    mem = (char *)memalloc(m, 3);
+    g = mirvar_mem(m, mem, 0);
+    e = mirvar_mem(m, mem, 1);
+    w = mirvar_mem(m, mem, 2);
+    bigbits(m, gb, g);
 
-	brick_init(m, &binst, g, p, WINDOW, eb);
+    brick_init(m, &binst, g, p, WINDOW, eb);
 
-	bigbits(m, eb, e);
+    bigbits(m, eb, e);
 
-	start = clock();
-	do {
-		pow_brick(m, &binst, e, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    start = clock();
+    do {
+        pow_brick(m, &binst, e, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("P - %8d iterations of %4d/%4d ", iterations, gb, eb);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("P - %8d iterations of %4d/%4d ", iterations, gb, eb);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	brick_end(&binst);
+    brick_end(&binst);
 
-	memkill(m, mem, 3);
+    memkill(m, mem, 3);
 
-	return elapsed;
+    return elapsed;
 }
 #include <string>
 #include "Common/Log.h"
@@ -494,681 +494,681 @@ using namespace osuCrypto;
 
 void print(std::string s, big x)
 {
-	cotstr(m, x, m->IOBUFF);
-	Log::out << s << m->IOBUFF << Log::endl;
+    cotstr(m, x, m->IOBUFF);
+    Log::out << s << m->IOBUFF << Log::endl;
 }
 
 
 double mult_precomp(int eb, big x, big y, big a, big b, big p)
 {
-	big e, c, d;
-	int iterations = 0;
-	ebrick binst;
-	clock_t start;
-	double elapsed;
-	char *mem;
+    big e, c, d;
+    int iterations = 0;
+    ebrick binst;
+    clock_t start;
+    double elapsed;
+    char *mem;
 
-	mem = (char *)memalloc(m, 3);
-	e = mirvar_mem(m, mem, 1);
-	c = mirvar_mem(m, mem, 1);
-	d = mirvar_mem(m, mem, 2);
-
-
-	print("x  ", x);
-	print("y  ", y);
-	print("a  ", a);
-	print("b  ", b);
-	print("p  ", p);
-	printf("w  %d\n", WINDOW);
-	printf("e  %d\n", eb);
+    mem = (char *)memalloc(m, 3);
+    e = mirvar_mem(m, mem, 1);
+    c = mirvar_mem(m, mem, 1);
+    d = mirvar_mem(m, mem, 2);
 
 
-	ebrick_init(m, &binst, x, y, a, b, p, WINDOW, eb);
-	//bigbits(m, eb, e);
-	start = clock();
-	convert(m, 1, e);
+    print("x  ", x);
+    print("y  ", y);
+    print("a  ", a);
+    print("b  ", b);
+    print("p  ", p);
+    printf("w  %d\n", WINDOW);
+    printf("e  %d\n", eb);
 
-	do {
-		mul_brick(m, &binst, e, c, d);
+
+    ebrick_init(m, &binst, x, y, a, b, p, WINDOW, eb);
+    //bigbits(m, eb, e);
+    start = clock();
+    convert(m, 1, e);
+
+    do {
+        mul_brick(m, &binst, e, c, d);
 
 
-		print("c  ", c);
-		print("d  ", d);
-		print("   ", m->modulus);
+        print("c  ", c);
+        print("d  ", d);
+        print("   ", m->modulus);
 
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-		break;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+        break;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("EP - %8d iterations             ", iterations);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("EP - %8d iterations             ", iterations);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	ebrick_end(&binst);
-	memkill(m, mem, 3);
+    ebrick_end(&binst);
+    memkill(m, mem, 3);
 
-	return elapsed;
+    return elapsed;
 }
 
 #ifndef MR_FP
 
 double mult2_precomp(int eb, big x, big y, big a2, big a6, int M, int A, int B, int C)
 {
-	big e, c, d;
-	int iterations = 0;
-	ebrick2 binst;
-	clock_t start;
-	double elapsed;
-	char *mem;
+    big e, c, d;
+    int iterations = 0;
+    ebrick2 binst;
+    clock_t start;
+    double elapsed;
+    char *mem;
 
-	mem = (char *)memalloc(m, 3);
-	e = mirvar_mem(m,mem, 0);
-	c = mirvar_mem(m,mem, 1);
-	d = mirvar_mem(m,mem, 2);
-	ebrick2_init(m, &binst, x, y, a2, a6, M, A, B, C, WINDOW, eb);
-	bigbits(m, eb, e);
-	start = clock();
+    mem = (char *)memalloc(m, 3);
+    e = mirvar_mem(m,mem, 0);
+    c = mirvar_mem(m,mem, 1);
+    d = mirvar_mem(m,mem, 2);
+    ebrick2_init(m, &binst, x, y, a2, a6, M, A, B, C, WINDOW, eb);
+    bigbits(m, eb, e);
+    start = clock();
 
-	do {
-		mul2_brick(m, &binst, e, c, d);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    do {
+        mul2_brick(m, &binst, e, c, d);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	printf("EP - %8d iterations             ", iterations);
-	printf(" %8.2lf ms per iteration\n", elapsed);
+    elapsed = 1000.0*elapsed / iterations;
+    printf("EP - %8d iterations             ", iterations);
+    printf(" %8.2lf ms per iteration\n", elapsed);
 
-	ebrick2_end(&binst);
-	memkill(m, mem, 3);
+    ebrick2_end(&binst);
+    memkill(m, mem, 3);
 
-	return elapsed;
+    return elapsed;
 }
 
 #endif
 
 double powers_small_exp(int gb, long ex, big p)
 {
-	int iterations = 0;
-	big g, e, w;
-	clock_t start;
-	double elapsed;
-	char *mem;
+    int iterations = 0;
+    big g, e, w;
+    clock_t start;
+    double elapsed;
+    char *mem;
 
-	mem = (char *)memalloc(m, 3);
-	g = mirvar_mem(m,mem, 0);
-	e = mirvar_mem(m,mem, 1);
-	w = mirvar_mem(m,mem, 2);
-	bigbits(m, gb, g);
-	start = clock();
-	lgconv(m, ex, e);
-	do {
-		power(m, g, ex, p, w);
-		iterations++;
-		elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
-	} while (elapsed<MIN_TIME || iterations<MIN_ITERS);
+    mem = (char *)memalloc(m, 3);
+    g = mirvar_mem(m,mem, 0);
+    e = mirvar_mem(m,mem, 1);
+    w = mirvar_mem(m,mem, 2);
+    bigbits(m, gb, g);
+    start = clock();
+    lgconv(m, ex, e);
+    do {
+        power(m, g, ex, p, w);
+        iterations++;
+        elapsed = (clock() - start) / (double)CLOCKS_PER_SEC;
+    } while (elapsed<MIN_TIME || iterations<MIN_ITERS);
 
-	elapsed = 1000.0*elapsed / iterations;
-	if (ex == 257L)
-		printf("V - %8d iterations of %4d/e=F3 ", iterations, gb);
-	if (ex == 65537L)
-		printf("V - %8d iterations of %4d/e=F4 ", iterations, gb);
-	if (ex != 257L && ex != 65537L)
-		printf("V - %8d iterations of %4d/e=%2ld ", iterations, gb, ex);
-	printf(" %8.2lf ms per iteration\n", elapsed);
-	memkill(m, mem, 3);
+    elapsed = 1000.0*elapsed / iterations;
+    if (ex == 257L)
+        printf("V - %8d iterations of %4d/e=F3 ", iterations, gb);
+    if (ex == 65537L)
+        printf("V - %8d iterations of %4d/e=F4 ", iterations, gb);
+    if (ex != 257L && ex != 65537L)
+        printf("V - %8d iterations of %4d/e=%2ld ", iterations, gb, ex);
+    printf(" %8.2lf ms per iteration\n", elapsed);
+    memkill(m, mem, 3);
 
-	return elapsed;
+    return elapsed;
 }
 
 int miraclTestMain()
 {
-	int j, k;
-	big a, b, x, y, p, A2;
-	time_t seed;
-	epoint *g;
-	double tr1, tr2, ts, tv1, tv2, tp, td;
+    int j, k;
+    big a, b, x, y, p, A2;
+    time_t seed;
+    epoint *g;
+    double tr1, tr2, ts, tv1, tv2, tp, td;
 #ifndef MR_NOFULLWIDTH
-	miracl *mip = mirsys(300, 0);
-	m = mip;
+    miracl *mip = mirsys(300, 0);
+    m = mip;
 #else
-	miracl *mip = mirsys(300, MAXBASE);
+    miracl *mip = mirsys(300, MAXBASE);
 #endif
-	p = mirvar(m,0);
-	a = mirvar(m,-3);
-	b = mirvar(m,0);
-	x = mirvar(m,1);
-	y = mirvar(m,0);
-	A2 = mirvar(m, 0);
-	mip->IOBASE = 60;
+    p = mirvar(m,0);
+    a = mirvar(m,-3);
+    b = mirvar(m,0);
+    x = mirvar(m,1);
+    y = mirvar(m,0);
+    A2 = mirvar(m, 0);
+    mip->IOBASE = 60;
 
-	time(&seed);
-	irand(m, (long)seed);
+    time(&seed);
+    irand(m, (long)seed);
 
-	printf("MIRACL - %d bit version\n", MIRACL);
+    printf("MIRACL - %d bit version\n", MIRACL);
 #ifdef MR_LITTLE_ENDIAN
-	printf("Little Endian processor\n");
+    printf("Little Endian processor\n");
 #endif
 #ifdef MR_BIG_ENDIAN
-	printf("Big Endian processor\n");
+    printf("Big Endian processor\n");
 #endif
 #ifdef MR_NOASM
-	printf("C-Only Version of MIRACL\n");
+    printf("C-Only Version of MIRACL\n");
 #else
-	printf("Using some assembly language\n");
+    printf("Using some assembly language\n");
 #endif
 #ifdef MR_STRIPPED_DOWN
-	printf("Stripped down version of MIRACL - no error messages\n");
+    printf("Stripped down version of MIRACL - no error messages\n");
 #endif
 #ifdef MR_KCM
-	k = MR_KCM*MIRACL;
-	printf("Using KCM method \n");
-	printf("Optimized for %d, %d, %d, %d...etc. bit moduli\n", k, k * 2, k * 4, k * 8);
+    k = MR_KCM*MIRACL;
+    printf("Using KCM method \n");
+    printf("Optimized for %d, %d, %d, %d...etc. bit moduli\n", k, k * 2, k * 4, k * 8);
 #endif
 #ifdef MR_COMBA
-	k = MR_COMBA*MIRACL;
-	printf("Using COMBA method \n");
-	printf("Optimized for %d bit moduli\n", k);
+    k = MR_COMBA*MIRACL;
+    printf("Using COMBA method \n");
+    printf("Optimized for %d bit moduli\n", k);
 #endif
 #ifdef MR_PENTIUM
-	printf("Floating-point co-processor arithmetic used for Pentium\n");
+    printf("Floating-point co-processor arithmetic used for Pentium\n");
 #endif
 #ifndef MR_KCM
 #ifndef MR_COMBA
 #ifndef MR_PENTIUM
-	printf("No special optimizations\n");
+    printf("No special optimizations\n");
 #endif
 #endif
 #endif
-	printf("Precomputation uses fixed Window size = %d\n", WINDOW);
-	printf("So %d values are precomputed and stored\n", (1 << WINDOW));
+    printf("Precomputation uses fixed Window size = %d\n", WINDOW);
+    printf("So %d values are precomputed and stored\n", (1 << WINDOW));
 #ifdef MR_NOFULLWIDTH
-	printf("No Fullwidth base possible\n");
+    printf("No Fullwidth base possible\n");
 #else
-	printf("NOTE: No optimizations/assembly language apply to GF(2^m) Elliptic Curves\n");
+    printf("NOTE: No optimizations/assembly language apply to GF(2^m) Elliptic Curves\n");
 #endif
 
-	printf("NOTE: times are elapsed real-times - so make sure nothing else is running!\n\n");
-	printf("Modular exponentiation benchmarks - calculating g^e mod p\n");
-	printf("From these figures it should be possible to roughly estimate the time\n");
-	printf("required for your favourite PK algorithm, RSA, DSA, DH, etc.\n");
-	printf("Key R - random base bits/random exponent bits \n");
-	printf("    V - random base bits/(small exponent e)   \n");
-	printf("    S - (small base g)  /random exponent bits \n");
-	printf("    P - exponentiation with precomputation (fixed base g)\n");
-	printf("    D - double exponentiation g^e.a^b mod p\n");
+    printf("NOTE: times are elapsed real-times - so make sure nothing else is running!\n\n");
+    printf("Modular exponentiation benchmarks - calculating g^e mod p\n");
+    printf("From these figures it should be possible to roughly estimate the time\n");
+    printf("required for your favourite PK algorithm, RSA, DSA, DH, etc.\n");
+    printf("Key R - random base bits/random exponent bits \n");
+    printf("    V - random base bits/(small exponent e)   \n");
+    printf("    S - (small base g)  /random exponent bits \n");
+    printf("    P - exponentiation with precomputation (fixed base g)\n");
+    printf("    D - double exponentiation g^e.a^b mod p\n");
 
-	printf("F3 = 257, F4 = 65537\n");
-	printf("RSA - Rivest-Shamir-Adleman\n");
-	printf("DH  - Diffie Hellman Key exchange\n");
-	printf("DSA - Digital Signature Algorithm\n");
+    printf("F3 = 257, F4 = 65537\n");
+    printf("RSA - Rivest-Shamir-Adleman\n");
+    printf("DH  - Diffie Hellman Key exchange\n");
+    printf("DSA - Digital Signature Algorithm\n");
 
 
-	//printf("\n512 bit prime....\n");
-	//cinstr(m, p, p512);
+    //printf("\n512 bit prime....\n");
+    //cinstr(m, p, p512);
 
-	//k = 512;
-	//j = 160;
+    //k = 512;
+    //j = 160;
 
-	//tr1 = powers(k, j, p);
-	//td = powers_double(k, j, p);
-	//tr2 = powers(k, k, p);
-	//ts = powers_small_base(3, j, p);
-	//tp = powers_precomp(k, j, p);
+    //tr1 = powers(k, j, p);
+    //td = powers_double(k, j, p);
+    //tr2 = powers(k, k, p);
+    //ts = powers_small_base(3, j, p);
+    //tp = powers_precomp(k, j, p);
 
-	//printf("\n");
-	//printf("%4d bit RSA decryption               %8.2lf ms \n", 2 * k, 2 * tr2);
-	//printf("%4d bit DH %d bit exponent:-\n", k, j);
-	//printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-	//printf("         offline, small base          %8.2lf ms \n", ts);
-	//printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-	//printf("         online                       %8.2lf ms \n", tr1);
-	//printf("%4d bit DSA %d bit exponent:-\n", k, j);
-	//printf("         signature no precomputation  %8.2lf ms \n", tr1);
-	//printf("         signature w. precomputation  %8.2lf ms \n", tp);
-	//printf("         verification                 %8.2lf ms \n", td);
+    //printf("\n");
+    //printf("%4d bit RSA decryption               %8.2lf ms \n", 2 * k, 2 * tr2);
+    //printf("%4d bit DH %d bit exponent:-\n", k, j);
+    //printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+    //printf("         offline, small base          %8.2lf ms \n", ts);
+    //printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+    //printf("         online                       %8.2lf ms \n", tr1);
+    //printf("%4d bit DSA %d bit exponent:-\n", k, j);
+    //printf("         signature no precomputation  %8.2lf ms \n", tr1);
+    //printf("         signature w. precomputation  %8.2lf ms \n", tp);
+    //printf("         verification                 %8.2lf ms \n", td);
 
-	//printf("\n1024 bit prime....\n");
-	//cinstr(m, p, p1024);
+    //printf("\n1024 bit prime....\n");
+    //cinstr(m, p, p1024);
 
-	//k = 1024; j = 160;
-	//tr1 = powers(k, j, p);
-	//td = powers_double(k, j, p);
-	//tr2 = powers(k, k, p);
-	//tv1 = powers_small_exp(k, 3, p);
-	//tv2 = powers_small_exp(k, 65537L, p);
-	//ts = powers_small_base(3, j, p);
-	//tp = powers_precomp(k, j, p);
+    //k = 1024; j = 160;
+    //tr1 = powers(k, j, p);
+    //td = powers_double(k, j, p);
+    //tr2 = powers(k, k, p);
+    //tv1 = powers_small_exp(k, 3, p);
+    //tv2 = powers_small_exp(k, 65537L, p);
+    //ts = powers_small_base(3, j, p);
+    //tp = powers_precomp(k, j, p);
 
-	//printf("\n");
-	//printf("%4d bit RSA decryption               %8.2lf ms \n", 2 * k, 2 * tr2);
-	//printf("%4d bit RSA encryption e=3           %8.2lf ms \n", k, tv1);
-	//printf("%4d bit RSA encryption e=65537       %8.2lf ms \n", k, tv2);
-	//printf("%4d bit DH %d bit exponent:-\n", k, j);
-	//printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-	//printf("         offline, small base          %8.2lf ms \n", ts);
-	//printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-	//printf("         online                       %8.2lf ms \n", tr1);
-	//printf("%4d bit DSA %d bit exponent:-\n", k, j);
-	//printf("         signature no precomputation  %8.2lf ms \n", tr1);
-	//printf("         signature w. precomputation  %8.2lf ms \n", tp);
-	//printf("         verification                 %8.2lf ms \n", td);
+    //printf("\n");
+    //printf("%4d bit RSA decryption               %8.2lf ms \n", 2 * k, 2 * tr2);
+    //printf("%4d bit RSA encryption e=3           %8.2lf ms \n", k, tv1);
+    //printf("%4d bit RSA encryption e=65537       %8.2lf ms \n", k, tv2);
+    //printf("%4d bit DH %d bit exponent:-\n", k, j);
+    //printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+    //printf("         offline, small base          %8.2lf ms \n", ts);
+    //printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+    //printf("         online                       %8.2lf ms \n", tr1);
+    //printf("%4d bit DSA %d bit exponent:-\n", k, j);
+    //printf("         signature no precomputation  %8.2lf ms \n", tr1);
+    //printf("         signature w. precomputation  %8.2lf ms \n", tp);
+    //printf("         verification                 %8.2lf ms \n", td);
 
-	//printf("\n2048 bit prime....\n");
-	//cinstr(m, p, p2048);
+    //printf("\n2048 bit prime....\n");
+    //cinstr(m, p, p2048);
 
-	//k = 2048; j = 256;
+    //k = 2048; j = 256;
 
-	//tr1 = powers(k, j, p);
-	//td = powers_double(k, j, p);
-	//powers(k, k, p);
-	//tv1 = powers_small_exp(k, 3, p);
-	//tv2 = powers_small_exp(k, 65537L, p);
-	//ts = powers_small_base(3, j, p);
-	//tp = powers_precomp(k, j, p);
+    //tr1 = powers(k, j, p);
+    //td = powers_double(k, j, p);
+    //powers(k, k, p);
+    //tv1 = powers_small_exp(k, 3, p);
+    //tv2 = powers_small_exp(k, 65537L, p);
+    //ts = powers_small_base(3, j, p);
+    //tp = powers_precomp(k, j, p);
 
-	//printf("\n");
-	//printf("%4d bit RSA encryption e=3           %8.2lf ms \n", k, tv1);
-	//printf("%4d bit RSA encryption e=65537       %8.2lf ms \n", k, tv2);
-	//printf("%4d bit DH %d bit exponent:-\n", k, j);
-	//printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-	//printf("         offline, small base          %8.2lf ms \n", ts);
-	//printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-	//printf("         online                       %8.2lf ms \n", tr1);
-	//printf("%4d bit DSA %d bit exponent:-\n", k, j);
-	//printf("         signature no precomputation  %8.2lf ms \n", tr1);
-	//printf("         signature w. precomputation  %8.2lf ms \n", tp);
-	//printf("         verification                 %8.2lf ms \n", td);
+    //printf("\n");
+    //printf("%4d bit RSA encryption e=3           %8.2lf ms \n", k, tv1);
+    //printf("%4d bit RSA encryption e=65537       %8.2lf ms \n", k, tv2);
+    //printf("%4d bit DH %d bit exponent:-\n", k, j);
+    //printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+    //printf("         offline, small base          %8.2lf ms \n", ts);
+    //printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+    //printf("         online                       %8.2lf ms \n", tr1);
+    //printf("%4d bit DSA %d bit exponent:-\n", k, j);
+    //printf("         signature no precomputation  %8.2lf ms \n", tr1);
+    //printf("         signature w. precomputation  %8.2lf ms \n", tp);
+    //printf("         verification                 %8.2lf ms \n", td);
 
-	//printf("\n");
-	//printf("Elliptic Curve point multiplication benchmarks - calculating r.P\n");
-	//printf("From these figures it should be possible to roughly estimate the time\n");
-	//printf("required for your favourite EC PK algorithm, ECDSA, ECDH, etc.\n");
-	//printf("Key - ER - Elliptic Curve point multiplication r.P\n");
-	//printf("      ED - Elliptic Curve double multiplication r.P + s.Q\n");
-	//printf("      EP - Elliptic Curve multiplication with precomputation\n");
-	//printf("EC    - Elliptic curve GF(p) - p of no special form \n");
-	//printf("ECDH  - Diffie Hellman Key exchange\n");
-	//printf("ECDSA - Digital Signature Algorithm\n");
+    //printf("\n");
+    //printf("Elliptic Curve point multiplication benchmarks - calculating r.P\n");
+    //printf("From these figures it should be possible to roughly estimate the time\n");
+    //printf("required for your favourite EC PK algorithm, ECDSA, ECDH, etc.\n");
+    //printf("Key - ER - Elliptic Curve point multiplication r.P\n");
+    //printf("      ED - Elliptic Curve double multiplication r.P + s.Q\n");
+    //printf("      EP - Elliptic Curve multiplication with precomputation\n");
+    //printf("EC    - Elliptic curve GF(p) - p of no special form \n");
+    //printf("ECDH  - Diffie Hellman Key exchange\n");
+    //printf("ECDSA - Digital Signature Algorithm\n");
 
-	mip->IOBASE = 10;
+    mip->IOBASE = 10;
 
-	printf("\n160 bit GF(p) Elliptic Curve....\n");
-	k = 160;
-	cinstr(m,p, p160);
-	cinstr(m,b, b160);
-	cinstr(m,y, y160);
+    printf("\n160 bit GF(p) Elliptic Curve....\n");
+    k = 160;
+    cinstr(m,p, p160);
+    cinstr(m,b, b160);
+    cinstr(m,y, y160);
 
-	ecurve_init(m, a, b, p, MR_PROJECTIVE);
-	g = epoint_init(m);
-	if (!epoint_set(m, x, y, 0, g))
-	{
-		printf("This is not a point on the curve!\n");
-		exit(0);
-	}
+    ecurve_init(m, a, b, p, MR_PROJECTIVE);
+    g = epoint_init(m);
+    if (!epoint_set(m, x, y, 0, g))
+    {
+        printf("This is not a point on the curve!\n");
+        exit(0);
+    }
 
-	EllipticCurve c(p160Param, ZeroBlock);
-	EccNumber aa(c),bb(c), pp(c);
-	EccPoint xy(c);
+    EllipticCurve c(p160Param, ZeroBlock);
+    EccNumber aa(c),bb(c), pp(c);
+    EccPoint xy(c);
 
-	xy.fromDec("1", y160);
-	aa = -3;
-	bb.fromDec(b160);
-	pp.fromDec(p160);
+    xy.fromDec("1", y160);
+    aa = -3;
+    bb.fromDec(b160);
+    pp.fromDec(p160);
 
-	tr1 = 0;// mults(k, g);
-	td = 0;// mult_double(k, g);
-	tp = mult_precomp(k, x, y, a, b, p);
+    tr1 = 0;// mults(k, g);
+    td = 0;// mult_double(k, g);
+    tp = mult_precomp(k, x, y, a, b, p);
 
-	m = &c.getMiracl();
-	tp = mult_precomp(k, xy.mVal->X, xy.mVal->Y, aa.mVal, bb.mVal, pp.mVal);
+    m = &c.getMiracl();
+    tp = mult_precomp(k, xy.mVal->X, xy.mVal->Y, aa.mVal, bb.mVal, pp.mVal);
 
-	printf("\n");
-	printf("%4d bit ECDH :-\n", k);
-	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-	printf("         online                       %8.2lf ms \n", tr1);
-	printf("%4d bit ECDSA :-\n", k);
-	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-	printf("         verification                 %8.2lf ms \n", td);
+    printf("\n");
+    printf("%4d bit ECDH :-\n", k);
+    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+    printf("         online                       %8.2lf ms \n", tr1);
+    printf("%4d bit ECDSA :-\n", k);
+    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+    printf("         verification                 %8.2lf ms \n", td);
 
-	return 0;
+    return 0;
 //
-//	printf("\n192 bit GF(p) Elliptic Curve....\n");
-//	k = 192;
-//	cinstr(m, p, p192);
-//	cinstr(m, b, b192);
-//	cinstr(m, y, y192);
+//    printf("\n192 bit GF(p) Elliptic Curve....\n");
+//    k = 192;
+//    cinstr(m, p, p192);
+//    cinstr(m, b, b192);
+//    cinstr(m, y, y192);
 //
-//	ecurve_init(m, a, b, p, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    ecurve_init(m, a, b, p, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
 //
-//	tr1 = mults(k, g);
-//	td = mult_double(k, g);
-//	tp = mult_precomp(k, x, y, a, b, p);
+//    tr1 = mults(k, g);
+//    td = mult_double(k, g);
+//    tp = mult_precomp(k, x, y, a, b, p);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
-//	printf("\n224 bit GF(p) Elliptic Curve....\n");
-//	k = 224;
-//	cinstr(m,p, p224);
-//	cinstr(m,b, b224);
-//	cinstr(m,y, y224);
+//    printf("\n224 bit GF(p) Elliptic Curve....\n");
+//    k = 224;
+//    cinstr(m,p, p224);
+//    cinstr(m,b, b224);
+//    cinstr(m,y, y224);
 //
-//	ecurve_init(m, a, b, p, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    ecurve_init(m, a, b, p, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults(k, g);
-//	td = mult_double(k, g);
-//	tp = mult_precomp(k, x, y, a, b, p);
+//    tr1 = mults(k, g);
+//    td = mult_double(k, g);
+//    tp = mult_precomp(k, x, y, a, b, p);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
-//	printf("\n256 bit GF(p) Elliptic Curve....\n");
-//	k = 256;
-//	cinstr(m,p, p256);
-//	cinstr(m,b, b256);
-//	cinstr(m,y, y256);
+//    printf("\n256 bit GF(p) Elliptic Curve....\n");
+//    k = 256;
+//    cinstr(m,p, p256);
+//    cinstr(m,b, b256);
+//    cinstr(m,y, y256);
 //
-//	ecurve_init(m, a, b, p, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    ecurve_init(m, a, b, p, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults(k, g);
-//	td = mult_double(k, g);
-//	tp = mult_precomp(k, x, y, a, b, p);
+//    tr1 = mults(k, g);
+//    td = mult_double(k, g);
+//    tp = mult_precomp(k, x, y, a, b, p);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
 //#ifndef MR_FP
 //
-//	printf("\n163 bit GF(2^m) Elliptic Curve....\n");
-//	k = 163;
-//	mip->IOBASE = 16;
-//	cinstr(m,b, B163);
-//	cinstr(m,x, x163);
-//	cinstr(m,y, y163);
-//	mip->IOBASE = 10;
-//	convert(m, A163, A2);
-//	ecurve2_init(m, m163, a163, b163, c163, A2, b, FALSE, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint2_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    printf("\n163 bit GF(2^m) Elliptic Curve....\n");
+//    k = 163;
+//    mip->IOBASE = 16;
+//    cinstr(m,b, B163);
+//    cinstr(m,x, x163);
+//    cinstr(m,y, y163);
+//    mip->IOBASE = 10;
+//    convert(m, A163, A2);
+//    ecurve2_init(m, m163, a163, b163, c163, A2, b, FALSE, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint2_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults2(k, g);
-//	td = mult2_double(k, g);
-//	tp = mult2_precomp(k, x, y, A2, b, m163, a163, b163, c163);
+//    tr1 = mults2(k, g);
+//    td = mult2_double(k, g);
+//    tp = mult2_precomp(k, x, y, A2, b, m163, a163, b163, c163);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
-//	printf("\n163 bit GF(2^m) Koblitz Elliptic Curve....\n");
-//	k = 163;
-//	mip->IOBASE = 16;
-//	cinstr(m,b, KB163);
-//	cinstr(m,x, Kx163);
-//	cinstr(m,y, Ky163);
-//	mip->IOBASE = 10;
-//	convert(m, KA163, A2);
-//	ecurve2_init(m, m163, a163, b163, c163, A2, b, FALSE, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint2_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    printf("\n163 bit GF(2^m) Koblitz Elliptic Curve....\n");
+//    k = 163;
+//    mip->IOBASE = 16;
+//    cinstr(m,b, KB163);
+//    cinstr(m,x, Kx163);
+//    cinstr(m,y, Ky163);
+//    mip->IOBASE = 10;
+//    convert(m, KA163, A2);
+//    ecurve2_init(m, m163, a163, b163, c163, A2, b, FALSE, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint2_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults2(k, g);
-//	td = mult2_double(k, g);
-//	tp = mult2_precomp(k, x, y, A2, b, m163, a163, b163, c163);
+//    tr1 = mults2(k, g);
+//    td = mult2_double(k, g);
+//    tp = mult2_precomp(k, x, y, A2, b, m163, a163, b163, c163);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
-//	printf("\n233 bit GF(2^m) Elliptic Curve....\n");
-//	k = 233;
-//	mip->IOBASE = 16;
-//	cinstr(m,b, B233);
-//	cinstr(m,x, x233);
-//	cinstr(m,y, y233);
-//	mip->IOBASE = 10;
-//	convert(m, A233, A2);
-//	ecurve2_init(m, m233, a233, b233, c233, A2, b, FALSE, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint2_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    printf("\n233 bit GF(2^m) Elliptic Curve....\n");
+//    k = 233;
+//    mip->IOBASE = 16;
+//    cinstr(m,b, B233);
+//    cinstr(m,x, x233);
+//    cinstr(m,y, y233);
+//    mip->IOBASE = 10;
+//    convert(m, A233, A2);
+//    ecurve2_init(m, m233, a233, b233, c233, A2, b, FALSE, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint2_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults2(k, g);
-//	td = mult2_double(k, g);
-//	tp = mult2_precomp(k, x, y, A2, b, m233, a233, b233, c233);
+//    tr1 = mults2(k, g);
+//    td = mult2_double(k, g);
+//    tp = mult2_precomp(k, x, y, A2, b, m233, a233, b233, c233);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
-//	printf("\n233 bit GF(2^m) Koblitz Elliptic Curve....\n");
-//	k = 233;
-//	mip->IOBASE = 16;
-//	cinstr(m,b, KB233);
-//	cinstr(m,x, Kx233);
-//	cinstr(m,y, Ky233);
-//	mip->IOBASE = 10;
-//	convert(m, KA233, A2);
-//	ecurve2_init(m, m233, a233, b233, c233, A2, b, FALSE, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint2_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    printf("\n233 bit GF(2^m) Koblitz Elliptic Curve....\n");
+//    k = 233;
+//    mip->IOBASE = 16;
+//    cinstr(m,b, KB233);
+//    cinstr(m,x, Kx233);
+//    cinstr(m,y, Ky233);
+//    mip->IOBASE = 10;
+//    convert(m, KA233, A2);
+//    ecurve2_init(m, m233, a233, b233, c233, A2, b, FALSE, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint2_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults2(k, g);
-//	td = mult2_double(k, g);
-//	tp = mult2_precomp(k, x, y, A2, b, m233, a233, b233, c233);
+//    tr1 = mults2(k, g);
+//    td = mult2_double(k, g);
+//    tp = mult2_precomp(k, x, y, A2, b, m233, a233, b233, c233);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
 //
-//	printf("\n283 bit GF(2^m) Elliptic Curve....\n");
-//	k = 283;
-//	mip->IOBASE = 16;
-//	cinstr(m,b, B283);
-//	cinstr(m,x, x283);
-//	cinstr(m,y, y283);
-//	mip->IOBASE = 10;
+//    printf("\n283 bit GF(2^m) Elliptic Curve....\n");
+//    k = 283;
+//    mip->IOBASE = 16;
+//    cinstr(m,b, B283);
+//    cinstr(m,x, x283);
+//    cinstr(m,y, y283);
+//    mip->IOBASE = 10;
 //
-//	convert(m, A283, A2);
-//	ecurve2_init(m, m283, a283, b283, c283, A2, b, FALSE, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint2_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    convert(m, A283, A2);
+//    ecurve2_init(m, m283, a283, b283, c283, A2, b, FALSE, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint2_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults2(k, g);
-//	td = mult2_double(k, g);
-//	tp = mult2_precomp(k, x, y, A2, b, m283, a283, b283, c283);
+//    tr1 = mults2(k, g);
+//    td = mult2_double(k, g);
+//    tp = mult2_precomp(k, x, y, A2, b, m283, a283, b283, c283);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
-//	printf("\n283 bit GF(2^m) Koblitz Elliptic Curve....\n");
-//	k = 283;
-//	mip->IOBASE = 16;
-//	cinstr(m, b, KB283);
-//	cinstr(m, x, Kx283);
-//	cinstr(m, y, Ky283);
-//	mip->IOBASE = 10;
+//    printf("\n283 bit GF(2^m) Koblitz Elliptic Curve....\n");
+//    k = 283;
+//    mip->IOBASE = 16;
+//    cinstr(m, b, KB283);
+//    cinstr(m, x, Kx283);
+//    cinstr(m, y, Ky283);
+//    mip->IOBASE = 10;
 //
-//	convert(m, KA283, A2);
-//	ecurve2_init(m, m283, a283, b283, c283, A2, b, FALSE, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint2_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    convert(m, KA283, A2);
+//    ecurve2_init(m, m283, a283, b283, c283, A2, b, FALSE, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint2_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults2(k, g);
-//	td = mult2_double(k, g);
-//	tp = mult2_precomp(k, x, y, A2, b, m283, a283, b283, c283);
+//    tr1 = mults2(k, g);
+//    td = mult2_double(k, g);
+//    tp = mult2_precomp(k, x, y, A2, b, m283, a283, b283, c283);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
-//	printf("\n571 bit GF(2^m) Elliptic Curve....\n");
-//	k = 571;
-//	mip->IOBASE = 16;
-//	cinstr(m,b, B571);
-//	cinstr(m,x, x571);
-//	cinstr(m,y, y571);
-//	mip->IOBASE = 10;
+//    printf("\n571 bit GF(2^m) Elliptic Curve....\n");
+//    k = 571;
+//    mip->IOBASE = 16;
+//    cinstr(m,b, B571);
+//    cinstr(m,x, x571);
+//    cinstr(m,y, y571);
+//    mip->IOBASE = 10;
 //
-//	convert(m, A571, A2);
-//	ecurve2_init(m, m571, a571, b571, c571, A2, b, FALSE, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint2_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    convert(m, A571, A2);
+//    ecurve2_init(m, m571, a571, b571, c571, A2, b, FALSE, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint2_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults2(k, g);
-//	td = mult2_double(k, g);
-//	tp = mult2_precomp(k, x, y, A2, b, m571, a571, b571, c571);
+//    tr1 = mults2(k, g);
+//    td = mult2_double(k, g);
+//    tp = mult2_precomp(k, x, y, A2, b, m571, a571, b571, c571);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
-//	printf("\n571 bit GF(2^m) Koblitz Elliptic Curve....\n");
-//	k = 571;
-//	mip->IOBASE = 16;
-//	cinstr(m,b, KB571);
-//	cinstr(m,x, Kx571);
-//	cinstr(m,y, Ky571);
-//	mip->IOBASE = 10;
+//    printf("\n571 bit GF(2^m) Koblitz Elliptic Curve....\n");
+//    k = 571;
+//    mip->IOBASE = 16;
+//    cinstr(m,b, KB571);
+//    cinstr(m,x, Kx571);
+//    cinstr(m,y, Ky571);
+//    mip->IOBASE = 10;
 //
-//	convert(m, KA571, A2);
-//	ecurve2_init(m, m571, a571, b571, c571, A2, b, FALSE, MR_PROJECTIVE);
-//	g = epoint_init(m);
-//	if (!epoint2_set(m, x, y, 0, g))
-//	{
-//		printf("This is not a point on the curve!\n");
-//		exit(0);
-//	}
+//    convert(m, KA571, A2);
+//    ecurve2_init(m, m571, a571, b571, c571, A2, b, FALSE, MR_PROJECTIVE);
+//    g = epoint_init(m);
+//    if (!epoint2_set(m, x, y, 0, g))
+//    {
+//        printf("This is not a point on the curve!\n");
+//        exit(0);
+//    }
 //
-//	tr1 = mults2(k, g);
-//	td = mult2_double(k, g);
-//	tp = mult2_precomp(k, x, y, A2, b, m571, a571, b571, c571);
+//    tr1 = mults2(k, g);
+//    td = mult2_double(k, g);
+//    tp = mult2_precomp(k, x, y, A2, b, m571, a571, b571, c571);
 //
-//	printf("\n");
-//	printf("%4d bit ECDH :-\n", k);
-//	printf("         offline, no precomputation   %8.2lf ms \n", tr1);
-//	printf("         offline, w. precomputation   %8.2lf ms \n", tp);
-//	printf("         online                       %8.2lf ms \n", tr1);
-//	printf("%4d bit ECDSA :-\n", k);
-//	printf("         signature no precomputation  %8.2lf ms \n", tr1);
-//	printf("         signature w. precomputation  %8.2lf ms \n", tp);
-//	printf("         verification                 %8.2lf ms \n", td);
+//    printf("\n");
+//    printf("%4d bit ECDH :-\n", k);
+//    printf("         offline, no precomputation   %8.2lf ms \n", tr1);
+//    printf("         offline, w. precomputation   %8.2lf ms \n", tp);
+//    printf("         online                       %8.2lf ms \n", tr1);
+//    printf("%4d bit ECDSA :-\n", k);
+//    printf("         signature no precomputation  %8.2lf ms \n", tr1);
+//    printf("         signature w. precomputation  %8.2lf ms \n", tp);
+//    printf("         verification                 %8.2lf ms \n", td);
 //
 //#endif
-//	return 0;
+//    return 0;
 }
 

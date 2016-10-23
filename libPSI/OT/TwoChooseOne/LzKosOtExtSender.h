@@ -11,31 +11,31 @@
 #endif
 namespace osuCrypto {
 
-	class Channel;
+    class Channel;
 
-	class LzKosOtExtSender :
-		public OtExtSender
-	{
-	public: 
-		std::array<PRNG, gOtExtBaseOtCount> mGens;
-		BitVector mBaseChoiceBits;
+    class LzKosOtExtSender :
+        public OtExtSender
+    {
+    public: 
+        std::array<PRNG, gOtExtBaseOtCount> mGens;
+        BitVector mBaseChoiceBits;
 
-		bool hasBaseOts() const override
-		{
-			return mBaseChoiceBits.size() > 0;
-		}
+        bool hasBaseOts() const override
+        {
+            return mBaseChoiceBits.size() > 0;
+        }
 
-		std::unique_ptr<OtExtSender> split() override;
+        std::unique_ptr<OtExtSender> split() override;
 
-		void setBaseOts(
-			ArrayView<block> baseRecvOts,
-			const BitVector& choices) override;
+        void setBaseOts(
+            ArrayView<block> baseRecvOts,
+            const BitVector& choices) override;
 
-		void send(
-			ArrayView<std::array<block, 2>> messages,
-			PRNG& prng,
-			Channel& chl) override;
+        void send(
+            ArrayView<std::array<block, 2>> messages,
+            PRNG& prng,
+            Channel& chl) override;
 
-	};
+    };
 }
 

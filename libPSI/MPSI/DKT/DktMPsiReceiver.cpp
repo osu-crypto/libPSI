@@ -9,544 +9,544 @@
 namespace osuCrypto
 {
 
-	DktMPsiReceiver::DktMPsiReceiver()
-	{
-	}
+    DktMPsiReceiver::DktMPsiReceiver()
+    {
+    }
 
 
-	DktMPsiReceiver::~DktMPsiReceiver()
-	{
-	}
-	void DktMPsiReceiver::init(u64 n, u64 secParam, block seed)
-	{
-		mN = n;
-		mSecParam = secParam;
-		mPrng.SetSeed(seed);
-		mIntersection.clear();
-	}
+    DktMPsiReceiver::~DktMPsiReceiver()
+    {
+    }
+    void DktMPsiReceiver::init(u64 n, u64 secParam, block seed)
+    {
+        mN = n;
+        mSecParam = secParam;
+        mPrng.SetSeed(seed);
+        mIntersection.clear();
+    }
 
 
-	void DktMPsiReceiver::sendInput(
-		ArrayView<block> inputs,
-		std::vector<Channel*>& chls)
-	{
-		std::vector<PRNG> thrdPrng(chls.size());
-		for (u64 i = 0; i < thrdPrng.size(); i++)
-			thrdPrng[i].SetSeed(mPrng.get<block>());
+    void DktMPsiReceiver::sendInput(
+        ArrayView<block> inputs,
+        std::vector<Channel*>& chls)
+    {
+        std::vector<PRNG> thrdPrng(chls.size());
+        for (u64 i = 0; i < thrdPrng.size(); i++)
+            thrdPrng[i].SetSeed(mPrng.get<block>());
 
 
-		u64 theirInputSize = inputs.size();
+        u64 theirInputSize = inputs.size();
 
 
-		auto RcSeed = mPrng.get<block>();
-		auto sigmaDSeed = mPrng.get<block>();
+        auto RcSeed = mPrng.get<block>();
+        auto sigmaDSeed = mPrng.get<block>();
 
 
-		std::vector<std::future<block>> 
-			sigmaHashsFutures(chls.size() - 1),
-			sigma2HashsFutures(chls.size() - 1);
-		std::vector<std::promise<block>>
-			sigmaHashsProms(chls.size() - 1),
-			sigma2HashsProms(chls.size() - 1);
+        std::vector<std::future<block>> 
+            sigmaHashsFutures(chls.size() - 1),
+            sigma2HashsFutures(chls.size() - 1);
+        std::vector<std::promise<block>>
+            sigmaHashsProms(chls.size() - 1),
+            sigma2HashsProms(chls.size() - 1);
 
 
-		struct InputHash
-		{
-			InputHash() {}
-			InputHash(block m, u64 i) : mHash(m), mInputIdx(i) {}
-			block mHash;
-			u64 mInputIdx;
-		};
-		std::vector<std::promise<std::vector<InputHash>*>> inputHashProms(chls.size() - 1);
-		std::vector<std::future<std::vector<InputHash>*>> inputHashFutrs(chls.size() - 1);
+        struct InputHash
+        {
+            InputHash() {}
+            InputHash(block m, u64 i) : mHash(m), mInputIdx(i) {}
+            block mHash;
+            u64 mInputIdx;
+        };
+        std::vector<std::promise<std::vector<InputHash>*>> inputHashProms(chls.size() - 1);
+        std::vector<std::future<std::vector<InputHash>*>> inputHashFutrs(chls.size() - 1);
 
-		std::promise<void> mergedHashTableProm;
-		std::shared_future<void> mergedHashTableFutr = mergedHashTableProm.get_future().share();
+        std::promise<void> mergedHashTableProm;
+        std::shared_future<void> mergedHashTableFutr = mergedHashTableProm.get_future().share();
 
-		std::promise<std::array<EccNumber*, 2>> sigmaValsProm;
-		std::shared_future<std::array<EccNumber*, 2>> sigmaValsFutr(sigmaValsProm.get_future().share());
-		std::promise<std::tuple<EccNumber*, EccNumber*, EccPoint*>> sigma2ValsProm;
-		std::shared_future<std::tuple<EccNumber*, EccNumber*, EccPoint*>> sigma2ValsFutr(sigma2ValsProm.get_future().share());
-		std::vector<std::vector<u64>> localIntersections(chls.size()-1);
-		std::unordered_map<u64, InputHash> hashs;
+        std::promise<std::array<EccNumber*, 2>> sigmaValsProm;
+        std::shared_future<std::array<EccNumber*, 2>> sigmaValsFutr(sigmaValsProm.get_future().share());
+        std::promise<std::tuple<EccNumber*, EccNumber*, EccPoint*>> sigma2ValsProm;
+        std::shared_future<std::tuple<EccNumber*, EccNumber*, EccPoint*>> sigma2ValsFutr(sigma2ValsProm.get_future().share());
+        std::vector<std::vector<u64>> localIntersections(chls.size()-1);
+        std::unordered_map<u64, InputHash> hashs;
 
 
-		for (u64 i = 0; i < sigmaHashsFutures.size(); i++)
-		{
-			sigmaHashsFutures[i] = sigmaHashsProms[i].get_future();
-			sigma2HashsFutures[i] = sigma2HashsProms[i].get_future();
-			inputHashFutrs[i] = inputHashProms[i].get_future();
-		}
+        for (u64 i = 0; i < sigmaHashsFutures.size(); i++)
+        {
+            sigmaHashsFutures[i] = sigmaHashsProms[i].get_future();
+            sigma2HashsFutures[i] = sigma2HashsProms[i].get_future();
+            inputHashFutrs[i] = inputHashProms[i].get_future();
+        }
 
 
-		auto routine = [&](u64 t)
-		{
-			u64 myInputStartIdx = inputs.size() * t / chls.size();
-			u64 myInputEndIdx = inputs.size() * (t + 1) / chls.size();
-			u64 subsetInputSize = myInputEndIdx - myInputStartIdx;
+        auto routine = [&](u64 t)
+        {
+            u64 myInputStartIdx = inputs.size() * t / chls.size();
+            u64 myInputEndIdx = inputs.size() * (t + 1) / chls.size();
+            u64 subsetInputSize = myInputEndIdx - myInputStartIdx;
 
-			u64 theirInputStartIdx = theirInputSize * t / chls.size();
-			u64 theirInputEndIdx = theirInputSize * (t + 1) / chls.size();
+            u64 theirInputStartIdx = theirInputSize * t / chls.size();
+            u64 theirInputEndIdx = theirInputSize * (t + 1) / chls.size();
 
-			auto& chl = *chls[t];
-			auto& prng = thrdPrng[t];
+            auto& chl = *chls[t];
+            auto& prng = thrdPrng[t];
 
-			u8 hashOut[SHA1::HashSize];
+            u8 hashOut[SHA1::HashSize];
 
-			// curve must be prime order...
-			EllipticCurve curve(Curve25519, prng.get<block>());
+            // curve must be prime order...
+            EllipticCurve curve(Curve25519, prng.get<block>());
 
-			if (curve.getGenerators().size() < 3)
-			{
-				Log::out << ("DktMPsi require at least 3 generators") << Log::endl;
-				throw std::runtime_error("DktMPsi require at least 3 generators");
-			}
+            if (curve.getGenerators().size() < 3)
+            {
+                Log::out << ("DktMPsi require at least 3 generators") << Log::endl;
+                throw std::runtime_error("DktMPsi require at least 3 generators");
+            }
 
-			const auto& g = curve.getGenerators()[0];
-			const auto& gg = curve.getGenerators()[1];
-			const auto& ggg = curve.getGenerators()[2];
-			auto g2 = gg + ggg;
+            const auto& g = curve.getGenerators()[0];
+            const auto& gg = curve.getGenerators()[1];
+            const auto& ggg = curve.getGenerators()[2];
+            auto g2 = gg + ggg;
 
-			typedef EccBrick BRICK;
+            typedef EccBrick BRICK;
 
-			BRICK gBrick(g);
-			BRICK ggBrick(gg);
-			BRICK gggBrick(ggg);
+            BRICK gBrick(g);
+            BRICK ggBrick(gg);
+            BRICK gggBrick(ggg);
 
 
-			std::vector<EccPoint> inputPoints;
-			inputPoints.reserve(inputs.size());
+            std::vector<EccPoint> inputPoints;
+            inputPoints.reserve(inputs.size());
 
-			EccPoint pch(curve);
+            EccPoint pch(curve);
 
 
-			for (u64 i = myInputStartIdx; i < myInputEndIdx; ++i)
-			{
+            for (u64 i = myInputStartIdx; i < myInputEndIdx; ++i)
+            {
 
-				SHA1 inputHasher;
-				inputHasher.Update(inputs[i]);
-				inputHasher.Final(hashOut);
+                SHA1 inputHasher;
+                inputHasher.Update(inputs[i]);
+                inputHasher.Final(hashOut);
 
-				inputPoints.emplace_back(curve);
-				auto& point = inputPoints.back();
+                inputPoints.emplace_back(curve);
+                auto& point = inputPoints.back();
 
-				point.randomize(toBlock(hashOut));
+                point.randomize(toBlock(hashOut));
 
-				if (i == myInputStartIdx)
-					pch = point;
-				else
-					pch = pch + point;
-			}
+                if (i == myInputStartIdx)
+                    pch = point;
+                else
+                    pch = pch + point;
+            }
 
-			EccNumber Rc(curve);
-			EccNumber sigmaD(curve);
-			Rc.randomize(RcSeed);
-			sigmaD.randomize(prng);
+            EccNumber Rc(curve);
+            EccNumber sigmaD(curve);
+            Rc.randomize(RcSeed);
+            sigmaD.randomize(prng);
 
 
-			EccPoint X(curve), sigmaA(curve);
-			auto gRc = gBrick * Rc;
-			X = pch + gRc;
+            EccPoint X(curve), sigmaA(curve);
+            auto gRc = gBrick * Rc;
+            X = pch + gRc;
 
 
-			sigmaA = gBrick * sigmaD;
-			SHA1 sigmaHasher;
+            sigmaA = gBrick * sigmaD;
+            SHA1 sigmaHasher;
 
-			if (t == 0)
-			{
-				uPtr<Buff> sendBuff(new Buff(X.sizeBytes() * 2));
-				auto iter = sendBuff->data();
-				X.toBytes(iter); iter += X.sizeBytes();
-				sigmaA.toBytes(iter);
-				sigmaHasher.Update(iter, sigmaA.sizeBytes());
+            if (t == 0)
+            {
+                uPtr<Buff> sendBuff(new Buff(X.sizeBytes() * 2));
+                auto iter = sendBuff->data();
+                X.toBytes(iter); iter += X.sizeBytes();
+                sigmaA.toBytes(iter);
+                sigmaHasher.Update(iter, sigmaA.sizeBytes());
 
-				chl.asyncSend(std::move(sendBuff));
-			}
+                chl.asyncSend(std::move(sendBuff));
+            }
 
 
-			std::vector<EccPoint> pchs, Ms, Ns, sigmaBs, sigma2As;
-			pchs.reserve(subsetInputSize);
-			Ms.reserve(subsetInputSize);
-			Ns.reserve(subsetInputSize);
-			sigmaBs.reserve(subsetInputSize);
-			sigma2As.reserve(subsetInputSize);
+            std::vector<EccPoint> pchs, Ms, Ns, sigmaBs, sigma2As;
+            pchs.reserve(subsetInputSize);
+            Ms.reserve(subsetInputSize);
+            Ns.reserve(subsetInputSize);
+            sigmaBs.reserve(subsetInputSize);
+            sigma2As.reserve(subsetInputSize);
 
-			std::vector<EccNumber> Rcs, sigmaDs, sigmaPhis;
-			Rcs.reserve(subsetInputSize);
-			sigmaDs.reserve(subsetInputSize);
-			sigmaPhis.reserve(subsetInputSize);
+            std::vector<EccNumber> Rcs, sigmaDs, sigmaPhis;
+            Rcs.reserve(subsetInputSize);
+            sigmaDs.reserve(subsetInputSize);
+            sigmaPhis.reserve(subsetInputSize);
 
 
-			const u64 stepSize = 64;
+            const u64 stepSize = 64;
 
 
-			for (u64 i = myInputStartIdx; i < myInputEndIdx;)
-			{
-				auto curStepSize = std::min(stepSize, myInputEndIdx - i);
+            for (u64 i = myInputStartIdx; i < myInputEndIdx;)
+            {
+                auto curStepSize = std::min(stepSize, myInputEndIdx - i);
 
 
-				uPtr<Buff> sendBuff(new Buff(g.sizeBytes() * 3 * curStepSize));
-				auto iter = sendBuff->data();
+                uPtr<Buff> sendBuff(new Buff(g.sizeBytes() * 3 * curStepSize));
+                auto iter = sendBuff->data();
 
-				for (u64 j = 0; j < curStepSize; ++j, ++i)
-				{
-					sigmaDs.emplace_back(curve);
-					sigmaBs.emplace_back(curve);
-					pchs.emplace_back(curve);
-					Rcs.emplace_back(curve);
-					Ms.emplace_back(curve);
-					Ns.emplace_back(curve);
+                for (u64 j = 0; j < curStepSize; ++j, ++i)
+                {
+                    sigmaDs.emplace_back(curve);
+                    sigmaBs.emplace_back(curve);
+                    pchs.emplace_back(curve);
+                    Rcs.emplace_back(curve);
+                    Ms.emplace_back(curve);
+                    Ns.emplace_back(curve);
 
 
-					sigmaDs.back().randomize(prng);
-					sigmaBs.back() = g2 * sigmaDs.back();
+                    sigmaDs.back().randomize(prng);
+                    sigmaBs.back() = g2 * sigmaDs.back();
 
-					pchs.back() = pch - inputPoints.back();
+                    pchs.back() = pch - inputPoints.back();
 
-					Rcs.back().randomize(prng);
-					auto grc = ggBrick * Rcs.back();
-					Ms.back() = inputPoints.back() + grc;
+                    Rcs.back().randomize(prng);
+                    auto grc = ggBrick * Rcs.back();
+                    Ms.back() = inputPoints.back() + grc;
 
-					Ns.back() = pchs.back() + gggBrick  * Rcs.back();
+                    Ns.back() = pchs.back() + gggBrick  * Rcs.back();
 
 
-					Ms.back().toBytes(iter); iter += Ms.back().sizeBytes();
-					Ns.back().toBytes(iter); iter += Ns.back().sizeBytes();
+                    Ms.back().toBytes(iter); iter += Ms.back().sizeBytes();
+                    Ns.back().toBytes(iter); iter += Ns.back().sizeBytes();
 
 
-					sigmaBs.back().toBytes(iter);
-					sigmaHasher.Update(iter, sigmaBs.back().sizeBytes());
-					iter += Ns.back().sizeBytes();
+                    sigmaBs.back().toBytes(iter);
+                    sigmaHasher.Update(iter, sigmaBs.back().sizeBytes());
+                    iter += Ns.back().sizeBytes();
 
 
-				}
-				chl.asyncSend(std::move(sendBuff));
-			}
+                }
+                chl.asyncSend(std::move(sendBuff));
+            }
 
 
 
-			EccNumber sigmaE(curve), sigmaPhi(curve);
-			if (t == 0)
-			{
-				for (auto& fut : sigmaHashsFutures)
-				{
-					sigmaHasher.Update(fut.get());
-				}
+            EccNumber sigmaE(curve), sigmaPhi(curve);
+            if (t == 0)
+            {
+                for (auto& fut : sigmaHashsFutures)
+                {
+                    sigmaHasher.Update(fut.get());
+                }
 
-				sigmaHasher.Final(hashOut);
-				sigmaE.randomize(toBlock(hashOut));
-				sigmaPhi = sigmaD + Rc * sigmaE;
+                sigmaHasher.Final(hashOut);
+                sigmaE.randomize(toBlock(hashOut));
+                sigmaPhi = sigmaD + Rc * sigmaE;
 
-				sigmaValsProm.set_value({ &sigmaE, &sigmaPhi });
+                sigmaValsProm.set_value({ &sigmaE, &sigmaPhi });
 
 
-				uPtr<Buff> sendBuff(new Buff(sigmaPhi.sizeBytes()));
-				sigmaPhi.toBytes(sendBuff->data());
-				chl.asyncSend(std::move(sendBuff));
-			}
-			else
-			{
-				sigmaHasher.Final(hashOut);
+                uPtr<Buff> sendBuff(new Buff(sigmaPhi.sizeBytes()));
+                sigmaPhi.toBytes(sendBuff->data());
+                chl.asyncSend(std::move(sendBuff));
+            }
+            else
+            {
+                sigmaHasher.Final(hashOut);
 
-				sigmaHashsProms[t - 1].set_value(toBlock(hashOut));
+                sigmaHashsProms[t - 1].set_value(toBlock(hashOut));
 
-				auto rr = sigmaValsFutr.get();
-				sigmaE = *rr[0];
-				sigmaPhi = *rr[1];
-			}
+                auto rr = sigmaValsFutr.get();
+                sigmaE = *rr[0];
+                sigmaPhi = *rr[1];
+            }
 
-			//Log::out << Log::lock << "r e        " << sigmaE << Log::endl << Log::unlock;
+            //Log::out << Log::lock << "r e        " << sigmaE << Log::endl << Log::unlock;
 
 
 
 
 
-			EccNumber one(curve, 1);
-			EccNumber zero(curve, 0);
+            EccNumber one(curve, 1);
+            EccNumber zero(curve, 0);
 
-			//Log::out << "r g^z      " << sigmaGZ << Log::endl;
+            //Log::out << "r g^z      " << sigmaGZ << Log::endl;
 
-			for (u64 i = myInputStartIdx, ii = 0; i < myInputEndIdx;)
-			{
-				auto curStepSize = std::min(stepSize, myInputEndIdx - i);
+            for (u64 i = myInputStartIdx, ii = 0; i < myInputEndIdx;)
+            {
+                auto curStepSize = std::min(stepSize, myInputEndIdx - i);
 
 
-				uPtr<Buff> sendBuff(new ByteStream(sigmaPhi.sizeBytes() * curStepSize));
-				auto iter = sendBuff->data();
+                uPtr<Buff> sendBuff(new ByteStream(sigmaPhi.sizeBytes() * curStepSize));
+                auto iter = sendBuff->data();
 
-				for (u64 j = 0; j < curStepSize; ++j, ++i, ++ii)
-				{
-					sigmaPhis.emplace_back(curve);
-					sigmaPhis[ii] = sigmaDs[ii] + Rcs[ii] * sigmaE;
+                for (u64 j = 0; j < curStepSize; ++j, ++i, ++ii)
+                {
+                    sigmaPhis.emplace_back(curve);
+                    sigmaPhis[ii] = sigmaDs[ii] + Rcs[ii] * sigmaE;
 
-					if (sigmaPhis[ii].iszero())
-					{
-						Log::out << "zero " << ii << "  " << t << Log::endl;
-					}
+                    if (sigmaPhis[ii].iszero())
+                    {
+                        Log::out << "zero " << ii << "  " << t << Log::endl;
+                    }
 
-					sigmaPhis[ii].toBytes(iter); iter += sigmaPhis[ii].sizeBytes();
+                    sigmaPhis[ii].toBytes(iter); iter += sigmaPhis[ii].sizeBytes();
 
-					auto XMN = (X - (Ms[ii] + Ns[ii]));
+                    auto XMN = (X - (Ms[ii] + Ns[ii]));
 
 
-					//Log::out << "XMN    " << XMN << Log::endl;
-					//Log::out << "sigmaE " << sigmaE << Log::endl;
-					//auto t = XMN * sigmaE;
+                    //Log::out << "XMN    " << XMN << Log::endl;
+                    //Log::out << "sigmaE " << sigmaE << Log::endl;
+                    //auto t = XMN * sigmaE;
 
-					//auto proof = (sigmaA - sigmaBs[ii]) + t;
-					//auto checkVal = (g * sigmaPhi) - ((gg + ggg) * sigmaPhis[ii]);
+                    //auto proof = (sigmaA - sigmaBs[ii]) + t;
+                    //auto checkVal = (g * sigmaPhi) - ((gg + ggg) * sigmaPhis[ii]);
 
-					//if (checkVal != proof)
-					//{
-					//	Log::out <<Log::lock << "r expected " << checkVal << Log::endl;
-					//	Log::out << "r actual   " << proof << Log::endl << Log::endl << Log::unlock;
-					//	// bad sigma proof
-					//	//throw std::runtime_error(LOCATION);
-					//}
-					//else
-					//{
+                    //if (checkVal != proof)
+                    //{
+                    //    Log::out <<Log::lock << "r expected " << checkVal << Log::endl;
+                    //    Log::out << "r actual   " << proof << Log::endl << Log::endl << Log::unlock;
+                    //    // bad sigma proof
+                    //    //throw std::runtime_error(LOCATION);
+                    //}
+                    //else
+                    //{
 
-					//	Log::out << Log::lock << "* expected " << checkVal << Log::endl << Log::unlock;
-					//}
-				}
+                    //    Log::out << Log::lock << "* expected " << checkVal << Log::endl << Log::unlock;
+                    //}
+                }
 
-				chl.asyncSend(std::move(sendBuff));
-			}
+                chl.asyncSend(std::move(sendBuff));
+            }
 
-			EccPoint Z(curve), Mpi(curve), Kci(curve), sigma2A(curve);
-			EccNumber sigma2Phi(curve), sigma2C(curve);
+            EccPoint Z(curve), Mpi(curve), Kci(curve), sigma2A(curve);
+            EccNumber sigma2Phi(curve), sigma2C(curve);
 
 
-			SHA1 sigma2Hasher;
-			if (t == 0)
-			{
+            SHA1 sigma2Hasher;
+            if (t == 0)
+            {
 
-				ByteStream buff;
-				chl.recv(buff);
-				if (buff.size() != sigma2A.sizeBytes()) throw std::runtime_error("");
-				sigma2A.fromBytes(buff.data());
-				sigma2Hasher.Update(buff.data(), buff.size());
-			}
+                ByteStream buff;
+                chl.recv(buff);
+                if (buff.size() != sigma2A.sizeBytes()) throw std::runtime_error("");
+                sigma2A.fromBytes(buff.data());
+                sigma2Hasher.Update(buff.data(), buff.size());
+            }
 
-			for (u64 i = myInputStartIdx; i < myInputEndIdx;)
-			{
-				auto curStepSize = std::min(stepSize, myInputEndIdx - i);
+            for (u64 i = myInputStartIdx; i < myInputEndIdx;)
+            {
+                auto curStepSize = std::min(stepSize, myInputEndIdx - i);
 
-				ByteStream buff;
-				chl.recv(buff);
-				sigma2Hasher.Update(buff.data(), buff.size());
+                ByteStream buff;
+                chl.recv(buff);
+                sigma2Hasher.Update(buff.data(), buff.size());
 
-				auto expected = curStepSize * sigma2A.sizeBytes();
-				if (buff.size() != expected)
-					throw std::runtime_error(LOCATION);
+                auto expected = curStepSize * sigma2A.sizeBytes();
+                if (buff.size() != expected)
+                    throw std::runtime_error(LOCATION);
 
-				auto iter = buff.data();
-				for (u64 j = 0; j < curStepSize; ++j, ++i)
-				{
-					sigma2As.emplace_back(curve);
+                auto iter = buff.data();
+                for (u64 j = 0; j < curStepSize; ++j, ++i)
+                {
+                    sigma2As.emplace_back(curve);
 
-					sigma2As.back().fromBytes(iter); iter += sigma2As.back().sizeBytes();
-				}
-			}
+                    sigma2As.back().fromBytes(iter); iter += sigma2As.back().sizeBytes();
+                }
+            }
 
-			if (t == 0)
-			{
-				for (auto& fut : sigma2HashsFutures)
-				{
-					sigma2Hasher.Update(fut.get());
-				}
+            if (t == 0)
+            {
+                for (auto& fut : sigma2HashsFutures)
+                {
+                    sigma2Hasher.Update(fut.get());
+                }
 
-				sigma2Hasher.Final(hashOut);
-				sigma2C.randomize(toBlock(hashOut));
+                sigma2Hasher.Final(hashOut);
+                sigma2C.randomize(toBlock(hashOut));
 
-				ByteStream buff(Z.sizeBytes() + sigma2Phi.sizeBytes());
-				chl.recv(buff.data(), buff.size());
-				Z.fromBytes(buff.data());
-				sigma2Phi.fromBytes(buff.data() + Z.sizeBytes());
-				//EccBrick ZBrick(Z);
+                ByteStream buff(Z.sizeBytes() + sigma2Phi.sizeBytes());
+                chl.recv(buff.data(), buff.size());
+                Z.fromBytes(buff.data());
+                sigma2Phi.fromBytes(buff.data() + Z.sizeBytes());
+                //EccBrick ZBrick(Z);
 
-				sigma2ValsProm.set_value(std::tuple<EccNumber*, EccNumber*, EccPoint*>{&sigma2C, &sigma2Phi, &Z });
+                sigma2ValsProm.set_value(std::tuple<EccNumber*, EccNumber*, EccPoint*>{&sigma2C, &sigma2Phi, &Z });
 
-				auto sigma2ggPhiExpected = sigma2A + Z * sigma2C;
-				auto sigma2ggPhi = gg * sigma2Phi;
+                auto sigma2ggPhiExpected = sigma2A + Z * sigma2C;
+                auto sigma2ggPhi = gg * sigma2Phi;
 
-				if (sigma2ggPhiExpected != sigma2ggPhi)
-				{
-					Log::out << "sender's sigma proof failed." << Log::endl;
-					throw std::runtime_error("sender's sigma proof failed.");
-				}
+                if (sigma2ggPhiExpected != sigma2ggPhi)
+                {
+                    Log::out << "sender's sigma proof failed." << Log::endl;
+                    throw std::runtime_error("sender's sigma proof failed.");
+                }
 
 
 
-			}
-			else
-			{
-				sigma2Hasher.Final(hashOut);
+            }
+            else
+            {
+                sigma2Hasher.Final(hashOut);
 
-				sigma2HashsProms[t - 1].set_value(toBlock(hashOut));
+                sigma2HashsProms[t - 1].set_value(toBlock(hashOut));
 
-				auto rr = sigma2ValsFutr.get();
-				sigma2C = *std::get<0>(rr);// .first;
-				sigma2Phi = *std::get<1>(rr);// .second;
-				Z = *std::get<2>(rr);// .third;
-			}
+                auto rr = sigma2ValsFutr.get();
+                sigma2C = *std::get<0>(rr);// .first;
+                sigma2Phi = *std::get<1>(rr);// .second;
+                Z = *std::get<2>(rr);// .third;
+            }
 
 
-			ByteStream buff2(Z.sizeBytes());
+            ByteStream buff2(Z.sizeBytes());
 
 
 
-			std::vector<InputHash> hashVec;
-			if (t == 0) hashs.reserve(inputs.size());
-			else hashVec.resize(subsetInputSize);
-			auto hashVecIter = hashVec.begin();
+            std::vector<InputHash> hashVec;
+            if (t == 0) hashs.reserve(inputs.size());
+            else hashVec.resize(subsetInputSize);
+            auto hashVecIter = hashVec.begin();
 
-			Buff buff;
-			for (u64 i = myInputStartIdx, ii = 0; i < myInputEndIdx;)
-			{
-				auto curStepSize = std::min(stepSize, myInputEndIdx - i);
+            Buff buff;
+            for (u64 i = myInputStartIdx, ii = 0; i < myInputEndIdx;)
+            {
+                auto curStepSize = std::min(stepSize, myInputEndIdx - i);
 
-				chl.recv(buff);
+                chl.recv(buff);
 
-				auto expected = curStepSize * Z.sizeBytes();
-				if (buff.size() != expected)
-					throw std::runtime_error(LOCATION);
+                auto expected = curStepSize * Z.sizeBytes();
+                if (buff.size() != expected)
+                    throw std::runtime_error(LOCATION);
 
-				auto iter = buff.data();
-				for (u64 j = 0; j < curStepSize; ++j, ++i, ++ii)
-				{
+                auto iter = buff.data();
+                for (u64 j = 0; j < curStepSize; ++j, ++i, ++ii)
+                {
 
-					Mpi.fromBytes(iter); iter += Mpi.sizeBytes();
+                    Mpi.fromBytes(iter); iter += Mpi.sizeBytes();
 
-					//EccPoint expectedMpi(curve);
+                    //EccPoint expectedMpi(curve);
 
-					//expectedMpi = Ms[i] * Rs;
+                    //expectedMpi = Ms[i] * Rs;
 
-					auto negRcs = (zero - Rcs[ii]);
-					auto ZRcsi = Z * negRcs;
-					Kci = ZRcsi + Mpi;
-					//Log::out << "Kc[" << i << "] " << Kci << Log::endl;
+                    auto negRcs = (zero - Rcs[ii]);
+                    auto ZRcsi = Z * negRcs;
+                    Kci = ZRcsi + Mpi;
+                    //Log::out << "Kc[" << i << "] " << Kci << Log::endl;
 
-					SHA1 sha;
-					Kci.toBytes(buff2.data());
-					//Log::out << "buff " << buff << Log::endl;
+                    SHA1 sha;
+                    Kci.toBytes(buff2.data());
+                    //Log::out << "buff " << buff << Log::endl;
 
-					sha.Update(buff2.data(), Kci.sizeBytes());
+                    sha.Update(buff2.data(), Kci.sizeBytes());
 
-					inputPoints[ii].toBytes(buff2.data());
-					sha.Update(buff2.data(), inputPoints[ii].sizeBytes());
+                    inputPoints[ii].toBytes(buff2.data());
+                    sha.Update(buff2.data(), inputPoints[ii].sizeBytes());
 
-					sha.Update(inputs[i]);
+                    sha.Update(inputs[i]);
 
 
-					sha.Final(hashOut);
+                    sha.Final(hashOut);
 
-					auto blk = toBlock(hashOut);
-					auto idx = *(u64*)&blk;
-					//Log::out << "r " << blk << "  " << idx << Log::endl;
-					
-					if (t == 0)
-					{
-						hashs.insert({ idx , InputHash(blk, i) });
-					}
-					else
-					{
-						*hashVecIter++ = InputHash(blk, i);
-					}
+                    auto blk = toBlock(hashOut);
+                    auto idx = *(u64*)&blk;
+                    //Log::out << "r " << blk << "  " << idx << Log::endl;
+                    
+                    if (t == 0)
+                    {
+                        hashs.insert({ idx , InputHash(blk, i) });
+                    }
+                    else
+                    {
+                        *hashVecIter++ = InputHash(blk, i);
+                    }
 
 
-					auto sigma2MsiPhiExpected = sigma2As[ii] + Mpi * sigma2C;
-					auto sigma2MsiPhi = Ms[ii] * sigma2Phi;
+                    auto sigma2MsiPhiExpected = sigma2As[ii] + Mpi * sigma2C;
+                    auto sigma2MsiPhi = Ms[ii] * sigma2Phi;
 
-					if (sigma2MsiPhiExpected != sigma2MsiPhi)
-					{
-						Log::out << "sender's sigma proof failed (msi)." << Log::endl;
-						throw std::runtime_error("sender's sigma proof failed (msi).");
-					}
-				}
-			}
+                    if (sigma2MsiPhiExpected != sigma2MsiPhi)
+                    {
+                        Log::out << "sender's sigma proof failed (msi)." << Log::endl;
+                        throw std::runtime_error("sender's sigma proof failed (msi).");
+                    }
+                }
+            }
 
-			if (t == 0)
-			{
-				for (auto& fut : inputHashFutrs)
-				{
-					auto* inputHashs = fut.get();
-					for (auto& inputHash : *inputHashs)
-					{
-						auto idx = *(u64*)&inputHash.mHash;
-						hashs.insert({ idx , inputHash });
-					}
-				}
+            if (t == 0)
+            {
+                for (auto& fut : inputHashFutrs)
+                {
+                    auto* inputHashs = fut.get();
+                    for (auto& inputHash : *inputHashs)
+                    {
+                        auto idx = *(u64*)&inputHash.mHash;
+                        hashs.insert({ idx , inputHash });
+                    }
+                }
 
 
-				mergedHashTableProm.set_value();
-			}
-			else
-			{
-				inputHashProms[t - 1].set_value(&hashVec);
-				mergedHashTableFutr.get();
-			}
+                mergedHashTableProm.set_value();
+            }
+            else
+            {
+                inputHashProms[t - 1].set_value(&hashVec);
+                mergedHashTableFutr.get();
+            }
 
-			for (u64 i = theirInputStartIdx; i < theirInputEndIdx; )
-			{
-				chl.recv(buff);
-				auto view = buff.getArrayView<block>();
-				i += view.size();
+            for (u64 i = theirInputStartIdx; i < theirInputEndIdx; )
+            {
+                chl.recv(buff);
+                auto view = buff.getArrayView<block>();
+                i += view.size();
 
-				for (auto& Tsj : view)
-				{
-					auto idx = *(u64*)&Tsj;
-					//Log::out << "recv " << Tsj << Log::endl;
-					//Log::out << "idx " << idx << Log::endl;
-					auto iter = hashs.find(idx);
+                for (auto& Tsj : view)
+                {
+                    auto idx = *(u64*)&Tsj;
+                    //Log::out << "recv " << Tsj << Log::endl;
+                    //Log::out << "idx " << idx << Log::endl;
+                    auto iter = hashs.find(idx);
 
 
-					if (iter != hashs.end())
-					{
-						//Log::out << "pm " << iter->second.mHash << "  " << iter->second.mInputIdx << Log::endl;
+                    if (iter != hashs.end())
+                    {
+                        //Log::out << "pm " << iter->second.mHash << "  " << iter->second.mInputIdx << Log::endl;
 
-						if (eq(iter->second.mHash, Tsj))
-						{
-							if (t == 0)
-							{
-								mIntersection.emplace_back(iter->second.mInputIdx);
-							}
-							else
-							{
-								localIntersections[t-1].emplace_back(iter->second.mInputIdx);
-							}
-						}
-					}
+                        if (eq(iter->second.mHash, Tsj))
+                        {
+                            if (t == 0)
+                            {
+                                mIntersection.emplace_back(iter->second.mInputIdx);
+                            }
+                            else
+                            {
+                                localIntersections[t-1].emplace_back(iter->second.mInputIdx);
+                            }
+                        }
+                    }
 
-				}
+                }
 
-				// termination condition is sending one extra byte
-			}
-		};
+                // termination condition is sending one extra byte
+            }
+        };
 
-		std::vector<std::thread> thrds(chls.size()-1);
-		for (u64 i = 1; i < chls.size(); ++i)
-		{
-			thrds[i - 1] = std::thread([=] {
-				routine(i);
-			});
-		}
+        std::vector<std::thread> thrds(chls.size()-1);
+        for (u64 i = 1; i < chls.size(); ++i)
+        {
+            thrds[i - 1] = std::thread([=] {
+                routine(i);
+            });
+        }
 
-		routine(0);
+        routine(0);
 
-		u64 extraSize = 0;
-		for (u64 i = 0; i < thrds.size(); ++i)
-		{
-			thrds[i].join();
-			extraSize = localIntersections[i].size();
-		}
+        u64 extraSize = 0;
+        for (u64 i = 0; i < thrds.size(); ++i)
+        {
+            thrds[i].join();
+            extraSize = localIntersections[i].size();
+        }
 
-		mIntersection.reserve(mIntersection.size() + extraSize);
-		for (u64 i = 0; i < thrds.size(); ++i)
-		{
-			mIntersection.insert(mIntersection.end(), localIntersections[i].begin(), localIntersections[i].end());
-		}
+        mIntersection.reserve(mIntersection.size() + extraSize);
+        for (u64 i = 0; i < thrds.size(); ++i)
+        {
+            mIntersection.insert(mIntersection.end(), localIntersections[i].begin(), localIntersections[i].end());
+        }
 
 
-	}
+    }
 }

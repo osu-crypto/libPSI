@@ -8,22 +8,22 @@ void InitDebugPrinting(std::string file = "../../testout.txt");
 
 class UnitTestFail : public std::exception
 {
-	std::string mWhat;
+    std::string mWhat;
 public:
-	explicit UnitTestFail(std::string reason)
-		:std::exception(),
-		mWhat(reason)
-	{}
+    explicit UnitTestFail(std::string reason)
+        :std::exception(),
+        mWhat(reason)
+    {}
 
-	explicit UnitTestFail()
-		:std::exception(),
-		mWhat("UnitTestFailed exception")
-	{
-	}
+    explicit UnitTestFail()
+        :std::exception(),
+        mWhat("UnitTestFailed exception")
+    {
+    }
 
-	virtual  const char* what() const throw()
-	{
-		return mWhat.c_str();
-	}
+    virtual  const char* what() const throw()
+    {
+        return mWhat.c_str();
+    }
 };
 

@@ -22,16 +22,16 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace osuCrypto_tests
 {
-	TEST_CLASS(AknOtTests)
-	{
-	public:
+    TEST_CLASS(AknOtTests)
+    {
+    public:
 
-		TEST_METHOD(AknOt_sendRecv_TestVS)
-		{
-			InitDebugPrinting();
-			AknOt_sendRecv1000_Test();
-		}
+        TEST_METHOD(AknOt_sendRecv_TestVS)
+        {
+            InitDebugPrinting();
+            AknOt_sendRecv1000_Test();
+        }
 
-	};
+    };
 }
 #endif

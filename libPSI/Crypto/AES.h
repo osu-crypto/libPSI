@@ -9,43 +9,43 @@ namespace osuCrypto {
 
 
 
-	class AES
-	{
-	public:
+    class AES
+    {
+    public:
 
-		AES();
-		AES(const block& userKey);
-
-
-		void setKey(const block& userKey);
+        AES();
+        AES(const block& userKey);
 
 
-		void ecbEncBlock(const block& plaintext, block& cyphertext) const;
-		block ecbEncBlock(const block& plaintext) const;
-
-		void ecbEncBlocks(const block* plaintexts, u64 blockLength, block* cyphertext) const;
-
-		void ecbEncTwoBlocks(const block* plaintexts, block* cyphertext) const;
-		void ecbEncFourBlocks(const block* plaintexts, block* cyphertext) const;
-
-		block mRoundKey[11];
-	};
+        void setKey(const block& userKey);
 
 
-	extern 	const AES mAesFixedKey;
+        void ecbEncBlock(const block& plaintext, block& cyphertext) const;
+        block ecbEncBlock(const block& plaintext) const;
 
-	class AESDec
-	{
-	public:
+        void ecbEncBlocks(const block* plaintexts, u64 blockLength, block* cyphertext) const;
 
-		AESDec();
-		AESDec(const block& userKey);
+        void ecbEncTwoBlocks(const block* plaintexts, block* cyphertext) const;
+        void ecbEncFourBlocks(const block* plaintexts, block* cyphertext) const;
 
-		void setKey(const block& userKey);
+        block mRoundKey[11];
+    };
 
-		void ecbDecBlock(const block& cyphertext, block& plaintext);
-		block ecbDecBlock(const block& cyphertext);
-		block mRoundKey[11];
-	};
+
+    extern     const AES mAesFixedKey;
+
+    class AESDec
+    {
+    public:
+
+        AESDec();
+        AESDec(const block& userKey);
+
+        void setKey(const block& userKey);
+
+        void ecbDecBlock(const block& cyphertext, block& plaintext);
+        block ecbDecBlock(const block& cyphertext);
+        block mRoundKey[11];
+    };
 
 }

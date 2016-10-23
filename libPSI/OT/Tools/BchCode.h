@@ -2,7 +2,7 @@
 class BchCode
 {
 public:
-	BchCode();
-	~BchCode();
+    BchCode();
+    ~BchCode();
 };
 

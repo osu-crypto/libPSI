@@ -12,17 +12,17 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace osuCrypto_tests
 {
-	TEST_CLASS(ShamirSSScheme_Tests)
-	{
-	public:
-		TEST_METHOD(ShamirSSScheme_TestVS)
-		{
-			InitDebugPrinting();
+    TEST_CLASS(ShamirSSScheme_Tests)
+    {
+    public:
+        TEST_METHOD(ShamirSSScheme_TestVS)
+        {
+            InitDebugPrinting();
 
-			ShamirSSScheme_Test(); 
-		}
+            ShamirSSScheme_Test(); 
+        }
 
 
-	};
+    };
 }
 #endif

@@ -22,53 +22,53 @@ int miraclTestMain();
 int main(int argc, char** argv)
 {
 
-	run_all();
-	return 0;
-	//Ecc2mNumber_Test();
-	//return 0;
-	//miraclTestMain();
-	//return 0;
+    run_all();
+    return 0;
+    //Ecc2mNumber_Test();
+    //return 0;
+    //miraclTestMain();
+    //return 0;
 
-	//test2();
-	//return 0;
-	//kpPSI();
-	//return 0 ;
+    //test2();
+    //return 0;
+    //kpPSI();
+    //return 0 ;
 
-	//sim(); 
-	//return 0;
-	if (argc == 2)
-	{
-		DktSend();
-		//bfSend();
-		//DcwSend();
-		//DcwRSend();
-		//otBinSend();
-	}
-	else if (argc == 3)
-	{
-		DktRecv();
-		//bfRecv();
-		//DcwRecv();
-		//DcwRRecv();
-		//otBinRecv();
-	}
-	else
-	{
-		auto thrd = std::thread([]() {
+    //sim(); 
+    //return 0;
+    if (argc == 2)
+    {
+        DktSend();
+        //bfSend();
+        //DcwSend();
+        //DcwRSend();
+        //otBinSend();
+    }
+    else if (argc == 3)
+    {
+        DktRecv();
+        //bfRecv();
+        //DcwRecv();
+        //DcwRRecv();
+        //otBinRecv();
+    }
+    else
+    {
+        auto thrd = std::thread([]() {
 
-			DktRecv();
-		});
+            DktRecv();
+        });
 
-		DktSend();
-		thrd.join();
-		//blogb();
-		//otBin();
+        DktSend();
+        thrd.join();
+        //blogb();
+        //otBin();
 
-		//params();
-		//bf(3);
-		//KosTest();
-		//run_all();
-	}
+        //params();
+        //bf(3);
+        //KosTest();
+        //run_all();
+    }
 
-	return 0;
+    return 0;
 }

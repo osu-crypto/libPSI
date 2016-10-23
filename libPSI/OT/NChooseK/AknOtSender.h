@@ -8,33 +8,33 @@
 namespace osuCrypto
 {
 
-	class AknOtSender
-	{
-	public:
-		AknOtSender();
-		~AknOtSender();
+    class AknOtSender
+    {
+    public:
+        AknOtSender();
+        ~AknOtSender();
 
 
-		//void computeBounds(u64 n, u64 k, u64 statSecPara);
+        //void computeBounds(u64 n, u64 k, u64 statSecPara);
 
 
-		void init(u64 totalOTCount, u64 cutAndChooseThreshold, double p,
-			OtExtSender& ots, Channel& chl, PRNG& prng)
-		{
-			std::vector<Channel*> chls{ &chl };
-			init(totalOTCount, cutAndChooseThreshold, p, ots, chls, prng);
-		}
+        void init(u64 totalOTCount, u64 cutAndChooseThreshold, double p,
+            OtExtSender& ots, Channel& chl, PRNG& prng)
+        {
+            std::vector<Channel*> chls{ &chl };
+            init(totalOTCount, cutAndChooseThreshold, p, ots, chls, prng);
+        }
 
-		void init(u64 totalOTCount, u64 cutAndChooseThreshold, double p,
-			OtExtSender& ots, std::vector<Channel*>& chls, PRNG& prng);
+        void init(u64 totalOTCount, u64 cutAndChooseThreshold, double p,
+            OtExtSender& ots, std::vector<Channel*>& chls, PRNG& prng);
 
-		//std::vector<BitVector> mTheirPermutes;
+        //std::vector<BitVector> mTheirPermutes;
 
-		std::vector<std::array<block, 2>> mMessages;
+        std::vector<std::array<block, 2>> mMessages;
 
-		BitVector mSampled;
-		//u64 mTotalOTCount, mCutAndChooseThreshold;
-		//double mCutAndChooseProb;
-	};
+        BitVector mSampled;
+        //u64 mTotalOTCount, mCutAndChooseThreshold;
+        //double mCutAndChooseProb;
+    };
 
 }

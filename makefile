@@ -14,7 +14,7 @@ include $(CONFIGURATION_FLAGS_FILE)
 
 ifeq ($(BINARYDIR),)
 error:
-	$(error Invalid configuration, please check your inputs)
+    $(error Invalid configuration, please check your inputs)
 endif
 
 
@@ -33,15 +33,15 @@ FRONTEND_OBJ=$(addprefix $(BINARYDIR)/,$(FRONTEND_SRC:.cpp=.o))
 
 
 PRIMARY_SRC=\
-	$(wildcard $(PRIMARY_DIR)/Common/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/Crypto/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/MPSI/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/MPSI/Dcw/*.cpp)\
+    $(wildcard $(PRIMARY_DIR)/Common/*.cpp) \
+    $(wildcard $(PRIMARY_DIR)/Crypto/*.cpp) \
+    $(wildcard $(PRIMARY_DIR)/MPSI/*.cpp) \
+    $(wildcard $(PRIMARY_DIR)/MPSI/Dcw/*.cpp)\
         $(wildcard $(PRIMARY_DIR)/MPSI/DKT/*.cpp)\
-	$(wildcard $(PRIMARY_DIR)/RiotPSI/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/OT/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/OT/Base/*.cpp) \
-	$(wildcard $(PRIMARY_DIR)/Network/*.cpp) 
+    $(wildcard $(PRIMARY_DIR)/RiotPSI/*.cpp) \
+    $(wildcard $(PRIMARY_DIR)/OT/*.cpp) \
+    $(wildcard $(PRIMARY_DIR)/OT/Base/*.cpp) \
+    $(wildcard $(PRIMARY_DIR)/Network/*.cpp) 
 
 
 PRIMARY_OBJ=$(addprefix $(BINARYDIR)/,$(PRIMARY_SRC:.cpp=.o)) 
@@ -63,15 +63,15 @@ INC=-I./osuCrypto/\
     -I$(BOOST)/includes/
 
 TPL_LIB=$(BOOST)/stage/lib/libboost_system.a\
-	$(BOOST)/stage/lib/libboost_thread.a\
-	$(TPL)/miracl/miracl/source/libmiracl.a\
-	$(TPL)/cryptopp/libcryptopp.a\
-	$(TPL)/mpir/.libs/libmpir.a 
+    $(BOOST)/stage/lib/libboost_thread.a\
+    $(TPL)/miracl/miracl/source/libmiracl.a\
+    $(TPL)/cryptopp/libcryptopp.a\
+    $(TPL)/mpir/.libs/libmpir.a 
 
 LIB=\
-	$(TPL_LIB)\
-	-lpthread\
-	-lrt
+    $(TPL_LIB)\
+    -lpthread\
+    -lrt
 
 EXPORTHEADS=$(PRIMARY_H) $(PRIMARYTESTS_H)
 
@@ -95,7 +95,7 @@ CXXFLAGS += $(addprefix -D,$(PREPROCESSOR_MACROS))
 
 
 PRIMARY_OUTPUTS := \
-	$(BINARYDIR)/$(TARGETNAME)
+    $(BINARYDIR)/$(TARGETNAME)
 
 
 
@@ -104,29 +104,29 @@ all: $(PRIMARY_OUTPUTS)
 -include $(all_objs:.o=.dep)
 
 clean: 
-	rm -fr $(BINARYDIR) 
+    rm -fr $(BINARYDIR) 
 
 $(BINARYDIR):
-	mkdir $(BINARYDIR)
+    mkdir $(BINARYDIR)
 
 
 $(BINARYDIR)/$(TARGETNAME): $(FRONTEND_OBJ) $(EXTERNAL_LIBS) $(PRIMARY_LIB) $(PRIMARYTESTS_LIB)
-	$(LD) -o $@ $(LDFLAGS) $(START_GROUP) $(FRONTEND_OBJ) $(LIBRARY_LDFLAGS)\
+    $(LD) -o $@ $(LDFLAGS) $(START_GROUP) $(FRONTEND_OBJ) $(LIBRARY_LDFLAGS)\
          -Wl,-Bstatic  $(addprefix -l,$(STATIC_LIBRARY_NAMES))\
-	 -Wl,-Bdynamic  $(addprefix -l,$(SHARED_LIBRARY_NAMES))\
-	 -Wl,--as-needed  $(END_GROUP)
+     -Wl,-Bdynamic  $(addprefix -l,$(SHARED_LIBRARY_NAMES))\
+     -Wl,--as-needed  $(END_GROUP)
 
-#	 -Wl,--verbose
+#     -Wl,--verbose
 
 
 
 $(BINARYDIR)/%.o : %.cpp $(all_make_files) |$(BINARYDIR)
-	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@ -MD -MF $(@:.o=.dep)
+    @mkdir -p $(dir $@)
+    $(CXX) $(CXXFLAGS) -c $< -o $@ -MD -MF $(@:.o=.dep)
 
 $(PRIMARY_LIB): $(PRIMARY_OBJ) | $(BINARYDIR)
-	$(AR) $(ARFLAGS) $@ $(PRIMARY_OBJ) 
+    $(AR) $(ARFLAGS) $@ $(PRIMARY_OBJ) 
 
 $(PRIMARYTESTS_LIB): $(PRIMARYTESTS_OBJ) | $(BINARYDIR)
-	$(AR) $(ARFLAGS) $@ $(PRIMARYTESTS_OBJ)
+    $(AR) $(ARFLAGS) $@ $(PRIMARYTESTS_OBJ)
 

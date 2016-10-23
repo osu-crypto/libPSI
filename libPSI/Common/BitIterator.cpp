@@ -3,9 +3,9 @@
 namespace osuCrypto
 {
 
-	BitReference::operator u8() const
-	{
-		return (*mByte & mMask) >> mShift;
-	}
+    BitReference::operator u8() const
+    {
+        return (*mByte & mMask) >> mShift;
+    }
 
 }

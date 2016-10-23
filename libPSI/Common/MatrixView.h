@@ -8,101 +8,101 @@ namespace osuCrypto
 {
 
 
-	template<class T>
-	class MatrixView
-	{
+    template<class T>
+    class MatrixView
+    {
 
-		T* mData;
+        T* mData;
 
-		// Matrix is index by [rowIdx][columnIdx]
-		std::array<u64,2> mSize;
-		bool mOwner;
+        // Matrix is index by [rowIdx][columnIdx]
+        std::array<u64,2> mSize;
+        bool mOwner;
 
-	public:
-		typedef T* Iterator;
-
-
-		MatrixView()
-			:mData(nullptr),
-			mSize({0,0}),
-			mOwner(false)
-		{
-		}
-
-		MatrixView(const MatrixView& av) :
-			mData(av.mData),
-			mSize(av.mSize),
-			mOwner(false)
-		{ }
-
-		MatrixView(MatrixView&& av) :
-			mData(av.mData),
-			mSize(av.mSize),
-			mOwner(av.mOwner)
-		{
-			av.mData = nullptr;
-			av.mSize = {0,0};
-			av.mOwner = false;
-		}
+    public:
+        typedef T* Iterator;
 
 
-		MatrixView(u64 rowSize, u64 columnSize) :
-			mData(new T[rowSize * columnSize]),
-			mSize({ rowSize, columnSize }),
-			mOwner(true)
-		{ }
+        MatrixView()
+            :mData(nullptr),
+            mSize({0,0}),
+            mOwner(false)
+        {
+        }
+
+        MatrixView(const MatrixView& av) :
+            mData(av.mData),
+            mSize(av.mSize),
+            mOwner(false)
+        { }
+
+        MatrixView(MatrixView&& av) :
+            mData(av.mData),
+            mSize(av.mSize),
+            mOwner(av.mOwner)
+        {
+            av.mData = nullptr;
+            av.mSize = {0,0};
+            av.mOwner = false;
+        }
 
 
-		MatrixView(T* data, u64 rowSize, u64 columnSize, bool owner) :
-			mData(data),
-			mSize({ rowSize, columnSize }),
-			mOwner(owner)
-		{}
-
-		template <class Iter>
-		MatrixView(Iter start, Iter end, u64 numColumns, typename Iter::iterator_category *p = 0) :
-			mData(&*start),
-			mSize({ (end - start) / numColumns, numColumns }),
-			mOwner(false)
-		{
-		}
-
-		MatrixView(T* data, u64 rowSize, u64 columnSize) :
-			mData(data),
-			mSize({ rowSize, columnSize }),
-			mOwner(owner)
-		{}
+        MatrixView(u64 rowSize, u64 columnSize) :
+            mData(new T[rowSize * columnSize]),
+            mSize({ rowSize, columnSize }),
+            mOwner(true)
+        { }
 
 
-		~MatrixView()
-		{
-			if (mOwner) delete[] mData;
-		}
+        MatrixView(T* data, u64 rowSize, u64 columnSize, bool owner) :
+            mData(data),
+            mSize({ rowSize, columnSize }),
+            mOwner(owner)
+        {}
 
-		const MatrixView<T>& operator=(const MatrixView<T>& copy)
-		{
-			mData = copy.mData;
-			mSize = copy.mSize;
-			mOwner = false;
+        template <class Iter>
+        MatrixView(Iter start, Iter end, u64 numColumns, typename Iter::iterator_category *p = 0) :
+            mData(&*start),
+            mSize({ (end - start) / numColumns, numColumns }),
+            mOwner(false)
+        {
+        }
 
-			return copy;
-		}
+        MatrixView(T* data, u64 rowSize, u64 columnSize) :
+            mData(data),
+            mSize({ rowSize, columnSize }),
+            mOwner(owner)
+        {}
 
-		const std::array<u64, 2>& size() const { return mSize; }
-		T* data() const { return mData; };
 
-		Iterator begin() const { return mData; };
-		Iterator end() const { return mData + mSize; }
+        ~MatrixView()
+        {
+            if (mOwner) delete[] mData;
+        }
 
-		ArrayView<T> operator[](u64 rowIdx) const
-		{
+        const MatrixView<T>& operator=(const MatrixView<T>& copy)
+        {
+            mData = copy.mData;
+            mSize = copy.mSize;
+            mOwner = false;
+
+            return copy;
+        }
+
+        const std::array<u64, 2>& size() const { return mSize; }
+        T* data() const { return mData; };
+
+        Iterator begin() const { return mData; };
+        Iterator end() const { return mData + mSize; }
+
+        ArrayView<T> operator[](u64 rowIdx) const
+        {
 #ifndef NDEBUG
-			if (rowIdx >= mSize[0]) throw std::runtime_error(LOCATION);
+            if (rowIdx >= mSize[0]) throw std::runtime_error(LOCATION);
 #endif
 
-			return ArrayView<T>(mData + rowIdx * mSize[1], mSize[1]);
-		}
+            return ArrayView<T>(mData + rowIdx * mSize[1], mSize[1]);
+        }
 
-	};
+    };
 }
 
