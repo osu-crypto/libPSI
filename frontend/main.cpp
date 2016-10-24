@@ -18,10 +18,12 @@ using namespace libPSI;
 #include <numeric>
 #include "Common/Log.h"
 int miraclTestMain();
-#include "Ecc_Tests.h"
+
 int main(int argc, char** argv)
 {
 
+	//run_all();
+	//return 0;
 	//Ecc2mNumber_Test();
 	//return 0;
 	//miraclTestMain();

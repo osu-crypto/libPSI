@@ -51,11 +51,11 @@ void DktMPsi_EmptrySet_Test_Impl()
 	std::thread thrd([&]() {
 
 		send.init(setSize, psiSecParam, prng.get_block());
-		send.sendInput(sendSet, *sendChl[0]);
+		send.sendInput(sendSet, sendChl);
 	});
 
 	recv.init(setSize, psiSecParam, ZeroBlock);
-	recv.sendInput(recvSet, *recvChl[0]);
+	recv.sendInput(recvSet, recvChl);
 
 	thrd.join();
 
@@ -67,11 +67,10 @@ void DktMPsi_EmptrySet_Test_Impl()
 	ios.stop();
 }
 
-
 void DktMPsi_FullSet_Test_Impl()
 {
 	Log::setThreadName("CP_Test_Thread");
-	u64 setSize = 8, psiSecParam = 40, numThreads(1);
+	u64 setSize = 40, psiSecParam = 40, numThreads(2);
 	PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
@@ -107,11 +106,11 @@ void DktMPsi_FullSet_Test_Impl()
 	std::thread thrd([&]() {
 
 		send.init(setSize, psiSecParam, prng.get_block());
-		send.sendInput(sendSet, *sendChls[0]);
+		send.sendInput(sendSet, sendChls);
 	});
 
 	recv.init(setSize, psiSecParam, ZeroBlock);
-	recv.sendInput(recvSet, *recvChls[0]);
+	recv.sendInput(recvSet, recvChls);
 
 	if (recv.mIntersection.size() != setSize)
 		throw UnitTestFail();
@@ -133,7 +132,7 @@ void DktMPsi_FullSet_Test_Impl()
 void DktMPsi_SingltonSet_Test_Impl()
 {
 	Log::setThreadName("Sender");
-	u64 setSize = 1, psiSecParam = 40;
+	u64 setSize = 40, psiSecParam = 40;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -152,12 +151,8 @@ void DktMPsi_SingltonSet_Test_Impl()
 	BtEndpoint ep1(ios, "localhost", 1212, false, name);
 
 
-	Channel& recvChl = ep1.addChannel(name, name);
-	Channel& sendChl = ep0.addChannel(name, name);
-
-
-	OTOracleReceiver otRecv(ZeroBlock);
-	OTOracleSender otSend(ZeroBlock);
+	std::vector<Channel*> recvChl = {&ep1.addChannel(name, name)};
+	std::vector<Channel*> sendChl = {&ep0.addChannel(name, name)};
 
 
 
@@ -173,8 +168,12 @@ void DktMPsi_SingltonSet_Test_Impl()
 	recv.sendInput(recvSet, recvChl);
 
 	thrd.join();
-	sendChl.close();
-	recvChl.close();
+
+	for (u64 i = 0; i < sendChl.size(); ++i)
+	{
+		sendChl[0]->close();
+		recvChl[0]->close();
+	}
 
 	ep0.stop();
 	ep1.stop();

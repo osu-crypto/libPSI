@@ -12,6 +12,9 @@ namespace libPSI {
 	class AknBfMPsiSender
 	{
 	public:
+		typedef u32 LogOtCount_t;
+
+
 		AknBfMPsiSender();
 		~AknBfMPsiSender();
 

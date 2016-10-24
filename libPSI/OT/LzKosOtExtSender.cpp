@@ -12,7 +12,7 @@ namespace libPSI
 
 	using namespace std;
 
-
+#define SHA_HASH
 
 
 	std::unique_ptr<OtExtSender> LzKosOtExtSender::split()
@@ -145,7 +145,7 @@ namespace libPSI
 		//Log::out << "sender size " << messages.size() + extraBlocks.size() << Log::endl;
 
 		//std::array<std::array<block,2>, gOtExtBaseOtCount> enc;
-
+		std::array<block, 128> temp,temp2;
 		doneIdx = 0;
 		for (u64 blkIdx = 0; blkIdx < numBlocks; ++blkIdx)
 		{
@@ -179,13 +179,28 @@ namespace libPSI
 				//sha.Update((u8*)&messages[doneIdx][0], sizeof(block));
 				//sha.Final(hashBuff);
 				//messages[doneIdx][0] = *(block*)hashBuff;
-
+#ifdef SHA_HASH
 				// hash the message with delta
 				sha.Reset();
 				sha.Update((u8*)&messages[doneIdx][1], sizeof(block));
 				sha.Final(hashBuff);
 				messages[doneIdx][1] = *(block*)hashBuff;
+#else
+
+				temp[blkRowIdx] = messages[doneIdx][1];
+#endif // SHA_HASH
 			}
+
+#ifndef SHA_HASH
+			mAesFixedKey.ecbEncBlocks(temp.data(), stopIdx, temp2.data());
+
+			blkRowIdx = 0;
+			doneIdx -= stopIdx;
+			for (; blkRowIdx < stopIdx; ++blkRowIdx, ++doneIdx)
+			{
+				messages[doneIdx][1] = messages[doneIdx][1] ^ temp2[blkRowIdx];
+			}
+#endif //SHA_HASH
 		}
 
 		for (auto& blk : extraBlocks)

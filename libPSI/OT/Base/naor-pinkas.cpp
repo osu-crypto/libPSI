@@ -182,13 +182,7 @@ namespace libPSI
 					// now compute g ^(a * k) = (g^a)^k 
 
 					gka = bc * pK[j];
-					//bc->pow(gka.get(), pK[j]);
 					gka.toBytes(buff.data());
-					//gka->export_to_bytes(buff.data());
-
-					//Log::out
-					//	<< "for msg " << i << ", " << choices[i] << "  (recver)" << Log::endl
-					//	<< "  pDec[i]:    " << gka->toString() << Log::endl;
 
 					sha.Reset();
 					sha.Update((u8*)&i, sizeof(i));
@@ -197,12 +191,9 @@ namespace libPSI
 
 					messages[i] = *(block*)bs.data();
 
-
-
-
 					//Log::out
 					//	<< "for msg " << i << ", " << choices[i] << "  (recver)" << Log::endl
-					//	<< "  pDec[i]:    " << gka->toString() << Log::endl
+					//	<< "  pDec[i]:    " << gka << Log::endl
 					//	<< "  msg         " << messages[i]  << "  " << ByteStream(buff.data(), buff.size()) << "   " << bs << Log::endl;
 				}
 
@@ -319,8 +310,8 @@ namespace libPSI
 					PK0a(curve),//(thrdPK->get_fe()),
 					fetmp(curve);//(thrdPK->get_fe());
 
-				EccNumber alpha(curve, alpha);
 
+				EccNumber alpha2(curve, alpha);
 
 				std::vector<EccPoint> c;
 				c.reserve(nSndVals);
@@ -351,8 +342,7 @@ namespace libPSI
 					//	<< "  pPK0[i]:    " << pPK0 << Log::endl;
 
 
-
-					PK0a = pPK0 * alpha;
+					PK0a = pPK0 * alpha2;
 					//PK0a->set_pow(pPK0.get(), alpha.get());
 					PK0a.toBytes(hashInBuff.data());
 

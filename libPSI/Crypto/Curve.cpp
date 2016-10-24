@@ -10,7 +10,9 @@ namespace libPSI
 	EllipticCurve::EllipticCurve(const Ecc2mParams & params, const block& seed)
 		:
 		mMiracl(nullptr),
-		mOrder(nullptr)
+		mOrder(nullptr),
+		BB(nullptr),
+		BA(nullptr)
 	{
 		setParameters(params);
 		setPrng(seed);
@@ -19,7 +21,9 @@ namespace libPSI
 	EllipticCurve::EllipticCurve(const EccpParams & params, const block & seed)
 		:
 		mMiracl(nullptr),
-		mOrder(nullptr)
+		mOrder(nullptr),
+		BB(nullptr),
+		BA(nullptr)
 	{
 		setParameters(params);
 		setPrng(seed);
@@ -44,6 +48,7 @@ namespace libPSI
 
 	void EllipticCurve::setParameters(const EccpParams & params)
 	{
+
 		mIsPrimeField = true;
 		mEcc2mParams = Ecc2mParams();
 		mEccpParams = params;
@@ -51,6 +56,7 @@ namespace libPSI
 		if (mMiracl) mirexit(mMiracl);
 
 		mMiracl = mirsys(params.bitCount * 2, 2);
+
 		//mMiracl = mirsys(300,0);
 		mMiracl->IOBASE = 16;
 
@@ -113,6 +119,8 @@ namespace libPSI
 
 	void EllipticCurve::setParameters(const Ecc2mParams & params)
 	{
+
+
 		mIsPrimeField = false;
 		mEcc2mParams = params;
 		mEccpParams = EccpParams();
@@ -120,11 +128,12 @@ namespace libPSI
 		if (mMiracl) mirexit(mMiracl);
 
 		mMiracl = mirsys(params.bitCount * 2, 2);
+
 		mMiracl->IOBASE = 16;
 
-		mirkill(BA);
-		mirkill(BB);
-
+		if(BA) mirkill(BA);
+		if(BB) mirkill(BB);
+	
 		BA = mirvar(mMiracl, 0);
 		BB = mirvar(mMiracl, 0);
 
@@ -200,7 +209,7 @@ namespace libPSI
 		:
 		mMem(nullptr),
 		mVal(nullptr),
-		mCurve(curve)
+		mCurve(&curve)
 
 	{
 		init();
@@ -212,7 +221,7 @@ namespace libPSI
 		:
 		mMem(nullptr),
 		mVal(nullptr),
-		mCurve(curve)
+		mCurve(&curve)
 	{
 		init();
 
@@ -245,14 +254,14 @@ namespace libPSI
 	EccPoint::~EccPoint()
 	{
 		if (mMem)
-			ecp_memkill(mCurve.mMiracl, mMem, 0);
+			ecp_memkill(mCurve->mMiracl, mMem, 0);
 	}
 
 	EccPoint & EccPoint::operator=(
 		const EccPoint & copy)
 	{
 
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
 			epoint_copy((epoint*)copy.mVal, mVal);
 		}
@@ -268,16 +277,16 @@ namespace libPSI
 		const EccPoint & addIn)
 	{
 #ifndef NDEBUG
-		if (&mCurve != &addIn.mCurve) throw std::runtime_error("curves instances must match.");
+		if (mCurve != addIn.mCurve) throw std::runtime_error("curves instances must match.");
 #endif
 
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
-			ecurve_add(mCurve.mMiracl, (epoint*)addIn.mVal, mVal);
+			ecurve_add(mCurve->mMiracl, (epoint*)addIn.mVal, mVal);
 		}
 		else
 		{
-			ecurve2_add(mCurve.mMiracl, (epoint*)addIn.mVal, mVal);
+			ecurve2_add(mCurve->mMiracl, (epoint*)addIn.mVal, mVal);
 		}
 		return *this;
 	}
@@ -286,15 +295,15 @@ namespace libPSI
 		const EccPoint & subtractIn)
 	{
 #ifndef NDEBUG
-		if (&mCurve != &subtractIn.mCurve) throw std::runtime_error("curves instances must match.");
+		if (mCurve != subtractIn.mCurve) throw std::runtime_error("curves instances must match.");
 #endif
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
-			ecurve_sub(mCurve.mMiracl, (epoint*)subtractIn.mVal, mVal);
+			ecurve_sub(mCurve->mMiracl, (epoint*)subtractIn.mVal, mVal);
 		}
 		else
 		{
-			ecurve2_sub(mCurve.mMiracl, (epoint*)subtractIn.mVal, mVal);
+			ecurve2_sub(mCurve->mMiracl, (epoint*)subtractIn.mVal, mVal);
 		}
 		return *this;
 	}
@@ -303,18 +312,18 @@ namespace libPSI
 		const EccNumber & multIn)
 	{
 #ifndef NDEBUG
-		if (&mCurve != &multIn.mCurve) throw std::runtime_error("curves instances must match.");
+		if (mCurve != multIn.mCurve) throw std::runtime_error("curves instances must match.");
 #endif
 		//multIn.fromNres();
 
 
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
-			ecurve_mult(mCurve.mMiracl, multIn.mVal, mVal, mVal);
+			ecurve_mult(mCurve->mMiracl, multIn.mVal, mVal, mVal);
 		}
 		else
 		{
-			ecurve2_mult(mCurve.mMiracl, multIn.mVal, mVal, mVal);
+			ecurve2_mult(mCurve->mMiracl, multIn.mVal, mVal, mVal);
 		}
 
 		return *this;
@@ -324,7 +333,7 @@ namespace libPSI
 		const EccPoint & addIn) const
 	{
 #ifndef NDEBUG
-		if (&mCurve != &addIn.mCurve) throw std::runtime_error("curves instances must match.");
+		if (mCurve != addIn.mCurve) throw std::runtime_error("curves instances must match.");
 #endif
 
 		EccPoint temp(*this);
@@ -337,9 +346,6 @@ namespace libPSI
 	EccPoint EccPoint::operator-(
 		const EccPoint & subtractIn) const
 	{
-#ifndef NDEBUG
-		if (&mCurve != &subtractIn.mCurve) throw std::runtime_error("curves instances must match.");
-#endif
 		EccPoint temp(*this);
 
 		temp -= subtractIn;
@@ -350,9 +356,6 @@ namespace libPSI
 	EccPoint EccPoint::operator*(
 		const EccNumber & multIn) const
 	{
-#ifndef NDEBUG
-		if (&mCurve != &multIn.mCurve) throw std::runtime_error("curves instances must match.");
-#endif
 
 		EccPoint temp(*this);
 
@@ -365,15 +368,15 @@ namespace libPSI
 		const EccPoint & cmp) const
 	{
 #ifndef NDEBUG
-		if (&mCurve != &cmp.mCurve) throw std::runtime_error("curves instances must match.");
+		if (mCurve != cmp.mCurve) throw std::runtime_error("curves instances must match.");
 #endif
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
-			return epoint_comp(mCurve.mMiracl, mVal, cmp.mVal);
+			return epoint_comp(mCurve->mMiracl, mVal, cmp.mVal);
 		}
 		else
 		{
-			return epoint2_comp(mCurve.mMiracl, mVal, cmp.mVal);
+			return epoint2_comp(mCurve->mMiracl, mVal, cmp.mVal);
 		}
 	}
 	bool EccPoint::operator!=(
@@ -384,44 +387,44 @@ namespace libPSI
 
 	u64 EccPoint::sizeBytes() const
 	{
-		return ((mCurve.mIsPrimeField?
-			mCurve.mEccpParams.bitCount : 
-			mCurve.mEcc2mParams.bitCount) 
+		return ((mCurve->mIsPrimeField?
+			mCurve->mEccpParams.bitCount : 
+			mCurve->mEcc2mParams.bitCount) 
 			+ 7) / 8 + 1;
 	}
 
 	void EccPoint::toBytes(u8 * dest) const
 	{
-		big varX = mirvar(mCurve.mMiracl, 0);
+		big varX = mirvar(mCurve->mMiracl, 0);
 
 		// convert the point into compressed format where dest[0] holds
 		// the y bit and varX holds the x data.
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
-			dest[0] = epoint_get(mCurve.mMiracl, mVal, varX, varX) & 1;
+			dest[0] = epoint_get(mCurve->mMiracl, mVal, varX, varX) & 1;
 		}
 		else
 		{
-			dest[0] = epoint2_get(mCurve.mMiracl, mVal, varX, varX) & 1;
+			dest[0] = epoint2_get(mCurve->mMiracl, mVal, varX, varX) & 1;
 		}
 		// copy the bits of varX into the buffer
-		big_to_bytes(mCurve.mMiracl, (int)sizeBytes() - 1, varX, (char*)dest + 1, true);
+		big_to_bytes(mCurve->mMiracl, (int)sizeBytes() - 1, varX, (char*)dest + 1, true);
 
 		mirkill(varX);
 	}
 
 	void EccPoint::fromBytes(u8 * src)
 	{
-		big varX = mirvar(mCurve.mMiracl, 0);
+		big varX = mirvar(mCurve->mMiracl, 0);
 
-		bytes_to_big(mCurve.mMiracl, (int)sizeBytes() - 1, (char*)src + 1, varX);
-		if (mCurve.mIsPrimeField)
+		bytes_to_big(mCurve->mMiracl, (int)sizeBytes() - 1, (char*)src + 1, varX);
+		if (mCurve->mIsPrimeField)
 		{
-			epoint_set(mCurve.mMiracl, varX, varX, src[0], mVal);
+			epoint_set(mCurve->mMiracl, varX, varX, src[0], mVal);
 		}
 		else
 		{
-			epoint2_set(mCurve.mMiracl, varX, varX, src[0], mVal);
+			epoint2_set(mCurve->mMiracl, varX, varX, src[0], mVal);
 		}
 
 		mirkill(varX);
@@ -429,7 +432,7 @@ namespace libPSI
 
 	void EccPoint::fromHex(char * x, char * y)
 	{
-		EccNumber XX(mCurve), YY(mCurve);
+		EccNumber XX(*mCurve), YY(*mCurve);
 		XX.fromHex(x);
 		YY.fromHex(y);
 
@@ -439,7 +442,7 @@ namespace libPSI
 	void EccPoint::fromDec(char * x, char * y)
 	{
 
-		EccNumber XX(mCurve), YY(mCurve);
+		EccNumber XX(*mCurve), YY(*mCurve);
 		XX.fromDec(x);
 		YY.fromDec(y);
 		fromNum(XX, YY);
@@ -449,9 +452,9 @@ namespace libPSI
 	void EccPoint::fromNum(EccNumber & XX, EccNumber & YY)
 	{
 
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
-			auto result = epoint_set(mCurve.mMiracl, XX.mVal, YY.mVal, 0, mVal);
+			auto result = epoint_set(mCurve->mMiracl, XX.mVal, YY.mVal, 0, mVal);
 
 			//Log::out << "plain " << XX << " " << YY << Log::endl;
 			//Log::out << "point " << *this << Log::endl;
@@ -463,7 +466,7 @@ namespace libPSI
 		}
 		else
 		{
-			auto result = epoint2_set(mCurve.mMiracl, XX.mVal, YY.mVal, 0, mVal);
+			auto result = epoint2_set(mCurve->mMiracl, XX.mVal, YY.mVal, 0, mVal);
 
 			if (result == false)
 			{
@@ -476,35 +479,35 @@ namespace libPSI
 
 	void EccPoint::randomize(PRNG& prng)
 	{
-		u64 byteSize = (mCurve.mEcc2mParams.bitCount + 7) / 8;
+		u64 byteSize = (mCurve->mEcc2mParams.bitCount + 7) / 8;
 		u8* buff = new u8[byteSize];
 		//u8* buff2 = new u8[sizeBytes()];
 
 		// a mask for the top bits so the buff contains at most 
 		// bitCount non zeros
 		u8 mask = u8(-1);
-		if (mCurve.mEcc2mParams.bitCount & 7)
-			mask >>= (8 - (mCurve.mEcc2mParams.bitCount & 7));
+		if (mCurve->mEcc2mParams.bitCount & 7)
+			mask >>= (8 - (mCurve->mEcc2mParams.bitCount & 7));
 
 
-		big var = mirvar(mCurve.mMiracl, 0);
+		big var = mirvar(mCurve->mMiracl, 0);
 
 		//do
 		{
 			//TODO("replace bigdig with our PRNG");
 
-			//bigdig(mCurve.mMiracl, mCurve.mParams.bitCount, 2, var);
+			//bigdig(mCurve->mMiracl, mCurve->mParams.bitCount, 2, var);
 			prng.get_u8s(buff, byteSize);
 			buff[byteSize - 1] &= mask;
 
-			bytes_to_big(mCurve.mMiracl, byteSize, (char*)buff, var);
-			if (mCurve.mIsPrimeField)
+			bytes_to_big(mCurve->mMiracl, byteSize, (char*)buff, var);
+			if (mCurve->mIsPrimeField)
 			{
-				epoint_set(mCurve.mMiracl, var, var, 0, mVal);
+				epoint_set(mCurve->mMiracl, var, var, 0, mVal);
 			}
 			else
 			{
-				epoint2_set(mCurve.mMiracl, var, var, 0, mVal);
+				epoint2_set(mCurve->mMiracl, var, var, 0, mVal);
 			}
 			//toBytes(buff2);
 			//fromBytes(buff2);
@@ -514,9 +517,9 @@ namespace libPSI
 		{
 			// if that failed, just get a random point
 			// by computing g^r    where r <- Z_p
-			EccNumber num(mCurve, prng);
+			EccNumber num(*mCurve, prng);
 
-			*this = mCurve.getGenerator() * num;
+			*this = mCurve->getGenerator() * num;
 		}
 
 
@@ -525,16 +528,27 @@ namespace libPSI
 		mirkill(var);
 
 
-		//const auto& g = mCurve.getGenerator();
+		//const auto& g = mCurve->getGenerator();
 		//EccNumber num(mCurve,prng);
 
 		//*this = g * num;
 	}
 
+	void EccPoint::randomize(const block & seed)
+	{
+		PRNG prng(seed);
+		randomize(prng);
+	}
+
+	void EccPoint::setCurve(EllipticCurve & curve)
+	{
+		mCurve = &curve;
+	}
+
 	void EccPoint::init()
 	{
-		mMem = (char *)ecp_memalloc(mCurve.mMiracl, 1);
-		mVal = (epoint *)epoint_init_mem(mCurve.mMiracl, mMem, 0);
+		mMem = (char *)ecp_memalloc(mCurve->mMiracl, 1);
+		mVal = (epoint *)epoint_init_mem(mCurve->mMiracl, mMem, 0);
 	}
 
 	EccNumber::EccNumber(const EccNumber & num)
@@ -557,7 +571,7 @@ namespace libPSI
 		EllipticCurve & curve)
 		:
 		mVal(nullptr),
-		mCurve(curve)
+		mCurve(&curve)
 	{
 		init();
 	}
@@ -567,7 +581,7 @@ namespace libPSI
 		const EccNumber& copy)
 		:
 		mVal(nullptr),
-		mCurve(curve)
+		mCurve(&curve)
 	{
 		init();
 		*this = copy;
@@ -576,7 +590,7 @@ namespace libPSI
 	EccNumber::EccNumber(EllipticCurve & curve, PRNG & prng)
 		:
 		mVal(nullptr),
-		mCurve(curve)
+		mCurve(&curve)
 	{
 		init();
 		randomize(prng);
@@ -587,7 +601,7 @@ namespace libPSI
 		const i32 & val)
 		:
 		mVal(nullptr),
-		mCurve(curve)
+		mCurve(&curve)
 	{
 		init();
 		*this = val;
@@ -617,113 +631,113 @@ namespace libPSI
 			zero(mVal);
 		else
 		{
-			convert(mCurve.mMiracl, i, mVal);
+			convert(mCurve->mMiracl, i, mVal);
 			reduce();
-			//nres(mCurve.mMiracl, mVal, mVal); 
+			//nres(mCurve->mMiracl, mVal, mVal); 
 		}
 		return *this;
 	}
 	EccNumber& EccNumber::operator++()
 	{
-		incr(mCurve.mMiracl, mVal, 1, mVal);
+		incr(mCurve->mMiracl, mVal, 1, mVal);
 		reduce();
 
 		//toNres();
-		//nres_modadd(mCurve.mMiracl, mVal, mCurve.mMiracl->one, mVal); 
+		//nres_modadd(mCurve->mMiracl, mVal, mCurve->mMiracl->one, mVal); 
 		return *this;
 	}
 	EccNumber& EccNumber::operator--()
 	{
-		decr(mCurve.mMiracl, mVal, 1, mVal);
+		decr(mCurve->mMiracl, mVal, 1, mVal);
 		reduce();
 
 		//toNres();
-		//nres_modsub(mCurve.mMiracl, mVal, mCurve.mMiracl->one, mVal); 
+		//nres_modsub(mCurve->mMiracl, mVal, mCurve->mMiracl->one, mVal); 
 		return *this;
 	}
 
 	EccNumber& EccNumber::operator+=(int i)
 	{
-		EccNumber inc(mCurve, i);
+		EccNumber inc(*mCurve, i);
 
-		add(mCurve.mMiracl, mVal, inc.mVal, mVal);
+		add(mCurve->mMiracl, mVal, inc.mVal, mVal);
 		reduce();
 
 		//toNres();
 		//inc.toNres();
-		//nres_modadd(mCurve.mMiracl, mVal, inc.mVal, mVal); 
+		//nres_modadd(mCurve->mMiracl, mVal, inc.mVal, mVal); 
 
 		return *this;
 	}
 	EccNumber& EccNumber::operator-=(int i)
 	{
-		EccNumber dec(mCurve, i);
-		subtract(mCurve.mMiracl, mVal, dec.mVal, mVal);
+		EccNumber dec(*mCurve, i);
+		subtract(mCurve->mMiracl, mVal, dec.mVal, mVal);
 		reduce();
 
 		//toNres();
 		//dec.toNres();
-		//nres_modsub(mCurve.mMiracl, mVal, dec.mVal, mVal);
+		//nres_modsub(mCurve->mMiracl, mVal, dec.mVal, mVal);
 
 		return *this;
 	}
 	EccNumber& EccNumber::operator+=(const EccNumber& b)
 	{
-		add(mCurve.mMiracl, mVal, b.mVal, mVal);
+		add(mCurve->mMiracl, mVal, b.mVal, mVal);
 		reduce();
 
 		//toNres();
 		//b.toNres();
-		//nres_modadd(mCurve.mMiracl, mVal, b.mVal, mVal); 
+		//nres_modadd(mCurve->mMiracl, mVal, b.mVal, mVal); 
 
 		return *this;
 	}
 	EccNumber& EccNumber::operator-=(const EccNumber& b)
 	{
-		subtract(mCurve.mMiracl, mVal, b.mVal, mVal);
+		subtract(mCurve->mMiracl, mVal, b.mVal, mVal);
 		reduce();
 		//toNres();
 		//b.toNres();
-		//nres_modsub(mCurve.mMiracl, mVal, b.mVal, mVal); 
+		//nres_modsub(mCurve->mMiracl, mVal, b.mVal, mVal); 
 		return *this;
 	}
 	EccNumber& EccNumber::operator*=(const EccNumber& b)
 	{
-		multiply(mCurve.mMiracl, mVal, b.mVal, mVal);
+		multiply(mCurve->mMiracl, mVal, b.mVal, mVal);
 		reduce();
 
 		//toNres();
 		//b.toNres();
-		//nres_modmult(mCurve.mMiracl, mVal, b.mVal, mVal);
+		//nres_modmult(mCurve->mMiracl, mVal, b.mVal, mVal);
 		return *this;
 	}
 	EccNumber& EccNumber::operator*=(int i)
 	{
-		premult(mCurve.mMiracl, mVal,i, mVal);
+		premult(mCurve->mMiracl, mVal,i, mVal);
 		reduce();
 
 		//toNres();
-		//nres_premult(mCurve.mMiracl, mVal, i, mVal);
+		//nres_premult(mCurve->mMiracl, mVal, i, mVal);
 		return *this;
 	}
 	EccNumber& EccNumber::operator/=(const EccNumber& b)
 	{
-		divide(mCurve.mMiracl, mVal, mCurve.getOrder().mVal, mVal);
+		divide(mCurve->mMiracl, mVal, mCurve->getOrder().mVal, mVal);
 
 		//toNres();
 		//b.toNres();
-		//nres_moddiv(mCurve.mMiracl, mVal, b.mVal, mVal);
+		//nres_moddiv(mCurve->mMiracl, mVal, b.mVal, mVal);
 		return *this;
 	}
 	EccNumber& EccNumber::operator/=(int i)
 	{
-		EccNumber div(mCurve, i);
+		EccNumber div(*mCurve, i);
 
 		*this /= div;
 
 		//toNres();
 		//div.toNres();
-		//nres_moddiv(mCurve.mMiracl, mVal, div.mVal, mVal);
+		//nres_moddiv(mCurve->mMiracl, mVal, div.mVal, mVal);
 
 		return *this;
 	}
@@ -734,7 +748,7 @@ namespace libPSI
 		reduce();
 		
 		//toNres();
-		//nres_negate(mCurve.mMiracl, mVal, mVal);
+		//nres_negate(mCurve->mMiracl, mVal, mVal);
 		return *this;
 	}
 
@@ -769,7 +783,7 @@ namespace libPSI
 
 	bool EccNumber::operator>=(const int & cmp)const
 	{
-		EccNumber c(mCurve, cmp);
+		EccNumber c(*mCurve, cmp);
 		return (*this >= c);
 	}
 
@@ -782,7 +796,7 @@ namespace libPSI
 
 	bool EccNumber::operator<=(const int & cmp)const
 	{
-		EccNumber c(mCurve, cmp);
+		EccNumber c(*mCurve, cmp);
 		return (*this <= c);
 	}
 
@@ -793,7 +807,7 @@ namespace libPSI
 
 	bool EccNumber::operator>(const int & cmp)const
 	{
-		EccNumber c(mCurve, cmp);
+		EccNumber c(*mCurve, cmp);
 		return !(c >= *this);
 	}
 
@@ -804,7 +818,7 @@ namespace libPSI
 
 	bool EccNumber::operator<(const int & cmp)const
 	{
-		EccNumber c(mCurve, cmp);
+		EccNumber c(*mCurve, cmp);
 		return !(c <= *this);
 	}
 
@@ -816,7 +830,7 @@ namespace libPSI
 
 	bool operator==(const int & cmp1, const EccNumber & cmp2)
 	{
-		EccNumber cmp(cmp2.mCurve, cmp1);
+		EccNumber cmp(*cmp2.mCurve, cmp1);
 
 		return (cmp == cmp2);
 	}
@@ -855,7 +869,7 @@ namespace libPSI
 	}
 	EccNumber operator-(int i, const EccNumber& b)
 	{
-		EccNumber mib(b.mCurve, i);
+		EccNumber mib(*b.mCurve, i);
 		mib -= b;
 		return mib;
 	}
@@ -894,7 +908,7 @@ namespace libPSI
 
 	EccNumber operator/(int i, const EccNumber& b2)
 	{
-		EccNumber z(b2.mCurve, i); 
+		EccNumber z(*b2.mCurve, i); 
 		z /= b2;
 		return z;
 	}
@@ -907,16 +921,16 @@ namespace libPSI
 
 	u64 EccNumber::sizeBytes() const
 	{
-		return ((mCurve.mIsPrimeField ? 
-			mCurve.mEccpParams.bitCount :
-			mCurve.mEcc2mParams.bitCount)
+		return ((mCurve->mIsPrimeField ? 
+			mCurve->mEccpParams.bitCount :
+			mCurve->mEcc2mParams.bitCount)
 			+ 7) / 8;
 	}
 
 	void EccNumber::toBytes(u8 * dest) const
 	{
 		//fromNres();
-		big_to_bytes(mCurve.mMiracl, (int)sizeBytes(), mVal, (char*)dest, true);
+		big_to_bytes(mCurve->mMiracl, (int)sizeBytes(), mVal, (char*)dest, true);
 
 		//dest[0] = exsign(mVal);
 		//if (b)
@@ -928,7 +942,7 @@ namespace libPSI
 
 	void EccNumber::fromBytes(u8 * src)
 	{
-		bytes_to_big(mCurve.mMiracl, (int)sizeBytes(), (char*)src, mVal);
+		bytes_to_big(mCurve->mMiracl, (int)sizeBytes(), (char*)src, mVal);
 		//mIsNres = NresState::nonNres;
 		//if (b)
 			//Log::out << *this << Log::endl;
@@ -944,24 +958,24 @@ namespace libPSI
 
 	void EccNumber::fromHex(char * src)
 	{
-		auto oldBase = mCurve.mMiracl->IOBASE;
-		mCurve.mMiracl->IOBASE = 16;
+		auto oldBase = mCurve->mMiracl->IOBASE;
+		mCurve->mMiracl->IOBASE = 16;
 
-		cinstr(mCurve.mMiracl, mVal, src);
+		cinstr(mCurve->mMiracl, mVal, src);
 		//mIsNres = NresState::nonNres;
 
-		mCurve.mMiracl->IOBASE = oldBase;
+		mCurve->mMiracl->IOBASE = oldBase;
 	}
 
 	void EccNumber::fromDec(char * src)
 	{
-		auto oldBase = mCurve.mMiracl->IOBASE;
-		mCurve.mMiracl->IOBASE = 10;
+		auto oldBase = mCurve->mMiracl->IOBASE;
+		mCurve->mMiracl->IOBASE = 10;
 
-		cinstr(mCurve.mMiracl, mVal, src);
+		cinstr(mCurve->mMiracl, mVal, src);
 		//mIsNres = NresState::nonNres;
 
-		mCurve.mMiracl->IOBASE = oldBase;
+		mCurve->mMiracl->IOBASE = oldBase;
 	}
 
 	void EccNumber::randomize(PRNG & prng)
@@ -970,8 +984,8 @@ namespace libPSI
 		int m;
 		mr_small r;
 
-		auto w = mCurve.getOrder().mVal;
-		auto mr_mip = mCurve.mMiracl;
+		auto w = mCurve->getOrder().mVal;
+		auto mr_mip = mCurve->mMiracl;
 
 		m = 0;
 		zero(mVal);
@@ -982,13 +996,13 @@ namespace libPSI
 			mVal->len = m;
 			r = prng.get_u64();
 
-			if (mCurve.mMiracl->base == 0)
+			if (mCurve->mMiracl->base == 0)
 			{
 				mVal->w[m - 1] = r;
 			}
 			else
 			{
-				mVal->w[m - 1] = MR_REMAIN(r, mCurve.mMiracl->base);
+				mVal->w[m - 1] = MR_REMAIN(r, mCurve->mMiracl->base);
 			}
 
 		} while (mr_compare(mVal, w) < 0);
@@ -996,7 +1010,7 @@ namespace libPSI
 		mr_lzero(mVal);
 		divide(_MIPP_ mVal, w, w);
 
-		while (mr_compare(mVal, mCurve.getOrder().mVal) > 0)
+		while (mr_compare(mVal, mCurve->getOrder().mVal) > 0)
 		{
 			Log::out << "bad rand" << Log::endl;
 			throw std::runtime_error("");
@@ -1004,9 +1018,15 @@ namespace libPSI
 
 	}
 
+	void EccNumber::randomize(const block & seed)
+	{
+		PRNG prng(seed);
+		randomize(prng);
+	}
+
 	void EccNumber::init()
 	{
-		mVal = mirvar(mCurve.mMiracl, 0);
+		mVal = mirvar(mCurve->mMiracl, 0);
 
 	}
 
@@ -1018,18 +1038,18 @@ namespace libPSI
 			//Log::out << "neg                  " << *this << Log::endl;
 
 
-			add(mCurve.mMiracl, mVal, mCurve.getOrder().mVal, mVal);
-			//*this += mCurve.getOrder();
+			add(mCurve->mMiracl, mVal, mCurve->getOrder().mVal, mVal);
+			//*this += mCurve->getOrder();
 
 			if (exsign(mVal) == -1)
 			{
 				Log::out << "neg reduce error " << *this << Log::endl;
-				Log::out << "                  " << mCurve.getOrder() << Log::endl;
+				Log::out << "                  " << mCurve->getOrder() << Log::endl;
 				throw std::runtime_error(LOCATION);
 			}
 		}
 			
-		if(*this >= mCurve.getOrder())
+		if(*this >= mCurve->getOrder())
 		{
 			// only computes the remainder. since the params are
 			//
@@ -1043,10 +1063,10 @@ namespace libPSI
 				n = 1;
 			}
 
-			divide(mCurve.mMiracl, 
+			divide(mCurve->mMiracl, 
 				mVal, 
-				mCurve.getOrder().mVal,
-				mCurve.getOrder().mVal);
+				mCurve->getOrder().mVal,
+				mCurve->getOrder().mVal);
 
 			if (n)
 			{
@@ -1056,15 +1076,15 @@ namespace libPSI
 
 		//if (exsign(mVal) == -1)
 		//{
-		//	*this += mCurve.getModulus();
+		//	*this += mCurve->getModulus();
 		//}
-		//else if (*this >= mCurve.getModulus())
+		//else if (*this >= mCurve->getModulus())
 		//{
-		//	*this -= mCurve.getModulus();
+		//	*this -= mCurve->getModulus();
 		//}
 
 
-		//if (exsign(mVal) == -1 || *this >= mCurve.getModulus())
+		//if (exsign(mVal) == -1 || *this >= mCurve->getModulus())
 		//{
 		//	Log::out << "EccNumber mod error" << Log::endl;
 		//	throw std::runtime_error("");
@@ -1076,22 +1096,22 @@ namespace libPSI
 	{
 		bool result = 0;
 		//big x, y;
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
 
-			big x = mirvar(copy.mCurve.mMiracl, 0);
-			big y = mirvar(copy.mCurve.mMiracl, 0);
+			big x = mirvar(copy.mCurve->mMiracl, 0);
+			big y = mirvar(copy.mCurve->mMiracl, 0);
 
-			redc(copy.mCurve.mMiracl, copy.mVal->X, x);
-			redc(copy.mCurve.mMiracl, copy.mVal->Y, y);
+			redc(copy.mCurve->mMiracl, copy.mVal->X, x);
+			redc(copy.mCurve->mMiracl, copy.mVal->Y, y);
 
 
 
-			result = ebrick_init(mCurve.mMiracl, &mBrick, 
+			result = ebrick_init(mCurve->mMiracl, &mBrick, 
 				x,y, 
-				mCurve.BA, mCurve.BB,
-				mCurve.getFieldPrime().mVal,
-				8, mCurve.mEccpParams.bitCount);
+				mCurve->BA, mCurve->BB,
+				mCurve->getFieldPrime().mVal,
+				8, mCurve->mEccpParams.bitCount);
 
 			mirkill(x);
 			mirkill(y);
@@ -1100,8 +1120,8 @@ namespace libPSI
 		{
 
 			//fe2ec2(point)->getxy(x, y);
-			result = ebrick2_init(mCurve.mMiracl, &mBrick2, copy.mVal->X, copy.mVal->Y, mCurve.BA, mCurve.BB,
-				mCurve.mEcc2mParams.m, mCurve.mEcc2mParams.a, mCurve.mEcc2mParams.b, mCurve.mEcc2mParams.c, 8, mCurve.mEcc2mParams.bitCount);
+			result = ebrick2_init(mCurve->mMiracl, &mBrick2, copy.mVal->X, copy.mVal->Y, mCurve->BA, mCurve->BB,
+				mCurve->mEcc2mParams.m, mCurve->mEcc2mParams.a, mCurve->mEcc2mParams.b, mCurve->mEcc2mParams.c, 8, mCurve->mEcc2mParams.bitCount);
 		}
 
 		if (result == 0)
@@ -1120,10 +1140,8 @@ namespace libPSI
 
 	EccPoint EccBrick::operator*(const EccNumber & multIn) const
 	{
-#ifndef NDEBUG
-		if (&mCurve != &multIn.mCurve) throw std::runtime_error("curves instances must match.");
-#endif
-		EccPoint ret(mCurve);
+
+		EccPoint ret(*mCurve);
 
 		multiply(multIn, ret);
 
@@ -1133,28 +1151,28 @@ namespace libPSI
 	void EccBrick::multiply(const EccNumber & multIn, EccPoint & result) const
 	{
 #ifndef NDEBUG
-		if (&mCurve != &multIn.mCurve) throw std::runtime_error("curves instances must match.");
-		if (&mCurve != &result.mCurve) throw std::runtime_error("curves instances must match.");
+		if (mCurve != multIn.mCurve) throw std::runtime_error("curves instances must match.");
+		if (mCurve != result.mCurve) throw std::runtime_error("curves instances must match.");
 #endif
 
 		//multIn.fromNres();
 		big x, y;
 
-		x = mirvar(mCurve.mMiracl, 0);
-		y = mirvar(mCurve.mMiracl, 0);
+		x = mirvar(mCurve->mMiracl, 0);
+		y = mirvar(mCurve->mMiracl, 0);
 
 
-		if (mCurve.mIsPrimeField)
+		if (mCurve->mIsPrimeField)
 		{
-			mul_brick(mCurve.mMiracl, (ebrick*)&mBrick, multIn.mVal, x, y);
-			epoint_set(mCurve.mMiracl, x, y, 0, result.mVal);
+			mul_brick(mCurve->mMiracl, (ebrick*)&mBrick, multIn.mVal, x, y);
+			epoint_set(mCurve->mMiracl, x, y, 0, result.mVal);
 			//throw std::runtime_error(LOCATION);
 		}
 		else
 		{
 			//throw std::runtime_error(LOCATION);
-			mul2_brick(mCurve.mMiracl, (ebrick2*)&mBrick2, multIn.mVal, x, y);
-			epoint2_set(mCurve.mMiracl, x, y, 0, result.mVal);
+			mul2_brick(mCurve->mMiracl, (ebrick2*)&mBrick2, multIn.mVal, x, y);
+			epoint2_set(mCurve->mMiracl, x, y, 0, result.mVal);
 		}
 
 		mirkill(x);
@@ -1165,8 +1183,8 @@ namespace libPSI
 	{
 		//val.fromNres();
 
-		cotstr(val.mCurve.mMiracl, val.mVal, val.mCurve.mMiracl->IOBUFF);
-		out << val.mCurve.mMiracl->IOBUFF;
+		cotstr(val.mCurve->mMiracl, val.mVal, val.mCurve->mMiracl->IOBUFF);
+		out << val.mCurve->mMiracl->IOBUFF;
 
 		return out;
 	}
@@ -1181,19 +1199,19 @@ namespace libPSI
 		else
 		{
 
-			if (val.mCurve.mIsPrimeField)
+			if (val.mCurve->mIsPrimeField)
 			{
-				epoint_norm(val.mCurve.mMiracl, val.mVal);
-				big x = mirvar(val.mCurve.mMiracl, 0);
-				big y = mirvar(val.mCurve.mMiracl, 0);
+				epoint_norm(val.mCurve->mMiracl, val.mVal);
+				big x = mirvar(val.mCurve->mMiracl, 0);
+				big y = mirvar(val.mCurve->mMiracl, 0);
 
-				redc(val.mCurve.mMiracl, val.mVal->X, x);
-				redc(val.mCurve.mMiracl, val.mVal->Y, y);
+				redc(val.mCurve->mMiracl, val.mVal->X, x);
+				redc(val.mCurve->mMiracl, val.mVal->Y, y);
 
-				cotstr(val.mCurve.mMiracl, x, val.mCurve.mMiracl->IOBUFF);
-				out << val.mCurve.mMiracl->IOBUFF << " ";
-				cotstr(val.mCurve.mMiracl, y, val.mCurve.mMiracl->IOBUFF);
-				out << val.mCurve.mMiracl->IOBUFF;
+				cotstr(val.mCurve->mMiracl, x, val.mCurve->mMiracl->IOBUFF);
+				out << val.mCurve->mMiracl->IOBUFF << " ";
+				cotstr(val.mCurve->mMiracl, y, val.mCurve->mMiracl->IOBUFF);
+				out << val.mCurve->mMiracl->IOBUFF;
 
 				mirkill(x);
 				mirkill(y);
@@ -1201,12 +1219,12 @@ namespace libPSI
 			}
 			else
 			{
-				epoint2_norm(val.mCurve.mMiracl, val.mVal);
+				epoint2_norm(val.mCurve->mMiracl, val.mVal);
 
-				cotstr(val.mCurve.mMiracl, val.mVal->X, val.mCurve.mMiracl->IOBUFF);
-				out << val.mCurve.mMiracl->IOBUFF << " ";
-				cotstr(val.mCurve.mMiracl, val.mVal->Y, val.mCurve.mMiracl->IOBUFF);
-				out << val.mCurve.mMiracl->IOBUFF;
+				cotstr(val.mCurve->mMiracl, val.mVal->X, val.mCurve->mMiracl->IOBUFF);
+				out << val.mCurve->mMiracl->IOBUFF << " ";
+				cotstr(val.mCurve->mMiracl, val.mVal->Y, val.mCurve->mMiracl->IOBUFF);
+				out << val.mCurve->mMiracl->IOBUFF;
 
 			}
 

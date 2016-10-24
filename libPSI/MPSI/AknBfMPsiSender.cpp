@@ -93,7 +93,7 @@ namespace libPSI {
 		//TODO("real seed");
 		PRNG prng(mSeed);
 
-		auto& chl = *chls[0];
+		auto& chl0 = *chls[0];
 
 		//Log::out << "mBfBitCount " << mBfBitCount << Log::endl;
 
@@ -102,28 +102,7 @@ namespace libPSI {
 		//gTimer.setTimePoint("sender.online.dummyRecv");
 
 
-		ByteStream piBuff;
-		piBuff.resize(mBfBitCount * sizeof(u64));
 
-		u64 blockSize = 4096 * 128 * 20;
-		//Log::out << "blockSize " << blockSize << Log::endl;
-		for (i64 i = 0; i < (i64)piBuff.size();i += blockSize)
-		{
-			auto ss = std::min(blockSize, piBuff.size() - i);
-
-			chl.recv(piBuff.data() + i, ss);
-			gTimer.setTimePoint("sender.online.permRecv("+std::to_string(i/ blockSize) + "/" + std::to_string(piBuff.size()/ blockSize) +")");
-
-		}
-		//chl.recv(piBuff);
-		gTimer.setTimePoint("sender.online.permRecv");
-		//TODO("make perm item size smaller");
-
-
-		auto permutes = piBuff.getArrayView<u64>();
-
-		if (permutes.size() != mBfBitCount)
-			throw std::runtime_error(LOCATION);
 
 		std::promise<bool> isValidPerm;
 		std::shared_future<bool> isValidPermFuture(isValidPerm.get_future());
@@ -139,6 +118,29 @@ namespace libPSI {
 			indexArray[i] = _mm_set1_epi64x(i);
 		}
 
+		ByteStream piBuff;
+		piBuff.resize(mBfBitCount * sizeof(LogOtCount_t));
+
+		//u64 blockSize = 4096 * 128 * 20;
+		////Log::out << "blockSize " << blockSize << Log::endl;
+		//for (i64 i = 0; i < (i64)piBuff.size();i += blockSize)
+		//{
+		//	auto ss = std::min(blockSize, piBuff.size() - i);
+
+		//	chl0.recv(piBuff.data() + i, ss);
+		//	gTimer.setTimePoint("sender.online.permRecv("+std::to_string(i/ blockSize) + "/" + std::to_string(piBuff.size()/ blockSize) +")");
+
+		//}
+		chl0.recv(piBuff);
+
+		gTimer.setTimePoint("sender.online.permRecv");
+		//TODO("make perm item size smaller");
+
+
+		auto permutes = piBuff.getArrayView<LogOtCount_t>();
+
+		if (permutes.size() != mBfBitCount)
+			throw std::runtime_error(LOCATION);
 
 		auto routine = [&](u64 t)
 		{
@@ -195,7 +197,10 @@ namespace libPSI {
 			bool result = isValidPermFuture.get();
 
 			if (result)
-				chl.asyncSend(std::move(myMasksBuff));
+			{
+				//chl.asyncSend(std::move(myMasksBuff));
+				chl.send(*myMasksBuff);
+			}
 
 
 			if (t == 0)

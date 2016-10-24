@@ -10,10 +10,12 @@
 #include "OT_Tests.h"
 #include "AknOt_Tests.h"
 #include "AknBfPsi_Tests.h"
+#include "Ecc_Tests.h"
 
 
 #include "ShamirSSScheme_Tests.h"
 #include "DcwBfPsi_Tests.h"
+#include "DktMPsi_Tests.h"
 
 using namespace libPSI;
 
@@ -74,6 +76,30 @@ void OT_all()
 	run("NaorPinkasOt_Test                       ", NaorPinkasOt_Test_Impl);
 }
 
+
+void Ecc_all()
+{
+	Log::out << Log::endl;
+
+	run("Ecc2mNumber_Test                        ", Ecc2mNumber_Test);
+	run("Ecc2mPoint_Test                         ", Ecc2mPoint_Test);
+	run("EccpNumber_Test                         ", EccpNumber_Test);
+	run("EccpPoint_Test                          ", EccpPoint_Test);
+
+}
+
+
+
+
+void DktPsi_all()
+{ 
+	Log::out << Log::endl;
+	run("DktPsi_EmptrySet_Test_Impl              ", DktMPsi_EmptrySet_Test_Impl);
+	run("DktPsi_FullSet_Test_Impl                ", DktMPsi_FullSet_Test_Impl);
+	run("DktPsi_SingltonSet_Test_Imp             ", DktMPsi_SingltonSet_Test_Impl);
+}
+
+
 void DcwPsi_all()
 {
 	Log::out << Log::endl;
@@ -97,10 +123,12 @@ void ShamirSSScheme_all()
 
 void run_all()
 {
-	//AES128_all();
+
 	NetWork_all();
+	bitVec_all();
+	Ecc_all();
 	OT_all();
 	AknBfPsi_all();
-	//ShamirSSScheme_all();
 	DcwPsi_all();
+	DktPsi_all();
 }

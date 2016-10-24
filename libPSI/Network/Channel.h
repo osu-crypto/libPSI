@@ -43,6 +43,7 @@ namespace libPSI {
 		/// <summary>The handle for this channel. Both ends will always have the same name.</summary>
 		virtual std::string getName() const = 0;
 
+		virtual void resetStats() {};
 
 		virtual u64 getTotalDataSent() const = 0;
 

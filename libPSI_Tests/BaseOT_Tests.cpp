@@ -35,7 +35,7 @@ void NaorPinkasOt_Test_Impl()
 		PRNG prng0(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 		PRNG prng1(_mm_set_epi32(4253233465, 334565, 0, 235));
 
-		u64 numOTs = 128;	
+		u64 numOTs = 1;	
 		std::atomic<u64> sendedDoneIdx(0), recvDoneIdx(0);
 		std::vector<block> recvMsg(numOTs);
 		std::vector<std::array<block, 2>> sendMsg(numOTs);
@@ -55,7 +55,7 @@ void NaorPinkasOt_Test_Impl()
 			
 			//baseOTs(recvChannel, OTRole::Sender);
 
-			baseOTs.send(sendMsg, prng1, recvChannel, 4);
+			baseOTs.send(sendMsg, prng1, recvChannel, 1);
 			//baseOTs.exec_base(prng0);
 
 
@@ -71,15 +71,9 @@ void NaorPinkasOt_Test_Impl()
 		//crypto crpt(128, prng0.get_block());
 		NaorPinkas baseOTs;
 
-		baseOTs.receive(choices, recvMsg, prng0, senderChannel, 4);
+		baseOTs.receive(choices, recvMsg, prng0, senderChannel, 1);
 
 		thrd.join();
-
-		for (u64 i = 0; i < numOTs; ++i)
-		{
-			if (neq(recvMsg[i], sendMsg[i][choices[i]]))
-				throw UnitTestFail();
-		}
 
 		senderChannel.close();
 		recvChannel.close();
@@ -88,5 +82,16 @@ void NaorPinkasOt_Test_Impl()
 		ep0.stop();
 
 		ios.stop();
+
+
+		for (u64 i = 0; i < numOTs; ++i)
+		{
+			if (neq(recvMsg[i], sendMsg[i][choices[i]]))
+			{
+				Log::out << "failed " << i << Log::endl;
+				throw UnitTestFail();
+			}
+		}
+
 }
 

@@ -132,10 +132,13 @@ void EccpNumber_Test()
 		//	ok = true;
 		//}
 
-		if (var > mod)
+		if (var > (mod-1))
 		{
-			Log::out << "bad rand" << Log::endl;
-			throw UnitTestFail("bad rand");
+			Log::out << "bad rand'" << Log::endl;
+			Log::out << "var " << var << Log::endl;
+			Log::out << "mod " << std::hex<< mod << std::dec << Log::endl;
+			Log::out << "odr " << curve.getOrder() << Log::endl;
+			throw UnitTestFail("bad rand'");
 		}
 	}
 
@@ -300,7 +303,9 @@ void EccpPoint_Test()
 
 void Ecc2mNumber_Test()
 {
+
 	EllipticCurve curve(k283, ZeroBlock);
+
 	PRNG prng(ZeroBlock);
 
 	EccNumber one(curve, 1);
@@ -415,6 +420,7 @@ void Ecc2mNumber_Test()
 
 void Ecc2mPoint_Test()
 {
+
 	EllipticCurve curve(k283, ZeroBlock);
 	//EllipticCurve curve(p5_INSECURE, ZeroBlock);
 	//curve.getMiracl().IOBASE = 10;
@@ -426,8 +432,11 @@ void Ecc2mPoint_Test()
 
 	const auto& g = curve.getGenerator();
 
+
 	auto g2 = curve.getGenerators()[1] + curve.getGenerators()[2];
 	EccBrick g2Brick(g2);
+
+
 	//Log::out << "g            " << g << Log::endl;
 
 
@@ -464,10 +473,10 @@ void Ecc2mPoint_Test()
 
 	auto a_br = a + b * r;
 
-	Log::out << a_br << Log::endl;
+	//Log::out << a_br << Log::endl;
 
 	auto ga = g* a;
-	Log::out << "ga  " << ga << Log::endl;
+	//Log::out << "ga  " << ga << Log::endl;
 
 	auto gbr = ((g * b) * r);
 	auto gbr2 = g * (b * r);
@@ -543,9 +552,9 @@ void Ecc2mPoint_Test()
 	auto gBRc = pch  + gBrick * Rc;
 
 
-	Log::out << "g     " << g << Log::endl;
-	Log::out << "Rc     " << Rc << Log::endl;
-	Log::out << "gBRc  " << gBRc << Log::endl;
+	//Log::out << "g     " << g << Log::endl;
+	//Log::out << "Rc     " << Rc << Log::endl;
+	//Log::out << "gBRc  " << gBRc << Log::endl;
 
 	//auto g2a = g2 * a;
 	//auto g2Ba = g2Brick * a;	

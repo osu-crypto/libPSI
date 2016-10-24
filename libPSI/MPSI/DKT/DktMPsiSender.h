@@ -20,7 +20,7 @@ namespace libPSI
 		//void init(u64 n, u64 statSecParam);
 
 
-		void sendInput(std::vector<block>& inputs, Channel& chl);
+		void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl);
 		//void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl);
 	};
 

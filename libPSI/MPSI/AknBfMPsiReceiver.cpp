@@ -53,18 +53,18 @@ namespace libPSI
 		auto theirCommFutre = chl.asyncRecv(theirComm.data(), theirComm.size());
 
 		//u64 statSecParam(40);
-		u64 totalOtCount, totalOnesCount, numHashFunctions, cncThreshold;
+		u64 totalOnesCount, numHashFunctions, cncThreshold;
 		double cncProb;
 		gTimer.setTimePoint("Init.params");
 
-		computeAknBfParams(mMyInputSize, statSecParam, totalOtCount, totalOnesCount, cncThreshold, cncProb, numHashFunctions, mBfBitCount);
+		computeAknBfParams(mMyInputSize, statSecParam, mTotalOtCount, totalOnesCount, cncThreshold, cncProb, numHashFunctions, mBfBitCount);
 
 
 		mHashs.resize(numHashFunctions);
 
 
 		gTimer.setTimePoint("Init.aknOTstart");
-		mAknOt.init(totalOtCount, totalOnesCount, cncProb, otExt, chls, prng);
+		mAknOt.init(mTotalOtCount, totalOnesCount, cncProb, otExt, chls, prng);
 
 		gTimer.setTimePoint("Init.aknFinish");
 
@@ -132,8 +132,12 @@ namespace libPSI
 		std::mutex finalMtx;
 
 
-		u64 permByteSize = 64 / 8;
+		if (sizeof(LogOtCount_t) * 8 < std::ceil(std::log2(mTotalOtCount)))
+			throw std::runtime_error(LOCATION);
+
+		u64 permByteSize = sizeof(LogOtCount_t);
 		ByteStream permuteBuff(mBfBitCount * permByteSize);
+		//Log::out << "size  " << permuteBuff.size() << " = " <<mBfBitCount << " * " << permByteSize  << Log::endl;
 
 		std::vector<u8> hashBuff(roundUpTo(mHashs.size() * sizeof(u64), sizeof(block)));
 		ArrayView<block>bv((block*)hashBuff.data(), hashBuff.size() / sizeof(block));
@@ -211,9 +215,7 @@ namespace libPSI
 
 				// if we are the main thread, then convert the bloom filter into a permutation
 				//TODO("make perm item size smaller");
-				permuteBuff.setp(permuteBuff.capacity());
-				//auto iter = permuteBuff.data();
-				auto vv = permuteBuff.getArrayView<u64>();
+				auto vv = permuteBuff.getArrayView<LogOtCount_t>();
 
 				std::array<std::vector<u64>::iterator, 2> idxIters{ mAknOt.mZeros.begin(), mAknOt.mOnes.begin() };
 
@@ -239,17 +241,17 @@ namespace libPSI
 				//TODO("Split this send into several");
 				//u8 dummy[1];
 				//chl.asyncSendCopy(dummy, 1);
-
-				//chl.asyncSend(permuteBuff.data(), permuteBuff.size());
-				u64 blockSize = 4096 * 128 * 20;
+				//Log::out << "size  " << permuteBuff.size() << Log::endl;
+				chl.asyncSend(permuteBuff.data(), permuteBuff.size());
+				//u64 blockSize = 4096 * 128 * 20;
 				//Log::out << "blockSize " << blockSize << Log::endl;
 
-				for (i64 i = 0; i < (i64)permuteBuff.size(); i += blockSize)
-				{
-					auto ss = std::min(blockSize, permuteBuff.size() - i);
+				//for (i64 i = 0; i < (i64)permuteBuff.size(); i += blockSize)
+				//{
+				//	auto ss = std::min(blockSize, permuteBuff.size() - i);
 
-					chl.asyncSend(permuteBuff.data() + i, ss);
-				}
+				//	chl.asyncSend(permuteBuff.data() + i, ss);
+				//}
 
 				permuteDoneProm.set_value();
 
@@ -274,7 +276,7 @@ namespace libPSI
 			// store all masks in the local hash table. will be merged together in a bit.
 			std::unordered_map<u64, std::pair<block, u64>> localMasks;
 			localMasks.reserve(end - start);
-			auto permute = permuteBuff.getArrayView<u64>();
+			auto permute = permuteBuff.getArrayView<LogOtCount_t>();
 
 
 			//Log::out << Log::lock;
@@ -282,8 +284,45 @@ namespace libPSI
 			{
 				block mask(ZeroBlock);
 				//Log::out << "inputs[" << i << "] " << inputs[i] << Log::endl;
+				const u64 stepSize = 2;
+				u64 stepCount = mHashs.size() / stepSize;
 
-				for (u64 j = 0; j < mHashs.size(); ++j)
+				for (u64 j = 0; j < stepCount; ++j)
+				{
+					std::array<u64, stepSize> idxs;
+					idxs[0] = *idxIter++;
+					idxs[1] = *idxIter++;
+					//idxs[2] = *idxIter++;
+					//idxs[3] = *idxIter++;
+					//idxs[4] = *idxIter++;
+					//idxs[5] = *idxIter++;
+					//idxs[6] = *idxIter++;
+					//idxs[7] = *idxIter++;
+
+					//auto idx = *idxIter++;
+					idxs[0] = permute[idxs[0]];
+					idxs[1] = permute[idxs[1]];
+					//idxs[2] = permute[idxs[2]];
+					//idxs[3] = permute[idxs[3]];
+					//idxs[4] = permute[idxs[4]];
+					//idxs[5] = permute[idxs[5]];
+					//idxs[6] = permute[idxs[6]];
+					//idxs[7] = permute[idxs[7]];
+
+					//Log::out << "recv " << i << "  " << j << "  " << pIdx << "  ("<<idx<< ")" << Log::endl;
+
+					mask = mask
+						^ mAknOt.mMessages[idxs[0]]
+						^ mAknOt.mMessages[idxs[1]]
+						//^ mAknOt.mMessages[idxs[2]]
+						//^ mAknOt.mMessages[idxs[3]]
+						//^ mAknOt.mMessages[idxs[4]]
+						//^ mAknOt.mMessages[idxs[5]]
+						//^ mAknOt.mMessages[idxs[6]]
+						//^ mAknOt.mMessages[idxs[7]]
+						;
+				}
+				for (u64 j = stepSize * stepCount; j < mHashs.size(); ++j)
 				{
 					auto idx = *idxIter++;
 					auto pIdx = permute[idx];

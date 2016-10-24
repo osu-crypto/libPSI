@@ -40,7 +40,7 @@ namespace libPSI {
 
 		op.mSize = (u32)size;
 		op.mBuffs[1] = boost::asio::buffer((char*)buff, (u32)size);
-		 
+
 		op.mType = BoostIOOperation::Type::SendData;
 
 		mEndpoint.getIOService().dispatch(mSocket.get(), op);
@@ -51,7 +51,7 @@ namespace libPSI {
 		if (mSocket->mStopped)
 			throw std::runtime_error("rt error at " LOCATION);
 
-		BoostIOOperation op; 
+		BoostIOOperation op;
 
 		op.mSize = (u32)buff->ChannelBufferSize();
 
@@ -72,7 +72,7 @@ namespace libPSI {
 		BoostIOOperation op;
 		op.clear();
 
-		op.mSize = (u32)size; 
+		op.mSize = (u32)size;
 		op.mBuffs[1] = boost::asio::buffer((char*)buff, (u32)size);
 
 
@@ -116,7 +116,7 @@ namespace libPSI {
 
 		BoostIOOperation op;
 		op.clear();
-		 
+
 
 		op.mType = BoostIOOperation::Type::RecvData;
 
@@ -166,7 +166,7 @@ namespace libPSI {
 		// indicate that no more messages should be queued and to fulfill
 		// the mSocket->mDone* promised.
 		mSocket->mStopped = true;
-		 
+
 
 		BoostIOOperation closeRecv;
 		closeRecv.mType = BoostIOOperation::Type::CloseRecv;
@@ -199,9 +199,19 @@ namespace libPSI {
 		return mRemoteName;
 	}
 
+	void BtChannel::resetStats()
+	{
+		if (mSocket)
+		{
+			mSocket->mTotalSentData = 0;
+			mSocket->mMaxOutstandingSendData = 0;
+			mSocket->mOutstandingSendData = 0;
+		}
+	}
+
 	u64 BtChannel::getTotalDataSent() const
 	{
-		return (mSocket)? (u64)mSocket->mTotalSentData : 0;
+		return (mSocket) ? (u64)mSocket->mTotalSentData : 0;
 	}
 
 	u64 BtChannel::getMaxOutstandingSendData() const
