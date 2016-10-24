@@ -16,9 +16,9 @@ ADDITIONAL_LINKER_INPUTS :=
 MACOS_FRAMEWORKS := 
 LINUX_PACKAGES := 
 
-CXXFLAGS := -ggdb -ffunction-sections -O3 -Wall -std=c++11 -maes -msse2 -msse4.1 -mpclmul -Wfatal-errors -pthread
-LDFLAGS := -Wl,-gc-sections -pthread
-COMMONFLAGS := 
+CXXFLAGS := -ggdb -g -ffunction-sections -O3 -Wall -std=c++11 -maes -msse2 -msse4.1 -mpclmul -Wfatal-errors -pthread  
+LDFLAGS := -Wl,-gc-sections -pthread  
+COMMONFLAGS :=  
 
 START_GROUP := -Wl,--start-group
 END_GROUP := -Wl,--end-group
