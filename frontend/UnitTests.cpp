@@ -119,6 +119,7 @@ void AknBfPsi_all()
 void OtBinPsi_all()
 {
     Log::out << Log::endl;
+    //run("OtBinPsi_CuckooHasher_Test_Impl          ", OtBinPsi_CuckooHasher_Test_Impl);
     //run("OtBinPsi_EmptrySet_Test_Impl            ", OtBinPsi_EmptrySet_Test_Impl);
     //run("OtBinPsi_FullSet_Test_Impl              ", OtBinPsi_FullSet_Test_Impl);
     run("OtBinPsi_SingltonSet_Test_Impl          ", OtBinPsi_SingltonSet_Test_Impl);

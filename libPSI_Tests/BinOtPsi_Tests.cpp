@@ -9,13 +9,62 @@
 
 #include "OT/NChooseOne/KkrtNcoOtReceiver.h"
 #include "OT/NChooseOne/KkrtNcoOtSender.h"
-//
-//#include "cryptopp/aes.h"
-//#include "cryptopp/modes.h"
-//#include "MyAssert.h"
+
+#include "MPSI/Beta/CuckooHasher.h"
+
 #include <array>
 
 using namespace osuCrypto;
+
+
+
+
+void OtBinPsi_CuckooHasher_Test_Impl()
+{
+    u64 setSize = 10000;
+    std::vector<u64> _hashes(setSize * 2);
+    MatrixView<u64> hashes(_hashes.begin(), _hashes.end(), 2);
+    PRNG prng(ZeroBlock);
+
+    for (u64 i = 0; i < hashes.size()[0]; ++i)
+    {
+        hashes[i][0] = prng.get<u64>();
+        hashes[i][1] = prng.get<u64>();
+    }
+
+    CuckooHasher hashMap0;
+    CuckooHasher hashMap1;
+    CuckooHasher::Workspace w(1);
+
+    hashMap0.init(setSize, 40, true);
+    hashMap1.init(setSize, 40, true);
+    
+    
+    for (u64 i = 0; i < setSize; ++i)
+    {
+        //if (i == 5) hashMap0.print();
+
+        hashMap0.insert(i, hashes[i]);
+
+        std::vector<u64> tt{ i };
+        MatrixView<u64> mm(hashes[i].data(), 1, 2, false);
+        hashMap1.insertBatch(tt, mm, w);
+
+
+        //if (i == 5) hashMap0.print();
+        //if (i == 5) hashMap1.print();
+    }
+
+
+        if (hashMap0 != hashMap1)
+        {
+            //Log::out << i << Log::endl;
+
+            throw UnitTestFail();
+        }
+    
+
+}
 
 
 
@@ -161,7 +210,7 @@ void OtBinPsi_FullSet_Test_Impl()
 void OtBinPsi_SingltonSet_Test_Impl()
 {
     Log::setThreadName("Sender");
-    u64 setSize = 128*128, psiSecParam = 40, bitSize= 128;
+    u64 setSize = 128, psiSecParam = 40, bitSize= 128;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 

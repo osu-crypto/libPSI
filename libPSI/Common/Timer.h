@@ -3,7 +3,7 @@
 #include <chrono>
 #include <string>
 
-namespace osuCrypto 
+namespace osuCrypto
 { 
 
 

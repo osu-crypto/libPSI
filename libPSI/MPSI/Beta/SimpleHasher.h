@@ -21,13 +21,13 @@ namespace osuCrypto
         SimpleHasher();
         ~SimpleHasher();
 
-        typedef std::vector<u64> Bin;
-        //typedef std::vector<std::pair<u64, block>> Bin;
+        typedef std::vector<u64> MtBin;
+        //typedef std::vector<std::pair<u64, block>> MtBin;
 
         u64 mBinCount , mMaxBinSize, mRepSize, mInputBitSize, mN;
 
         std::unique_ptr<std::mutex[]> mMtx;
-        std::vector<Bin> mBins;
+        std::vector<MtBin> mBins;
         block mHashSeed;
 
         void print() const;

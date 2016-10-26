@@ -11,6 +11,9 @@
 
 #include "OT/TwoChooseOne/KosOtExtReceiver.h"
 #include "OT/TwoChooseOne/KosOtExtSender.h"
+
+#include "CuckooHasher.h"
+
 namespace osuCrypto
 {
     OtBinMPsiReceiver::OtBinMPsiReceiver()
@@ -57,7 +60,7 @@ namespace osuCrypto
         mOtRecv = &otRecv;
 
 
-        gTimer.setTimePoint("Init.start");
+        gTimer.setTimePoint("Init.recv.start");
         mPrng.SetSeed(seed);
         auto& prng = mPrng;
 
@@ -76,37 +79,26 @@ namespace osuCrypto
         block theirHashingSeed;
         chl0.recv(&theirHashingSeed, sizeof(block));
 
-        gTimer.setTimePoint("Init.hashSeed");
+        gTimer.setTimePoint("Init.recv.hashSeed");
 
         // compute the hashing seed as the xor of both of ours seeds.
         mHashingSeed = myHashSeed ^ theirHashingSeed;
-        //Log::out << "recv's hash seed " << mHashingSeed << Log::endl;
 
 
         // this SimpleHasher class knows how to hash things into bins. But first we need 
         // to compute how many bins we need, the max size of bins, etc.
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam);
 
-        // makes base OTPsi's for each bins
-        //mPsis.resize(mBins.mBinCount);
-
-
-        //Log::out << "n=" << n << "  m=" << mBins.mBinCount << "    binSize="<< mBins.mMaxBinSize << "   sigma=" << inputBitSize << "   repSize=" << mBins.mRepSize << Log::endl;
-
         // figure out how many OTs we need in total.
-        u64 perBinOtCount = mBins.mMaxBinSize;// mPsis[0].PsiOTCount(mBins.mMaxBinSize, mBins.mRepSize);
+        u64 perBinOtCount = mBins.mMaxBinSize;
         u64 otCount = perBinOtCount * mBins.mBinCount;
 
-        // this will hold the receive messages.
-        //std::vector<block> recvMessages(otCount);mRecvOtMessages
 
+        gTimer.setTimePoint("Init.recv.baseStart");
         // since we are doing mmlicious PSI, we need OTs going in both directions. 
         // This will hold the send OTs
         mRecvOtMessages.resize(otCount* CodeWordSize);
         mSendOtMessages.resize(otCount* CodeWordSize);
-
-
-        // compute the base if needed
 
 
         if (otRecv.hasBaseOts() == false ||
@@ -123,7 +115,6 @@ namespace osuCrypto
             kosSend.setBaseOts(kosSendBase, choices);
             std::vector<std::array<block, 2>> sendBaseMsg(baseOtCount + gOtExtBaseOtCount);
             kosSend.send(sendBaseMsg, prng, chl0);
-
 
 
             // Divide these OT mssages between the Kco and Kos protocols
@@ -148,9 +139,9 @@ namespace osuCrypto
         }
         
 
-        gTimer.setTimePoint("Init.ExtStart");
+        gTimer.setTimePoint("Init.recv.ExtStart");
 
-        // this is a lambda function that does part of the OT extension where i am the sender. Again
+        // this is a lambda function that does part of the OT extension where l am the sender. Again
         // malicious PSI does OTs in both directions.
         auto sendOtRountine = [&](u64 i, u64 total, NcoOtExtSender& ots, block seed, Channel& chl)
         {
@@ -167,7 +158,7 @@ namespace osuCrypto
             ots.init(range);
         };
 
-        // this is a lambda function that does part of the OT extension where i am the receiver.
+        // this is a lambda function that does part of the OT extension where l am the receiver.
         auto recvOtRountine = [&](u64 i, u64 total, NcoOtExtReceiver& ots, block seed, Channel& chl)
         {
             u64 start = std::min(roundUpTo(i *     otCount / total, 128), otCount);
@@ -214,7 +205,6 @@ namespace osuCrypto
             // spawn the thread and call the routine.
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                //Log::out<< Log::lock << "r recvOt " <<i << "  "<< (**chlIter).getName() << Log::endl << Log::unlock;
                 recvOtRountine(i + 1, numRecvThreads + 1, *recvOts[i].get(), seed, **chlIter);
             });
 
@@ -229,7 +219,6 @@ namespace osuCrypto
 
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                //Log::out << Log::lock << "r sendOt " << i << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
                 sendOtRountine(i, numSendThreads, *sendOts[i].get(), seed, **chlIter);
             });
 
@@ -252,7 +241,7 @@ namespace osuCrypto
         for (auto& thrd : thrds)
             thrd.join();
 
-        gTimer.setTimePoint("Init.extFinished");
+        gTimer.setTimePoint("Init.recv.done");
 
     }
 
@@ -264,6 +253,7 @@ namespace osuCrypto
     void OtBinMPsiReceiver::sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls)
     {
         // this is the online phase.
+        gTimer.setTimePoint("online.recv.start");
 
         // check that the number of inputs is as expected.
         if (inputs.size() != mN)
@@ -271,7 +261,6 @@ namespace osuCrypto
 
         std::vector<block> recvMasks(mN);
 
-        //gTimer.setTimePoint("sendInput.start");
 
         TODO("actually compute the required mask size!!!!!!!!!!!!!!!!!!!!!!");
         u64 maskSize = 16;
@@ -299,14 +288,18 @@ namespace osuCrypto
         std::shared_future<MatrixView<u8>> maskFuture(maskProm.get_future());
         ByteStream maskBuffer;
 
-
+#ifdef STD_MAP
         typedef std::unordered_map<u64, std::pair<block, u64>> MaskMap;
         MaskMap sharedMasks;
 
         std::vector<std::promise<MaskMap*>> localMaskMapsProms(chls.size() - 1);
         std::vector<std::future<MaskMap*>> localMaskMapsFutures(chls.size() - 1);
-        for (u64 i = 0; i < localMaskMapsProms.size(); ++i)
-            localMaskMapsFutures[i] = localMaskMapsProms[i].get_future();
+        for (u64 l = 0; l < localMaskMapsProms.size(); ++l)
+            localMaskMapsFutures[l] = localMaskMapsProms[l].get_future();
+#else
+        CuckooHasher maskMap;
+        maskMap.init(mN * mBins.mMaxBinSize, mStatSecParam, chls.size() > 1);
+#endif
 
 
         // this mutex is used to guard inserting things into the intersection vector.
@@ -324,15 +317,15 @@ namespace osuCrypto
             auto seed = mPrng.get<block>();
             thrds[tIdx] = std::thread([&, tIdx, seed]()
             {
+
+                if (tIdx == 0) gTimer.setTimePoint("online.recv.thrdStart");
+
+
                 auto& chl = *chls[tIdx];
 
                 auto startIdx = tIdx       * mN / thrds.size();
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
 
-                // compute the region of inputs this thread should insert.
-                //ArrayView<block> itemRange(
-                //    inputs.begin() + startIdx,
-                //    inputs.begin() + endIdx);
 
                 std::array<AES, CodeWordSize> codewordHasher;
                 for (u64 i = 0; i < codewordHasher.size(); ++i)
@@ -369,6 +362,8 @@ namespace osuCrypto
                 else
                     insertProm.set_value();
 
+                if (tIdx == 0) gTimer.setTimePoint("online.recv.insertDone");
+
                 // get the region of the base OTs that this thread should do.
                 auto binStart = tIdx       * mBins.mBinCount / thrds.size();
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
@@ -381,19 +376,19 @@ namespace osuCrypto
                 //if (!tIdx)
                     //gTimer.setTimePoint("sendInput.PSI");
 
-                std::vector<u16> permutation(mBins.mMaxBinSize);
-                for (size_t i = 0; i < permutation.size(); i++)
-                    permutation[i] = i;
+                std::vector<u16> perm(mBins.mMaxBinSize);
+                for (size_t i = 0; i < perm.size(); i++)
+                    perm[i] = i;
 
 
                 const u64 stepSize = 16;
-
+#ifdef STD_MAP
                 MaskMap* localMasks = nullptr;
                 if (tIdx)
                     localMasks = new MaskMap();
                 else
                     localMasks = &sharedMasks;
-
+#endif
                 MatrixView<std::array<block, 2>> correlatedRecvOts(
                     mRecvOtMessages.begin() + (otStart * CodeWordSize),
                     mRecvOtMessages.begin() + (otEnd * CodeWordSize),
@@ -423,53 +418,54 @@ namespace osuCrypto
                         MultiBlock<CodeWordSize> codeword;
 
                         auto& bin = mBins.mBins[bIdx];
-                        std::random_shuffle(permutation.begin(), permutation.end(), prng);
 
-                        for(u64 i =0; i < permutation.size(); ++i)
+                        for (u64 i = 0; i < bin.size(); ++i)
                         {
-
-                            if (permutation[i] < bin.size())
-                            {
-                                u64 inputIdx = bin[permutation[i]];
-                                //codeword
-
-                                for (u64 j = 0; j < CodeWordSize; ++j)
-                                {
-                                    codeword[j] = codewordBuff[j][inputIdx];
-                                }
-
-                                auto otMsg = correlatedRecvOts[otIdx];
-                                auto correction = otCorrectionView[otCorrectionIdx];
+                            u64 inputIdx = bin[i];
+                            u16 swapIdx = (prng.get<u16>() % (mBins.mMaxBinSize - i)) + i;
+                            std::swap(perm[i], perm[swapIdx]);
 
 
-                                mOtRecv->encode(
-                                    otMsg,                  // input
-                                    codeword,               // input
-                                    correction,             // output
-                                    recvMasks[inputIdx]);   // output
+                            for (u64 j = 0; j < CodeWordSize; ++j)
+                                codeword[j] = codewordBuff[j][inputIdx];
 
-                                
-                            }
-                            else
-                            {
-                                // fill with random correction value.
-                                prng.get((u8*)otCorrectionView[otCorrectionIdx].data(),
-                                    CodeWordSize * sizeof(block));
-                                
- 
-                            }
+                            auto otMsg = correlatedRecvOts[otIdx + perm[i]];
+                            auto correction = otCorrectionView[otCorrectionIdx + perm[i]];
 
-                            otCorrectionIdx++;
-                            otIdx++;
+
+                            mOtRecv->encode(
+                                otMsg,                // input
+                                codeword,             // input
+                                correction,           // output
+                                recvMasks[inputIdx]); // output
                         }
+
+                        for (u64 i = bin.size(); i < mBins.mMaxBinSize; ++i)
+                        {
+                            // fill with random correction value.
+                            prng.get((u8*)otCorrectionView[otCorrectionIdx + perm[i]].data(),
+                                CodeWordSize * sizeof(block));
+                        }
+
+
+                        otCorrectionIdx += mBins.mMaxBinSize;
+                        otIdx += mBins.mMaxBinSize;
+
+
                     }
 
                     chl.asyncSend(std::move(buff));
                 }
 
+                if (tIdx == 0) gTimer.setTimePoint("online.recv.recvMask");
 
                 Buff buff;
                 otIdx = 0;
+
+                std::vector<block> tempMaskBuff(16);
+                std::vector<u64> tempIdxBuff(tempMaskBuff.size());
+                CuckooHasher::Workspace w(tempMaskBuff.size());
+                u64 tempMaskIdx = 0;
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
@@ -498,7 +494,7 @@ namespace osuCrypto
                             u64 innerOtIdx = otIdx;
                             u64 innerOtCorrectionIdx = otCorrectionIdx;
 
-                            for (u64 i = 0; i < mBins.mMaxBinSize; ++i)
+                            for (u64 l = 0; l < mBins.mMaxBinSize; ++l)
                             {
                                 for (u64 j = 0; j < CodeWordSize; ++j)
                                 {
@@ -518,16 +514,46 @@ namespace osuCrypto
 
                                 sendMask = sendMask ^ recvMasks[inputIdx];
 
-
+#ifdef STD_MAP
                                 u64 part = 0;
 
                                 memcpy(&part, &sendMask, std::min(sizeof(u64), maskSize));
-
-                                TODO("encode this mask with our sender OTs");
-
                                 //store my mask into corresponding buff at the permuted position
                                 localMasks->emplace(part, std::pair<block, u64>(sendMask, inputIdx));
+#else
+                                tempIdxBuff[tempMaskIdx] = inputIdx * mBins.mMaxBinSize + l;
 
+                                tempMaskBuff[tempMaskIdx] = ZeroBlock;
+                                memcpy(&tempMaskBuff[tempMaskIdx], &sendMask, maskSize);
+                                ++tempMaskIdx;
+
+                                if (tempMaskIdx == tempMaskBuff.size())
+                                {
+                                    mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
+                                    //for (u64 j = 0; j < tempMaskIdx; ++j)
+                                    //{
+                                    //    //maskMap.insert(tempIdxBuff[j], ArrayView<u64>((u64*)&tempMaskBuff[j], 2, false));
+                                    //    std::vector<u64> tt(tempIdxBuff.begin() + j, tempIdxBuff.begin() + j + 1);
+                                    //    maskMap.insertBatch(tt, MatrixView<u64>((u64*)&tempMaskBuff[j], 1,2, false));
+
+                                    //}
+                                    MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2, false);
+                                    maskMap.insertBatch(tempIdxBuff, hashes, w);
+
+
+                                    //for (u64 i = 0; i < tempMaskIdx; ++i)
+                                    //{
+                                    //    if (maskMap.find(hashes[i]) == -1)
+                                    //    {
+                                    //        throw std::runtime_error("");
+                                    //    }
+                                    //}
+
+                                    tempMaskIdx = 0;
+                                }
+
+
+#endif
                                 ++innerOtIdx;
                                 ++innerOtCorrectionIdx;
                             }
@@ -539,6 +565,28 @@ namespace osuCrypto
 
                 }
 
+                mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
+                //for (u64 j = 0; j < tempMaskIdx; ++j)
+                //{
+                //    maskMap.insert(tempIdxBuff[j], ArrayView<u64>((u64*)&tempMaskBuff[j], 2, false));
+                //}
+                std::vector<u64> idxs(tempIdxBuff.begin(), tempIdxBuff.begin() + tempMaskIdx);
+                MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2, false);
+                maskMap.insertBatch(idxs, hashes, w);
+
+                //maskMap.print();
+
+                //for (u64 i = 0; i < tempMaskIdx; ++i)
+                //{
+                //    if (maskMap.find(hashes[i]) == -1)
+                //    {
+                //        throw std::runtime_error("");
+                //    }
+                //}
+
+                if (tIdx == 0) gTimer.setTimePoint("online.recv.sendMask");
+
+#ifdef STD_MAP
                 if (tIdx)
                 {
                     localMaskMapsProms[tIdx - 1].set_value(localMasks);
@@ -555,12 +603,13 @@ namespace osuCrypto
                         sharedMasks.insert(otherMasks->begin(), otherMasks->end());
 
                         delete otherMasks;
-                    }
+            }
 
 
                     maskMergeProm.set_value();
-                }
-                
+        }
+#endif
+
                 // all masks have been merged
 
 
@@ -592,10 +641,10 @@ namespace osuCrypto
                 auto maskStart = tIdx     * maskView.size()[0] / thrds.size();
                 auto maskEnd = (tIdx + 1) * maskView.size()[0] / thrds.size();
 
+#ifdef STD_MAP
                 for (u64 i = maskStart; i < maskEnd; ++i)
                 {
                     auto mask = maskView[i];
-
 
                     u64 part = 0;
                     memcpy(&part, mask.data(), std::min(sizeof(u64), mask.size()));
@@ -607,18 +656,52 @@ namespace osuCrypto
                         localIntersection.push_back(match->second.second);
                     }
                 }
+#else
+                for (u64 i = maskStart; i < maskEnd; )
+                {
+                    u64 curStepSize = std::min(tempMaskBuff.size(), maskEnd - i);
 
+                    for (u64 j = 0; j < curStepSize; ++j, ++i)
+                    {
+                        auto mask = maskView[i];
+                        tempMaskBuff[j] = ZeroBlock;
+                        memcpy(&tempMaskBuff[j], mask.data(), maskSize);
+                    }
 
+                    mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), curStepSize, tempMaskBuff.data());
+
+                    MatrixView<u64> hashes((u64*)tempMaskBuff.data(), curStepSize, 2, false);
+                    maskMap.findBatch(hashes, tempIdxBuff, w);
+
+                    for (u64 j = 0; j < curStepSize; ++j)
+                    {
+                        //u64 idx = maskMap.find(ArrayView<u64>((u64*)&tempMaskBuff[j], 2));
+                        if (tempIdxBuff[j] != u64(-1))
+                        {
+                            localIntersection.push_back(tempIdxBuff[j] / mBins.mMaxBinSize);
+                        }
+                    }
+                }
+#endif
 
                 if (localIntersection.size())
                 {
                     std::lock_guard<std::mutex> lock(mInsertMtx);
-
-                    for (auto idx : localIntersection)
+                    if (mIntersection.size())
                     {
-                        mIntersection.push_back(idx);
+                        mIntersection.insert(
+                            mIntersection.end(), 
+                            localIntersection.begin(), 
+                            localIntersection.end());
+                    }
+                    else
+                    {
+                        mIntersection = std::move(localIntersection);
                     }
                 }
+                if (tIdx == 0) gTimer.setTimePoint("online.recv.done");
+
+
                 //if (!tIdx)
                 //    gTimer.setTimePoint("sendInput.done");
             });
@@ -628,7 +711,7 @@ namespace osuCrypto
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
             thrds[tIdx].join();
 
-        //gTimer.setTimePoint("sendInput.exit");
+        gTimer.setTimePoint("online.recv.exit");
 
         //Log::out << gTimer;
     }

@@ -11,6 +11,12 @@ namespace WeGarbleTests
     {
     public:
 
+        TEST_METHOD(OtBinPsi_CuckooHasher_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_CuckooHasher_Test_Impl();
+        }
+
         TEST_METHOD(OtBinPsi_EmptrySet_Test)
         {
             InitDebugPrinting();

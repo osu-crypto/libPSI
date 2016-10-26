@@ -1,6 +1,7 @@
 #include "KkrtNcoOtSender.h"
 #include "OT/Tools/Tools.h"
 #include "Common/Log.h"
+#include "KkrtDefines.h"
 
 namespace osuCrypto
 {
@@ -116,6 +117,22 @@ namespace osuCrypto
             throw std::invalid_argument("");
 #endif // !NDEBUG
 
+#ifdef AES_HASH
+        std::array<block,10> sums, hashOut;
+
+        for (u64 i = 0; i < correlatedMgs.size(); ++i)
+        {
+            sums[i] = correlatedMgs[i] ^
+                (otCorrectionMessage[i] ^ codeword[i]) & mChoiceBlks[i];
+        }
+        mAesFixedKey.ecbEncBlocks(sums.data(), correlatedMgs.size(), hashOut.data());
+
+        val = ZeroBlock;
+        for (u64 i = 0; i < correlatedMgs.size(); ++i)
+        {
+            val = val ^ sums[i] ^ hashOut[i];
+        }
+#else
         SHA1  sha1;
         block sum;
         u8 hashBuff[SHA1::HashSize];
@@ -130,6 +147,9 @@ namespace osuCrypto
 
         sha1.Final(hashBuff);
         val = toBlock(hashBuff);
+
+#endif // AES_HASH
+
     }
 
 

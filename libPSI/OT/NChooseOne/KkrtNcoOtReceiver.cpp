@@ -1,9 +1,9 @@
 #include "OT/Base/naor-pinkas.h"
-#include "KkrtNcoOTReceiver.h"
+#include "KkrtNcoOtReceiver.h"
 #include "OT/Tools/Tools.h"
 #include "Common/Log.h"
 #include  <mmintrin.h>
-
+#include "KkrtDefines.h"
 using namespace std;
 
 namespace osuCrypto
@@ -123,21 +123,41 @@ namespace osuCrypto
             throw std::invalid_argument("");
 #endif // !NDEBUG
 
-        SHA1  sha1;
-        u8 hashBuff[SHA1::HashSize];
-
+#ifdef AES_HASH
+        std::array<block, 10> correlatedZero, hashOut;
         for (u64 i = 0; i < correlatedMgs.size(); ++i)
         {
             otCorrectionMessage[i]
                 = codeword[i]
                 ^ correlatedMgs[i][0]
                 ^ correlatedMgs[i][1];
-            
+
+            correlatedZero[i] = correlatedMgs[i][0];
+        }
+
+        mAesFixedKey.ecbEncBlocks(correlatedZero.data(), correlatedMgs.size(), hashOut.data());
+
+        val = ZeroBlock;
+        for (u64 i = 0; i < correlatedMgs.size(); ++i)
+        {
+            val = val ^ correlatedZero[i] ^ hashOut[i];
+        }
+#else
+        SHA1  sha1;
+        for (u64 i = 0; i < correlatedMgs.size(); ++i)
+        {
+            otCorrectionMessage[i]
+                = codeword[i]
+                ^ correlatedMgs[i][0]
+                ^ correlatedMgs[i][1];
+
             sha1.Update((u8*)&correlatedMgs[i][0], sizeof(block));
         }
 
-
+        u8 hashBuff[SHA1::HashSize];
         sha1.Final(hashBuff);
         val = toBlock(hashBuff);
+#endif
+
     }
 }

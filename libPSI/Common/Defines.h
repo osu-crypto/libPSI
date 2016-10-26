@@ -63,6 +63,7 @@ namespace osuCrypto {
     };
 
     extern Timer gTimer;
+
     template<typename T>
     static std::string ToString(const T& t)
     {
@@ -186,11 +187,12 @@ inline bool neq(const osuCrypto::MultiBlock<N>& lhs, const osuCrypto::MultiBlock
 {
     osuCrypto::MultiBlock<N> neq = lhs^ rhs;
 
+    using namespace osuCrypto;
 
     int ret = 0;
     for (u64 i = 0; i < N; ++i)
     {
-        ret || = _mm_test_all_zeros(neq[i], neq[i]);
+        ret |= _mm_test_all_zeros(neq[i], neq[i]);
     }
     return ret;
 }

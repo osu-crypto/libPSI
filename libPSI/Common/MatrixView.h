@@ -67,11 +67,11 @@ namespace osuCrypto
         {
         }
 
-        MatrixView(T* data, u64 rowSize, u64 columnSize) :
-            mData(data),
-            mSize({ rowSize, columnSize }),
-            mOwner(owner)
-        {}
+        //MatrixView(T* data, u64 rowSize, u64 columnSize) :
+        //    mData(data),
+        //    mSize({ rowSize, columnSize }),
+        //    mOwner(false)
+        //{}
 
 
         ~MatrixView()

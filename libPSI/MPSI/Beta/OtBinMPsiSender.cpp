@@ -35,6 +35,7 @@ namespace osuCrypto
     {
         mStatSecParam = statSec;
         mN = n;
+        gTimer.setTimePoint("init.send.start");
 
         // must be a multiple of 128...
         u64 baseOtCount = 128 * CodeWordSize;
@@ -62,6 +63,7 @@ namespace osuCrypto
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
+        gTimer.setTimePoint("init.send.hashSeed");
 
 
         mBins.init(n, inputBitSize, mHashingSeed, statSec);
@@ -71,6 +73,7 @@ namespace osuCrypto
         u64 perBinOtCount = mBins.mMaxBinSize;// mPsis[0].PsiOTCount(mBins.mMaxBinSize, mBins.mRepSize);
         u64 otCount = perBinOtCount * mBins.mBinCount;
 
+        gTimer.setTimePoint("init.send.baseStart");
 
         if (otSend.hasBaseOts() == false ||
             otRecv.hasBaseOts() == false)
@@ -116,6 +119,7 @@ namespace osuCrypto
             otRecv.setBaseOts(sendBaseMsg);
         }
 
+        gTimer.setTimePoint("init.send.extStart");
 
 
 
@@ -171,7 +175,7 @@ namespace osuCrypto
 
             *thrdIter++ = std::thread([&, i, extSeed, chlIter]()
             {
-                //Log::out << Log::lock << "s sendOt " << i << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
+                //Log::out << Log::lock << "s sendOt " << l << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
                 sendRoutine(i + 1, numSendThreads + 1, *sendOts[i], **chlIter);
             });
             ++chlIter;
@@ -184,7 +188,7 @@ namespace osuCrypto
 
             *thrdIter++ = std::thread([&, i, extSeed, chlIter]()
             {
-                //Log::out << Log::lock << "s recvOt " << i << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
+                //Log::out << Log::lock << "s recvOt " << l << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
                 recvOtRountine(i, numRecvThreads, *recvOts[i], **chlIter);
             });
             ++chlIter;
@@ -200,6 +204,9 @@ namespace osuCrypto
 
         for (auto& thrd : thrds)
             thrd.join();
+
+        gTimer.setTimePoint("init.send.done");
+
     }
 
 
@@ -240,15 +247,46 @@ namespace osuCrypto
             codewordBuff[hashIdx].resize(inputs.size());
 
 
-        std::vector<u64> maskPermutation(mN*mBins.mMaxBinSize);
-        for (u64 i = 0; i < maskPermutation.size(); ++i)
-            maskPermutation[i] = i;
-        std::random_shuffle(maskPermutation.begin(), maskPermutation.end(), mPrng);
+        std::vector<u64> maskPerm(mN);
+
+        auto permSeed = mPrng.get<block>();
+
+        std::promise<void> permProm;
+        std::shared_future<void> permDone(permProm.get_future());
+
+        auto permThrd = std::thread([&]() {
+            PRNG prng(permSeed);
+            for (u64 i = 0; i < maskPerm.size(); ++i)
+                maskPerm[i] = i;
+
+            std::shuffle(maskPerm.begin(), maskPerm.end(), prng);
+            //u64 l, u32Max = (u32(-1));
+            //for (l = maskPerm.size(); l > u32Max; --l)
+            //{
+            //    u64 d = prng.get<u64>() % l;
+
+            //    u64 pi = maskPerm[l];
+            //    maskPerm[l] = maskPerm[d];
+            //    maskPerm[d] = pi;
+            //}
+            //for (l = maskPerm.size(); l > 1; --l)
+            //{
+
+            //    u32 d = prng.get<u32>() % l;
+
+            //    u64 pi = maskPerm[l];
+            //    maskPerm[l] = maskPerm[d];
+            //    maskPerm[d] = pi;
+            //}
+            permProm.set_value();
+        });
 
 
         uPtr<Buff> sendMaskBuff(new Buff);
-        sendMaskBuff->resize(maskPermutation.size() * maskSize);
+        sendMaskBuff->resize(maskPerm.size() * mBins.mMaxBinSize * maskSize);
         auto maskView = sendMaskBuff->getMatrixView<u8>(maskSize);
+        
+        gTimer.setTimePoint("online.send.spaw");
 
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
         {
@@ -256,6 +294,8 @@ namespace osuCrypto
             thrds[tIdx] = std::thread([&, tIdx, seed]() {
 
                 PRNG prng(seed);
+
+                if (tIdx == 0) gTimer.setTimePoint("online.send.thrdStart");
 
 
                 auto& chl = *chls[tIdx];
@@ -304,6 +344,8 @@ namespace osuCrypto
                     doneFuture.get();
                 else
                     doneProm.set_value();
+
+                if (tIdx == 0) gTimer.setTimePoint("online.send.insert");
 
                 const u64 stepSize = 16;
 
@@ -393,6 +435,13 @@ namespace osuCrypto
                 Buff buff;
                 otIdx = 0;
 
+                if (tIdx == 0) gTimer.setTimePoint("online.send.recvMask");
+                permDone.get();
+                if (tIdx == 0) gTimer.setTimePoint("online.send.permPromDone");
+
+                std::vector<u16> binPerm(mBins.mMaxBinSize);
+                for (u64 i = 0; i < binPerm.size(); ++i)
+                    binPerm[i] = i;
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
@@ -413,16 +462,22 @@ namespace osuCrypto
                         auto& bin = mBins.mBins[bIdx];
                         MultiBlock<CodeWordSize> codeword;
 
+
                         for (u64 i = 0; i < bin.size(); ++i)
                         {
 
                             u64 inputIdx = bin[i];
+                            u64 baseMaskIdx = maskPerm[maskIdx] * mBins.mMaxBinSize;
 
                             u64 innerOtIdx = otIdx;
                             u64 innerOtCorrectionIdx = otCorrectionIdx;
 
-                            for (u64 i = 0; i < mBins.mMaxBinSize; ++i)
+                            //u16 swapIdx = prng.get<u16>();
+                            //u64 temp = binPerm[i]
+
+                            for (u64 l = 0; l < mBins.mMaxBinSize; ++l)
                             {
+
                                 for (u64 j = 0; j < CodeWordSize; ++j)
                                 {
                                     codeword[j] = codewordBuff[j][inputIdx];
@@ -446,35 +501,24 @@ namespace osuCrypto
                                 // truncate the block size mask down to "maskSize" bytes
                                 // and store it in the maskView matrix at row maskIdx
                                 memcpy(
-                                    maskView[maskPermutation[maskIdx]].data(),
+                                    maskView[baseMaskIdx + l].data(),
                                     (u8*)&sendMask,
                                     maskSize);
 
 
-                                ++maskIdx;
                                 ++innerOtIdx;
                                 ++innerOtCorrectionIdx;
                             }
+
+                            ++maskIdx;
                         }
-
-                        //for (u64 i = bin.size(); i < mBins.mMaxBinSize; ++i)
-                        //{
-                        //    for (u64 i = 0; i < mBins.mMaxBinSize; ++i)
-                        //    {
-                        //        prng.get(
-                        //            maskView[maskPermutation[maskIdx]].data(),
-                        //            maskSize);
-
-                        //        ++maskIdx;
-                        //    }
-                        //}
-
 
                         otIdx += mBins.mMaxBinSize;
                         otCorrectionIdx += mBins.mMaxBinSize;
                     }
 
                 }
+                if (tIdx == 0) gTimer.setTimePoint("online.send.sendMask");
 
                 // block until all masks are computed. the last to finish will set the promise...
                 if (--remainingMasks)
@@ -489,6 +533,7 @@ namespace osuCrypto
                 if (tIdx == 0)
                     chl.asyncSend(std::move(sendMaskBuff));
 
+                if (tIdx == 0) gTimer.setTimePoint("online.send.finalMask");
 
 
 
@@ -498,7 +543,7 @@ namespace osuCrypto
         for (auto& thrd : thrds)
             thrd.join();
 
-
+        permThrd.join();
 
     }
 

@@ -8,6 +8,7 @@ using namespace osuCrypto;
 #include "bloomFilterMain.h"
 #include "dcwMain.h"
 #include "dktMain.h"
+#include "OtBinMain.h"
 
 #include "OT/TwoChooseOne/KosOtExtReceiver.h"
 //#include "OT/TwoChooseOne/KosOtExtReceiver2.h"
@@ -22,8 +23,8 @@ int miraclTestMain();
 int main(int argc, char** argv)
 {
 
-    run_all();
-    return 0;
+    //run_all();
+    //return 0;
     //Ecc2mNumber_Test();
     //return 0;
     //miraclTestMain();
@@ -38,28 +39,33 @@ int main(int argc, char** argv)
     //return 0;
     if (argc == 2)
     {
-        DktSend();
-        //bfSend();
+        //DktSend();
         //DcwSend();
         //DcwRSend();
-        //otBinSend();
+        otBinSend();
+        //bfSend();
     }
     else if (argc == 3)
     {
-        DktRecv();
-        //bfRecv();
+        //DktRecv();
         //DcwRecv();
         //DcwRRecv();
-        //otBinRecv();
+        otBinRecv();
+        //bfRecv();
     }
     else
     {
         auto thrd = std::thread([]() {
 
-            DktRecv();
+            //DktRecv();
+            otBinRecv();
+            //bfRecv();
         });
 
-        DktSend();
+        //DktSend();
+        otBinSend();
+        //bfSend();
+
         thrd.join();
         //blogb();
         //otBin();

@@ -50,14 +50,14 @@ namespace osuCrypto
 
 
 
-        typedef u64 result_type;
-        static u64 min() { return 0; }
-        static u64 max() { return (u64)-1; }
-        u64 operator()() {
-            return get<u64>();
+        typedef u32 result_type;
+        static result_type min() { return 0; }
+        static result_type max() { return (result_type)-1; }
+        result_type operator()() {
+            return get<result_type>();
         }
-        u64 operator()(u64 mod) {
-            return get<u64>() % mod;
+        result_type operator()(int mod) {
+            return get<result_type>() % mod;
         }
     };
 }
