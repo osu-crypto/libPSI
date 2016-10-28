@@ -34,6 +34,10 @@ namespace osuCrypto
             const ArrayView<block> codeWord,
             const ArrayView<block> otCorrectionMessage,
             block& val) = 0;
+
+        virtual void getParams(
+            u64 compSecParm, u64 statSecParam, u64 inputBitCount, u64 inputCount, 
+            u64& inputBlkSize, u64& baseOtCount) = 0;
     };
 
 
@@ -57,6 +61,11 @@ namespace osuCrypto
             const ArrayView<block> codeWord,
             ArrayView<block> otCorrectionMessage,
             block& val) = 0;
+
+
+        virtual void getParams(
+            u64 compSecParm, u64 statSecParam, u64 inputBitCount, u64 inputCount,
+            u64& inputBlkSize, u64& baseOtCount) = 0;
     };
 
 }

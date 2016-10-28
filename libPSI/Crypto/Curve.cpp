@@ -66,14 +66,14 @@ namespace osuCrypto
         BA = mirvar(mMiracl, 0);
         BB = mirvar(mMiracl, 0);
 
-        cinstr(mMiracl, BA, params.a);
-        cinstr(mMiracl, BB, params.b);
+        cinstr(mMiracl, BA,(char*)params.a);
+        cinstr(mMiracl, BB,(char*)params.b);
 
         mOrder.reset(new EccNumber(*this));
-        mOrder->fromHex(params.n);
+        mOrder->fromHex((char*)params.n);
 
         mFieldPrime.reset(new EccNumber(*this));
-        mFieldPrime->fromHex(params.p);
+        mFieldPrime->fromHex((char*)params.p);
         //incr(mMiracl, P, 1, mModulus->mVal);
         //*mModulus = *mOrder;
         

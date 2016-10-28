@@ -13,13 +13,13 @@ namespace osuCrypto
     public:
 
 
-        static const u64 CodeWordSize = 7;
+        //static const u64 CodeWordSize = 7;
         static const u64 hasherStepSize = 128;
 
         OtBinMPsiSender();
         ~OtBinMPsiSender();
 
-        u64 mN, mStatSecParam;
+        u64 mN, mStatSecParam, mNcoInputBlkSize,  mOtMsgBlkSize;
         block mHashingSeed;
         SimpleHasher mBins;
         PRNG mPrng;

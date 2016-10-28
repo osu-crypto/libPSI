@@ -3,6 +3,7 @@
 #include "OT/TwoChooseOne/OTExtInterface.h"
 
 #include "OT/Tools/Tools.h"
+#include "OT/Tools/BchCode.h"
 #include "Network/BtChannel.h"
 #include "Network/BtEndpoint.h"
 #include "Common/Log.h"
@@ -385,85 +386,5 @@ void IknpOtExt_100Receive_Test_Impl()
 
 
 
-void KkrtNcoOt_Test_Impl()
-{
-    Log::setThreadName("Sender");
-
-    PRNG prng0(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
-    u64 numOTs = 128;
-
-    u64 codeSize = 7;
-    u64 baseCount = 128 * codeSize;
-
-    std::vector<block> baseRecv(baseCount);
-    std::vector<std::array<block, 2>> baseSend(baseCount);
-    BitVector baseChoice(baseCount);
-    baseChoice.randomize(prng0);
-
-    prng0.get((u8*)baseSend.data()->data(), sizeof(block) * 2 * baseSend.size());
-    for (u64 i = 0; i < baseCount; ++i)
-    {
-        baseRecv[i] = baseSend[i][baseChoice[i]];
-    }
-
-    KkrtNcoOtSender sender;
-    KkrtNcoOtReceiver recv;
-    recv.mSend = &sender;
-
-    MatrixView<block> sendMsgs(numOTs, codeSize);
-    MatrixView<std::array<block, 2>> recvMsgs(numOTs, codeSize);
-
-    sender.setBaseOts(baseRecv, baseChoice);
-    sender.init(sendMsgs);
-
-    recv.setBaseOts(baseSend);
-    recv.init(recvMsgs);
-
-
-
-    BitVector t0,t1,q, s = sender.mBaseChoiceBits;
-    for (u64 i = 0; i < recvMsgs[0].size(); ++i)
-    {
-        t0.append((u8*)&recvMsgs[0][i][0], 8 * sizeof(block));
-        t1.append((u8*)&recvMsgs[0][i][1], 8 * sizeof(block));
-        q.append((u8*)&sendMsgs[0][i], 8 * sizeof(block));
-    }
-
-    auto exp = (t0 & ~s) | (t1 & s);
-
-    Log::out << Log::endl
-        << exp << Log::endl
-        << q << Log::endl
-        << (q^exp) << Log::endl << Log::endl;
-
-
-    std::vector<block> codeword(codeSize), correction(codeSize);
-    for (size_t j = 0; j < 10; j++)
-    {
-
-        for (u64 i = 0; i < numOTs; ++i)
-        {
-            prng0.get((u8*)codeword.data(), codeSize * sizeof(block));
-
-            block encoding1, encoding2;
-            recv.encode(recvMsgs[i], codeword, correction, encoding1);
-
-            sender.encode(sendMsgs[i], codeword, correction, encoding2);
-
-            if (neq(encoding1, encoding2))
-                throw UnitTestFail();
-
-            prng0.get((u8*)codeword.data(), codeSize * sizeof(block));
-
-            sender.encode(sendMsgs[i], codeword, correction, encoding2);
-
-            if (eq(encoding1, encoding2))
-                throw UnitTestFail();
-        }
-
-    }
-
-}
 
 

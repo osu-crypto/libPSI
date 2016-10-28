@@ -54,7 +54,15 @@ namespace osuCrypto
         mN = n;
 
         // must be a multiple of 128...
-        u64 baseOtCount = 128 * CodeWordSize;
+        u64 baseOtCount;// = 128 * CodeWordSize;
+        u64 compSecParam = 128;
+
+        otSend.getParams(
+            compSecParam, statSecParam, inputBitSize, mN, //  input
+            mNcoInputBlkSize, baseOtCount); // output
+
+        mOtMsgBlkSize = (baseOtCount + 127) / 128;
+
 
         mOtSend = &otSend;
         mOtRecv = &otRecv;
@@ -97,8 +105,8 @@ namespace osuCrypto
         gTimer.setTimePoint("Init.recv.baseStart");
         // since we are doing mmlicious PSI, we need OTs going in both directions. 
         // This will hold the send OTs
-        mRecvOtMessages.resize(otCount* CodeWordSize);
-        mSendOtMessages.resize(otCount* CodeWordSize);
+        mRecvOtMessages.resize(otCount * mOtMsgBlkSize);
+        mSendOtMessages.resize(otCount * mOtMsgBlkSize);
 
 
         if (otRecv.hasBaseOts() == false ||
@@ -151,9 +159,9 @@ namespace osuCrypto
 
             // get the range of rows starting at start and ending at end
             MatrixView<block> range(
-                mSendOtMessages.begin() + (start * CodeWordSize),
-                mSendOtMessages.begin() + (end *CodeWordSize),
-                CodeWordSize);
+                mSendOtMessages.begin() + (start * mOtMsgBlkSize),
+                mSendOtMessages.begin() + (end * mOtMsgBlkSize),
+                mOtMsgBlkSize);
 
             ots.init(range);
         };
@@ -166,9 +174,9 @@ namespace osuCrypto
 
             // get the range of rows starting at start and ending at end
             MatrixView<std::array<block, 2>> range(
-                mRecvOtMessages.begin() + (start * CodeWordSize),
-                mRecvOtMessages.begin() + (end *CodeWordSize),
-                CodeWordSize);
+                mRecvOtMessages.begin() + (start * mOtMsgBlkSize),
+                mRecvOtMessages.begin() + (end * mOtMsgBlkSize),
+                mOtMsgBlkSize);
 
 
             PRNG prng(seed);
@@ -305,10 +313,10 @@ namespace osuCrypto
         // this mutex is used to guard inserting things into the intersection vector.
         std::mutex mInsertMtx;
 
-        std::array<std::vector<block>, CodeWordSize> codewordBuff;
+        std::vector<std::vector<block>> ncoInputBuff(mNcoInputBlkSize);
 
-        for (u64 hashIdx = 0; hashIdx < CodeWordSize; ++hashIdx)
-            codewordBuff[hashIdx].resize(inputs.size());
+        for (u64 hashIdx = 0; hashIdx < ncoInputBuff.size(); ++hashIdx)
+            ncoInputBuff[hashIdx].resize(inputs.size());
 
 
         // fr each thread, spawn it.
@@ -327,28 +335,28 @@ namespace osuCrypto
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
 
 
-                std::array<AES, CodeWordSize> codewordHasher;
-                for (u64 i = 0; i < codewordHasher.size(); ++i)
-                    codewordHasher[i].setKey(_mm_set1_epi64x(i) ^ mHashingSeed);
+                std::vector<AES> ncoInputHasher(mNcoInputBlkSize);
+                for (u64 i = 0; i < ncoInputHasher.size(); ++i)
+                    ncoInputHasher[i].setKey(_mm_set1_epi64x(i) ^ mHashingSeed);
 
 
                 for (u64 i = startIdx; i < endIdx; i += hasherStepSize)
                 {
                     auto currentStepSize = std::min(hasherStepSize, inputs.size() - i);
 
-                    for (u64 hashIdx = 0; hashIdx < CodeWordSize; ++hashIdx)
+                    for (u64 hashIdx = 0; hashIdx < ncoInputHasher.size(); ++hashIdx)
                     {
-                        codewordHasher[hashIdx].ecbEncBlocks(
+                        ncoInputHasher[hashIdx].ecbEncBlocks(
                             inputs.data() + i,
                             currentStepSize,
-                            codewordBuff[hashIdx].data() + i);
+                            ncoInputBuff[hashIdx].data() + i);
                     }
 
                     // since we are using random codes, lets just use the first part of the code 
                     // as where each item should be hashed.
                     for (u64 j = 0; j < currentStepSize; ++j)
                     {
-                        block& item = codewordBuff[0][i + j];
+                        block& item = ncoInputBuff[0][i + j];
                         u64 addr = *(u64*)&item % mBins.mBinCount;
 
                         std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
@@ -390,17 +398,19 @@ namespace osuCrypto
                     localMasks = &sharedMasks;
 #endif
                 MatrixView<std::array<block, 2>> correlatedRecvOts(
-                    mRecvOtMessages.begin() + (otStart * CodeWordSize),
-                    mRecvOtMessages.begin() + (otEnd * CodeWordSize),
-                    CodeWordSize);
+                    mRecvOtMessages.begin() + (otStart * mOtMsgBlkSize),
+                    mRecvOtMessages.begin() + (otEnd * mOtMsgBlkSize),
+                    mOtMsgBlkSize);
 
                 MatrixView<block> correlatedSendOts(
-                    mSendOtMessages.begin() + (otStart * CodeWordSize),
-                    mSendOtMessages.begin() + (otEnd * CodeWordSize),
-                    CodeWordSize);
+                    mSendOtMessages.begin() + (otStart * mOtMsgBlkSize),
+                    mSendOtMessages.begin() + (otEnd * mOtMsgBlkSize),
+                    mOtMsgBlkSize);
 
 
                 u64 otIdx = 0;
+
+                std::vector<block> ncoInput(mNcoInputBlkSize);
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
@@ -408,14 +418,13 @@ namespace osuCrypto
 
                     // make a buffer for the pseudo-code we need to send
                     std::unique_ptr<ByteStream> buff(new ByteStream());
-                    buff->resize(sizeof(block) * CodeWordSize * currentStepSize * mBins.mMaxBinSize);
+                    buff->resize(sizeof(block) * mOtMsgBlkSize * currentStepSize * mBins.mMaxBinSize);
 
-                    auto otCorrectionView = buff->getMatrixView<block>(CodeWordSize);
+                    auto otCorrectionView = buff->getMatrixView<block>(mOtMsgBlkSize);
                     auto otCorrectionIdx = 0;
 
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
-                        MultiBlock<CodeWordSize> codeword;
 
                         auto& bin = mBins.mBins[bIdx];
 
@@ -426,8 +435,8 @@ namespace osuCrypto
                             std::swap(perm[i], perm[swapIdx]);
 
 
-                            for (u64 j = 0; j < CodeWordSize; ++j)
-                                codeword[j] = codewordBuff[j][inputIdx];
+                            for (u64 j = 0; j < ncoInput.size(); ++j)
+                                ncoInput[j] = ncoInputBuff[j][inputIdx];
 
                             auto otMsg = correlatedRecvOts[otIdx + perm[i]];
                             auto correction = otCorrectionView[otCorrectionIdx + perm[i]];
@@ -435,7 +444,7 @@ namespace osuCrypto
 
                             mOtRecv->encode(
                                 otMsg,                // input
-                                codeword,             // input
+                                ncoInput,             // input
                                 correction,           // output
                                 recvMasks[inputIdx]); // output
                         }
@@ -444,7 +453,7 @@ namespace osuCrypto
                         {
                             // fill with random correction value.
                             prng.get((u8*)otCorrectionView[otCorrectionIdx + perm[i]].data(),
-                                CodeWordSize * sizeof(block));
+                                mOtMsgBlkSize * sizeof(block));
                         }
 
 
@@ -473,10 +482,10 @@ namespace osuCrypto
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
 
                     chl.recv(buff);
-                    if (buff.size() != CodeWordSize * sizeof(block) * mBins.mMaxBinSize * currentStepSize)
+                    if (buff.size() != mOtMsgBlkSize * sizeof(block) * mBins.mMaxBinSize * currentStepSize)
                         throw std::runtime_error("not expected size");
 
-                    auto otCorrectionBuff = buff.getMatrixView<block>(CodeWordSize);
+                    auto otCorrectionBuff = buff.getMatrixView<block>(mOtMsgBlkSize);
                     u64 otCorrectionIdx = 0;
 
 
@@ -484,7 +493,6 @@ namespace osuCrypto
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
                         auto& bin = mBins.mBins[bIdx];
-                        MultiBlock<CodeWordSize> codeword;
 
                         for (u64 i = 0; i < bin.size(); ++i)
                         {
@@ -496,9 +504,9 @@ namespace osuCrypto
 
                             for (u64 l = 0; l < mBins.mMaxBinSize; ++l)
                             {
-                                for (u64 j = 0; j < CodeWordSize; ++j)
+                                for (u64 j = 0; j < ncoInput.size(); ++j)
                                 {
-                                    codeword[j] = codewordBuff[j][inputIdx];
+                                    ncoInput[j] = ncoInputBuff[j][inputIdx];
                                 }
 
                                 block sendMask;
@@ -508,7 +516,7 @@ namespace osuCrypto
 
                                 mOtSend->encode(
                                     otMsg,
-                                    codeword,
+                                    ncoInput,
                                     correction,
                                     sendMask);
 

@@ -49,7 +49,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(solutionDir)thirdparty\win\boost\;$(SolutionDir)/libPSI_Tests;$(SolutionDir)/libPSI;$(SolutionDir)thirdparty\win\;$(SolutionDir)thirdparty/win/miracl;$(SolutionDir)thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(solutionDir)thirdparty\win\boost\;$(SolutionDir)/libPSI_Tests;$(SolutionDir)/libPSI;$(SolutionDir)thirdparty\win\;$(SolutionDir)thirdparty/win/miracl;$(SolutionDir)thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -79,6 +79,7 @@
     <ClCompile Include="DcwBfPsi_Tests.cpp" />
     <ClCompile Include="DktMPsi_Tests.cpp" />
     <ClCompile Include="Ecc_Tests.cpp" />
+    <ClCompile Include="NcoOT_Tests.cpp" />
     <ClCompile Include="OTOracleReceiver.cpp" />
     <ClCompile Include="OTOracleSender.cpp" />
     <ClCompile Include="OT_Tests.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="DcwBfPsi_Tests.h" />
     <ClInclude Include="DktMPsi_Tests.h" />
     <ClInclude Include="Ecc_Tests.h" />
+    <ClInclude Include="NcoOT_Tests.h" />
     <ClInclude Include="OTOracleReceiver.h" />
     <ClInclude Include="OTOracleSender.h" />
     <ClInclude Include="OT_Tests.h" />

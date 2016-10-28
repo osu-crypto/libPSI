@@ -1,7 +1,7 @@
-#include "KkrtNcoOtSender.h"
+#include "OosNcoOtSender.h"
 #include "OT/Tools/Tools.h"
 #include "Common/Log.h"
-#include "KkrtDefines.h"
+#include "OosDefines.h"
 
 namespace osuCrypto
 {
@@ -9,7 +9,7 @@ namespace osuCrypto
     //#define    PRINT_OTEXT_DEBUG
     using namespace std;
 
-    void KkrtNcoOtSender::setBaseOts(
+    void OosNcoOtSender::setBaseOts(
         ArrayView<block> baseRecvOts,
         const BitVector & choices)
     {
@@ -35,9 +35,9 @@ namespace osuCrypto
         }
     }
 
-    std::unique_ptr<NcoOtExtSender> KkrtNcoOtSender::split()
+    std::unique_ptr<NcoOtExtSender> OosNcoOtSender::split()
     {
-        auto* raw = new KkrtNcoOtSender();
+        auto* raw = new OosNcoOtSender(mCode);
         
         std::vector<block> base(mGens.size());
 
@@ -50,7 +50,7 @@ namespace osuCrypto
         return std::unique_ptr<NcoOtExtSender>(raw);
     }
 
-    void KkrtNcoOtSender::init(
+    void OosNcoOtSender::init(
         MatrixView<block> correlatedMsgs)
     {
         // round up
@@ -99,11 +99,11 @@ namespace osuCrypto
 
             doneIdx = stopIdx;
         }
-    }
+    } 
 
-    void KkrtNcoOtSender::encode(
+    void OosNcoOtSender::encode(
         const ArrayView<block> correlatedMgs,
-        const ArrayView<block> codeword,
+        const ArrayView<block> plaintext,
         const ArrayView<block> otCorrectionMessage,
         block& val)
     {
@@ -113,25 +113,30 @@ namespace osuCrypto
 
         if (otCorrectionMessage.size() != expectedSize ||
             correlatedMgs.size() != expectedSize ||
-            codeword.size() != expectedSize)
+            plaintext.size() != mCode.plaintextBlkSize())
             throw std::invalid_argument("");
 #endif // !NDEBUG
+        std::array<block, 10> codeword;
+        mCode.encode(plaintext, codeword);
 
 #ifdef AES_HASH
-        std::array<block,10> sums, hashOut;
+        std::array<block,10> hashOut;
 
         for (u64 i = 0; i < correlatedMgs.size(); ++i)
         {
-            sums[i] = correlatedMgs[i] ^
+            // use this codeword buffer for two things, the codeword
+            // itself and as a hash input buffer.
+            codeword[i] = correlatedMgs[i] ^
                 (otCorrectionMessage[i] ^ codeword[i]) & mChoiceBlks[i];
         }
+
         // compute the AES hash H(x) = AES(x_1) + x_1 + ... + AES(x_n) + x_n 
-        mAesFixedKey.ecbEncBlocks(sums.data(), correlatedMgs.size(), hashOut.data());
+        mAesFixedKey.ecbEncBlocks(codeword.data(), correlatedMgs.size(), hashOut.data());
 
         val = ZeroBlock;
         for (u64 i = 0; i < correlatedMgs.size(); ++i)
         {
-            val = val ^ sums[i] ^ hashOut[i];
+            val = val ^ codeword[i] ^ hashOut[i];
         }
 #else
         SHA1  sha1;
@@ -153,16 +158,28 @@ namespace osuCrypto
 
     }
 
-    void KkrtNcoOtSender::getParams(
+    void OosNcoOtSender::getParams(
         u64 compSecParm, 
-        u64 statSecParam,
+        u64 statSecParam, 
         u64 inputBitCount, 
         u64 inputCount, 
         u64 & inputBlkSize, 
         u64 & baseOtCount)
     {
-        baseOtCount =roundUpTo(compSecParm * 7, 128);
-        inputBlkSize = baseOtCount / 128;
+        auto ncoPlainBitCount = mCode.plaintextBitSize();
+        auto logn = std::ceil(std::log2(inputCount));
+
+        // we assume that the sender will hash their items first. That mean
+        // we need the hash output (input to the OT/code) to be the statistical 
+        // security parameter + log_2(n) bits, e.g. 40 + log_2(2^20) = 60.
+        if (statSecParam + logn > ncoPlainBitCount)
+            throw std::runtime_error("");
+
+
+        inputBlkSize = mCode.plaintextBlkSize();
+
+        TODO("check to see if things still work if we dont have a multiple of 128...");
+        baseOtCount = mCode.codewordBlkSize() * 128;
     }
 
 

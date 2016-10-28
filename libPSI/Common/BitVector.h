@@ -26,6 +26,9 @@ namespace osuCrypto {
 
         BitVector(u8* data, u64 length);
 
+        
+        BitVector(std::string data);
+
         explicit BitVector(size_t n)
             :mData(nullptr),
             mNumBits(0),
@@ -80,6 +83,8 @@ namespace osuCrypto {
 
         bool equals(const BitVector& K) const;
          
+        void fromString(std::string data);
+
 
         BitIterator begin() const;
         BitIterator end() const;

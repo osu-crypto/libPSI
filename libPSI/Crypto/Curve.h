@@ -17,17 +17,17 @@ namespace osuCrypto
     {
         u32 bitCount;
         // prime
-        char* p;
+        const char* p;
         // order
-        char* n;
+        const char* n;
         // coefficient a   for  y^2=x^3+ax+b  (mod p)
-        char* a;
+        const char* a;
         // coefficient b   for  y^2=x^3+ax+b  (mod p)
-        char* b;
+        const char* b;
         // Generator X coordiate
-        char* X;
+        const char* X;
         // Generator Y coordiate
-        char* Y;
+        const char* Y;
     };
 
 

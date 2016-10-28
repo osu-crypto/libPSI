@@ -186,13 +186,13 @@
     <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OT\Tools\sketch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\Tools\io.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MPSI\Beta\CuckooHasher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\NChooseOne\Oos\OosNcoOtSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\NChooseOne\Oos\OosNcoOtReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -344,13 +344,19 @@
     <ClInclude Include="OT\NChooseOne\NcoOtExt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OT\Tools\pinsketch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MPSI\Beta\CuckooHasher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OT\NChooseOne\KkrtDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\Oos\OosDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\Oos\OosNcoOtReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\Oos\OosNcoOtSender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

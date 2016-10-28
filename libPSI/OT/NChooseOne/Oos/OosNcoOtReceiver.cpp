@@ -1,14 +1,14 @@
 #include "OT/Base/naor-pinkas.h"
-#include "KkrtNcoOtReceiver.h"
+#include "OosNcoOtReceiver.h"
 #include "OT/Tools/Tools.h"
 #include "Common/Log.h"
 #include  <mmintrin.h>
-#include "KkrtDefines.h"
+#include "OosDefines.h"
 using namespace std;
 
 namespace osuCrypto
 {
-    void KkrtNcoOtReceiver::setBaseOts(
+    void OosNcoOtReceiver::setBaseOts(
         ArrayView<std::array<block, 2>> baseRecvOts)
     {
 
@@ -27,7 +27,7 @@ namespace osuCrypto
     }
 
 
-    void KkrtNcoOtReceiver::init(
+    void OosNcoOtReceiver::init(
         MatrixView<std::array<block, 2>> correlatedMsgs)
     {
         u64 doneIdx = 0;
@@ -39,7 +39,6 @@ namespace osuCrypto
         // we are going to process SSOTs in blocks of 128 messages.
         u64 numBlocks = numOTExt / 128;
 
-        // PRC length is around 4k
         std::array<block, 128> t0;
         std::array<block, 128> t1;
 
@@ -87,9 +86,9 @@ namespace osuCrypto
             doneIdx = stopIdx;
         }
     }
-    std::unique_ptr<NcoOtExtReceiver> KkrtNcoOtReceiver::split()
+    std::unique_ptr<NcoOtExtReceiver> OosNcoOtReceiver::split()
     {
-        auto* raw = new KkrtNcoOtReceiver();
+        auto* raw = new OosNcoOtReceiver(mCode);
 
         std::vector<std::array<block,2>> base(mGens.size());
 
@@ -103,28 +102,39 @@ namespace osuCrypto
         return std::unique_ptr<NcoOtExtReceiver>(raw);
     }
 
-    void KkrtNcoOtReceiver::encode(
+    void OosNcoOtReceiver::encode(
         // the output of the init function. The two correlated OT messages that
         // the receiver gets from the base OTs
         const ArrayView<std::array<block, 2>> correlatedMgs,
         // The random code word that should be encoded
-        const ArrayView<block> codeword,
+        const ArrayView<block> plaintxt,
         // Output: the message that should be sent to the sender
         ArrayView<block> otCorrectionMessage,
-        // Output: the encoding of the codeword
+        // Output: the encoding of the plaintxt
         block & val)
     {
 #ifndef NDEBUG
-        u64 expectedSize = mGens.size() / (sizeof(block) * 8);
+        u64 expectedSize = mCode.codewordBlkSize();
 
         if (otCorrectionMessage.size() != expectedSize ||
             correlatedMgs.size() != expectedSize ||
-            codeword.size() != expectedSize)
-            throw std::invalid_argument("");
+            plaintxt.size() != mCode.plaintextBlkSize())
+            throw std::invalid_argument(LOCATION);
+
+        if (expectedSize > 10)
+            throw std::runtime_error("increase the block array size (below)." LOCATION);
 #endif // !NDEBUG
 
+        // use this for two thing, to store the code word and 
+        // to store the zero message from base OT matrix transposed.
+        std::array<block, 10> codeword;
+
+        mCode.encode(plaintxt, codeword);
+
+
+         
 #ifdef AES_HASH
-        std::array<block, 10> correlatedZero, hashOut;
+        std::array<block, 10>  hashOut;
         for (u64 i = 0; i < correlatedMgs.size(); ++i)
         {
             otCorrectionMessage[i]
@@ -132,16 +142,17 @@ namespace osuCrypto
                 ^ correlatedMgs[i][0]
                 ^ correlatedMgs[i][1];
 
-            correlatedZero[i] = correlatedMgs[i][0];
+            // reuse the codeword buffer as where we will store the hash preimage
+            codeword[i] = correlatedMgs[i][0];
         }
 
         // compute the AES hash H(x) = AES(x_1) + x_1 + ... + AES(x_n) + x_n 
-        mAesFixedKey.ecbEncBlocks(correlatedZero.data(), correlatedMgs.size(), hashOut.data());
+        mAesFixedKey.ecbEncBlocks(codeword.data(), correlatedMgs.size(), hashOut.data());
 
         val = ZeroBlock;
         for (u64 i = 0; i < correlatedMgs.size(); ++i)
         {
-            val = val ^ correlatedZero[i] ^ hashOut[i];
+            val = val ^ codeword[i] ^ hashOut[i];
         }
 #else
         SHA1  sha1;
@@ -162,7 +173,8 @@ namespace osuCrypto
 
     }
 
-    void KkrtNcoOtReceiver::getParams(
+
+    void OosNcoOtReceiver::getParams(
         u64 compSecParm,
         u64 statSecParam,
         u64 inputBitCount,
@@ -170,8 +182,19 @@ namespace osuCrypto
         u64 & inputBlkSize,
         u64 & baseOtCount)
     {
-        baseOtCount = roundUpTo(compSecParm * 7, 128);
-        inputBlkSize = baseOtCount / 128;
-    }
 
+        auto ncoPlainBitCount = mCode.plaintextBitSize();
+        auto logn = std::ceil(std::log2(inputCount));
+
+        // we assume that the sender will hash their items first. That mean
+        // we need the hash output (input to the OT/code) to be the statistical 
+        // security parameter + log_2(n) bits, e.g. 40 + log_2(2^20) = 60.
+        if (statSecParam + logn > ncoPlainBitCount)
+            throw std::runtime_error("");
+
+        inputBlkSize = mCode.plaintextBlkSize();
+
+        TODO("check to see if things still work if we dont have a multiple of 128...");
+        baseOtCount = mCode.codewordBlkSize() * 128;
+    }
 }

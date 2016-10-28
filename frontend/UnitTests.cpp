@@ -8,6 +8,7 @@
 //#include "nkOt_Tests.h"
 #include "BaseOT_Tests.h"
 #include "OT_Tests.h"
+#include "NcoOT_Tests.h"
 #include "AknOt_Tests.h"
 #include "AknBfPsi_Tests.h"
 #include "Ecc_Tests.h"
@@ -74,6 +75,8 @@ void OT_all()
     run("IknpOtExt_100Receive_Test_Impl          ", IknpOtExt_100Receive_Test_Impl);
     run("AknOt_sendRecv1000_Test                 ", AknOt_sendRecv1000_Test);
     run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
+    run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
+    run("BchCode_Test_Impl                       ", BchCode_Test_Impl);
     run("NaorPinkasOt_Test                       ", NaorPinkasOt_Test_Impl);
 }
 
@@ -120,9 +123,13 @@ void OtBinPsi_all()
 {
     Log::out << Log::endl;
     //run("OtBinPsi_CuckooHasher_Test_Impl          ", OtBinPsi_CuckooHasher_Test_Impl);
-    //run("OtBinPsi_EmptrySet_Test_Impl            ", OtBinPsi_EmptrySet_Test_Impl);
-    //run("OtBinPsi_FullSet_Test_Impl              ", OtBinPsi_FullSet_Test_Impl);
-    run("OtBinPsi_SingltonSet_Test_Impl          ", OtBinPsi_SingltonSet_Test_Impl);
+    //run("OtBinPsi_Kkrt_EmptrySet_Test_Impl        ", OtBinPsi_Kkrt_EmptrySet_Test_Impl);
+    //run("OtBinPsi_Kkrt_FullSet_Test_Impl          ", OtBinPsi_Kkrt_FullSet_Test_Impl);
+    //run("OtBinPsi_Kkrt_SingltonSet_Test_Impl      ", OtBinPsi_Kkrt_SingltonSet_Test_Impl);
+
+    run("OtBinPsi_Oos_EmptrySet_Test_Impl         ", OtBinPsi_Oos_EmptrySet_Test_Impl);
+    run("OtBinPsi_Oos_FullSet_Test_Impl           ", OtBinPsi_Oos_FullSet_Test_Impl);
+    run("OtBinPsi_Oos_SingltonSet_Test_Impl       ", OtBinPsi_Oos_SingltonSet_Test_Impl);
 }
 void ShamirSSScheme_all()
 {
@@ -132,6 +139,8 @@ void ShamirSSScheme_all()
 
 void run_all()
 {
+   // BchCode_Test_Impl();
+    run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
 
     //NetWork_all();
     //bitVec_all();

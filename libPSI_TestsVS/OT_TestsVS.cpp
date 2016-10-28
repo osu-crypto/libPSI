@@ -2,6 +2,7 @@
 #ifdef  _MSC_VER
 #include "CppUnitTest.h"
 #include "OT_Tests.h"
+#include "NcoOT_Tests.h"
 #include "Common.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -66,6 +67,21 @@ namespace osuCrypto_tests
             InitDebugPrinting();
             KkrtNcoOt_Test_Impl();
         }
+
+
+        TEST_METHOD(Oos_200Receive_TestVS)
+        {
+            InitDebugPrinting();
+            OosNcoOt_Test_Impl();
+        }
+
+
+        TEST_METHOD(Bch_200Receive_TestVS)
+        {
+            InitDebugPrinting();
+            BchCode_Test_Impl();
+        }
+
 
 
 

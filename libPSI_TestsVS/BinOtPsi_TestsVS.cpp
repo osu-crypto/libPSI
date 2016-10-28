@@ -17,24 +17,41 @@ namespace WeGarbleTests
             OtBinPsi_CuckooHasher_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_EmptrySet_Test)
+        TEST_METHOD(OtBinPsi_Kkrt_EmptrySet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_EmptrySet_Test_Impl();
+            OtBinPsi_Kkrt_EmptrySet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_FullSet_Test)
+        TEST_METHOD(OtBinPsi_Kkrt_FullSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_FullSet_Test_Impl();
+            OtBinPsi_Kkrt_FullSet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_SingltonSet_Test)
+        TEST_METHOD(OtBinPsi_Kkrt_SingltonSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_SingltonSet_Test_Impl();
+            OtBinPsi_Kkrt_SingltonSet_Test_Impl();
         }
 
+        TEST_METHOD(OtBinPsi_Oos_EmptrySet_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_Oos_EmptrySet_Test_Impl();
+        }
+
+        TEST_METHOD(OtBinPsi_Oos_FullSet_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_Oos_FullSet_Test_Impl();
+        }
+
+        TEST_METHOD(OtBinPsi_Oos_SingltonSet_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_Oos_SingltonSet_Test_Impl();
+        }
 
         //TEST_METHOD(OtBinPsi_SingltonSet_serial_Test)
         //{

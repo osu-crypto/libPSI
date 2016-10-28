@@ -4,7 +4,15 @@
 namespace osuCrypto {
 
 
+    BitVector::BitVector(std::string data)
+        :
+        mData(nullptr),
+        mNumBits(0),
+        mAllocBytes(0)
+    {
+        fromString(data);
 
+    }
 
     BitVector::BitVector(BitVector&& rref)
         :
@@ -205,7 +213,20 @@ namespace osuCrypto {
             mData[i] ^= A.mData[i];
         }
     }
+    void BitVector::fromString(std::string data)
+    {
+        resize(data.size());
 
+        for (u64 i = 0; i < size(); ++i)
+        {
+#ifndef NDEBUG 
+            if (u8(data[i] - '0') > 1) throw std::runtime_error("");
+#endif
+
+            (*this)[i] = data[i] - '0';
+        }
+
+    }
 
 
     bool BitVector::equals(const BitVector& rhs) const

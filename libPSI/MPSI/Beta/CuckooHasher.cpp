@@ -166,6 +166,7 @@ namespace osuCrypto
             {
                 mHashesView[inputIdxs[i]][j] = hashs[i][j];
             }
+            w.curHashIdxs[i] = 0;
         }
 
         while (remaining && tryCount++ < 1000)
