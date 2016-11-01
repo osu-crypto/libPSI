@@ -19,54 +19,13 @@ using namespace osuCrypto;
 #include <numeric>
 #include "Common/Log.h"
 int miraclTestMain();
-#include "OT/Tools/temp/ecc.h"
 
 #include "OT/Tools/BchCode.h"
 
-void codes()
-{
-
-	ECC code;
-
-	if (code.bch_control == nullptr)
-	{
-		Log::out << "bad init" << Log::endl;
-	}
-
-	u8 data[10];
-	u8 dest[16 * 4];
-
-
-
-	BchCode code2;
-	code2.loadBinFile(SOLUTION_DIR "/libPSI/OT/Tools/bch511.bin");
-
-	block b;
-	ArrayView<block> ss(&b, 1);
-	ArrayView<block> c(4);
-
-	Timer t; 
-	t.setTimePoint("start");
-
-	for(u64 i =0; i < 10000; ++i)
-		code.Encode(data, dest);
-
-
-	t.setTimePoint("lin");
-
-	for (u64 i = 0; i < 10000; ++i)
-	{
-		code2.encode(ss, c);
-	}
-	t.setTimePoint("mine");
-	Log::out << t << Log::endl;
-
-}
 
 int main(int argc, char** argv)
 {
-	codes();
-	return 0;
+
     //run_all();
     //return 0;
     //Ecc2mNumber_Test();
