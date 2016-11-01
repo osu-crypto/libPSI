@@ -1,211 +1,213 @@
 #include "bloomFilterMain.h"
 
-#include "MPSI/AknBfMPsiReceiver.h"
-#include "MPSI/AknBfMPsiSender.h"
+#include "MPSI/Rr16/AknBfMPsiReceiver.h"
+#include "MPSI/Rr16/AknBfMPsiSender.h"
 
 #include <fstream>
-using namespace libPSI;
+using namespace osuCrypto;
 #include "util.h"
 
 #include "Common/Defines.h"
 #include "Network/BtEndpoint.h" 
-#include "OT/KosOtExtReceiver.h"
-#include "OT/KosOtExtSender.h"
+#include "OT/TwoChooseOne/KosOtExtReceiver.h"
+#include "OT/TwoChooseOne/KosOtExtSender.h"
 
-#include "OT/LzKosOtExtReceiver.h"
-#include "OT/LzKosOtExtSender.h"
+#include "OT/TwoChooseOne/LzKosOtExtReceiver.h"
+#include "OT/TwoChooseOne/LzKosOtExtSender.h"
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
 #include <numeric>
 
 #define LAZY_OT
-#define pows  { 8,12,16,20 }
-#define threadss {/*1,4,16,*/64}
+
+#define pows  { 8,12,16/*,20*/ }
+#define threadss {1,4/*1,4,16,64*/}
+
 
 void bfSend()
 {
 
 
-	Log::setThreadName("CP_Test_Thread");
-	u64 numThreads(64);
+    Log::setThreadName("CP_Test_Thread");
+    u64 numThreads(64);
 
-	std::fstream online, offline;
-	online.open("./online.txt", online.trunc | online.out);
-	offline.open("./offline.txt", offline.trunc | offline.out);
-	u64 numTrial(1);
-
-
-	Log::out << "role  = sender (" << numThreads << ") akn" << Log::endl;
-
-	std::string name("psi");
-
-	BtIOService ios(0);
-	BtEndpoint sendEP(ios, "localhost", 1212, true, name);
-
-	std::vector<Channel*> sendChls_(numThreads);
-
-	for (u64 i = 0; i < numThreads; ++i)
-	{
-		sendChls_[i] = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-	}
-	u8 dummy[1];
-
-	senderGetLatency(*sendChls_[0]);
-	sendChls_[0]->resetStats();
-
-	//for (auto pow : {/* 8,12,*/ 16/*, 20 */ })
-	for (auto pow : pows)
-	{
-
-		for (auto cc : threadss)
-		{
-			std::vector<Channel*> sendChls;
-
-			if (pow == 8)
-				cc = std::min(8, cc);
-
-			//Log::out << "numTHreads = " << cc << Log::endl;
-
-			sendChls.insert(sendChls.begin(), sendChls_.begin(), sendChls_.begin() + cc);
-
-			u64 offlineTimeTot(0);
-			u64 onlineTimeTot(0);
-			//for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
-			for (u64 jj = 0; jj < numTrial; jj++)
-			{
-
-				//u64 repeatCount = 1;
-				u64 setSize = (1 << pow), psiSecParam = 40;
-				PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+    std::fstream online, offline;
+    online.open("./online.txt", online.trunc | online.out);
+    offline.open("./offline.txt", offline.trunc | offline.out);
+    u64 numTrial(1);
 
 
-				std::vector<block> sendSet;
-				sendSet.resize(setSize);
+    Log::out << "role  = sender (" << numThreads << ") akn" << Log::endl;
 
-				for (u64 i = 0; i < setSize; ++i)
-				{
-					sendSet[i] = prng.get_block();
-				}
+    std::string name("psi");
+
+    BtIOService ios(0);
+    BtEndpoint sendEP(ios, "localhost", 1212, true, name);
+
+    std::vector<Channel*> sendChls_(numThreads);
+
+    for (u64 i = 0; i < numThreads; ++i)
+    {
+        sendChls_[i] = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+    }
+    u8 dummy[1];
+
+    senderGetLatency(*sendChls_[0]);
+    sendChls_[0]->resetStats();
+
+    //for (auto pow : {/* 8,12,*/ 16/*, 20 */ })
+    for (auto pow : pows)
+    {
+
+        for (auto cc : threadss)
+        {
+            std::vector<Channel*> sendChls;
+
+            if (pow == 8)
+                cc = std::min(8, cc);
+
+            //Log::out << "numTHreads = " << cc << Log::endl;
+
+            sendChls.insert(sendChls.begin(), sendChls_.begin(), sendChls_.begin() + cc);
+
+            u64 offlineTimeTot(0);
+            u64 onlineTimeTot(0);
+            //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
+            for (u64 jj = 0; jj < numTrial; jj++)
+            {
+
+                //u64 repeatCount = 1;
+                u64 setSize = (1 << pow), psiSecParam = 40;
+                PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+
+
+                std::vector<block> sendSet;
+                sendSet.resize(setSize);
+
+                for (u64 i = 0; i < setSize; ++i)
+                {
+                    sendSet[i] = prng.get<block>();
+                }
 
 
 #ifdef LAZY_OT
-				LzKosOtExtReceiver otRecv;
-				LzKosOtExtSender otSend;
+                LzKosOtExtReceiver otRecv;
+                LzKosOtExtSender otSend;
 #else
-				KosOtExtReceiver otRecv;
-				KosOtExtSender otSend;
+                KosOtExtReceiver otRecv;
+                KosOtExtSender otSend;
 #endif // LAZY_OT
 
 
 
-				AknBfMPsiSender sendPSIs;
+                AknBfMPsiSender sendPSIs;
 
-				gTimer.reset();
+                gTimer.reset();
 
-				u64 otIdx = 0;
-				//Log::out << "sender init" << Log::endl;
-				sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
+                u64 otIdx = 0;
+                //Log::out << "sender init" << Log::endl;
+                sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 
-				//return;
-				sendChls[0]->asyncSend(dummy, 1);
-				sendChls[0]->recv(dummy, 1);
-				//Log::out << "sender init done" << Log::endl;
+                //return;
+                sendChls[0]->asyncSend(dummy, 1);
+                sendChls[0]->recv(dummy, 1);
+                //Log::out << "sender init done" << Log::endl;
 
-				sendPSIs.sendInput(sendSet, sendChls);
+                sendPSIs.sendInput(sendSet, sendChls);
 
-				u64 dataSent = 0;
-				for(u64 g = 0; g < sendChls.size(); ++g)
-				{
-					dataSent += sendChls[g]->getTotalDataSent();
-				}
+                u64 dataSent = 0;
+                for(u64 g = 0; g < sendChls.size(); ++g)
+                {
+                    dataSent += sendChls[g]->getTotalDataSent();
+                }
 
-				//std::accumulate(sendChls[0]->getTotalDataSent())
+                //std::accumulate(sendChls[0]->getTotalDataSent())
 
-				Log::out << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << Log::endl;
-				for (u64 g = 0; g < sendChls.size(); ++g)
-					sendChls[g]->resetStats();
+                Log::out << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << Log::endl;
+                for (u64 g = 0; g < sendChls.size(); ++g)
+                    sendChls[g]->resetStats();
 
-				//Log::out << gTimer << Log::endl;
-			}
+                //Log::out << gTimer << Log::endl;
+            }
 
-		}
+        }
 
 
-	}
-	for (u64 i = 0; i < numThreads; ++i)
-	{
-		sendChls_[i]->close();// = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-	}
-	//sendChl.close();
-	//recvChl.close();
+    }
+    for (u64 i = 0; i < numThreads; ++i)
+    {
+        sendChls_[i]->close();// = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+    }
+    //sendChl.close();
+    //recvChl.close();
 
-	sendEP.stop();
+    sendEP.stop();
 
-	ios.stop();
+    ios.stop();
 }
 
 void bfRecv()
 {
 
-	Log::setThreadName("CP_Test_Thread");
-	u64 numThreads(64);
+    Log::setThreadName("CP_Test_Thread");
+    u64 numThreads(64);
 
-	std::fstream online, offline;
-	online.open("./online.txt", online.trunc | online.out);
-	offline.open("./offline.txt", offline.trunc | offline.out);
-	u64 numTrial(1);
+    std::fstream online, offline;
+    online.open("./online.txt", online.trunc | online.out);
+    offline.open("./offline.txt", offline.trunc | offline.out);
+    u64 numTrial(1);
 
-	std::string name("psi");
+    std::string name("psi");
 
-	BtIOService ios(0);
-	BtEndpoint recvEP(ios, "localhost", 1212, false, name);
+    BtIOService ios(0);
+    BtEndpoint recvEP(ios, "localhost", 1212, false, name);
 
-	std::vector<Channel*> recvChls_(numThreads);
-	for (u64 i = 0; i < numThreads; ++i)
-	{
-		recvChls_[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-	}
+    std::vector<Channel*> recvChls_(numThreads);
+    for (u64 i = 0; i < numThreads; ++i)
+    {
+        recvChls_[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+    }
 
-	Log::out << "role  = recv(" << numThreads << ") akn" << Log::endl;
-	u8 dummy[1];
-	recverGetLatency(*recvChls_[0]);
+    Log::out << "role  = recv(" << numThreads << ") akn" << Log::endl;
+    u8 dummy[1];
+    recverGetLatency(*recvChls_[0]);
 
-	//for (auto pow : {/* 8,12,*/16/*,20*/ })
-	for (auto pow : pows)
-	{
-		for (auto cc : threadss)
-		{
-			std::vector<Channel*> recvChls;
+    //for (auto pow : {/* 8,12,*/16/*,20*/ })
+    for (auto pow : pows)
+    {
+        for (auto cc : threadss)
+        {
+            std::vector<Channel*> recvChls;
 
-			if (pow == 8)
-				cc = std::min(8, cc);
+            if (pow == 8)
+                cc = std::min(8, cc);
 
-			u64 setSize = (1 << pow), psiSecParam = 40;
+            u64 setSize = (1 << pow), psiSecParam = 40;
 
-			Log::out << "numTHreads = " << cc << "  n=" << setSize << Log::endl;
+            Log::out << "numTHreads = " << cc << "  n=" << setSize << Log::endl;
 
-			recvChls.insert(recvChls.begin(), recvChls_.begin(), recvChls_.begin() + cc);
+            recvChls.insert(recvChls.begin(), recvChls_.begin(), recvChls_.begin() + cc);
 
-			u64 offlineTimeTot(0);
-			u64 onlineTimeTot(0);
-			//for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
-			for (u64 jj = 0; jj < numTrial; jj++)
-			{
+            u64 offlineTimeTot(0);
+            u64 onlineTimeTot(0);
+            //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
+            for (u64 jj = 0; jj < numTrial; jj++)
+            {
 
-				//u64 repeatCount = 1;
-				PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
-
-				std::vector<block> sendSet(setSize), recvSet(setSize);
+                //u64 repeatCount = 1;
+                PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
+                std::vector<block> sendSet(setSize), recvSet(setSize);
 
 
-				for (u64 i = 0; i < setSize; ++i)
-				{
-					sendSet[i] = recvSet[i] = prng.get_block();
-				}
+
+
+                for (u64 i = 0; i < setSize; ++i)
+                {
+                    sendSet[i] = recvSet[i] = prng.get<block>();
+                }
 
 
 
@@ -213,102 +215,102 @@ void bfRecv()
 
 #define LAZY_OT
 #ifdef LAZY_OT
-				LzKosOtExtReceiver otRecv;
-				LzKosOtExtSender otSend;
+                LzKosOtExtReceiver otRecv;
+                LzKosOtExtSender otSend;
 #else
-				KosOtExtReceiver otRecv;
-				KosOtExtSender otSend;
+                KosOtExtReceiver otRecv;
+                KosOtExtSender otSend;
 #endif // LAZY_OT
 
 
-				AknBfMPsiReceiver recvPSIs;
+                AknBfMPsiReceiver recvPSIs;
 
-				gTimer.reset();
+                gTimer.reset();
 
-				u64 otIdx = 0;
-
-
-				Timer timer;
-				auto start = timer.setTimePoint("start");
-				recvPSIs.init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
-				//return;
+                u64 otIdx = 0;
 
 
-				//std::vector<u64> sss(recvChls.size());
-				//for (u64 g = 0; g < recvChls.size(); ++g)
-				//{
-				//	sss[g] =  recvChls[g]->getTotalDataSent();
-				//}
-
-				recvChls[0]->asyncSend(dummy, 1);
-				recvChls[0]->recv(dummy, 1);
-				auto mid = timer.setTimePoint("init");
-
-				 
-				recvPSIs.sendInput(recvSet, recvChls);
-				auto end = timer.setTimePoint("done");
-
-				auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
-				auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+                Timer timer;
+                auto start = timer.setTimePoint("start");
+                recvPSIs.init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
+                //return;
 
 
-				offlineTimeTot += offlineTime;
-				onlineTimeTot += onlineTime;
-				//auto byteSent = recvChls[0]->getTotalDataSent() *recvChls.size();
+                //std::vector<u64> sss(recvChls.size());
+                //for (u64 g = 0; g < recvChls.size(); ++g)
+                //{
+                //    sss[g] =  recvChls[g]->getTotalDataSent();
+                //}
 
-				u64 dataSent = 0;
-				for (u64 g = 0; g < recvChls.size(); ++g)
-				{
-					dataSent += recvChls[g]->getTotalDataSent();
-					//Log::out << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << Log::endl;
-				}
+                recvChls[0]->asyncSend(dummy, 1);
+                recvChls[0]->recv(dummy, 1);
+                auto mid = timer.setTimePoint("init");
 
-				double time = offlineTime + onlineTime;
-				time /= 1000;
-				auto Mbps = dataSent * 8 / time / (1 << 20);
+                 
+                recvPSIs.sendInput(recvSet, recvChls);
+                auto end = timer.setTimePoint("done");
 
-				Log::out << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB"  << Log::endl;
-
-				for (u64 g = 0; g < recvChls.size(); ++g)
-					recvChls[g]->resetStats();
-
-				//Log::out << "threads =  " << numThreads << Log::endl << timer << Log::endl << Log::endl << Log::endl;
+                auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+                auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
 
-				//Log::out << numThreads << Log::endl;
-				//Log::out << timer << Log::endl;
+                offlineTimeTot += offlineTime;
+                onlineTimeTot += onlineTime;
+                //auto byteSent = recvChls[0]->getTotalDataSent() *recvChls.size();
 
-				//Log::out << gTimer << Log::endl;
+                u64 dataSent = 0;
+                for (u64 g = 0; g < recvChls.size(); ++g)
+                {
+                    dataSent += recvChls[g]->getTotalDataSent();
+                    //Log::out << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << Log::endl;
+                }
 
-				//if (recv.mIntersection.size() != setSize)
-				//	throw std::runtime_error("");
+                double time = offlineTime + onlineTime;
+                time /= 1000;
+                auto Mbps = dataSent * 8 / time / (1 << 20);
+
+                Log::out << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB"  << Log::endl;
+
+                for (u64 g = 0; g < recvChls.size(); ++g)
+                    recvChls[g]->resetStats();
+
+                //Log::out << "threads =  " << numThreads << Log::endl << timer << Log::endl << Log::endl << Log::endl;
 
 
+                //Log::out << numThreads << Log::endl;
+                //Log::out << timer << Log::endl;
+
+                //Log::out << gTimer << Log::endl;
+
+                //if (recv.mIntersection.size() != setSize)
+                //    throw std::runtime_error("");
 
 
 
 
 
-			}
+
+
+            }
 
 
 
-			online << onlineTimeTot / numTrial << "-";
-			offline << offlineTimeTot / numTrial << "-";
+            online << onlineTimeTot / numTrial << "-";
+            offline << offlineTimeTot / numTrial << "-";
 
-		}
-	}
+        }
+    }
 
-	for (u64 i = 0; i < numThreads; ++i)
-	{
-		recvChls_[i]->close();// = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-	}
-	//sendChl.close();
-	//recvChl.close();
+    for (u64 i = 0; i < numThreads; ++i)
+    {
+        recvChls_[i]->close();// = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+    }
+    //sendChl.close();
+    //recvChl.close();
 
-	recvEP.stop();
+    recvEP.stop();
 
-	ios.stop();
+    ios.stop();
 }
 
 
@@ -321,143 +323,143 @@ void bfRecv()
 void bf(int role)
 {
 
-	Log::setThreadName("CP_Test_Thread");
-	u64 numThreads(64);
+    Log::setThreadName("CP_Test_Thread");
+    u64 numThreads(64);
 
-	std::fstream online, offline;
-	online.open("./online.txt", online.trunc | online.out);
-	offline.open("./offline.txt", offline.trunc | offline.out);
-	u64 numTrial(8);
-
-
-	Log::out << "role  = " << role << Log::endl;
-
-	for (auto pow : pows)
-	{
-
-		u64 offlineTimeTot(0);
-		u64 onlineTimeTot(0);
-		//for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
-		for (u64 jj = 0; jj < numTrial; jj++)
-		{
-
-			//u64 repeatCount = 1;
-			u64 setSize = (1 << pow), psiSecParam = 40;
-			PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+    std::fstream online, offline;
+    online.open("./online.txt", online.trunc | online.out);
+    offline.open("./offline.txt", offline.trunc | offline.out);
+    u64 numTrial(8);
 
 
-			std::vector<block> sendSet(setSize), recvSet(setSize);
+    Log::out << "role  = " << role << Log::endl;
+
+    for (auto pow : pows)
+    {
+
+        u64 offlineTimeTot(0);
+        u64 onlineTimeTot(0);
+        //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
+        for (u64 jj = 0; jj < numTrial; jj++)
+        {
+
+            //u64 repeatCount = 1;
+            u64 setSize = (1 << pow), psiSecParam = 40;
+            PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+
+
+            std::vector<block> sendSet(setSize), recvSet(setSize);
 
 
 
 
-			for (u64 i = 0; i < setSize; ++i)
-			{
-				sendSet[i] = recvSet[i] = prng.get_block();
-			}
+            for (u64 i = 0; i < setSize; ++i)
+            {
+                sendSet[i] = recvSet[i] = prng.get<block>();
+            }
 
 
-			std::shuffle(sendSet.begin(), sendSet.end(), prng);
+            std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
 
-			std::string name("psi");
+            std::string name("psi");
 
-			BtIOService ios(0);
-			BtEndpoint recvEP(ios, "localhost", 1212, false, name);
-			BtEndpoint sendEP(ios, "localhost", 1212, true, name);
+            BtIOService ios(0);
+            BtEndpoint recvEP(ios, "localhost", 1212, false, name);
+            BtEndpoint sendEP(ios, "localhost", 1212, true, name);
 
-			std::vector<Channel*> sendChls, recvChls;
-			sendChls.resize(numThreads);
-			recvChls.resize(numThreads);
-			for (u64 i = 0; i < numThreads; ++i)
-			{
-				recvChls[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-				sendChls[i] = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-			}
+            std::vector<Channel*> sendChls, recvChls;
+            sendChls.resize(numThreads);
+            recvChls.resize(numThreads);
+            for (u64 i = 0; i < numThreads; ++i)
+            {
+                recvChls[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+                sendChls[i] = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+            }
 
 #define LAZY_OT
 #ifdef LAZY_OT
-			LzKosOtExtReceiver otRecv;
-			LzKosOtExtSender otSend;
+            LzKosOtExtReceiver otRecv;
+            LzKosOtExtSender otSend;
 #else
-			KosOtExtReceiver otRecv;
-			KosOtExtSender otSend;
+            KosOtExtReceiver otRecv;
+            KosOtExtSender otSend;
 #endif // LAZY_OT
 
 
-			std::thread thrd;
+            std::thread thrd;
 
-			AknBfMPsiSender sendPSIs;
-			AknBfMPsiReceiver recvPSIs;
-			thrd = std::thread([&]() {
-
-
-				u64 otIdx = 0;
-
-				sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get_block());
-				sendPSIs.sendInput(sendSet, sendChls);
-
-			});
-
-			gTimer.reset();
-
-			u64 otIdx = 0;
+            AknBfMPsiSender sendPSIs;
+            AknBfMPsiReceiver recvPSIs;
+            thrd = std::thread([&]() {
 
 
-			Timer timer;
-			auto start = timer.setTimePoint("start");
-			recvPSIs.init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
-			auto mid = timer.setTimePoint("init");
+                u64 otIdx = 0;
+
+                sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
+                sendPSIs.sendInput(sendSet, sendChls);
+
+            });
+
+            gTimer.reset();
+
+            u64 otIdx = 0;
 
 
-			AknBfMPsiReceiver& recv = recvPSIs;
-
-			recv.sendInput(recvSet, recvChls);
-			auto end = timer.setTimePoint("done");
-
-			auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
-			auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+            Timer timer;
+            auto start = timer.setTimePoint("start");
+            recvPSIs.init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
+            auto mid = timer.setTimePoint("init");
 
 
-			offlineTimeTot += offlineTime;
-			onlineTimeTot += onlineTime;
-			Log::out << setSize << "  " << offlineTime << "  " << onlineTime << Log::endl;
+            AknBfMPsiReceiver& recv = recvPSIs;
+
+            recv.sendInput(recvSet, recvChls);
+            auto end = timer.setTimePoint("done");
+
+            auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+            auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
 
-			//Log::out << "threads =  " << numThreads << Log::endl << timer << Log::endl << Log::endl << Log::endl;
+            offlineTimeTot += offlineTime;
+            onlineTimeTot += onlineTime;
+            Log::out << setSize << "  " << offlineTime << "  " << onlineTime << Log::endl;
 
 
-			//Log::out << numThreads << Log::endl;
-			//Log::out << timer << Log::endl;
-
-			//Log::out << gTimer << Log::endl;
-
-			//if (recv.mIntersection.size() != setSize)
-			//	throw std::runtime_error("");
+            //Log::out << "threads =  " << numThreads << Log::endl << timer << Log::endl << Log::endl << Log::endl;
 
 
+            //Log::out << numThreads << Log::endl;
+            //Log::out << timer << Log::endl;
 
-			thrd.join();
+            //Log::out << gTimer << Log::endl;
 
-			for (u64 i = 0; i < numThreads; ++i)
-			{
-				sendChls[i]->close();// = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-				recvChls[i]->close();// = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-			}
-			//sendChl.close();
-			//recvChl.close();
-
-			recvEP.stop();
-			sendEP.stop();
-
-			ios.stop();
-
-
-		}
+            //if (recv.mIntersection.size() != setSize)
+            //    throw std::runtime_error("");
 
 
 
-		online << onlineTimeTot / numTrial << "-";
-		offline << offlineTimeTot / numTrial << "-";
-	}
+            thrd.join();
+
+            for (u64 i = 0; i < numThreads; ++i)
+            {
+                sendChls[i]->close();// = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+                recvChls[i]->close();// = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+            }
+            //sendChl.close();
+            //recvChl.close();
+
+            recvEP.stop();
+            sendEP.stop();
+
+            ios.stop();
+
+
+        }
+
+
+
+        online << onlineTimeTot / numTrial << "-";
+        offline << offlineTimeTot / numTrial << "-";
+    }
 }

@@ -1,5 +1,5 @@
 // stdafx.cpp : source file that includes just the standard includes
-// libPSI_TestsVS.pch will be the pre-compiled header
+// osuCrypto_TestsVS.pch will be the pre-compiled header
 // stdafx.obj will contain the pre-compiled type information
 
 #include "stdafx.h"

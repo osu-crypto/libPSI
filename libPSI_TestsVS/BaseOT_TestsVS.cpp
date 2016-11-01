@@ -6,18 +6,18 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace libPSI_tests
+namespace osuCrypto_tests
 {
-	TEST_CLASS(BaseOT_Tests)
-	{
-	public:
-	
-		TEST_METHOD(NaorPinkasOt_TestVS)
-		{
-			InitDebugPrinting();
-			NaorPinkasOt_Test_Impl();
-		} 
+    TEST_CLASS(BaseOT_Tests)
+    {
+    public:
+    
+        TEST_METHOD(NaorPinkasOt_TestVS)
+        {
+            InitDebugPrinting();
+            NaorPinkasOt_Test_Impl();
+        } 
 
-	};
+    };
 }
 #endif

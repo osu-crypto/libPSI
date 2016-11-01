@@ -10,85 +10,85 @@
 #include "boost/asio.hpp"
 #include "Network/BtIOService.h"
 
-namespace libPSI { 
+namespace osuCrypto { 
 
-	class WinNetIOService;
-	class ChannelBuffer;
-
-
-	struct BoostIOOperation
-	{
-		enum class Type
-		{
-			RecvName,
-			RecvData,
-			CloseRecv,
-			SendData,
-			CloseSend,
-			CloseThread
-		};
-
-		BoostIOOperation()
-		{
-			clear();
-		}
-
-		BoostIOOperation(const BoostIOOperation& copy)
-		{
-			mType = copy.mType;
-			mSize = copy.mSize;
-			mBuffs[0] = boost::asio::buffer(&mSize, sizeof(u32));
-			mBuffs[1] = copy.mBuffs[1];
-			mOther = copy.mOther;
-			mPromise = copy.mPromise;
-		}
-
-		void clear()
-		{
-			mType = (Type)0;
-			mSize = 0; 
-			mBuffs[0] = boost::asio::buffer(&mSize, sizeof(u32));
-			mBuffs[1] = boost::asio::mutable_buffer();
-			mOther = nullptr;
-			mPromise = nullptr;
-		} 
+    class WinNetIOService;
+    class ChannelBuffer;
 
 
-		std::array<boost::asio::mutable_buffer,2> mBuffs;
-		Type mType;
-		u32 mSize;
+    struct BoostIOOperation
+    {
+        enum class Type
+        {
+            RecvName,
+            RecvData,
+            CloseRecv,
+            SendData,
+            CloseSend,
+            CloseThread
+        };
 
-		void* mOther;
-		std::promise<void>* mPromise;
-		std::exception_ptr mException;
-		//std::function<void()> mCallback;
-	};
+        BoostIOOperation()
+        {
+            clear();
+        }
+
+        BoostIOOperation(const BoostIOOperation& copy)
+        {
+            mType = copy.mType;
+            mSize = copy.mSize;
+            mBuffs[0] = boost::asio::buffer(&mSize, sizeof(u32));
+            mBuffs[1] = copy.mBuffs[1];
+            mOther = copy.mOther;
+            mPromise = copy.mPromise;
+        }
+
+        void clear()
+        {
+            mType = (Type)0;
+            mSize = 0; 
+            mBuffs[0] = boost::asio::buffer(&mSize, sizeof(u32));
+            mBuffs[1] = boost::asio::mutable_buffer();
+            mOther = nullptr;
+            mPromise = nullptr;
+        } 
+
+
+        std::array<boost::asio::mutable_buffer,2> mBuffs;
+        Type mType;
+        u32 mSize;
+
+        void* mOther;
+        std::promise<void>* mPromise;
+        std::exception_ptr mException;
+        //std::function<void()> mCallback;
+    };
 
 
 
-	class BtSocket
-	{
-	public:
-		BtSocket(BtIOService& ios);
+    class BtSocket
+    {
+    public:
+        BtSocket(BtIOService& ios);
 
-		boost::asio::ip::tcp::socket mHandle;
-		boost::asio::strand mSendStrand, mRecvStrand;
+        boost::asio::ip::tcp::socket mHandle;
+        boost::asio::strand mSendStrand, mRecvStrand;
 
-		std::deque<BoostIOOperation> mSendQueue, mRecvQueue;
-		bool mStopped;
+        std::deque<BoostIOOperation> mSendQueue, mRecvQueue;
+        bool mStopped;
 
-		std::atomic<u64> mOutstandingSendData, mMaxOutstandingSendData, mTotalSentData;
-	};
+        std::atomic<u64> mOutstandingSendData, mMaxOutstandingSendData, mTotalSentData;
+    };
 
-	inline BtSocket::BtSocket(BtIOService& ios) :
-		mHandle(ios.mIoService),
-		mSendStrand(ios.mIoService),
-		mRecvStrand(ios.mIoService),
-		mStopped(false),
-		mOutstandingSendData(0),
-		mMaxOutstandingSendData(0),
-		mTotalSentData(0)
-	{}
+    inline BtSocket::BtSocket(BtIOService& ios) :
+        mHandle(ios.mIoService),
+        mSendStrand(ios.mIoService),
+        mRecvStrand(ios.mIoService),
+        mStopped(false),
+        mOutstandingSendData(0),
+        mMaxOutstandingSendData(0),
+        mTotalSentData(0)
+    {}
 
 
 }

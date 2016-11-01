@@ -1,5 +1,5 @@
 #pragma once
-#include "OT/OTExtInterface.h"
+#include "OT/TwoChooseOne/OTExtInterface.h"
 #ifdef GetMessage
 #undef GetMessage
 #endif
@@ -8,30 +8,30 @@
 #include <unordered_map> 
 #include "Crypto/PRNG.h"
 
-using namespace libPSI;
+using namespace osuCrypto;
 
 
 class OTOracleSender :
-	public OtExtSender
+    public OtExtSender
 {
 public:
-	OTOracleSender(const block& seed);
-	~OTOracleSender();
-	PRNG mPrng;
-	bool hasBaseOts() const override { return true; }
+    OTOracleSender(const block& seed);
+    ~OTOracleSender();
+    PRNG mPrng;
+    bool hasBaseOts() const override { return true; }
 
-	void setBaseOts(
-		ArrayView<block> baseRecvOts,
-		const BitVector& choices) override {};
+    void setBaseOts(
+        ArrayView<block> baseRecvOts,
+        const BitVector& choices) override {};
 
-	std::unique_ptr<OtExtSender> split() override
-	{
-		std::unique_ptr<OtExtSender> ret(new OTOracleSender(mPrng.get_block()));
-		return std::move(ret);
-	}
+    std::unique_ptr<OtExtSender> split() override
+    {
+        std::unique_ptr<OtExtSender> ret(new OTOracleSender(mPrng.get<block>()));
+        return std::move(ret);
+    }
 
-	void send(
-		ArrayView<std::array<block,2>> messages,
-		PRNG& prng,
-		Channel& chl) override;
+    void send(
+        ArrayView<std::array<block,2>> messages,
+        PRNG& prng,
+        Channel& chl) override;
 };

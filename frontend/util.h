@@ -3,6 +3,6 @@
 
 
 #include "Network/Channel.h"
-void senderGetLatency(libPSI::Channel& chl);
+void senderGetLatency(osuCrypto::Channel& chl);
 
-void recverGetLatency(libPSI::Channel& chl);
+void recverGetLatency(osuCrypto::Channel& chl);

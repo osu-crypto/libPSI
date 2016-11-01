@@ -13,7 +13,7 @@
 #include "Crypto/PRNG.h"
 #include <fstream>
 
-using namespace libPSI;
+using namespace osuCrypto;
 std::vector<u32> numThreadss{/*1, 4,16,*/ 64 };
 u64 numTrial(1);
 std::vector<u32> pows{ 8,12,16,20 };
@@ -21,223 +21,223 @@ std::vector<u32> pows{ 8,12,16,20 };
 void DktSend()
 {
 
-		Log::out << "role  = sender Dkt" << Log::endl;
+        Log::out << "role  = sender Dkt" << Log::endl;
 
-	Log::setThreadName("CP_Test_Thread");
+    Log::setThreadName("CP_Test_Thread");
 
-	std::fstream online, offline;
-	online.open("./online.txt", online.trunc | online.out);
-	offline.open("./offline.txt", offline.trunc | offline.out);
-
-
-
-	std::string name("psi");
-
-	for (auto numThreads : numThreadss)
-	{
-
-		BtIOService ios(0);
-		BtEndpoint sendEP(ios, "localhost", 1212, true, name);
-		std::vector<Channel*> sendChls(numThreads);
-
-		for (u64 i = 0; i < numThreads; ++i)
-		{
-			sendChls[i] = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-		}
-
-		u8 dummy[1];
-
-
-		for (auto pow : pows)
-		{
-
-			u64 offlineTimeTot(0);
-			u64 onlineTimeTot(0);
-			//for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
-			for (u64 jj = 0; jj < numTrial; jj++)
-			{
-
-				//u64 repeatCount = 1;
-				u64 setSize = (1 << pow), psiSecParam = 40;
-				PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
-
-				std::vector<block> sendSet;
-				sendSet.resize(setSize);
-
-				for (u64 i = 0; i < setSize; ++i)
-				{
-					sendSet[i] = prng.get_block();
-				}
+    std::fstream online, offline;
+    online.open("./online.txt", online.trunc | online.out);
+    offline.open("./offline.txt", offline.trunc | offline.out);
 
 
 
+    std::string name("psi");
+
+    for (auto numThreads : numThreadss)
+    {
+
+        BtIOService ios(0);
+        BtEndpoint sendEP(ios, "localhost", 1212, true, name);
+        std::vector<Channel*> sendChls(numThreads);
+
+        for (u64 i = 0; i < numThreads; ++i)
+        {
+            sendChls[i] = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        }
+
+        u8 dummy[1];
 
 
-				DktMPsiSender sendPSIs;
+        for (auto pow : pows)
+        {
 
-				gTimer.reset();
-				Timer timer;
+            u64 offlineTimeTot(0);
+            u64 onlineTimeTot(0);
+            //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
+            for (u64 jj = 0; jj < numTrial; jj++)
+            {
 
-				//auto start = timer.setTimePoint("sender.Start");
-				sendPSIs.init(setSize, psiSecParam, prng.get_block());
-				//auto mid = timer.setTimePoint("sender.InitDOne");
-				sendChls[0]->asyncSend(dummy, 1);
-
-				sendPSIs.sendInput(sendSet, sendChls);
-				//auto end = timer.setTimePoint("sender.Done");
-
-				u64 dataSent = 0;
-				for (u64 g = 0; g < sendChls.size(); ++g)
-				{
-					dataSent += sendChls[g]->getTotalDataSent();
-				}
-
-				//std::accumulate(sendChls[0]->getTotalDataSent())
-
-				Log::out << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << Log::endl;
-				for (u64 g = 0; g < sendChls.size(); ++g)
-					sendChls[g]->resetStats();
+                //u64 repeatCount = 1;
+                u64 setSize = (1 << pow), psiSecParam = 40;
+                PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
-				//auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
-				//auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+                std::vector<block> sendSet;
+                sendSet.resize(setSize);
 
-				//Log::out << setSize << "  " << offlineTime << "  " << Log::endl;
-
-
-			}
-
-		}
+                for (u64 i = 0; i < setSize; ++i)
+                {
+                    sendSet[i] = prng.get<block>();
+                }
 
 
-		for (u64 i = 0; i < numThreads; ++i)
-		{
-			sendChls[i]->close();// = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-		}
-		sendEP.stop();
-		ios.stop();
-	}
-	//sendChl.close();
-	//recvChl.close();
+
+
+
+                DktMPsiSender sendPSIs;
+
+                gTimer.reset();
+                Timer timer;
+
+                //auto start = timer.setTimePoint("sender.Start");
+                sendPSIs.init(setSize, psiSecParam, prng.get<block>());
+                //auto mid = timer.setTimePoint("sender.InitDOne");
+                sendChls[0]->asyncSend(dummy, 1);
+
+                sendPSIs.sendInput(sendSet, sendChls);
+                //auto end = timer.setTimePoint("sender.Done");
+
+                u64 dataSent = 0;
+                for (u64 g = 0; g < sendChls.size(); ++g)
+                {
+                    dataSent += sendChls[g]->getTotalDataSent();
+                }
+
+                //std::accumulate(sendChls[0]->getTotalDataSent())
+
+                Log::out << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << Log::endl;
+                for (u64 g = 0; g < sendChls.size(); ++g)
+                    sendChls[g]->resetStats();
+
+
+                //auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+                //auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+
+                //Log::out << setSize << "  " << offlineTime << "  " << Log::endl;
+
+
+            }
+
+        }
+
+
+        for (u64 i = 0; i < numThreads; ++i)
+        {
+            sendChls[i]->close();// = &sendEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        }
+        sendEP.stop();
+        ios.stop();
+    }
+    //sendChl.close();
+    //recvChl.close();
 
 
 }
 
 void DktRecv()
 {
-	u8 dummy[1];
+    u8 dummy[1];
 
-	Log::setThreadName("CP_Test_Thread");
+    Log::setThreadName("CP_Test_Thread");
 
-	std::fstream online, offline;
-	online.open("./online.txt", online.trunc | online.out);
-	offline.open("./offline.txt", offline.trunc | offline.out);
+    std::fstream online, offline;
+    online.open("./online.txt", online.trunc | online.out);
+    offline.open("./offline.txt", offline.trunc | offline.out);
 
-	std::string name("psi");
-
-
-	for (auto numThreads : numThreadss)
-	{
-		BtIOService ios(0);
-		BtEndpoint recvEP(ios, "localhost", 1212, false, name);
-		std::vector<Channel*> recvChls;
-		recvChls.resize(numThreads);
-		for (u64 i = 0; i < numThreads; ++i)
-		{
-			recvChls[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-		}
-
-		Log::out << "role  = recv(" << numThreads << ") Dkt" << Log::endl;
-
-		for (auto pow : pows)
-		{
-
-			u64 offlineTimeTot(0);
-			u64 onlineTimeTot(0);
-			//for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
-			for (u64 jj = 0; jj < numTrial; jj++)
-			{
-
-				//u64 repeatCount = 1;
-				u64 setSize = (1 << pow), psiSecParam = 40;
-				PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+    std::string name("psi");
 
 
-				std::vector<block> sendSet(setSize), recvSet(setSize);
+    for (auto numThreads : numThreadss)
+    {
+        BtIOService ios(0);
+        BtEndpoint recvEP(ios, "localhost", 1212, false, name);
+        std::vector<Channel*> recvChls;
+        recvChls.resize(numThreads);
+        for (u64 i = 0; i < numThreads; ++i)
+        {
+            recvChls[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        }
+
+        Log::out << "role  = recv(" << numThreads << ") Dkt" << Log::endl;
+
+        for (auto pow : pows)
+        {
+
+            u64 offlineTimeTot(0);
+            u64 onlineTimeTot(0);
+            //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
+            for (u64 jj = 0; jj < numTrial; jj++)
+            {
+
+                //u64 repeatCount = 1;
+                u64 setSize = (1 << pow), psiSecParam = 40;
+                PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
-
-
-				for (u64 i = 0; i < setSize; ++i)
-				{
-					sendSet[i] = recvSet[i] = prng.get_block();
-				}
+                std::vector<block> sendSet(setSize), recvSet(setSize);
 
 
 
-				DktMPsiReceiver recvPSIs;
+
+                for (u64 i = 0; i < setSize; ++i)
+                {
+                    sendSet[i] = recvSet[i] = prng.get<block>();
+                }
 
 
 
-				gTimer.reset();
-
-				u64 otIdx = 0;
-
-
-				Timer timer;
-				auto start = timer.setTimePoint("start");
-				recvPSIs.init(setSize, psiSecParam, ZeroBlock);
-
-				recvChls[0]->recv(dummy, 1);
-				auto mid = timer.setTimePoint("init");
+                DktMPsiReceiver recvPSIs;
 
 
 
-				recvPSIs.sendInput(recvSet, recvChls);
-				auto end = timer.setTimePoint("done");
+                gTimer.reset();
 
-				auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
-				auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+                u64 otIdx = 0;
 
 
-				offlineTimeTot += offlineTime;
-				onlineTimeTot += onlineTime;
-				Log::out << setSize << "  " << offlineTime << "  " << onlineTime << Log::endl;
+                Timer timer;
+                auto start = timer.setTimePoint("start");
+                recvPSIs.init(setSize, psiSecParam, ZeroBlock);
+
+                recvChls[0]->recv(dummy, 1);
+                auto mid = timer.setTimePoint("init");
 
 
 
-				u64 dataSent = 0;
-				for (u64 g = 0; g < recvChls.size(); ++g)
-				{
-					dataSent += recvChls[g]->getTotalDataSent();
-					
+                recvPSIs.sendInput(recvSet, recvChls);
+                auto end = timer.setTimePoint("done");
 
-					//Log::out << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << Log::endl;
-				}
+                auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+                auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-				double time = offlineTime + onlineTime;
-				time /= 1000;
-				auto Mbps = dataSent * 8 / time / (1 << 20);
 
-				Log::out << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB" << Log::endl;
+                offlineTimeTot += offlineTime;
+                onlineTimeTot += onlineTime;
+                Log::out << setSize << "  " << offlineTime << "  " << onlineTime << Log::endl;
 
-				for (u64 g = 0; g < recvChls.size(); ++g)
-					recvChls[g]->resetStats();
 
-			}
 
-			online << onlineTimeTot / numTrial << "-";
-			offline << offlineTimeTot / numTrial << "-";
-		}
+                u64 dataSent = 0;
+                for (u64 g = 0; g < recvChls.size(); ++g)
+                {
+                    dataSent += recvChls[g]->getTotalDataSent();
+                    
 
-		for (u64 i = 0; i < numThreads; ++i)
-		{
-			recvChls[i]->close();
-		}
-		recvEP.stop();	
-		ios.stop();
-	}
+                    //Log::out << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << Log::endl;
+                }
+
+                double time = offlineTime + onlineTime;
+                time /= 1000;
+                auto Mbps = dataSent * 8 / time / (1 << 20);
+
+                Log::out << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB" << Log::endl;
+
+                for (u64 g = 0; g < recvChls.size(); ++g)
+                    recvChls[g]->resetStats();
+
+            }
+
+            online << onlineTimeTot / numTrial << "-";
+            offline << offlineTimeTot / numTrial << "-";
+        }
+
+        for (u64 i = 0; i < numThreads; ++i)
+        {
+            recvChls[i]->close();
+        }
+        recvEP.stop();    
+        ios.stop();
+    }
 
 }
 

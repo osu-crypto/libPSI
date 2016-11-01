@@ -90,41 +90,8 @@
     <ClCompile Include="Common\Log.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="OT\KosOtExtReceiver.cpp">
-      <Filter>Source Files\OT</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\KosOtExtSender.cpp">
-      <Filter>Source Files\OT</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\IknpOtExtSender.cpp">
-      <Filter>Source Files\OT</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\IknpOtExtReceiver.cpp">
-      <Filter>Source Files\OT</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\AknOtSender.cpp">
-      <Filter>Source Files\OT</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\AknOtReceiver.cpp">
-      <Filter>Source Files\OT</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\Base\Tools.cpp">
-      <Filter>Source Files\OT\Base\Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="MPSI\AknBfMPsiReceiver.cpp">
-      <Filter>Source Files\MPSI</Filter>
-    </ClCompile>
-    <ClCompile Include="MPSI\AknBfMPsiSender.cpp">
-      <Filter>Source Files\MPSI</Filter>
-    </ClCompile>
     <ClCompile Include="OT\Base\naor-pinkas.cpp">
       <Filter>Source Files\OT\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\LzKosOtExtSender.cpp">
-      <Filter>Source Files\OT</Filter>
-    </ClCompile>
-    <ClCompile Include="OT\LzKosOtExtReceiver.cpp">
-      <Filter>Source Files\OT</Filter>
     </ClCompile>
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiSender.cpp">
       <Filter>Source Files\MPSI\Dcw</Filter>
@@ -168,6 +135,69 @@
     <ClCompile Include="Crypto\Curve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MPSI\Beta\OtBinMPsiReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Beta\OtBinMPsiSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Beta\SimpleHasher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\Tools\Tools.cpp">
+      <Filter>Source Files\OT\Base\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\Tools\BchCode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\NChooseK\AknOtReceiver.cpp">
+      <Filter>Source Files\OT</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\NChooseK\AknOtSender.cpp">
+      <Filter>Source Files\OT</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\TwoChooseOne\IknpOtExtReceiver.cpp">
+      <Filter>Source Files\OT</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\TwoChooseOne\IknpOtExtSender.cpp">
+      <Filter>Source Files\OT</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\TwoChooseOne\KosOtExtReceiver.cpp">
+      <Filter>Source Files\OT</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\TwoChooseOne\KosOtExtSender.cpp">
+      <Filter>Source Files\OT</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\TwoChooseOne\LzKosOtExtReceiver.cpp">
+      <Filter>Source Files\OT</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\TwoChooseOne\LzKosOtExtSender.cpp">
+      <Filter>Source Files\OT</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\NChooseOne\KkrtNcoOtReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\NChooseOne\KkrtNcoOtSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Beta\CuckooHasher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\NChooseOne\Oos\OosNcoOtSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OT\NChooseOne\Oos\OosNcoOtReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Crypto\sha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\ByteStream.h">
@@ -200,53 +230,17 @@
     <ClInclude Include="Crypto\sha1.h">
       <Filter>Header Files\Crypto</Filter>
     </ClInclude>
-    <ClInclude Include="OT\OTExtInterface.h">
-      <Filter>Header Files\OT</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Log.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\ArrayView.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="OT\KosOtExtReceiver.h">
-      <Filter>Header Files\OT</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\KosOtExtSender.h">
-      <Filter>Header Files\OT</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\IknpOtExtReceiver.h">
-      <Filter>Header Files\OT</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\IknpOtExtSender.h">
-      <Filter>Header Files\OT</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\AknOtSender.h">
-      <Filter>Header Files\OT</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\AknOtReceiver.h">
-      <Filter>Header Files\OT</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\Base\Tools.h">
-      <Filter>Header Files\OT\Base\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="MPSI\AknBfMPsiReceiver.h">
-      <Filter>Header Files\MPSI</Filter>
-    </ClInclude>
-    <ClInclude Include="MPSI\AknBfMPsiSender.h">
-      <Filter>Header Files\MPSI</Filter>
-    </ClInclude>
     <ClInclude Include="Common\BitIterator.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
     <ClInclude Include="OT\Base\naor-pinkas.h">
       <Filter>Header Files\OT\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\LzKosOtExtSender.h">
-      <Filter>Header Files\OT</Filter>
-    </ClInclude>
-    <ClInclude Include="OT\LzKosOtExtReceiver.h">
-      <Filter>Header Files\OT</Filter>
     </ClInclude>
     <ClInclude Include="MPSI\Dcw\DcwBfPsiReceiver.h">
       <Filter>Header Files\MPSI\Dcw</Filter>
@@ -293,5 +287,83 @@
     <ClInclude Include="Crypto\Curve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MPSI\Beta\OtBinMPsiReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Beta\OtBinMPsiSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Beta\SimpleHasher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\Tools\Tools.h">
+      <Filter>Header Files\OT\Base\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\Tools\BchCode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseK\AknOtReceiver.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseK\AknOtSender.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\TwoChooseOne\IknpOtExtReceiver.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\TwoChooseOne\IknpOtExtSender.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\TwoChooseOne\KosOtExtReceiver.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\TwoChooseOne\KosOtExtSender.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\TwoChooseOne\LzKosOtExtReceiver.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\TwoChooseOne\LzKosOtExtSender.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\KkrtNcoOtReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\KkrtNcoOtSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\MatrixView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr16\AknBfMPsiReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\TwoChooseOne\OTExtInterface.h">
+      <Filter>Header Files\OT</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\NcoOtExt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Beta\CuckooHasher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\KkrtDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\Oos\OosDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\Oos\OosNcoOtReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OT\NChooseOne\Oos\OosNcoOtSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Crypto\asm\sha_win64.asm" />
   </ItemGroup>
 </Project>

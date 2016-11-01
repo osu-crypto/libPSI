@@ -8,77 +8,56 @@
 #define RAND_SIZE   AES_BLK_SIZE
 
 
-namespace libPSI
+namespace osuCrypto
 {
 
-	class PRNG
-	{
-	public:
+    class PRNG
+    {
+    public:
 
-		block mSeed;
-		std::vector<block> mBuffer, mIndexArray;
-
-		AES mAes;
-		u64 mBytesIdx, mBlockIdx, mBufferByteCapacity;
-
-		void refillBuffer();
-		//block seed;
-		//u8 state[SEED_SIZE];
-		//u8 random[RAND_SIZE];
+        block mSeed;
+        std::vector<block> mBuffer, mIndexArray;
+        AES mAes;
+        u64 mBytesIdx, mBlockIdx, mBufferByteCapacity;
+        void refillBuffer();
 
 
-		//AES mKeyShedule;
 
-		//u64 cnt;    // How many bytes of the current random value have been used
-
-		//void hash(); // Hashes state to random and sets cnt=0
-		//void next();
-
-
-		PRNG();
-		PRNG(const block& seed);
-		PRNG(const PRNG&) = delete;
-		
-		// For debugging
-		void print_state() const;
-
-		// Set seed from dev/random
-		//void ReSeed();
-
-		// Set seed from array
-		void SetSeed(const block& b);
-
-		__m128i get_block();
-		blockRIOT get_block512(u64 length);
-		double get_double();
-		u8 get_uchar();
-		u32 get_u32();
-		u8 get_bit() { return get_uchar() & 1; }
-		//bigint randomBnd(const bigint& B);
-		//modp get_modp(const Zp_Data& ZpD);
-		u64 get_u64()
-		{
-			u64 a;
-			get_u8s((u8*)&a, sizeof(a));
-			return a;
-		}
-		//void get_ByteStream(ByteStream& ans, u64 len);
-		void get_u8s(u8* ans, u64 len);
-
-		const block get_seed() const
-		{
-			return mSeed;
-		}
+        PRNG();
+        PRNG(const block& seed);
+        PRNG(const PRNG&) = delete;
+        PRNG(PRNG&& s);
 
 
-		typedef u64 result_type;
-		static u64 min() { return 0; }
-		static u64 max() { return (u64)-1; }
-		u64 operator()() {
-			return get_u64();
-		}
-		u64 operator()(u64 mod) {
-			return get_u64() % mod;
-		}
-	};
+        // Set seed from array
+        void SetSeed(const block& b);
+        const block getSeed() const;
+
+
+        template<typename T>
+        T get()
+        {
+            static_assert(std::is_pod<T>::value, "T must be POD");
+            T ret;
+            get((u8*)&ret, sizeof(T));
+            return ret;
+        }
+
+
+        u8 getBit() { return get<u8>() & 1; }
+        void get(u8* ans, u64 len);
+
+
+
+
+        typedef u32 result_type;
+        static result_type min() { return 0; }
+        static result_type max() { return (result_type)-1; }
+        result_type operator()() {
+            return get<result_type>();
+        }
+        result_type operator()(int mod) {
+            return get<result_type>() % mod;
+        }
+    };
 }
