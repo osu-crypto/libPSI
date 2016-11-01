@@ -1,3 +1,3 @@
 #pragma once
 
-#define AES_HASH
+//#define AES_HASH

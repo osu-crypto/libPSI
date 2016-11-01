@@ -12,4 +12,6 @@ namespace osuCrypto {
     void sse_transpose128(std::array<block, 128>& inOut);
     void print(std::array<block, 128>& inOut);
     u8 getBit(std::array<block, 128>& inOut, u64 i, u64 j);
+
+    void sse_transpose128x1024(std::array<std::array<block, 8>, 128>& inOut);
 }

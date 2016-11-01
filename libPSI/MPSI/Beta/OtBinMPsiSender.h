@@ -14,7 +14,7 @@ namespace osuCrypto
 
 
         //static const u64 CodeWordSize = 7;
-        static const u64 hasherStepSize = 128;
+        //static const u64 hasherStepSize;
 
         OtBinMPsiSender();
         ~OtBinMPsiSender();

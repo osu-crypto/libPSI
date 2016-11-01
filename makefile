@@ -25,7 +25,7 @@ PRIMARYTESTS_LIB=$(BINARYDIR)/libPSITests.a
 SOLUTION_DIR = $(shell pwd)
 PREPROCESSOR_MACROS += SOLUTION_DIR=\"$(SOLUTION_DIR)\"
 
-SRC= $(SOLUTION_DIR)
+SRC= .
 
 FRONTEND_DIR=$(SRC)/frontend
 PRIMARY_DIR=$(SRC)/libPSI/
@@ -39,30 +39,30 @@ FRONTEND_OBJ=$(addprefix $(BINARYDIR)/,$(FRONTEND_SRC:.cpp=.o))
 PRIMARY_SRC=\
 	$(call rwildcard, $(PRIMARY_DIR), *.cpp)
 
-#	$(wildcard $(PRIMARY_DIR)/Common/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/Crypto/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/MPSI/Rr16/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/MPSI/Beta/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/MPSI/Dcw/*.cpp)\
-#	$(wildcard $(PRIMARY_DIR)/MPSI/DKT/*.cpp)\
-#	$(wildcard $(PRIMARY_DIR)/RiotPSI/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/OT/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/OT/NChooseK/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/OT/NChooseOne/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/OT/TwoChooseOne/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/OT/Tools/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/OT/Base/*.cpp) \
-#	$(wildcard $(PRIMARY_DIR)/Network/*.cpp) 
+PRIMARY_SRC_C=\
+	$(call rwildcard, $(PRIMARY_DIR), *.c)
 
 
-PRIMARY_OBJ=$(addprefix $(BINARYDIR)/,$(PRIMARY_SRC:.cpp=.o)) 
-PRIMARY_H=$(PRIMARY_SRC:.cpp=.h)
+PRIMARY_ASM=\
+	$(call rwildcard, $(PRIMARY_DIR), *.S)
+
+
+
+PRIMARY_OBJ=\
+	$(addprefix $(BINARYDIR)/,$(PRIMARY_SRC:.cpp=.o)) \
+	$(addprefix $(BINARYDIR)/,$(PRIMARY_SRC_C:.c=.o)) \
+	$(addprefix $(BINARYDIR)/,$(PRIMARY_ASM:.S=.asm.o)) 
+
+#PRIMARY_H=\
+#	$(PRIMARY_SRC:.cpp=.h)\
+#	$(PRIMARY_SRC_C:.c=.h)
 
 PRIMARYTESTS_SRC=$(wildcard $(PRIMARYTESTS_DIR)/*.cpp) 
 PRIMARYTESTS_OBJ=$(addprefix $(BINARYDIR)/,$(PRIMARYTESTS_SRC:.cpp=.o))
 PRIMARYTESTS_H=$(PRIMARYTESTS_SRC:.cpp=.h)
 
-
+NASMFLAGS?=-f elf64 
+NASM?=nasm
 
 TPL=thirdparty/linux
 BOOST=thirdparty/linux/boost
@@ -84,7 +84,7 @@ LIB=\
 	-lpthread\
 	-lrt
 
-EXPORTHEADS=$(PRIMARY_H) $(PRIMARYTESTS_H)
+#EXPORTHEADS=$(PRIMARY_H) $(PRIMARYTESTS_H)
 
 
 LDFLAGS += $(COMMONFLAGS)
@@ -111,7 +111,6 @@ PRIMARY_OUTPUTS := \
 
 
 all: $(PRIMARY_OUTPUTS)
-	
 
 clean: 
 	echo $(BINARYDIR)
@@ -130,10 +129,17 @@ $(BINARYDIR)/$(TARGETNAME): $(FRONTEND_OBJ) $(EXTERNAL_LIBS) $(PRIMARY_LIB) $(PR
 #	 -Wl,--verbose
 
 
+$(BINARYDIR)/%.asm.o : %.S $(all_make_files) |$(BINARYDIR)
+	@mkdir -p $(dir $@)
+	$(NASM) $(NASMFLAGS) $< -o $@ 
 
 $(BINARYDIR)/%.o : %.cpp $(all_make_files) |$(BINARYDIR)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@ -MD -MF $(@:.o=.dep)
+
+$(BINARYDIR)/%.o : %.c $(all_make_files) |$(BINARYDIR)
+	@mkdir -p $(dir $@)
+	$gcc $(CXXFLAGS) -c $< -o $@ -MD -MF $(@:.o=.dep)
 
 $(PRIMARY_LIB): $(PRIMARY_OBJ) | $(BINARYDIR)
 	$(AR) $(ARFLAGS) $@ $(PRIMARY_OBJ) 

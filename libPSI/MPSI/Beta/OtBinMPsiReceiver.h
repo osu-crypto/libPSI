@@ -15,7 +15,7 @@ namespace osuCrypto
         ~OtBinMPsiReceiver();
         
         //static const u64 CodeWordSize = 7;
-        static const u64 hasherStepSize = 128;
+        //static const u64 hasherStepSize;
 
         u64 mN,mStatSecParam, mNcoInputBlkSize, mOtMsgBlkSize;
         block mHashingSeed;

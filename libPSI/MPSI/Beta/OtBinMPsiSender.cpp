@@ -12,6 +12,7 @@ namespace osuCrypto
     OtBinMPsiSender::OtBinMPsiSender()
     {
     }
+    //const u64 OtBinMPsiSender::hasherStepSize(128);
 
 
     OtBinMPsiSender::~OtBinMPsiSender()
@@ -320,10 +321,11 @@ namespace osuCrypto
                 for (u64 i = 0; i < ncoInputHasher.size(); ++i)
                     ncoInputHasher[i].setKey(_mm_set1_epi64x(i) ^ mHashingSeed);
 
+                u64 phaseShift = log2ceil(mN) / 8;
 
-                for (u64 i = startIdx; i < endIdx; i += hasherStepSize)
+                for (u64 i = startIdx; i < endIdx; i += 128)
                 {
-                    auto currentStepSize = std::min(hasherStepSize, inputs.size() - i);
+                    auto currentStepSize = std::min(u64(128), inputs.size() - i);
 
                     for (u64 hashIdx = 0; hashIdx < ncoInputHasher.size(); ++hashIdx)
                     {
@@ -339,6 +341,14 @@ namespace osuCrypto
                     {
                         block& item = ncoInputBuff[0][i + j];
                         u64 addr = *(u64*)&item % mBins.mBinCount;
+
+                        // implements phase. Note that we are doing very course phasing. 
+                        // At the byte level. This is good enough for use. Since we just 
+                        // need things tp be smaller than 76 bits.
+                        if(phaseShift == 3)
+                            ncoInputBuff[0][i + j] = _mm_srli_si128(item, 3);
+                        else// if (phaseShift <= 2)
+                            ncoInputBuff[0][i + j] = _mm_srli_si128(item, 2);
 
                         std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
                         mBins.mBins[addr].emplace_back(i + j);

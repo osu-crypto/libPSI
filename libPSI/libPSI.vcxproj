@@ -71,6 +71,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Crypto\sha.cpp" />
     <ClCompile Include="MPSI\Beta\CuckooHasher.cpp" />
     <ClCompile Include="OT\NChooseOne\KkrtNcoOtReceiver.cpp" />
     <ClCompile Include="OT\NChooseOne\KkrtNcoOtSender.cpp" />
@@ -169,6 +170,15 @@
     <ClInclude Include="MPSI\Dcw\DcwBfPsiSender.h" />
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiReceiver.h" />
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiSender.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Crypto\asm\sha_win64.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\NASM\nasm.exe $(SolutionDir)\libPSI\Crypto\asm\sha_win64.asm -f win64 -DWIN_ABI -o $(SolutionDir)\libPSI\x64\$(Configuration)\sha_win64.obj</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\NASM\nasm.exe $(SolutionDir)\libPSI\Crypto\asm\sha_win64.asm -f win64 -DWIN_ABI -o $(SolutionDir)\libPSI\x64\$(Configuration)\sha_win64.obj</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\libPSI\x64\$(Configuration)\sha_win64.obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\libPSI\x64\$(Configuration)\sha_win64.obj</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

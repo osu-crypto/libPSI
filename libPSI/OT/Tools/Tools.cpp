@@ -234,6 +234,8 @@ namespace osuCrypto {
         return temp[j];
 
     }
+
+
     
     void sse_transpose128(array<block, 128>& inOut)
     {
@@ -252,6 +254,81 @@ namespace osuCrypto {
                 sse_transposeSubSquare(inOut, b, k, j);
             }
         }
+    }
+
+
+
+
+    inline void sse_loadSubSquarex(array<array<block, 8>, 128>& in, array<block, 2>& out, u64 x, u64 y, u64 i)
+    {
+        typedef array<array<u8, 16>, 2> OUT_t;
+        typedef array<array<u8, 128>, 128> IN_t;
+
+        static_assert(sizeof(OUT_t) == sizeof(array<block, 2>), "");
+        static_assert(sizeof(IN_t) == sizeof(array<array<block, 8>, 128>), "");
+
+        OUT_t& outByteView = *(OUT_t*)&out;
+        IN_t& inByteView = *(IN_t*)&in;
+
+        auto x16 = (x * 16);
+
+        auto i16y2 =  (i * 16) + 2 * y;
+        auto i16y21 = (i * 16) + 2 * y + 1;
+
+        for (int l = 0; l < 16; l++)
+        {
+            outByteView[0][l] = inByteView[x16 + l][i16y2];
+            outByteView[1][l] = inByteView[x16 + l][i16y21];
+        }
+    }
+
+
+
+    inline void sse_transposeSubSquarex(array<array<block, 8>, 128>& out, array<block, 2>& in, u64 x, u64 y, u64 i)
+    {
+        static_assert(sizeof(array<array<u16, 64>, 128>) == sizeof(array<array<block, 8>, 128>), "");
+
+        array<array<u16, 64>, 128>& outU16View = *(array<array<u16, 64>, 128>*)&out;
+
+        auto i8y = i * 8 + y;
+        auto x16_7 = x * 16 + 7;
+        auto x16_15 = x * 16 + 15;
+
+        for (int j = 0; j < 8; j++)
+        {
+            outU16View[x16_7 - j] [i8y] = _mm_movemask_epi8(in[0]);
+            outU16View[x16_15 - j][i8y] = _mm_movemask_epi8(in[1]);
+
+            in[0] = _mm_slli_epi64(in[0], 1);
+            in[1] = _mm_slli_epi64(in[1], 1);
+        }
+    }
+
+
+    // we have long rows of contiguous data data, 128 columns
+    void sse_transpose128x1024(array<array<block, 8>, 128>& inOut)
+    {
+        array<block, 2> a, b;
+
+        for (int i = 0; i < 8; ++i)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                sse_loadSubSquarex(inOut, a, j, j, i);
+                sse_transposeSubSquarex(inOut, a, j, j, i);
+
+                for (int k = 0; k < j; k++)
+                {
+                    sse_loadSubSquarex(inOut, a, k, j, i);
+                    sse_loadSubSquarex(inOut, b, j, k, i);
+                    sse_transposeSubSquarex(inOut, a, j, k, i);
+                    sse_transposeSubSquarex(inOut, b, k, j, i);
+                }
+            }
+
+        }
+
+
     }
 }
 

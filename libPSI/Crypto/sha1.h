@@ -1,6 +1,7 @@
 #pragma once
 #include "Common/Defines.h"
 #include "cryptopp/sha.h"
+extern void sha1_compress(uint32_t state[5], const uint8_t block[64]);
 
 namespace osuCrypto {
     class SHA1
@@ -12,11 +13,33 @@ namespace osuCrypto {
 
         inline void Reset()
         {
-            mSha.Restart();
+            //mSha.Restart();
+            memset(state, 0, sizeof(u32) * 5);
+            memset(block, 0,sizeof(u8) * 64);
+            idx = 0;
         }
         inline void Update(const u8* dataIn, u64 length)
         {
-            mSha.Update(dataIn, length);
+            //sha1_compress(nullptr, nullptr);
+            //mSha.Update(dataIn, length);
+            while (length)
+            {
+                u64 step = std::min(length, u64(64) - idx);
+
+                memcpy(block + idx, dataIn, step);
+
+                idx += step; 
+                dataIn += step;
+                length -= step;
+
+
+                if (idx == 64)
+                {
+                    sha1_compress(state, block);
+                    idx = 0;
+                }
+
+            }
         }
         inline void Update(const block& blk)
         {
@@ -30,18 +53,27 @@ namespace osuCrypto {
 
         inline void Final(u8* DataOut)
         {
-            mSha.Final(DataOut);
+            if(idx)
+                sha1_compress(state, block);
+
+            idx = 0;
+            memcpy(DataOut, state, sizeof(u32) * 5);
+            //mSha.Final(DataOut);
         }
 
         inline const SHA1& operator=(const SHA1& src)
         {
-            mSha = src.mSha;
+            //mSha = src.mSha;
+            memcpy(state, src.state, sizeof(u32) * 5);
+            memcpy(block, src.block, sizeof(u8) * 64);
             return *this;
         }
 
     private:
-        CryptoPP::SHA1 mSha;
-
+        //CryptoPP::SHA1 mSha;
+        uint32_t state[5];
+        uint8_t block[64];
+        u64 idx;
     };
     
     //u64    SHA1::HashSize(20);

@@ -3,6 +3,7 @@
 #include "Network/Channel.h"
 #include <vector>
 #include "OT/Tools/BchCode.h"
+#include "OT/NChooseOne/KkrtNcoOtReceiver.h"
 #ifdef GetMessage
 #undef GetMessage
 #endif
@@ -10,13 +11,15 @@
 namespace osuCrypto
 {
 
-    class OosNcoOtReceiver : public NcoOtExtReceiver
+    class OosNcoOtReceiver 
+        //: public NcoOtExtReceiver
+        : public KkrtNcoOtReceiver
     {
     public:
 
 
         OosNcoOtReceiver(BchCode& code)
-            :mHasBase(false),
+            :KkrtNcoOtReceiver(),
              mCode(code)
         {}
 
@@ -27,18 +30,18 @@ namespace osuCrypto
 
         BchCode mCode;
 
-        bool mHasBase;
-        std::vector<std::array<PRNG,2>> mGens;
+        //bool mHasBase;
+        //std::vector<std::array<PRNG,2>> mGens;
 
-        void setBaseOts(
-            ArrayView<std::array<block, 2>> baseRecvOts) override;
-        
+        //void setBaseOts(
+        //    ArrayView<std::array<block, 2>> baseRecvOts) override;
+        //
 
-        void init(
-            MatrixView<std::array<block, 2>> correlatedMsgs) override;
+        //void init(
+        //    MatrixView<std::array<block, 2>> correlatedMsgs) override;
 
 
-        std::unique_ptr<NcoOtExtReceiver> split() override;
+        //std::unique_ptr<NcoOtExtReceiver> split() override;
 
         void encode(
             const ArrayView<std::array<block, 2>> correlatedMgs,

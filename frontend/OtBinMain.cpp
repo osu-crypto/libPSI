@@ -12,12 +12,14 @@ using namespace osuCrypto;
 #include "OT/NChooseOne/KkrtNcoOtReceiver.h"
 #include "OT/NChooseOne/KkrtNcoOtSender.h"
 
+#include "OT/NChooseOne/Oos/OosNcoOtReceiver.h"
+#include "OT/NChooseOne/Oos/OosNcoOtSender.h"
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
 #include <numeric>
 
-
+#define OOS
 #define pows  { 16/*8,12,,20*/ }
 #define threadss {1/*1,4,16,64*/}
 
@@ -51,6 +53,9 @@ void otBinSend()
 
     senderGetLatency(*sendChls_[0]);
     sendChls_[0]->resetStats();
+
+    BchCode code;
+    code.loadBinFile(SOLUTION_DIR "/libPSI/OT/Tools/bch511.bin");
 
     //for (auto pow : {/* 8,12,*/ 16/*, 20 */ })
     for (auto pow : pows)
@@ -86,9 +91,13 @@ void otBinSend()
                     sendSet[i] = prng.get<block>();
                 }
 
+#ifdef OOS
+                OosNcoOtReceiver otRecv(code);
+                OosNcoOtSender otSend(code);
+#else
                 KkrtNcoOtReceiver otRecv;
                 KkrtNcoOtSender otSend;
-
+#endif
                 OtBinMPsiSender sendPSIs;
 
                 //gTimer.reset();
@@ -153,6 +162,9 @@ void otBinRecv()
     BtIOService ios(0);
     BtEndpoint recvEP(ios, "localhost", 1212, false, name);
 
+    BchCode code;
+    code.loadBinFile(SOLUTION_DIR "/libPSI/OT/Tools/bch511.bin");
+
     std::vector<Channel*> recvChls_(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
     {
@@ -200,10 +212,13 @@ void otBinRecv()
                 }
 
 
-
+#ifdef OOS
+                OosNcoOtReceiver otRecv(code);
+                OosNcoOtSender otSend(code);
+#else
                 KkrtNcoOtReceiver otRecv;
                 KkrtNcoOtSender otSend;
-
+#endif
                 OtBinMPsiReceiver recvPSIs;
 
 

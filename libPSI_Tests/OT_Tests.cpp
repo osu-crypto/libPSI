@@ -238,6 +238,40 @@ void Transpose_Test_Impl()
             }
         }
     }
+
+    {
+        PRNG prng(ZeroBlock);
+
+        std::array<std::array<block, 8>, 128> data;
+
+        prng.get((u8*)data.data(), sizeof(block) * 8 * 128);
+
+
+        std::array<std::array<block,8>, 128> data2 = data;
+
+        sse_transpose128x1024(data);
+
+
+        for (u64 i = 0; i < 8; ++i)
+        {
+
+            std::array<block, 128> sub;
+
+            for (u64 j = 0; j < 128; ++j)
+            {
+                sub[j] = data2[j][i];
+            }
+
+            sse_transpose128(sub);
+
+            for (u64 j = 0; j < 128; ++j)
+            {
+                if(neq(sub[j],data[j][i]))
+                    throw UnitTestFail();
+            }
+        }
+
+    }
 }
 
 

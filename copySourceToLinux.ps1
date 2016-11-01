@@ -5,7 +5,7 @@ $SolutionDir=$PWD
 $RemoteWorkingDir='/scratch/repo/libPSI'
 
 # only files with these exptenstions will be copied
-$FileMasks='**.cpp;**.h;makefile;**.mak;thirdparty/linux/**.get'
+$FileMasks='**.cpp;**.c;**.h;makefile,*.bin,*.S;**.mak;thirdparty/linux/**.get'
 
 # everything in these folders will be skipped
 $ExcludeDirs='.git/;thirdparty/;Debug/;Release/;x64/;ipch/;.vs/'

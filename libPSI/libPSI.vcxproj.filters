@@ -195,6 +195,9 @@
     <ClCompile Include="OT\NChooseOne\Oos\OosNcoOtReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Crypto\sha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\ByteStream.h">
@@ -359,5 +362,8 @@
     <ClInclude Include="OT\NChooseOne\Oos\OosNcoOtSender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Crypto\asm\sha_win64.asm" />
   </ItemGroup>
 </Project>

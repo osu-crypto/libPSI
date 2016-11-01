@@ -1,5 +1,6 @@
 #pragma once 
 #include "OT/NChooseOne/NcoOtExt.h"
+#include "OT/NChooseOne/KkrtNcoOtSender.h"
 #include "Common/BitVector.h"
 #include "Common/MatrixView.h"
 #include "OT/Base/naor-pinkas.h"
@@ -15,7 +16,9 @@
 
 namespace osuCrypto {
 
-    class OosNcoOtSender : public NcoOtExtSender
+    class OosNcoOtSender 
+        //: public NcoOtExtSender
+        : public KkrtNcoOtSender
     {
     public: 
 
@@ -25,24 +28,24 @@ namespace osuCrypto {
 
         BchCode mCode;
 
-        std::vector<PRNG> mGens;
-        BitVector mBaseChoiceBits;
-        std::vector<block> mChoiceBlks;
+        //std::vector<PRNG> mGens;
+        //BitVector mBaseChoiceBits;
+        //std::vector<block> mChoiceBlks;
 
-        bool hasBaseOts() const override
-        {
-            return mBaseChoiceBits.size() > 0;
-        }
+        //bool hasBaseOts() const override
+        //{
+        //    return mBaseChoiceBits.size() > 0;
+        //}
 
-        void setBaseOts(
-            ArrayView<block> baseRecvOts,
-            const BitVector& choices) override;
-        
-        std::unique_ptr<NcoOtExtSender> split() override;
+        //void setBaseOts(
+        //    ArrayView<block> baseRecvOts,
+        //    const BitVector& choices) override;
+        //
+        //std::unique_ptr<NcoOtExtSender> split() override;
 
 
-        void init(
-            MatrixView<block> correlatedMsgs) override;
+        //void init(
+        //    MatrixView<block> correlatedMsgs) override;
 
 
         void encode(

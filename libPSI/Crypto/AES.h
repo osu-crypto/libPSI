@@ -9,6 +9,7 @@ namespace osuCrypto {
 
 
 
+
     class AES
     {
     public:
@@ -27,6 +28,11 @@ namespace osuCrypto {
 
         void ecbEncTwoBlocks(const block* plaintexts, block* cyphertext) const;
         void ecbEncFourBlocks(const block* plaintexts, block* cyphertext) const;
+        void ecbEnc16Blocks(const block* plaintexts, block* cyphertext) const;
+
+
+        void ecbEncCounterMode(u64 baseIdx, u64 longth, block* cyphertext);
+        //void ecbEncCounterMode(u64 baseIdx, u64 longth, block* cyphertext, const u64* destIdxs);
 
         block mRoundKey[11];
     };
