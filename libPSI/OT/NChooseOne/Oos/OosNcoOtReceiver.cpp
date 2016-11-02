@@ -47,6 +47,7 @@ namespace osuCrypto
         u64 numCols = mGens.size();
         u64 extraDoneIdx = 0;
 
+        mCorrectionIdx = 0;
         mW = std::move(MatrixView<block>(numOtExt, mCode.plaintextBlkSize()));
         mT0 = std::move(MatrixView<block>(numOtExt, numCols / 128));
         mT1 = std::move(MatrixView<block>(numOtExt, numCols / 128));
@@ -244,6 +245,7 @@ namespace osuCrypto
         // the network gets around to sending this. Oh well.
         TODO("Make this memory safe");
         chl.asyncSend(mT1.data() + (mCorrectionIdx * mT1.size()[1]), mT1.size()[1] * sendCount * sizeof(block));
+        //chl.send(mT1.data() + (mCorrectionIdx * mT1.size()[1]), mT1.size()[1] * sendCount * sizeof(block));
 
         mCorrectionIdx += sendCount;
     }

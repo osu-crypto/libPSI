@@ -25,6 +25,7 @@ namespace osuCrypto {
         OosNcoOtSender(BchCode& code)
             : mCode(code)
         {}
+        ~OosNcoOtSender();
 
         BchCode mCode;
 

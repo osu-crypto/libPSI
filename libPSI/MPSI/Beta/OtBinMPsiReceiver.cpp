@@ -419,7 +419,7 @@ namespace osuCrypto
 
                 otIdx = 0;
 
-                std::vector<block> tempMaskBuff(16);
+                std::vector<block> tempMaskBuff(32);
                 std::vector<u64> tempIdxBuff(tempMaskBuff.size());
                 CuckooHasher::Workspace w(tempMaskBuff.size());
                 u64 tempMaskIdx = 0;

@@ -234,7 +234,11 @@ void BchCode_Test_Impl()
     for (size_t i = 0; i < cw.size(); i++)
     {
         if (cw[i] == 0)
+        {
+            Log::out << cw << Log::endl;
+            Log::out << "expecteding all ones" << Log::endl;
             throw UnitTestFail();
+        }
     }
 
     BitVector pt("1111111111111111111111111111111111111111111111111101111111111101111111111111");

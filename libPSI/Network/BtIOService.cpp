@@ -148,7 +148,7 @@ namespace osuCrypto
                     // OK, something went wrong with resizing the recv buffer. Lets make our own buffer
                     std::unique_ptr<char[]> newBuff(nullptr);
                     //std::unique_ptr<char[]> newBuff(new char[op.mSize]);
-                    op.mBuffs[1] = boost::asio::buffer(newBuff.get(), op.mSize);
+                    //op.mBuffs[1] = boost::asio::buffer(newBuff.get(), op.mSize);
 
                     // store the exception and then throw it once the recv is done.
                     try
@@ -157,10 +157,10 @@ namespace osuCrypto
                     }
                     catch (...) {
                         op.mException = std::current_exception();
-                        //op.mPromise->set_exception(op.mException);
-                        //delete op.mPromise;
+                        op.mPromise->set_exception(op.mException);
+                        delete op.mPromise;
 
-                        //return;
+                       return;
                     }
                 }
 
@@ -236,13 +236,26 @@ namespace osuCrypto
                 //////////////////////////////////////////////////////////////////////////
 
 
+                if (ec)
+                {
+                    Log::out << "network send error. " << ec.message() << Log::endl;
+                    throw std::runtime_error("rt error at " LOCATION);
+
+                }
+
                 // lets delete the other pointer as its either nullptr or a buffer that was allocated
                 delete op.mOther;
 
                 // make sure all the data sent. If this fails, look up whether WSASend guarantees that all the data in the buffers will be send.
                 if (bytesTransferred !=
                     boost::asio::buffer_size(op.mBuffs[0]) + boost::asio::buffer_size(op.mBuffs[1]))
+                {
+                    Log::out << "failed to send all data. Expected to send "
+                        << (boost::asio::buffer_size(op.mBuffs[0]) + boost::asio::buffer_size(op.mBuffs[1]))
+                        << "  but transfered " << bytesTransferred << Log::endl;
+
                     throw std::runtime_error("rt error at " LOCATION);
+                }
 
                 socket->mOutstandingSendData -= op.mSize;
 

@@ -25,8 +25,13 @@ namespace osuCrypto
         void writeBinFile(const std::string& fileName);
         void writeBinFile(std::ostream& out);
 
+        void generateMod8Table();
+
         u64 mCodewordBitSize;
         std::vector<block> mG;
+        //std::vector<std::array<block, 2>> mG1;
+        //std::vector<std::array<block, 4>> mG2;
+        std::vector<std::array<block, 256>> mG8;
 
         u64 plaintextBlkSize()const;
         u64 codewordBlkSize()const;

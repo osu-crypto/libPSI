@@ -23,6 +23,18 @@ int miraclTestMain();
 
 int main(int argc, char** argv)
 {
+    //BchCode code;
+    //code.loadBinFile(SOLUTION_DIR "/libPSI/OT/Tools/bch511.bin");
+    //std::vector<block> in(code.plaintextBlkSize()), out(code.codewordBlkSize());
+
+    //Timer t;
+    //t.setTimePoint("");
+    //for (u64 i = 0; i < 1000000; ++i)
+    //{
+    //    code.encode(in, out);
+    //}
+    //t.setTimePoint("done");
+    //Log::out << t << Log::endl;
 
     //run_all();
     //return 0;

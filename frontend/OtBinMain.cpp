@@ -41,7 +41,7 @@ void otBinSend()
     std::string name("psi");
 
     BtIOService ios(0);
-    BtEndpoint sendEP(ios, "localhost", 1212, true, name);
+    BtEndpoint sendEP(ios, "localhost", 1213, true, name);
 
     std::vector<Channel*> sendChls_(numThreads);
 
@@ -160,7 +160,7 @@ void otBinRecv()
     std::string name("psi");
 
     BtIOService ios(0);
-    BtEndpoint recvEP(ios, "localhost", 1212, false, name);
+    BtEndpoint recvEP(ios, "localhost", 1213, false, name);
 
     BchCode code;
     code.loadBinFile(SOLUTION_DIR "/libPSI/OT/Tools/bch511.bin");

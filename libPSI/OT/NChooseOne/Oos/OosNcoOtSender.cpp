@@ -9,6 +9,11 @@ namespace osuCrypto
     //#define    PRINT_OTEXT_DEBUG
     using namespace std;
 
+    OosNcoOtSender::~OosNcoOtSender()
+    {
+        //Log::out << "destruct" << Log::endl;
+    }
+
     void OosNcoOtSender::setBaseOts(
         ArrayView<block> baseRecvOts,
         const BitVector & choices)
