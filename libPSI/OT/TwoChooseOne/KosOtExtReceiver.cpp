@@ -46,8 +46,7 @@ namespace osuCrypto
         const BitVector& choices,
         ArrayView<block> messages,
         PRNG& prng,
-        Channel& chl/*,
-        std::atomic<u64>& doneIdx*/)
+        Channel& chl)
     {
         if (choices.size() == 0) return;
 

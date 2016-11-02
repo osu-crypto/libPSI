@@ -26,6 +26,8 @@
 #undef GetMessage
 #endif
 
+#pragma warning(disable: 4800)
+
 using namespace osuCrypto;
 using namespace boost::multiprecision;
 

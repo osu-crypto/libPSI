@@ -24,14 +24,8 @@ namespace osuCrypto
         SimpleHasher mBins;
         PRNG mPrng;
 
-        //MatrixView<block> mSendOtMessages;
-        //MatrixView<std::array<block, 2>> mRecvOtMessages;
-        std::vector<block> mSendOtMessages;
-        std::vector<std::array<block, 2>> mRecvOtMessages;
-        //MultiBlock<CodeWordSize> mRecvOtChoiseBlk;
-
-        NcoOtExtSender* mOtSend;
-        NcoOtExtReceiver* mOtRecv;
+        std::vector<std::unique_ptr<NcoOtExtSender>> mOtSends;
+        std::vector<std::unique_ptr<NcoOtExtReceiver>> mOtRecvs;
 
         void init(u64 n, u64 statSecParam, u64 inputBitSize, 
             const std::vector<Channel*>& chls, 

@@ -40,7 +40,7 @@ void KkrtNcoOt_Test_Impl()
     KkrtNcoOtSender sender;
     KkrtNcoOtReceiver recv;
     u64 codeSize, baseCount;
-    sender.getParams(128, 40, 128, numOTs, codeSize, baseCount);
+    sender.getParams(true,128, 40, 128, numOTs, codeSize, baseCount);
     
     std::vector<block> baseRecv(baseCount);
     std::vector<std::array<block, 2>> baseSend(baseCount);
@@ -53,14 +53,11 @@ void KkrtNcoOt_Test_Impl()
         baseRecv[i] = baseSend[i][baseChoice[i]];
     }
 
-    MatrixView<block> sendMsgs(numOTs, codeSize);
-    MatrixView<std::array<block, 2>> recvMsgs(numOTs, codeSize);
-
     sender.setBaseOts(baseRecv, baseChoice);
-    sender.init(sendMsgs);
+    sender.init(numOTs);
 
     recv.setBaseOts(baseSend);
-    recv.init(recvMsgs);
+    recv.init(numOTs);
 
 
 
@@ -89,16 +86,16 @@ void KkrtNcoOt_Test_Impl()
             prng0.get((u8*)codeword.data(), codeSize * sizeof(block));
 
             block encoding1, encoding2;
-            recv.encode(recvMsgs[i], codeword, correction, encoding1);
+            recv.encode(i, codeword, encoding1);
 
-            sender.encode(sendMsgs[i], codeword, correction, encoding2);
+            sender.encode(i, codeword,  encoding2);
 
             if (neq(encoding1, encoding2))
                 throw UnitTestFail();
 
             prng0.get((u8*)codeword.data(), codeSize * sizeof(block));
 
-            sender.encode(sendMsgs[i], codeword, correction, encoding2);
+            sender.encode(i, codeword,  encoding2);
 
             if (eq(encoding1, encoding2))
                 throw UnitTestFail();
@@ -124,7 +121,7 @@ void OosNcoOt_Test_Impl()
 
 
     u64 ncoinputBlkSize, baseCount;
-    sender.getParams(128, 40, 128, numOTs, ncoinputBlkSize, baseCount);
+    sender.getParams(true, 128, 40, 128, numOTs, ncoinputBlkSize, baseCount);
     u64 codeSize = (baseCount + 127) / 128;
 
     std::vector<block> baseRecv(baseCount);
@@ -140,14 +137,11 @@ void OosNcoOt_Test_Impl()
 
 
 
-    MatrixView<block> sendMsgs(numOTs, codeSize);
-    MatrixView<std::array<block, 2>> recvMsgs(numOTs, codeSize);
-
     sender.setBaseOts(baseRecv, baseChoice);
-    sender.init(sendMsgs);
+    sender.init(numOTs);
 
     recv.setBaseOts(baseSend);
-    recv.init(recvMsgs);
+    recv.init(numOTs);
 
 
     //BitVector t0, t1, q, s = sender.mBaseChoiceBits;
@@ -175,16 +169,16 @@ void OosNcoOt_Test_Impl()
             prng0.get((u8*)choice.data(), ncoinputBlkSize * sizeof(block));
 
             block encoding1, encoding2;
-            recv.encode(recvMsgs[i], choice, correction, encoding1);
+            recv.encode(i, choice,  encoding1);
 
-            sender.encode(sendMsgs[i], choice, correction, encoding2);
+            sender.encode(i, choice, encoding2);
 
             if (neq(encoding1, encoding2))
                 throw UnitTestFail();
 
             prng0.get((u8*)choice.data(), ncoinputBlkSize * sizeof(block));
 
-            sender.encode(sendMsgs[i], choice, correction, encoding2);
+            sender.encode(i, choice, encoding2);
 
             if (eq(encoding1, encoding2))
                 throw UnitTestFail();

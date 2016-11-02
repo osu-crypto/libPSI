@@ -57,14 +57,11 @@ namespace osuCrypto
         u64 compSecParam = 128;
 
         otSend.getParams(
+            true,
             compSecParam, statSecParam, inputBitSize, mN, //  input
             mNcoInputBlkSize, baseOtCount); // output
 
         mOtMsgBlkSize = (baseOtCount + 127) / 128;
-
-
-        mOtSend = &otSend;
-        mOtRecv = &otRecv;
 
 
         gTimer.setTimePoint("Init.recv.start");
@@ -104,9 +101,6 @@ namespace osuCrypto
         gTimer.setTimePoint("Init.recv.baseStart");
         // since we are doing mmlicious PSI, we need OTs going in both directions. 
         // This will hold the send OTs
-        mRecvOtMessages.resize(otCount * mOtMsgBlkSize);
-        mSendOtMessages.resize(otCount * mOtMsgBlkSize);
-
 
         if (otRecv.hasBaseOts() == false ||
             otSend.hasBaseOts() == false)
@@ -148,49 +142,31 @@ namespace osuCrypto
 
         gTimer.setTimePoint("Init.recv.ExtStart");
 
-        // this is a lambda function that does part of the OT extension where l am the sender. Again
-        // malicious PSI does OTs in both directions.
-        auto sendOtRountine = [&](u64 i, u64 total, NcoOtExtSender& ots, block seed, Channel& chl)
+
+
+
+        auto sendOtRoutine = [&](u64 tIdx, u64 total, NcoOtExtSender& ots, Channel& chl)
         {
-            // round up to the next 128 to make sure we aren't wasting OTs in the extension...
-            u64 start = std::min(roundUpTo(i *     otCount / total, 128), otCount);
-            u64 end = std::min(roundUpTo((i + 1) * otCount / total, 128), otCount);
+            auto start = (tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
+            auto end = ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
 
-            // get the range of rows starting at start and ending at end
-            MatrixView<block> range(
-                mSendOtMessages.begin() + (start * mOtMsgBlkSize),
-                mSendOtMessages.begin() + (end * mOtMsgBlkSize),
-                mOtMsgBlkSize);
-
-            ots.init(range);
+            ots.init(end - start);
         };
 
-        // this is a lambda function that does part of the OT extension where l am the receiver.
-        auto recvOtRountine = [&](u64 i, u64 total, NcoOtExtReceiver& ots, block seed, Channel& chl)
+        auto recvOtRoutine = [&](u64 tIdx, u64 total, NcoOtExtReceiver& ots, Channel& chl)
         {
-            u64 start = std::min(roundUpTo(i *     otCount / total, 128), otCount);
-            u64 end = std::min(roundUpTo((i + 1) * otCount / total, 128), otCount);
+            auto start = (tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
+            auto end = ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
 
-            // get the range of rows starting at start and ending at end
-            MatrixView<std::array<block, 2>> range(
-                mRecvOtMessages.begin() + (start * mOtMsgBlkSize),
-                mRecvOtMessages.begin() + (end * mOtMsgBlkSize),
-                mOtMsgBlkSize);
-
-
-            PRNG prng(seed);
-            ots.init(range);
+            ots.init(end - start);
         };
+
 
         // compute how amny threads we want to do for each direction.
         // the current thread will do one of the OT receives so -1 for that.
         u64 numThreads = chls.size() - 1;
         u64 numRecvThreads = numThreads / 2;
         u64 numSendThreads = numThreads - numRecvThreads;
-
-        // create locals for doing the extension in parallel.
-        std::vector<std::unique_ptr<NcoOtExtReceiver>> recvOts(numRecvThreads);
-        std::vector<std::unique_ptr<NcoOtExtSender>> sendOts(numSendThreads);
 
         // where we will store the threads that are doing the extension
         std::vector<std::thread> thrds(numThreads);
@@ -202,17 +178,12 @@ namespace osuCrypto
         // now make the threads that will to the extension
         for (u64 i = 0; i < numRecvThreads; ++i)
         {
-            // each need a seed.
-            auto seed = prng.get<block>();
-
-            // the split function allows us to create a new extension that has
-            // more or less the same base. This allows us to do only 128 base OTs
-            recvOts[i] = std::move(otRecv.split());
+            mOtRecvs[i] = std::move(otRecv.split());
 
             // spawn the thread and call the routine.
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                recvOtRountine(i + 1, numRecvThreads + 1, *recvOts[i].get(), seed, **chlIter);
+                recvOtRoutine(i + 1, numRecvThreads + 1,*mOtRecvs[i+1],**chlIter);
             });
 
             ++chlIter;
@@ -221,27 +192,25 @@ namespace osuCrypto
         // do the same thing but for the send OT extensions
         for (u64 i = 0; i < numSendThreads; ++i)
         {
-            auto seed = prng.get<block>();
-            sendOts[i] = std::move(otSend.split());
+
+            mOtSends[i] = std::move(otSend.split());
 
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                sendOtRountine(i, numSendThreads, *sendOts[i].get(), seed, **chlIter);
+                sendOtRoutine(i, numSendThreads, *mOtSends[i], **chlIter);
             });
 
             ++chlIter;
         }
 
         // now use this thread to do a recv routine.
-        seed = prng.get<block>();
-        recvOtRountine(0, numRecvThreads + 1, otRecv, seed, chl0);
+        recvOtRoutine(0, numRecvThreads + 1, otRecv,  chl0);
 
         // if the caller doesnt want to do things in parallel
         // the we will need to do the send OT Ext now...
         if (numSendThreads == 0)
         {
-            seed = prng.get<block>();
-            sendOtRountine(0, 1, otSend, seed, chl0);
+            sendOtRoutine(0, 1, otSend, chl0);
         }
 
         // join any threads that we created.
@@ -295,18 +264,9 @@ namespace osuCrypto
         std::shared_future<MatrixView<u8>> maskFuture(maskProm.get_future());
         ByteStream maskBuffer;
 
-#ifdef STD_MAP
-        typedef std::unordered_map<u64, std::pair<block, u64>> MaskMap;
-        MaskMap sharedMasks;
 
-        std::vector<std::promise<MaskMap*>> localMaskMapsProms(chls.size() - 1);
-        std::vector<std::future<MaskMap*>> localMaskMapsFutures(chls.size() - 1);
-        for (u64 l = 0; l < localMaskMapsProms.size(); ++l)
-            localMaskMapsFutures[l] = localMaskMapsProms[l].get_future();
-#else
         CuckooHasher maskMap;
         maskMap.init(mN * mBins.mMaxBinSize, mStatSecParam, chls.size() > 1);
-#endif
 
 
         // this mutex is used to guard inserting things into the intersection vector.
@@ -326,6 +286,9 @@ namespace osuCrypto
             {
 
                 if (tIdx == 0) gTimer.setTimePoint("online.recv.thrdStart");
+
+                auto& otRecv = *mOtRecvs[tIdx];
+                auto& otSend = *mOtSends[tIdx];
 
 
                 auto& chl = *chls[tIdx];
@@ -398,22 +361,6 @@ namespace osuCrypto
 
 
                 const u64 stepSize = 16;
-#ifdef STD_MAP
-                MaskMap* localMasks = nullptr;
-                if (tIdx)
-                    localMasks = new MaskMap();
-                else
-                    localMasks = &sharedMasks;
-#endif
-                MatrixView<std::array<block, 2>> correlatedRecvOts(
-                    mRecvOtMessages.begin() + (otStart * mOtMsgBlkSize),
-                    mRecvOtMessages.begin() + (otEnd * mOtMsgBlkSize),
-                    mOtMsgBlkSize);
-
-                MatrixView<block> correlatedSendOts(
-                    mSendOtMessages.begin() + (otStart * mOtMsgBlkSize),
-                    mSendOtMessages.begin() + (otEnd * mOtMsgBlkSize),
-                    mOtMsgBlkSize);
 
 
                 u64 otIdx = 0;
@@ -446,28 +393,22 @@ namespace osuCrypto
                             for (u64 j = 0; j < ncoInput.size(); ++j)
                                 ncoInput[j] = ncoInputBuff[j][inputIdx];
 
-                            auto otMsg = correlatedRecvOts[otIdx + perm[i]];
-                            auto correction = otCorrectionView[otCorrectionIdx + perm[i]];
 
 
-                            mOtRecv->encode(
-                                otMsg,                // input
+                            otRecv.encode(
+                                otIdx + perm[i],      // input
                                 ncoInput,             // input
-                                correction,           // output
                                 recvMasks[inputIdx]); // output
                         }
 
                         for (u64 i = bin.size(); i < mBins.mMaxBinSize; ++i)
                         {
-                            // fill with random correction value.
-                            prng.get((u8*)otCorrectionView[otCorrectionIdx + perm[i]].data(),
-                                mOtMsgBlkSize * sizeof(block));
+                            otRecv.zeroEncode(otIdx + perm[i]);      
                         }
 
 
                         otCorrectionIdx += mBins.mMaxBinSize;
                         otIdx += mBins.mMaxBinSize;
-
 
                     }
 
@@ -519,24 +460,14 @@ namespace osuCrypto
 
                                 block sendMask;
 
-                                auto otMsg = correlatedSendOts[innerOtIdx];
-                                auto correction = otCorrectionBuff[innerOtCorrectionIdx];
-
-                                mOtSend->encode(
-                                    otMsg,
+                                otSend.encode(
+                                    innerOtIdx,
                                     ncoInput,
-                                    correction,
                                     sendMask);
 
                                 sendMask = sendMask ^ recvMasks[inputIdx];
 
-#ifdef STD_MAP
-                                u64 part = 0;
 
-                                memcpy(&part, &sendMask, std::min(sizeof(u64), maskSize));
-                                //store my mask into corresponding buff at the permuted position
-                                localMasks->emplace(part, std::pair<block, u64>(sendMask, inputIdx));
-#else
                                 tempIdxBuff[tempMaskIdx] = inputIdx * mBins.mMaxBinSize + l;
 
                                 tempMaskBuff[tempMaskIdx] = ZeroBlock;
@@ -545,31 +476,16 @@ namespace osuCrypto
 
                                 if (tempMaskIdx == tempMaskBuff.size())
                                 {
-                                    mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
-                                    //for (u64 j = 0; j < tempMaskIdx; ++j)
-                                    //{
-                                    //    //maskMap.insert(tempIdxBuff[j], ArrayView<u64>((u64*)&tempMaskBuff[j], 2, false));
-                                    //    std::vector<u64> tt(tempIdxBuff.begin() + j, tempIdxBuff.begin() + j + 1);
-                                    //    maskMap.insertBatch(tt, MatrixView<u64>((u64*)&tempMaskBuff[j], 1,2, false));
 
-                                    //}
+                                    // use aes as a hash function. A weak invertable one. but security doesnt matter here.
+                                    mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
                                     MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2, false);
                                     maskMap.insertBatch(tempIdxBuff, hashes, w);
-
-
-                                    //for (u64 i = 0; i < tempMaskIdx; ++i)
-                                    //{
-                                    //    if (maskMap.find(hashes[i]) == -1)
-                                    //    {
-                                    //        throw std::runtime_error("");
-                                    //    }
-                                    //}
 
                                     tempMaskIdx = 0;
                                 }
 
 
-#endif
                                 ++innerOtIdx;
                                 ++innerOtCorrectionIdx;
                             }
@@ -581,50 +497,14 @@ namespace osuCrypto
 
                 }
 
+                // use aes as a hash function. A weak invertable one. but security doesnt matter here.
                 mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
-                //for (u64 j = 0; j < tempMaskIdx; ++j)
-                //{
-                //    maskMap.insert(tempIdxBuff[j], ArrayView<u64>((u64*)&tempMaskBuff[j], 2, false));
-                //}
                 std::vector<u64> idxs(tempIdxBuff.begin(), tempIdxBuff.begin() + tempMaskIdx);
                 MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2, false);
                 maskMap.insertBatch(idxs, hashes, w);
 
-                //maskMap.print();
-
-                //for (u64 i = 0; i < tempMaskIdx; ++i)
-                //{
-                //    if (maskMap.find(hashes[i]) == -1)
-                //    {
-                //        throw std::runtime_error("");
-                //    }
-                //}
 
                 if (tIdx == 0) gTimer.setTimePoint("online.recv.sendMask");
-
-#ifdef STD_MAP
-                if (tIdx)
-                {
-                    localMaskMapsProms[tIdx - 1].set_value(localMasks);
-
-                    maskMergeFuture.get();
-                }
-                else
-                {
-
-                    for (u64 i = 0; i < localMaskMapsFutures.size(); ++i)
-                    {
-                        MaskMap* otherMasks = localMaskMapsFutures[i].get();
-
-                        sharedMasks.insert(otherMasks->begin(), otherMasks->end());
-
-                        delete otherMasks;
-            }
-
-
-                    maskMergeProm.set_value();
-        }
-#endif
 
                 // all masks have been merged
 
@@ -657,22 +537,6 @@ namespace osuCrypto
                 auto maskStart = tIdx     * maskView.size()[0] / thrds.size();
                 auto maskEnd = (tIdx + 1) * maskView.size()[0] / thrds.size();
 
-#ifdef STD_MAP
-                for (u64 i = maskStart; i < maskEnd; ++i)
-                {
-                    auto mask = maskView[i];
-
-                    u64 part = 0;
-                    memcpy(&part, mask.data(), std::min(sizeof(u64), mask.size()));
-
-                    auto match = sharedMasks.find(part);
-
-                    if (match != sharedMasks.end() && memcmp(mask.data(), (u8*)&match->second.first, maskSize) == 0)
-                    {
-                        localIntersection.push_back(match->second.second);
-                    }
-                }
-#else
                 for (u64 i = maskStart; i < maskEnd; )
                 {
                     u64 curStepSize = std::min(tempMaskBuff.size(), maskEnd - i);
@@ -698,7 +562,6 @@ namespace osuCrypto
                         }
                     }
                 }
-#endif
 
                 if (localIntersection.size())
                 {

@@ -79,8 +79,24 @@ namespace osuCrypto
             if (mOwner) delete[] mData;
         }
 
+        const MatrixView<T>& operator=(MatrixView<T>&& copy)
+        {
+            if (mOwner) delete[] mData;
+
+            mData = copy.mData;
+            mSize = copy.mSize;
+            mOwner = copy.mOwner;
+
+            copy.mData = nullptr;
+            copy.mSize = std::array<u64, 2>{0,0};
+            copy.mOwner = false;
+
+            return copy;
+        }
+
         const MatrixView<T>& operator=(const MatrixView<T>& copy)
         {
+
             mData = copy.mData;
             mSize = copy.mSize;
             mOwner = false;

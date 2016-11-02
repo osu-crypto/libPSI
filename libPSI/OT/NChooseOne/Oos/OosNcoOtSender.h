@@ -17,8 +17,8 @@
 namespace osuCrypto {
 
     class OosNcoOtSender 
-        //: public NcoOtExtSender
-        : public KkrtNcoOtSender
+        : public NcoOtExtSender
+        //: public KkrtNcoOtSender
     {
     public: 
 
@@ -28,35 +28,43 @@ namespace osuCrypto {
 
         BchCode mCode;
 
-        //std::vector<PRNG> mGens;
-        //BitVector mBaseChoiceBits;
-        //std::vector<block> mChoiceBlks;
-
-        //bool hasBaseOts() const override
-        //{
-        //    return mBaseChoiceBits.size() > 0;
-        //}
-
-        //void setBaseOts(
-        //    ArrayView<block> baseRecvOts,
-        //    const BitVector& choices) override;
-        //
-        //std::unique_ptr<NcoOtExtSender> split() override;
+        std::vector<PRNG> mGens;
+        BitVector mBaseChoiceBits;
+        std::vector<block> mChoiceBlks;
+        MatrixView<block> mT, mCorrectionVals;
+        u64 mCorrectionIdx;
 
 
-        //void init(
-        //    MatrixView<block> correlatedMsgs) override;
+
+
+        bool hasBaseOts() const override
+        {
+            return mBaseChoiceBits.size() > 0;
+        }
+
+        void setBaseOts(
+            ArrayView<block> baseRecvOts,
+            const BitVector& choices) override;
+
+        std::unique_ptr<NcoOtExtSender> split() override;
+
+
+        void init(u64 numOtExt) override;
 
 
         void encode(
-            const ArrayView<block> correlatedMgs,
+            u64 otIdx,
             const ArrayView<block> codeWord,
-            ArrayView<block> otCorrectionMessage,
             block& val) override;
 
         void getParams(
+            bool maliciousSecure,
             u64 compSecParm, u64 statSecParam, u64 inputBitCount, u64 inputCount,
             u64& inputBlkSize, u64& baseOtCount) override;
+
+        void recvCorrection(Channel& chl, u64 recvCount) override;
+
+        void check(Channel& chl) override;
     };
 }
 

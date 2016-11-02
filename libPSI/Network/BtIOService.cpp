@@ -120,7 +120,7 @@ namespace osuCrypto
                 // Try to set the recv buffer to be the right size.
                 try {
                     // We support two types of receives. One where we provide the expected size of the message and one 
-                    // where we allow for variable length messages. op->other will be non null in this case and allow 
+                    // where we allow for variable length messages. op->other will be non null in the resize case and allow 
                     // us to resize the ChannelBuffer which will hold the data.
                     if (op.mOther != nullptr)
                     {
@@ -128,7 +128,6 @@ namespace osuCrypto
                         ChannelBuffer* mH = (ChannelBuffer*)op.mOther;
 
                         // resize it. This could throw is the channel buffer chooses to.
-
                         mH->ChannelBufferResize(op.mSize);
 
                         // set the WSA buffer to point into the channel buffer storage location.
@@ -146,10 +145,10 @@ namespace osuCrypto
                 }
                 catch (std::exception& e)
                 {
-                    // OK, something went wrong with resizing the recv buffer. Lets make out own buffer
+                    // OK, something went wrong with resizing the recv buffer. Lets make our own buffer
                     std::unique_ptr<char[]> newBuff(nullptr);
                     //std::unique_ptr<char[]> newBuff(new char[op.mSize]);
-                    //op.mBuffs[1] = boost::asio::buffer(newBuff.get(), op.mSize);
+                    op.mBuffs[1] = boost::asio::buffer(newBuff.get(), op.mSize);
 
                     // store the exception and then throw it once the recv is done.
                     try
@@ -158,10 +157,10 @@ namespace osuCrypto
                     }
                     catch (...) {
                         op.mException = std::current_exception();
-                        op.mPromise->set_exception(op.mException);
-                        delete op.mPromise;
+                        //op.mPromise->set_exception(op.mException);
+                        //delete op.mPromise;
 
-                        return;
+                        //return;
                     }
                 }
 

@@ -145,7 +145,9 @@ namespace osuCrypto
         //Log::out << "sender size " << messages.size() + extraBlocks.size() << Log::endl;
 
         //std::array<std::array<block,2>, gOtExtBaseOtCount> enc;
+#ifndef SHA_HASH
         std::array<block, 128> temp,temp2;
+#endif
         doneIdx = 0;
         for (u64 blkIdx = 0; blkIdx < numBlocks; ++blkIdx)
         {

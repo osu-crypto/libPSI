@@ -76,8 +76,7 @@ INC=-I./libPSI/\
 TPL_LIB=$(BOOST)/stage/lib/libboost_system.a\
 	$(BOOST)/stage/lib/libboost_thread.a\
 	$(TPL)/miracl/miracl/source/libmiracl.a\
-	$(TPL)/cryptopp/libcryptopp.a\
-	$(TPL)/mpir/.libs/libmpir.a 
+	$(TPL)/cryptopp/libcryptopp.a
 
 LIB=\
 	$(TPL_LIB)\

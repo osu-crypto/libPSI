@@ -18,11 +18,14 @@ namespace osuCrypto {
     class KkrtNcoOtSender : public NcoOtExtSender
     {
     public: 
-
-
         std::vector<PRNG> mGens;
         BitVector mBaseChoiceBits;
         std::vector<block> mChoiceBlks;
+        MatrixView<block> mT;
+        
+        MatrixView<block> mCorrectionVals;
+        u64 mCorrectionIdx;
+
 
         bool hasBaseOts() const override
         {
@@ -36,19 +39,22 @@ namespace osuCrypto {
         std::unique_ptr<NcoOtExtSender> split() override;
 
 
-        void init(
-            MatrixView<block> correlatedMsgs) override;
+        void init(u64 numOtExt) override;
 
 
         void encode(
-            const ArrayView<block> correlatedMgs,
-            const ArrayView<block> codeWord,
-            ArrayView<block> otCorrectionMessage,
+            u64 otIdx,
+            const ArrayView<block> codeWord, 
             block& val) override;
 
         void getParams(
+            bool maliciousSecure,
             u64 compSecParm, u64 statSecParam, u64 inputBitCount, u64 inputCount,
             u64& inputBlkSize, u64& baseOtCount) override;
+
+        void recvCorrection(Channel& chl, u64 recvCount) override;
+
+        void check(Channel& chl) override {}
     };
 }
 

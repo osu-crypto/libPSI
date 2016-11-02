@@ -223,7 +223,7 @@ namespace osuCrypto
                 for (; i < mBfBitCount && idxIters[0] != mAknOt.mZeros.end(); ++i)
                 {
                     auto& idx = *idxIters[bf[i]]++;
-                    vv[i] = idx;
+                    vv[i] = (LogOtCount_t)idx;
                     //memcpy(iter, &idx, permByteSize);
                     //iter += permByteSize;
                 }
@@ -231,7 +231,7 @@ namespace osuCrypto
                 for (; i < mBfBitCount; ++i)
                 {
                     auto& idx = *idxIters[1]++;
-                    vv[i] = idx;
+                    vv[i] = (LogOtCount_t)idx;
 
                     //memcpy(iter, &idx, permByteSize);
                     //iter += permByteSize;

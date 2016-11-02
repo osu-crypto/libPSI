@@ -45,17 +45,12 @@ namespace osuCrypto
         u64 compSecParam = 128;
 
         otSend.getParams(
+            true, // input, is malicious
             compSecParam, statSec, inputBitSize, mN, //  input
             mNcoInputBlkSize, baseOtCount); // output
 
         mOtMsgBlkSize = (baseOtCount + 127) / 128;
 
-        mOtSend = &otSend;
-        mOtRecv = &otRecv;
-
-        //auto logn = std::log2(n);
-        //mNumBins = (n + logn - 1) / logn;
-        //mBinSize = logn * std::log2(logn);
 
         mPrng.SetSeed(seed);
         auto myHashSeed = mPrng.get<block>();
@@ -131,39 +126,27 @@ namespace osuCrypto
 
         gTimer.setTimePoint("init.send.extStart");
 
-
-
-        mRecvOtMessages.resize(otCount* mOtMsgBlkSize);// = std::move(MatrixView<std::array<block, 2>>(otCount, mNcoInputBlkSize));
-        mSendOtMessages.resize(otCount* mOtMsgBlkSize);// = std::move(MatrixView<block>(otCount, mNcoInputBlkSize));
-
-        auto sendRoutine = [&](u64 i, u64 total, NcoOtExtSender& ots, Channel& chl)
+        for (u64 i = 0; i < chls.size(); ++i)
         {
-            // round up to the next 128 to make sure we aren't wasting OTs in the extension...
-            u64 start = std::min(roundUpTo(i *     otCount / total, 128), otCount);
-            u64 end = std::min(roundUpTo((i + 1) * otCount / total, 128), otCount);
+            mOtSends[i] = std::move(otSend.split());
+            mOtRecvs[i] = std::move(otRecv.split());
+        }
 
-            // get the range of rows starting at start and ending at end
-            MatrixView<block> range(
-                mSendOtMessages.begin() + (start * mOtMsgBlkSize),
-                mSendOtMessages.begin() + (end *mOtMsgBlkSize),
-                mOtMsgBlkSize);
 
-            ots.init(range);
+        auto sendRoutine = [&](u64 tIdx, u64 total, NcoOtExtSender& ots, Channel& chl)
+        {
+            auto start = (  tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
+            auto end =   ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
+
+            ots.init(end - start);
         };
 
-        auto recvOtRountine = [&]
-        (u64 i, u64 total, NcoOtExtReceiver& ots, Channel& chl)
+        auto recvOtRountine = [&](u64 tIdx, u64 total, NcoOtExtReceiver& ots, Channel& chl)
         {
-            u64 start = std::min(roundUpTo(i *     otCount / total, 128), otCount);
-            u64 end = std::min(roundUpTo((i + 1) * otCount / total, 128), otCount);
+            auto start = (tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
+            auto end = ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
 
-            // get the range of rows starting at start and ending at end
-            MatrixView<std::array<block, 2>> range(
-                mRecvOtMessages.begin() + (start * mOtMsgBlkSize),
-                mRecvOtMessages.begin() + (end *mOtMsgBlkSize),
-                mOtMsgBlkSize);
-
-            ots.init(range);
+            ots.init(end - start);
         };
 
         u64 numThreads = chls.size() - 1;
@@ -307,6 +290,8 @@ namespace osuCrypto
 
                 if (tIdx == 0) gTimer.setTimePoint("online.send.thrdStart");
 
+                auto& otRecv = *mOtRecvs[tIdx];
+                auto& otSend = *mOtSends[tIdx];
 
                 auto& chl = *chls[tIdx];
                 auto startIdx = tIdx       * mN / thrds.size();
@@ -378,18 +363,7 @@ namespace osuCrypto
 
                 std::vector<u16> permutation(mBins.mMaxBinSize);
                 for (size_t i = 0; i < permutation.size(); i++)
-                    permutation[i] = i;
-
-                MatrixView<block> correlatedSendOts(
-                    mSendOtMessages.begin() + (otStart * mOtMsgBlkSize),
-                    mSendOtMessages.begin() + (otEnd * mOtMsgBlkSize),
-                    mOtMsgBlkSize);
-
-                MatrixView<std::array<block, 2>> correlatedRecvOts(
-                    mRecvOtMessages.begin() + (otStart * mOtMsgBlkSize),
-                    mRecvOtMessages.begin() + (otEnd * mOtMsgBlkSize),
-                    mOtMsgBlkSize);
-
+                    permutation[i] = (u16)i;
 
                 u64 otIdx = 0;
                 u64 maskIdx = otStart;
@@ -425,18 +399,17 @@ namespace osuCrypto
                                     ncoInput[j] = ncoInputBuff[j][inputIdx];
                                 }
 
-                                auto otMsg = correlatedRecvOts[otIdx];
-                                auto correction = otCorrectionView[otCorrectionIdx];
-
-                                mOtRecv->encode(
-                                    otMsg,                //  input
+                                otRecv.encode(
+                                    otIdx,                //  input
                                     ncoInput,             //  input
-                                    correction,           // output
                                     recvMasks[inputIdx]); // output
 
                             }
                             else
                             {
+
+                                otRecv.zeroEncode(otIdx);
+
                                 // fill with random correction value.
                                 prng.get((u8*)otCorrectionView[otCorrectionIdx].data(),
                                     mOtMsgBlkSize * sizeof(block));
@@ -460,7 +433,7 @@ namespace osuCrypto
 
                 std::vector<u16> binPerm(mBins.mMaxBinSize);
                 for (u64 i = 0; i < binPerm.size(); ++i)
-                    binPerm[i] = i;
+                    binPerm[i] = (u16)i;
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
@@ -500,18 +473,12 @@ namespace osuCrypto
 
                                 block sendMask;
 
-                                auto otMsg = correlatedSendOts[innerOtIdx];
-                                auto correction = otCorrectionBuff[innerOtCorrectionIdx];
-
-                                mOtSend->encode(
-                                    otMsg,
+                                otSend.encode(
+                                    innerOtIdx,
                                     ncoInput,
-                                    correction,
                                     sendMask);
 
                                 sendMask = sendMask ^ recvMasks[inputIdx];
-
-                                TODO("add recv mask into this");
 
                                 // truncate the block size mask down to "maskSize" bytes
                                 // and store it in the maskView matrix at row maskIdx

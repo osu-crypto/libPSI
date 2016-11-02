@@ -21,11 +21,10 @@ namespace osuCrypto
         block mHashingSeed;
         std::vector<u64> mIntersection;
 
-        NcoOtExtSender* mOtSend;
-        NcoOtExtReceiver* mOtRecv;
 
-        std::vector<block> mSendOtMessages;
-        std::vector<std::array<block, 2>> mRecvOtMessages;
+        std::vector<std::unique_ptr<NcoOtExtSender>> mOtSends;
+        std::vector<std::unique_ptr<NcoOtExtReceiver>> mOtRecvs;
+
         SimpleHasher mBins;
         PRNG mPrng;
 
