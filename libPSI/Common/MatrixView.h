@@ -47,7 +47,11 @@ namespace osuCrypto
 
 
         MatrixView(u64 rowSize, u64 columnSize) :
+#ifdef NDEBUG
             mData(new T[rowSize * columnSize]),
+#else
+            mData(new T[rowSize * columnSize]()),
+#endif
             mSize({ rowSize, columnSize }),
             mOwner(true)
         { }

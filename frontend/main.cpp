@@ -11,9 +11,7 @@ using namespace osuCrypto;
 #include "OtBinMain.h"
 
 #include "OT/TwoChooseOne/KosOtExtReceiver.h"
-//#include "OT/TwoChooseOne/KosOtExtReceiver2.h"
 #include "OT/TwoChooseOne/KosOtExtSender.h"
-//#include "OT/TwoChooseOne/KosOtExtSender2.h"
 #include "Network/BtChannel.h"
 #include "Network/BtEndpoint.h"
 #include <numeric>

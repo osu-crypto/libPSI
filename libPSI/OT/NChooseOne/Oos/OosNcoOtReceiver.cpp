@@ -130,13 +130,12 @@ namespace osuCrypto
 
     void OosNcoOtReceiver::encode(
         u64 otIdx,
-        // The random code word that should be encoded
         const ArrayView<block> choice,
         // Output: the encoding of the plaintxt
         block & val)
     {
 #ifndef NDEBUG
-        if (choice.size() != mT0.size()[1])
+        if (choice.size() != mCode.plaintextBlkSize())
             throw std::invalid_argument("");
 
         if (eq(mT0[otIdx][0], ZeroBlock))

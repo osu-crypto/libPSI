@@ -53,11 +53,15 @@ void KkrtNcoOt_Test_Impl()
         baseRecv[i] = baseSend[i][baseChoice[i]];
     }
 
-    sender.setBaseOts(baseRecv, baseChoice);
-    sender.init(numOTs);
+    std::string name = "n";
+    BtIOService ios(0);
+    BtEndpoint ep0(ios, "localhost", 1212, true, name);
+    BtEndpoint ep1(ios, "localhost", 1212, false, name);
 
-    recv.setBaseOts(baseSend);
-    recv.init(numOTs);
+
+    auto &recvChl = ep1.addChannel(name, name);
+    auto &sendChl = ep0.addChannel(name, name);
+
 
 
 
@@ -76,10 +80,15 @@ void KkrtNcoOt_Test_Impl()
     //    << q << Log::endl
     //    << (q^exp) << Log::endl << Log::endl;
 
+    sender.setBaseOts(baseRecv, baseChoice);
+    recv.setBaseOts(baseSend);
 
     std::vector<block> codeword(codeSize), correction(codeSize);
     for (size_t j = 0; j < 10; j++)
     {
+        sender.init(numOTs);
+
+        recv.init(numOTs);
 
         for (u64 i = 0; i < numOTs; ++i)
         {
@@ -87,6 +96,9 @@ void KkrtNcoOt_Test_Impl()
 
             block encoding1, encoding2;
             recv.encode(i, codeword, encoding1);
+
+            recv.sendCorrection(recvChl, 1);
+            sender.recvCorrection(sendChl, 1);
 
             sender.encode(i, codeword,  encoding2);
 
@@ -103,6 +115,12 @@ void KkrtNcoOt_Test_Impl()
 
     }
 
+    sendChl.close();
+    recvChl.close();
+
+    ep0.stop();
+    ep1.stop();
+    ios.stop();
 }
 
 void OosNcoOt_Test_Impl()

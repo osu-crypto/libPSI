@@ -17,7 +17,7 @@ namespace osuCrypto
         //static const u64 CodeWordSize = 7;
         //static const u64 hasherStepSize;
 
-        u64 mN,mStatSecParam, mNcoInputBlkSize, mOtMsgBlkSize;
+        u64 mN, mStatSecParam, mNcoInputBlkSize;// , mOtMsgBlkSize;
         block mHashingSeed;
         std::vector<u64> mIntersection;
 

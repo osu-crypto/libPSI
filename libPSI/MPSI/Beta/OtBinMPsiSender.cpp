@@ -126,10 +126,10 @@ namespace osuCrypto
 
         gTimer.setTimePoint("init.send.extStart");
 
+        mOtSends.resize(chls.size());
+        mOtRecvs.resize(chls.size());
         for (u64 i = 0; i < chls.size(); ++i)
         {
-            mOtSends[i] = std::move(otSend.split());
-            mOtRecvs[i] = std::move(otRecv.split());
         }
 
 
@@ -154,8 +154,6 @@ namespace osuCrypto
         u64 numRecvThreads = numThreads - numSendThreads;
 
 
-        std::vector<std::unique_ptr<NcoOtExtSender>> sendOts(numSendThreads);
-        std::vector<std::unique_ptr<NcoOtExtReceiver>> recvOts(numRecvThreads);
         std::vector<std::thread> thrds(numThreads);
         auto thrdIter = thrds.begin();
         auto chlIter = chls.begin() + 1;
@@ -163,35 +161,36 @@ namespace osuCrypto
 
         for (u64 i = 0; i < numSendThreads; ++i)
         {
-            sendOts[i] = std::move(otSend.split());
-            auto extSeed = mPrng.get<block>();
+            mOtSends[i] = std::move(otSend.split());
 
-            *thrdIter++ = std::thread([&, i, extSeed, chlIter]()
+            *thrdIter++ = std::thread([&, i, chlIter]()
             {
                 //Log::out << Log::lock << "s sendOt " << l << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
-                sendRoutine(i + 1, numSendThreads + 1, *sendOts[i], **chlIter);
+                sendRoutine(i + 1, numSendThreads + 1, *mOtSends[i], **chlIter);
             });
             ++chlIter;
         }
 
         for (u64 i = 0; i < numRecvThreads; ++i)
         {
-            recvOts[i] = std::move(otRecv.split());
-            auto extSeed = mPrng.get<block>();
+            mOtRecvs[i] = std::move(otRecv.split());
 
-            *thrdIter++ = std::thread([&, i, extSeed, chlIter]()
+            *thrdIter++ = std::thread([&, i, chlIter]()
             {
                 //Log::out << Log::lock << "s recvOt " << l << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
-                recvOtRountine(i, numRecvThreads, *recvOts[i], **chlIter);
+                recvOtRountine(i, numRecvThreads, *mOtRecvs[i], **chlIter);
             });
             ++chlIter;
         }
 
-        sendRoutine(0, numSendThreads + 1, otSend, chl0);
+        mOtSends[0] = std::move(otSend.split());
+        sendRoutine(0, numSendThreads + 1, *mOtSends[0], chl0);
 
         if (numRecvThreads == 0)
         {
-            recvOtRountine(0, 1, otRecv, chl0);
+            mOtRecvs[0] = std::move(otRecv.split());
+
+            recvOtRountine(0, 1, *mOtRecvs[0], chl0);
         }
 
 
@@ -373,13 +372,6 @@ namespace osuCrypto
                 {
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
 
-
-                    std::unique_ptr<ByteStream> buff(new ByteStream());
-                    buff->resize(sizeof(block) * mOtMsgBlkSize * currentStepSize * mBins.mMaxBinSize);
-
-                    auto otCorrectionView = buff->getMatrixView<block>(mOtMsgBlkSize);
-                    auto otCorrectionIdx = 0;
-
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
 
@@ -409,18 +401,13 @@ namespace osuCrypto
                             {
 
                                 otRecv.zeroEncode(otIdx);
-
-                                // fill with random correction value.
-                                prng.get((u8*)otCorrectionView[otCorrectionIdx].data(),
-                                    mOtMsgBlkSize * sizeof(block));
                             }
 
-                            otCorrectionIdx++;
                             otIdx++;
                         }
                     }
 
-                    chl.asyncSend(std::move(buff));
+                    otRecv.sendCorrection(chl, currentStepSize * mBins.mMaxBinSize);
                 }
 
 
@@ -440,14 +427,7 @@ namespace osuCrypto
 
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
 
-                    chl.recv(buff);
-                    if (buff.size() != mOtMsgBlkSize * sizeof(block) * mBins.mMaxBinSize * currentStepSize)
-                        throw std::runtime_error("not expected size");
-
-                    auto otCorrectionBuff = buff.getMatrixView<block>(mOtMsgBlkSize);
-                    u64 otCorrectionIdx = 0;
-
-
+                    otSend.recvCorrection(chl, currentStepSize * mBins.mMaxBinSize);
 
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
@@ -461,7 +441,6 @@ namespace osuCrypto
                             u64 baseMaskIdx = maskPerm[maskIdx] * mBins.mMaxBinSize;
 
                             u64 innerOtIdx = otIdx;
-                            u64 innerOtCorrectionIdx = otCorrectionIdx;
 
                             for (u64 l = 0; l < mBins.mMaxBinSize; ++l)
                             {
@@ -489,14 +468,12 @@ namespace osuCrypto
 
 
                                 ++innerOtIdx;
-                                ++innerOtCorrectionIdx;
                             }
 
                             ++maskIdx;
                         }
 
                         otIdx += mBins.mMaxBinSize;
-                        otCorrectionIdx += mBins.mMaxBinSize;
                     }
 
                 }

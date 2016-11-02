@@ -47,6 +47,7 @@ namespace osuCrypto
 
         mT0 = std::move(MatrixView<block>(numOtExt, numCols / 128));
         mT1 = std::move(MatrixView<block>(numOtExt, numCols / 128));
+        mCorrectionIdx = 0;
 
         // NOTE: We do not transpose a bit-matrix of size numCol * numCol.
         //   Instead we break it down into smaller chunks. We do 128 columns 

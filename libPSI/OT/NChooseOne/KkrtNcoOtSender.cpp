@@ -60,6 +60,8 @@ namespace osuCrypto
         numOTExt = ((numOTExt + 127) / 128) * 128;
 
         mT = std::move(MatrixView<block>(numOTExt, mGens.size() / 128));
+        mCorrectionVals = std::move(MatrixView<block>(numOTExt, mGens.size() / 128));
+
         mCorrectionIdx = 0;
 
         // we are going to process SSOTs in blocks of 128 messages.

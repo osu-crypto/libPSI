@@ -61,7 +61,7 @@ namespace osuCrypto
             compSecParam, statSecParam, inputBitSize, mN, //  input
             mNcoInputBlkSize, baseOtCount); // output
 
-        mOtMsgBlkSize = (baseOtCount + 127) / 128;
+        //mOtMsgBlkSize = (baseOtCount + 127) / 128;
 
 
         gTimer.setTimePoint("Init.recv.start");
@@ -175,10 +175,12 @@ namespace osuCrypto
         auto thrdIter = thrds.begin();
         auto chlIter = chls.begin() + 1;
 
+        mOtRecvs.resize(chls.size());
+
         // now make the threads that will to the extension
         for (u64 i = 0; i < numRecvThreads; ++i)
         {
-            mOtRecvs[i] = std::move(otRecv.split());
+            mOtRecvs[i + 1] = std::move(otRecv.split());
 
             // spawn the thread and call the routine.
             *thrdIter++ = std::thread([&, i, chlIter]()
@@ -189,6 +191,7 @@ namespace osuCrypto
             ++chlIter;
         }
 
+        mOtSends.resize(chls.size());
         // do the same thing but for the send OT extensions
         for (u64 i = 0; i < numSendThreads; ++i)
         {
@@ -203,14 +206,18 @@ namespace osuCrypto
             ++chlIter;
         }
 
+        mOtRecvs[0] = std::move(otRecv.split());
+
         // now use this thread to do a recv routine.
-        recvOtRoutine(0, numRecvThreads + 1, otRecv,  chl0);
+        recvOtRoutine(0, numRecvThreads + 1, *mOtRecvs[0],  chl0);
 
         // if the caller doesnt want to do things in parallel
         // the we will need to do the send OT Ext now...
         if (numSendThreads == 0)
         {
-            sendOtRoutine(0, 1, otSend, chl0);
+            mOtSends[0] = std::move(otSend.split());
+
+            sendOtRoutine(0, 1, *mOtSends[0], chl0);
         }
 
         // join any threads that we created.
@@ -371,13 +378,6 @@ namespace osuCrypto
                 {
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
 
-                    // make a buffer for the pseudo-code we need to send
-                    std::unique_ptr<ByteStream> buff(new ByteStream());
-                    buff->resize(sizeof(block) * mOtMsgBlkSize * currentStepSize * mBins.mMaxBinSize);
-
-                    auto otCorrectionView = buff->getMatrixView<block>(mOtMsgBlkSize);
-                    auto otCorrectionIdx = 0;
-
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
 
@@ -407,17 +407,16 @@ namespace osuCrypto
                         }
 
 
-                        otCorrectionIdx += mBins.mMaxBinSize;
+
                         otIdx += mBins.mMaxBinSize;
 
                     }
 
-                    chl.asyncSend(std::move(buff));
+                    otRecv.sendCorrection(chl, currentStepSize * mBins.mMaxBinSize);
                 }
 
                 if (tIdx == 0) gTimer.setTimePoint("online.recv.recvMask");
 
-                Buff buff;
                 otIdx = 0;
 
                 std::vector<block> tempMaskBuff(16);
@@ -430,12 +429,8 @@ namespace osuCrypto
 
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
 
-                    chl.recv(buff);
-                    if (buff.size() != mOtMsgBlkSize * sizeof(block) * mBins.mMaxBinSize * currentStepSize)
-                        throw std::runtime_error("not expected size");
 
-                    auto otCorrectionBuff = buff.getMatrixView<block>(mOtMsgBlkSize);
-                    u64 otCorrectionIdx = 0;
+                    otSend.recvCorrection(chl, currentStepSize * mBins.mMaxBinSize);
 
 
 
@@ -449,7 +444,6 @@ namespace osuCrypto
                             u64 inputIdx = bin[i];
 
                             u64 innerOtIdx = otIdx;
-                            u64 innerOtCorrectionIdx = otCorrectionIdx;
 
                             for (u64 l = 0; l < mBins.mMaxBinSize; ++l)
                             {
@@ -487,12 +481,10 @@ namespace osuCrypto
 
 
                                 ++innerOtIdx;
-                                ++innerOtCorrectionIdx;
                             }
                         }
 
                         otIdx += mBins.mMaxBinSize;
-                        otCorrectionIdx += mBins.mMaxBinSize;
                     }
 
                 }
