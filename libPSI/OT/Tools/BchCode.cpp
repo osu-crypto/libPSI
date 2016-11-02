@@ -76,6 +76,9 @@ namespace osuCrypto
                 *iter++ = blkView[k];
             }
         }
+
+
+        generateMod8Table();
     }
     void BchCode::loadBinFile(const std::string & fileName)
     {
