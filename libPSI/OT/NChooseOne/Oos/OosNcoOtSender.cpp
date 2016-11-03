@@ -204,7 +204,7 @@ namespace osuCrypto
         block seed = ZeroBlock;
         u64 statSecParam(40);
 
-        recvCorrection(chl,statSecParam);
+        recvCorrection(chl, statSecParam);
         chl.asyncSend(&seed, sizeof(block));
         AES aes(seed);
         u64 aesIdx(0);
@@ -213,12 +213,12 @@ namespace osuCrypto
         std::vector<block> qSum(statSecParam * mT.size()[1]);
 
         for (u64 i = 0; i < statSecParam; ++i)
-        { 
+        {
             for (u64 j = 0; j < mT.size()[1]; ++j)
             {
                 qSum[i * mT.size()[1] + j]
                     = (mCorrectionVals[mCorrectionIdx - statSecParam + i][j]
-                    & mChoiceBlks[j])
+                        & mChoiceBlks[j])
                     ^ mT[mCorrectionIdx - statSecParam + i][j];
             }
         }
@@ -226,16 +226,18 @@ namespace osuCrypto
 
         if (mT.size()[1] != 4)
             throw std::runtime_error("generalize this" LOCATION);
+
+#ifdef OOS_CHECK_DEBUG
         Buff mT0Buff, mWBuff;
         chl.recv(mT0Buff);
         chl.recv(mWBuff);
 
         auto mT0 = mT0Buff.getMatrixView<block>(mCode.codewordBlkSize());
         auto mW = mWBuff.getMatrixView<block>(mCode.plaintextBlkSize());
+#endif
 
-
-        std::array<std::array<block, 2>, 4> zeroAndQ;
-        memset(zeroAndQ.data(),0, 8 * sizeof(block));
+        std::array<std::array<block, 4>, 2> zeroAndQ;
+        memset(zeroAndQ.data(), 0, 8 * sizeof(block));
 
 
         std::vector<block> challengeBuff(statSecParam);
@@ -250,11 +252,11 @@ namespace osuCrypto
         for (u64 l = 0; l < lStop; ++l)
         {
 
+            aes.ecbEncCounterMode(aesIdx, statSecParam, challengeBuff.data());
+            aesIdx += statSecParam;
             for (u64 i = 0; i < statSecParam; ++i)
             {
 
-                aes.ecbEncCounterMode(aesIdx, statSecParam, challengeBuff.data());
-                aesIdx += statSecParam;
 
                 expandedBuff[i * 8 + 0] = mask & _mm_srai_epi16(challengeBuff[i], 0);
                 expandedBuff[i * 8 + 1] = mask & _mm_srai_epi16(challengeBuff[i], 1);
@@ -274,16 +276,17 @@ namespace osuCrypto
             u8* byteIter = byteView;
             for (u64 i = 0; i < stopIdx; ++i, ++kk, corIter += 4, tIter += 4)
             {
-                auto q0 = (corIter[0] & mChoiceBlks[0]) ;
-                auto q1 = (corIter[1] & mChoiceBlks[1]) ;
-                auto q2 = (corIter[2] & mChoiceBlks[2]) ;
-                auto q3 = (corIter[3] & mChoiceBlks[3]) ;
-                        
-                zeroAndQ[0][1] = q0 ^ tIter[0];
-                zeroAndQ[1][1] = q1 ^ tIter[1];
-                zeroAndQ[2][1] = q2 ^ tIter[2];
-                zeroAndQ[3][1] = q3 ^ tIter[3];
+                auto q0 = (corIter[0] & mChoiceBlks[0]);
+                auto q1 = (corIter[1] & mChoiceBlks[1]);
+                auto q2 = (corIter[2] & mChoiceBlks[2]);
+                auto q3 = (corIter[3] & mChoiceBlks[3]);
 
+                zeroAndQ[1][0] = q0 ^ tIter[0];
+                zeroAndQ[1][1] = q1 ^ tIter[1];
+                zeroAndQ[1][2] = q2 ^ tIter[2];
+                zeroAndQ[1][3] = q3 ^ tIter[3];
+
+#ifdef OOS_CHECK_DEBUG
                 std::vector<block> cw(mCode.codewordBlkSize());
                 mCode.encode(mW[kk], cw);
 
@@ -297,6 +300,7 @@ namespace osuCrypto
                         throw std::runtime_error("");
                     }
                 }
+#endif
 
                 auto qSumIter = qSum.data();
 
@@ -306,14 +310,17 @@ namespace osuCrypto
                     u8 x0 = *byteIter++;
                     u8 x1 = *byteIter++;
 
-                    qSumIter[0] = qSumIter[0] ^ zeroAndQ[0][x0];
-                    qSumIter[1] = qSumIter[1] ^ zeroAndQ[1][x0];
-                    qSumIter[2] = qSumIter[2] ^ zeroAndQ[2][x0];
-                    qSumIter[3] = qSumIter[3] ^ zeroAndQ[3][x0];
-                    qSumIter[4] = qSumIter[4] ^ zeroAndQ[0][x1];
-                    qSumIter[5] = qSumIter[5] ^ zeroAndQ[1][x1];
-                    qSumIter[6] = qSumIter[6] ^ zeroAndQ[2][x1];
-                    qSumIter[7] = qSumIter[7] ^ zeroAndQ[3][x1];
+                    block* mask0 = zeroAndQ[x0].data();
+                    block* mask1 = zeroAndQ[x1].data(); 
+
+                    qSumIter[0] = qSumIter[0] ^ mask0[0];
+                    qSumIter[1] = qSumIter[1] ^ mask0[1];
+                    qSumIter[2] = qSumIter[2] ^ mask0[2];
+                    qSumIter[3] = qSumIter[3] ^ mask0[3];
+                    qSumIter[4] = qSumIter[4] ^ mask1[0];
+                    qSumIter[5] = qSumIter[5] ^ mask1[1];
+                    qSumIter[6] = qSumIter[6] ^ mask1[2];
+                    qSumIter[7] = qSumIter[7] ^ mask1[3];
                 }
             }
         }

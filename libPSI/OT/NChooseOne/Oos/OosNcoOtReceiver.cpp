@@ -320,10 +320,10 @@ namespace osuCrypto
         if (mT0.size()[1] != 4 || mW.size()[1] != 1)
             throw std::runtime_error("generalize this" LOCATION);
 
-
+#ifdef OOS_CHECK_DEBUG
         chl.send(mT0.data(), mT0.size()[0] * mT0.size()[1] * sizeof(block));
         chl.send(mW.data(), mW.size()[0] * mW.size()[1] * sizeof(block));
-
+#endif
 
 
         //for (auto& blk : tSum) blk = ZeroBlock;
@@ -341,12 +341,10 @@ namespace osuCrypto
         for (u64 l = 0; l < lStop; ++l)
         {
 
+            aes.ecbEncCounterMode(aesIdx, statSecParam, challengeBuff.data());
+            aesIdx += statSecParam;
             for (u64 i = 0; i < statSecParam; ++i)
             {
-
-                aes.ecbEncCounterMode(aesIdx, statSecParam, challengeBuff.data());
-                aesIdx += statSecParam;
-
                 expandedBuff[i * 8 + 0] = mask & _mm_srai_epi16(challengeBuff[i], 0);
                 expandedBuff[i * 8 + 1] = mask & _mm_srai_epi16(challengeBuff[i], 1);
                 expandedBuff[i * 8 + 2] = mask & _mm_srai_epi16(challengeBuff[i], 2);
@@ -371,14 +369,17 @@ namespace osuCrypto
                     u8 x0 = *byteIter++;
                     u8 x1 = *byteIter++; 
 
-                    auto t0x0 = *(mT0Iter + 0) & zeroAndAllOneBlocks[x0];
-                    auto t0x1 = *(mT0Iter + 1) & zeroAndAllOneBlocks[x0];
-                    auto t0x2 = *(mT0Iter + 2) & zeroAndAllOneBlocks[x0];
-                    auto t0x3 = *(mT0Iter + 3) & zeroAndAllOneBlocks[x0];
-                    auto t0x4 = *(mT0Iter + 0) & zeroAndAllOneBlocks[x1];
-                    auto t0x5 = *(mT0Iter + 1) & zeroAndAllOneBlocks[x1];
-                    auto t0x6 = *(mT0Iter + 2) & zeroAndAllOneBlocks[x1];
-                    auto t0x7 = *(mT0Iter + 3) & zeroAndAllOneBlocks[x1];
+                    block mask0 = zeroAndAllOneBlocks[x0];
+                    block mask1 = zeroAndAllOneBlocks[x1];
+
+                    auto t0x0 = *(mT0Iter + 0) & mask0;
+                    auto t0x1 = *(mT0Iter + 1) & mask0;
+                    auto t0x2 = *(mT0Iter + 2) & mask0;
+                    auto t0x3 = *(mT0Iter + 3) & mask0;
+                    auto t0x4 = *(mT0Iter + 0) & mask1;
+                    auto t0x5 = *(mT0Iter + 1) & mask1;
+                    auto t0x6 = *(mT0Iter + 2) & mask1;
+                    auto t0x7 = *(mT0Iter + 3) & mask1;
                     
                     tSumIter[0] = tSumIter[0] ^ t0x0;
                     tSumIter[1] = tSumIter[1] ^ t0x1;
