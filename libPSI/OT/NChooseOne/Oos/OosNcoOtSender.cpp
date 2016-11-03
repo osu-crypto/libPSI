@@ -204,6 +204,8 @@ namespace osuCrypto
         block seed = ZeroBlock;
         u64 statSecParam(40);
 
+        if (statSecParam % 8) throw std::runtime_error("Must be a multiple of 8. " LOCATION);
+
         recvCorrection(chl, statSecParam);
         chl.asyncSend(&seed, sizeof(block));
         AES aes(seed);
@@ -224,9 +226,6 @@ namespace osuCrypto
         }
 
 
-        if (mT.size()[1] != 4)
-            throw std::runtime_error("generalize this" LOCATION);
-
 #ifdef OOS_CHECK_DEBUG
         Buff mT0Buff, mWBuff;
         chl.recv(mT0Buff);
@@ -236,8 +235,11 @@ namespace osuCrypto
         auto mW = mWBuff.getMatrixView<block>(mCode.plaintextBlkSize());
 #endif
 
-        std::array<std::array<block, 4>, 2> zeroAndQ;
-        memset(zeroAndQ.data(), 0, 8 * sizeof(block));
+        u64 codeSize = mT.size()[1];
+        std::array<std::array<block, 8>, 2> zeroAndQ;
+        if (codeSize < zeroAndQ.size()) throw std::runtime_error("Make this bigger. " LOCATION);
+        memset(zeroAndQ.data(), 0, zeroAndQ.size() * 2 * sizeof(block));
+
 
 
         std::vector<block> challengeBuff(statSecParam);
@@ -245,10 +247,13 @@ namespace osuCrypto
         block mask = _mm_set_epi8(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
         u8* byteView = (u8*)expandedBuff.data();
 
+
+
         auto corIter = mCorrectionVals.data();
         auto tIter = mT.data();
 
-        u64 lStop = mT.size()[0] / 128 - 1;
+
+        u64 lStop = (mCorrectionIdx - statSecParam + 127) / 128;
         for (u64 l = 0; l < lStop; ++l)
         {
 
@@ -256,8 +261,6 @@ namespace osuCrypto
             aesIdx += statSecParam;
             for (u64 i = 0; i < statSecParam; ++i)
             {
-
-
                 expandedBuff[i * 8 + 0] = mask & _mm_srai_epi16(challengeBuff[i], 0);
                 expandedBuff[i * 8 + 1] = mask & _mm_srai_epi16(challengeBuff[i], 1);
                 expandedBuff[i * 8 + 2] = mask & _mm_srai_epi16(challengeBuff[i], 2);
@@ -268,65 +271,108 @@ namespace osuCrypto
                 expandedBuff[i * 8 + 7] = mask & _mm_srai_epi16(challengeBuff[i], 7);
             }
 
-            //Log::out << Log::lock;
-
             u64 kk = k;
             u64 stopIdx = std::min(mCorrectionIdx - statSecParam - k, u64(128));
             k += 128;
             u8* byteIter = byteView;
-            for (u64 i = 0; i < stopIdx; ++i, ++kk, corIter += 4, tIter += 4)
-            {
-                auto q0 = (corIter[0] & mChoiceBlks[0]);
-                auto q1 = (corIter[1] & mChoiceBlks[1]);
-                auto q2 = (corIter[2] & mChoiceBlks[2]);
-                auto q3 = (corIter[3] & mChoiceBlks[3]);
 
-                zeroAndQ[1][0] = q0 ^ tIter[0];
-                zeroAndQ[1][1] = q1 ^ tIter[1];
-                zeroAndQ[1][2] = q2 ^ tIter[2];
-                zeroAndQ[1][3] = q3 ^ tIter[3];
+            if (mT.size()[1] == 4)
+            {
+                //  vvvvvvvvvvvv   OPTIMIZED for codeword size 4   vvvvvvvvvvvv
+
+                for (u64 i = 0; i < stopIdx; ++i, ++kk, corIter += 4, tIter += 4)
+                {
+                    auto q0 = (corIter[0] & mChoiceBlks[0]);
+                    auto q1 = (corIter[1] & mChoiceBlks[1]);
+                    auto q2 = (corIter[2] & mChoiceBlks[2]);
+                    auto q3 = (corIter[3] & mChoiceBlks[3]);
+
+                    zeroAndQ[1][0] = q0 ^ tIter[0];
+                    zeroAndQ[1][1] = q1 ^ tIter[1];
+                    zeroAndQ[1][2] = q2 ^ tIter[2];
+                    zeroAndQ[1][3] = q3 ^ tIter[3];
 
 #ifdef OOS_CHECK_DEBUG
-                std::vector<block> cw(mCode.codewordBlkSize());
-                mCode.encode(mW[kk], cw);
+                    std::vector<block> cw(mCode.codewordBlkSize());
+                    mCode.encode(mW[kk], cw);
 
-                for (u64 j = 0; j < 4; ++j)
-                {
-                    block tq = mT0[kk][j] ^ zeroAndQ[j][1];
-                    block cb = cw[j] & mChoiceBlks[j];
-
-                    if (neq(tq, cb))
+                    for (u64 j = 0; j < 4; ++j)
                     {
-                        throw std::runtime_error("");
+                        block tq = mT0[kk][j] ^ zeroAndQ[j][1];
+                        block cb = cw[j] & mChoiceBlks[j];
+
+                        if (neq(tq, cb))
+                        {
+                            throw std::runtime_error("");
+                        }
                     }
-                }
 #endif
 
-                auto qSumIter = qSum.data();
+                    auto qSumIter = qSum.data();
 
+                    for (u64 j = 0; j < statSecParam / 2; ++j, qSumIter += 8)
+                    {
+                        u8 x0 = *byteIter++;
+                        u8 x1 = *byteIter++;
 
-                for (u64 j = 0; j < statSecParam / 2; ++j, qSumIter += 8)
-                {
-                    u8 x0 = *byteIter++;
-                    u8 x1 = *byteIter++;
+                        block* mask0 = zeroAndQ[x0].data();
+                        block* mask1 = zeroAndQ[x1].data();
 
-                    block* mask0 = zeroAndQ[x0].data();
-                    block* mask1 = zeroAndQ[x1].data(); 
-
-                    qSumIter[0] = qSumIter[0] ^ mask0[0];
-                    qSumIter[1] = qSumIter[1] ^ mask0[1];
-                    qSumIter[2] = qSumIter[2] ^ mask0[2];
-                    qSumIter[3] = qSumIter[3] ^ mask0[3];
-                    qSumIter[4] = qSumIter[4] ^ mask1[0];
-                    qSumIter[5] = qSumIter[5] ^ mask1[1];
-                    qSumIter[6] = qSumIter[6] ^ mask1[2];
-                    qSumIter[7] = qSumIter[7] ^ mask1[3];
+                        qSumIter[0] = qSumIter[0] ^ mask0[0];
+                        qSumIter[1] = qSumIter[1] ^ mask0[1];
+                        qSumIter[2] = qSumIter[2] ^ mask0[2];
+                        qSumIter[3] = qSumIter[3] ^ mask0[3];
+                        qSumIter[4] = qSumIter[4] ^ mask1[0];
+                        qSumIter[5] = qSumIter[5] ^ mask1[1];
+                        qSumIter[6] = qSumIter[6] ^ mask1[2];
+                        qSumIter[7] = qSumIter[7] ^ mask1[3];
+                    }
                 }
+
+                //  ^^^^^^^^^^^^^   OPTIMIZED for codeword size 4   ^^^^^^^^^^^^^
+            }
+            else
+            {
+                //  vvvvvvvvvvvv       general codeword size        vvvvvvvvvvvv
+
+                for (u64 i = 0; i < stopIdx; ++i, ++kk, corIter += codeSize, tIter += codeSize)
+                {
+                    for (u64 m = 0; m < codeSize; ++m)
+                    {
+                        zeroAndQ[1][m] = (corIter[m] & mChoiceBlks[m]) ^ tIter[m];
+                    }
+
+#ifdef OOS_CHECK_DEBUG
+                    std::vector<block> cw(mCode.codewordBlkSize());
+                    mCode.encode(mW[kk], cw);
+
+                    for (u64 j = 0; j < codeSize; ++j)
+                    {
+                        block tq = mT0[kk][j] ^ zeroAndQ[j][1];
+                        block cb = cw[j] & mChoiceBlks[j];
+
+                        if (neq(tq, cb))
+                        {
+                            throw std::runtime_error("");
+                        }
+                    }
+#endif
+                    auto qSumIter = qSum.data();
+
+                    for (u64 j = 0; j < statSecParam; ++j, qSumIter += codeSize)
+                    {
+                        block* mask0 = zeroAndQ[*byteIter++].data();
+                        for (u64 m = 0; m < codeSize; ++m)
+                        {
+                            qSumIter[m] = qSumIter[m] ^ mask0[m];
+                        }
+                    }
+                }
+
+                //  ^^^^^^^^^^^^^      general codeword size        ^^^^^^^^^^^^^
             }
         }
-
-        //Log::out << Log::unlock;
-
+         
 
         std::vector<block> tSum(statSecParam * mT.size()[1]);
         std::vector<block> wSum(statSecParam * mCode.plaintextBlkSize());

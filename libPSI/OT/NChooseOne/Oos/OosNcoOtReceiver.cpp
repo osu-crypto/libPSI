@@ -59,7 +59,7 @@ namespace osuCrypto
         mT1 = std::move(MatrixView<block>(numOtExt, numCols / 128));
 
 #ifndef NDEBUG
-        mEncodeFlags.resize(numOtExt,0);
+        mEncodeFlags.resize(numOtExt, 0);
 #endif
 
 
@@ -316,9 +316,7 @@ namespace osuCrypto
         u64 k = 0;
 
         std::array<block, 2> zeroAndAllOneBlocks{ ZeroBlock, AllOneBlock };
-
-        if (mT0.size()[1] != 4 || mW.size()[1] != 1)
-            throw std::runtime_error("generalize this" LOCATION);
+        u64 codeSize = mT0.size()[1];
 
 #ifdef OOS_CHECK_DEBUG
         chl.send(mT0.data(), mT0.size()[0] * mT0.size()[1] * sizeof(block));
@@ -326,8 +324,6 @@ namespace osuCrypto
 #endif
 
 
-        //for (auto& blk : tSum) blk = ZeroBlock;
-        //for (auto& blk : wSum) blk = ZeroBlock;
 
         std::vector<block> challengeBuff(statSecParam);
         std::vector<block> expandedBuff(statSecParam * 8);
@@ -337,7 +333,7 @@ namespace osuCrypto
         auto mT0Iter = mT0.data();
         auto mWIter = mW.data();
 
-        u64 lStop = mT0.size()[0] / 128 - 1;
+        u64 lStop = (mCorrectionIdx - statSecParam + 127) / 128;
         for (u64 l = 0; l < lStop; ++l)
         {
 
@@ -355,79 +351,145 @@ namespace osuCrypto
                 expandedBuff[i * 8 + 7] = mask & _mm_srai_epi16(challengeBuff[i], 7);
             }
 
-            //Log::out << Log::lock;
+
             u64 kk = k;
             u64 stopIdx = std::min(mCorrectionIdx - statSecParam - k, u64(128));
             u8* byteIter = byteView;
-            for (u64 i = 0; i < stopIdx; ++i, ++kk, mT0Iter += 4)
+
+            if (codeSize == 4)
             {
 
-                auto tSumIter = tSum.data();
-
-                for (u64 j = 0; j < statSecParam / 2; ++j, tSumIter += 8)
+                //  vvvvvvvvvvvv   OPTIMIZED for codeword size 4   vvvvvvvvvvvv
+                for (u64 i = 0; i < stopIdx; ++i, ++kk, mT0Iter += 4)
                 {
-                    u8 x0 = *byteIter++;
-                    u8 x1 = *byteIter++; 
 
-                    block mask0 = zeroAndAllOneBlocks[x0];
-                    block mask1 = zeroAndAllOneBlocks[x1];
+                    auto tSumIter = tSum.data();
 
-                    auto t0x0 = *(mT0Iter + 0) & mask0;
-                    auto t0x1 = *(mT0Iter + 1) & mask0;
-                    auto t0x2 = *(mT0Iter + 2) & mask0;
-                    auto t0x3 = *(mT0Iter + 3) & mask0;
-                    auto t0x4 = *(mT0Iter + 0) & mask1;
-                    auto t0x5 = *(mT0Iter + 1) & mask1;
-                    auto t0x6 = *(mT0Iter + 2) & mask1;
-                    auto t0x7 = *(mT0Iter + 3) & mask1;
-                    
-                    tSumIter[0] = tSumIter[0] ^ t0x0;
-                    tSumIter[1] = tSumIter[1] ^ t0x1;
-                    tSumIter[2] = tSumIter[2] ^ t0x2;
-                    tSumIter[3] = tSumIter[3] ^ t0x3;
-                    tSumIter[4] = tSumIter[4] ^ t0x4;
-                    tSumIter[5] = tSumIter[5] ^ t0x5;
-                    tSumIter[6] = tSumIter[6] ^ t0x6;
-                    tSumIter[7] = tSumIter[7] ^ t0x7;
+                    for (u64 j = 0; j < statSecParam / 2; ++j, tSumIter += 8)
+                    {
+                        u8 x0 = *byteIter++;
+                        u8 x1 = *byteIter++;
 
+                        block mask0 = zeroAndAllOneBlocks[x0];
+                        block mask1 = zeroAndAllOneBlocks[x1];
+
+                        auto t0x0 = *(mT0Iter + 0) & mask0;
+                        auto t0x1 = *(mT0Iter + 1) & mask0;
+                        auto t0x2 = *(mT0Iter + 2) & mask0;
+                        auto t0x3 = *(mT0Iter + 3) & mask0;
+                        auto t0x4 = *(mT0Iter + 0) & mask1;
+                        auto t0x5 = *(mT0Iter + 1) & mask1;
+                        auto t0x6 = *(mT0Iter + 2) & mask1;
+                        auto t0x7 = *(mT0Iter + 3) & mask1;
+
+                        tSumIter[0] = tSumIter[0] ^ t0x0;
+                        tSumIter[1] = tSumIter[1] ^ t0x1;
+                        tSumIter[2] = tSumIter[2] ^ t0x2;
+                        tSumIter[3] = tSumIter[3] ^ t0x3;
+                        tSumIter[4] = tSumIter[4] ^ t0x4;
+                        tSumIter[5] = tSumIter[5] ^ t0x5;
+                        tSumIter[6] = tSumIter[6] ^ t0x6;
+                        tSumIter[7] = tSumIter[7] ^ t0x7;
+
+                    }
                 }
+
+                kk = k;
+
+                byteIter = byteView;
+                for (u64 i = 0; i < stopIdx; ++i, ++kk, ++mWIter)
+                {
+                    auto wSumIter = wSum.data();
+
+                    for (u64 j = 0; j < statSecParam / 8; ++j, wSumIter += 8)
+                    {
+
+                        auto wx0 = (*mWIter & zeroAndAllOneBlocks[byteIter[0]]);
+                        auto wx1 = (*mWIter & zeroAndAllOneBlocks[byteIter[1]]);
+                        auto wx2 = (*mWIter & zeroAndAllOneBlocks[byteIter[2]]);
+                        auto wx3 = (*mWIter & zeroAndAllOneBlocks[byteIter[3]]);
+                        auto wx4 = (*mWIter & zeroAndAllOneBlocks[byteIter[4]]);
+                        auto wx5 = (*mWIter & zeroAndAllOneBlocks[byteIter[5]]);
+                        auto wx6 = (*mWIter & zeroAndAllOneBlocks[byteIter[6]]);
+                        auto wx7 = (*mWIter & zeroAndAllOneBlocks[byteIter[7]]);
+
+                        wSumIter[0] = wSumIter[0] ^ wx0;
+                        wSumIter[1] = wSumIter[1] ^ wx1;
+                        wSumIter[2] = wSumIter[2] ^ wx2;
+                        wSumIter[3] = wSumIter[3] ^ wx3;
+                        wSumIter[4] = wSumIter[4] ^ wx4;
+                        wSumIter[5] = wSumIter[5] ^ wx5;
+                        wSumIter[6] = wSumIter[6] ^ wx6;
+                        wSumIter[7] = wSumIter[7] ^ wx7;
+
+                        byteIter += 8;
+                    }
+                }
+
+                //  ^^^^^^^^^^^^^   OPTIMIZED for codeword size 4   ^^^^^^^^^^^^^
             }
-            //Log::out << Log::unlock;
+            else
+            {
+                //  vvvvvvvvvvvv       general codeword size        vvvvvvvvvvvv
+
+                for (u64 i = 0; i < stopIdx; ++i, ++kk, mT0Iter += codeSize)
+                {
+
+                    auto tSumIter = tSum.data();
+
+                    for (u64 j = 0; j < statSecParam; ++j, tSumIter += codeSize)
+                    {
+                        block mask0 = zeroAndAllOneBlocks[*byteIter++];
+                        for (u64 m = 0; m < codeSize; ++m)
+                        {
+                            tSumIter[m] = tSumIter[m] ^ *(mT0Iter + m) & mask0;
+                        }
+                    }
+                }
+
+                if (mW.size()[1] != 1)
+                    throw std::runtime_error("generalize this code vvvvvv " LOCATION);
+
+                kk = k;
+
+                byteIter = byteView;
+                for (u64 i = 0; i < stopIdx; ++i, ++kk, ++mWIter)
+                {
+                    auto wSumIter = wSum.data();
+
+                    for (u64 j = 0; j < statSecParam / 8; ++j, wSumIter += 8)
+                    {
+
+                        auto wx0 = (*mWIter & zeroAndAllOneBlocks[byteIter[0]]);
+                        auto wx1 = (*mWIter & zeroAndAllOneBlocks[byteIter[1]]);
+                        auto wx2 = (*mWIter & zeroAndAllOneBlocks[byteIter[2]]);
+                        auto wx3 = (*mWIter & zeroAndAllOneBlocks[byteIter[3]]);
+                        auto wx4 = (*mWIter & zeroAndAllOneBlocks[byteIter[4]]);
+                        auto wx5 = (*mWIter & zeroAndAllOneBlocks[byteIter[5]]);
+                        auto wx6 = (*mWIter & zeroAndAllOneBlocks[byteIter[6]]);
+                        auto wx7 = (*mWIter & zeroAndAllOneBlocks[byteIter[7]]);
 
 
-            kk = k;
+                        wSumIter[0] = wSumIter[0] ^ wx0;
+                        wSumIter[1] = wSumIter[1] ^ wx1;
+                        wSumIter[2] = wSumIter[2] ^ wx2;
+                        wSumIter[3] = wSumIter[3] ^ wx3;
+                        wSumIter[4] = wSumIter[4] ^ wx4;
+                        wSumIter[5] = wSumIter[5] ^ wx5;
+                        wSumIter[6] = wSumIter[6] ^ wx6;
+                        wSumIter[7] = wSumIter[7] ^ wx7;
+
+
+                        byteIter += 8;
+                    }
+                }
+
+
+                //  ^^^^^^^^^^^^^      general codeword size        ^^^^^^^^^^^^^
+            }
+
+
             k += 128;
-
-            byteIter = byteView;
-            for (u64 i = 0; i < stopIdx; ++i, ++kk, ++mWIter)
-            {
-                auto wSumIter = wSum.data();
-
-                for (u64 j = 0; j < statSecParam / 8; ++j, wSumIter += 8)
-                {
-
-                    auto wx0 = (*mWIter & zeroAndAllOneBlocks[byteIter[0]]);
-                    auto wx1 = (*mWIter & zeroAndAllOneBlocks[byteIter[1]]);
-                    auto wx2 = (*mWIter & zeroAndAllOneBlocks[byteIter[2]]);
-                    auto wx3 = (*mWIter & zeroAndAllOneBlocks[byteIter[3]]);
-                    auto wx4 = (*mWIter & zeroAndAllOneBlocks[byteIter[4]]);
-                    auto wx5 = (*mWIter & zeroAndAllOneBlocks[byteIter[5]]);
-                    auto wx6 = (*mWIter & zeroAndAllOneBlocks[byteIter[6]]);
-                    auto wx7 = (*mWIter & zeroAndAllOneBlocks[byteIter[7]]);
-
-                    byteIter += 8;
-
-                    wSumIter[0] = wSumIter[0] ^ wx0;
-                    wSumIter[1] = wSumIter[1] ^ wx1;
-                    wSumIter[2] = wSumIter[2] ^ wx2;
-                    wSumIter[3] = wSumIter[3] ^ wx3;
-                    wSumIter[4] = wSumIter[4] ^ wx4;
-                    wSumIter[5] = wSumIter[5] ^ wx5;
-                    wSumIter[6] = wSumIter[6] ^ wx6;
-                    wSumIter[7] = wSumIter[7] ^ wx7;
-                }
-            }
-
         }
 
 
