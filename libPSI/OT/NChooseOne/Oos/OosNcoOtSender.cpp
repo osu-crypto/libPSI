@@ -2,7 +2,7 @@
 #include "OT/Tools/Tools.h"
 #include "Common/Log.h"
 #include "OosDefines.h"
-
+#include "Common/ByteStream.h"
 namespace osuCrypto
 {
     //#define OTEXT_DEBUG
@@ -134,51 +134,36 @@ namespace osuCrypto
         std::array<block, 10> codeword;
         mCode.encode(plaintext, codeword);
 
-#ifdef AES_HASH
-        std::array<block,10> hashOut;
-
-        for (u64 i = 0; i < mT.size(); ++i)
-        {
-            // use this codeword buffer for two things, the codeword
-            // itself and as a hash input buffer.
-            codeword[i] = mT[i] ^
-                (otCorrectionMessage[i] ^ codeword[i]) & mChoiceBlks[i];
-        }
-
-        // compute the AES hash H(x) = AES(x_1) + x_1 + ... + AES(x_n) + x_n 
-        mAesFixedKey.ecbEncBlocks(codeword.data(), mT.size(), hashOut.data());
-
-        val = ZeroBlock;
-        for (u64 i = 0; i < mT.size(); ++i)
-        {
-            val = val ^ codeword[i] ^ hashOut[i];
-        }
-#else
         SHA1  sha1;
         u8 hashBuff[SHA1::HashSize];
 
+        auto* corVal = mCorrectionVals.data() + otIdx * mCorrectionVals.size()[1];
+        auto* tVal = mT.data() + otIdx * mT.size()[1];
+
         for (u64 i = 0; i < mT.size()[1]; ++i)
         {
-            codeword[i] 
-                = mT[otIdx][i] 
-                ^ (mCorrectionVals[otIdx][i] ^ codeword[i]) & mChoiceBlks[i];
+            block t0 = corVal[i] ^ codeword[i];
+            block t1 = t0 & mChoiceBlks[i];
+
+            codeword[i]
+                = tVal[i]
+                ^ t1;
         }
 
-        sha1.Update((u8*)codeword.data(),  sizeof(block) * mT.size()[1]);
+        sha1.Update((u8*)codeword.data(), sizeof(block) * mT.size()[1]);
         sha1.Final(hashBuff);
         val = toBlock(hashBuff);
 
-#endif // AES_HASH
 
     }
 
     void OosNcoOtSender::getParams(
         bool maliciousSecure,
-        u64 compSecParm, 
-        u64 statSecParam, 
-        u64 inputBitCount, 
-        u64 inputCount, 
-        u64 & inputBlkSize, 
+        u64 compSecParm,
+        u64 statSecParam,
+        u64 inputBitCount,
+        u64 inputCount,
+        u64 & inputBlkSize,
         u64 & baseOtCount)
     {
         auto ncoPlainBitCount = mCode.plaintextBitSize();
@@ -206,7 +191,7 @@ namespace osuCrypto
 #endif // !NDEBUG        
 
 
-        auto* dest = mCorrectionVals.begin() + (mCorrectionIdx * mCorrectionVals.size()[1]);
+        auto dest = mCorrectionVals.begin() + (mCorrectionIdx * mCorrectionVals.size()[1]);
         chl.recv(dest,
             recvCount * sizeof(block) * mCorrectionVals.size()[1]);
 
@@ -215,6 +200,158 @@ namespace osuCrypto
 
     void OosNcoOtSender::check(Channel & chl)
     {
+
+        block seed = ZeroBlock;
+        u64 statSecParam(40);
+
+        recvCorrection(chl,statSecParam);
+        chl.asyncSend(&seed, sizeof(block));
+        AES aes(seed);
+        u64 aesIdx(0);
+        u64 k = 0;
+
+        std::vector<block> qSum(statSecParam * mT.size()[1]);
+
+        for (u64 i = 0; i < statSecParam; ++i)
+        { 
+            for (u64 j = 0; j < mT.size()[1]; ++j)
+            {
+                qSum[i * mT.size()[1] + j]
+                    = (mCorrectionVals[mCorrectionIdx - statSecParam + i][j]
+                    & mChoiceBlks[j])
+                    ^ mT[mCorrectionIdx - statSecParam + i][j];
+            }
+        }
+
+
+        if (mT.size()[1] != 4)
+            throw std::runtime_error("generalize this" LOCATION);
+        Buff mT0Buff, mWBuff;
+        chl.recv(mT0Buff);
+        chl.recv(mWBuff);
+
+        auto mT0 = mT0Buff.getMatrixView<block>(mCode.codewordBlkSize());
+        auto mW = mWBuff.getMatrixView<block>(mCode.plaintextBlkSize());
+
+
+        std::array<std::array<block, 2>, 4> zeroAndQ;
+        memset(zeroAndQ.data(),0, 8 * sizeof(block));
+
+
+        std::vector<block> challengeBuff(statSecParam);
+        std::vector<block> expandedBuff(statSecParam * 8);
+        block mask = _mm_set_epi8(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+        u8* byteView = (u8*)expandedBuff.data();
+
+        auto corIter = mCorrectionVals.data();
+        auto tIter = mT.data();
+
+        u64 lStop = mT.size()[0] / 128 - 1;
+        for (u64 l = 0; l < lStop; ++l)
+        {
+
+            for (u64 i = 0; i < statSecParam; ++i)
+            {
+
+                aes.ecbEncCounterMode(aesIdx, statSecParam, challengeBuff.data());
+                aesIdx += statSecParam;
+
+                expandedBuff[i * 8 + 0] = mask & _mm_srai_epi16(challengeBuff[i], 0);
+                expandedBuff[i * 8 + 1] = mask & _mm_srai_epi16(challengeBuff[i], 1);
+                expandedBuff[i * 8 + 2] = mask & _mm_srai_epi16(challengeBuff[i], 2);
+                expandedBuff[i * 8 + 3] = mask & _mm_srai_epi16(challengeBuff[i], 3);
+                expandedBuff[i * 8 + 4] = mask & _mm_srai_epi16(challengeBuff[i], 4);
+                expandedBuff[i * 8 + 5] = mask & _mm_srai_epi16(challengeBuff[i], 5);
+                expandedBuff[i * 8 + 6] = mask & _mm_srai_epi16(challengeBuff[i], 6);
+                expandedBuff[i * 8 + 7] = mask & _mm_srai_epi16(challengeBuff[i], 7);
+            }
+
+            //Log::out << Log::lock;
+
+            u64 kk = k;
+            u64 stopIdx = std::min(mCorrectionIdx - statSecParam - k, u64(128));
+            k += 128;
+            u8* byteIter = byteView;
+            for (u64 i = 0; i < stopIdx; ++i, ++kk, corIter += 4, tIter += 4)
+            {
+                auto q0 = (corIter[0] & mChoiceBlks[0]) ;
+                auto q1 = (corIter[1] & mChoiceBlks[1]) ;
+                auto q2 = (corIter[2] & mChoiceBlks[2]) ;
+                auto q3 = (corIter[3] & mChoiceBlks[3]) ;
+                        
+                zeroAndQ[0][1] = q0 ^ tIter[0];
+                zeroAndQ[1][1] = q1 ^ tIter[1];
+                zeroAndQ[2][1] = q2 ^ tIter[2];
+                zeroAndQ[3][1] = q3 ^ tIter[3];
+
+                std::vector<block> cw(mCode.codewordBlkSize());
+                mCode.encode(mW[kk], cw);
+
+                for (u64 j = 0; j < 4; ++j)
+                {
+                    block tq = mT0[kk][j] ^ zeroAndQ[j][1];
+                    block cb = cw[j] & mChoiceBlks[j];
+
+                    if (neq(tq, cb))
+                    {
+                        throw std::runtime_error("");
+                    }
+                }
+
+                auto qSumIter = qSum.data();
+
+
+                for (u64 j = 0; j < statSecParam / 2; ++j, qSumIter += 8)
+                {
+                    u8 x0 = *byteIter++;
+                    u8 x1 = *byteIter++;
+
+                    qSumIter[0] = qSumIter[0] ^ zeroAndQ[0][x0];
+                    qSumIter[1] = qSumIter[1] ^ zeroAndQ[1][x0];
+                    qSumIter[2] = qSumIter[2] ^ zeroAndQ[2][x0];
+                    qSumIter[3] = qSumIter[3] ^ zeroAndQ[3][x0];
+                    qSumIter[4] = qSumIter[4] ^ zeroAndQ[0][x1];
+                    qSumIter[5] = qSumIter[5] ^ zeroAndQ[1][x1];
+                    qSumIter[6] = qSumIter[6] ^ zeroAndQ[2][x1];
+                    qSumIter[7] = qSumIter[7] ^ zeroAndQ[3][x1];
+                }
+            }
+        }
+
+        //Log::out << Log::unlock;
+
+
+        std::vector<block> tSum(statSecParam * mT.size()[1]);
+        std::vector<block> wSum(statSecParam * mCode.plaintextBlkSize());
+
+        chl.recv(tSum.data(), tSum.size() * sizeof(block));
+        chl.recv(wSum.data(), wSum.size() * sizeof(block));
+
+        std::vector<block> cw(mCode.codewordBlkSize());
+
+        for (u64 i = 0; i < statSecParam; ++i)
+        {
+            ArrayView<block> word(
+                wSum.begin() + i * mCode.plaintextBlkSize(),
+                wSum.begin() + (i + 1) * mCode.plaintextBlkSize());
+
+            mCode.encode(word, cw);
+
+            for (u64 j = 0; j < cw.size(); ++j)
+            {
+                block tq = tSum[i * cw.size() + j] ^ qSum[i * cw.size() + j];
+                block cb = cw[j] & mChoiceBlks[j];
+
+                if (neq(tq, cb))
+                {
+                    //Log::out << "bad OOS16 OT check. " << i << "m " << j << Log::endl;
+                    //return;
+                    throw std::runtime_error("bad OOS16 OT check. " LOCATION);
+                }
+            }
+
+        }
+
     }
 
 

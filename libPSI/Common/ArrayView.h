@@ -4,15 +4,94 @@
 #include <array>
 namespace osuCrypto {
 
+
+#ifndef NDEBUG
+    template<typename T>
+    struct ArrayIterator
+    {
+        ArrayIterator(T*begin, T* cur, T* end)
+            :mBegin(begin), mCur(cur), mEnd(end)
+        {
+            if (mCur > mEnd) throw std::runtime_error("iter went past end. " LOCATION);
+            if (mCur < mBegin - 1) throw std::runtime_error("iter went past begin. " LOCATION);
+        }
+        T* mBegin, *mCur, *mEnd;
+
+        ArrayIterator<T>& operator++() {
+            ++mCur;
+            if (mCur > mEnd) throw std::runtime_error("iter went past end. " LOCATION);
+            return *this;
+        }
+
+        ArrayIterator<T> operator++(int) {
+            return ArrayIterator<T>(mBegin, mCur + 1, mEnd);
+        }
+
+        ArrayIterator<T> operator+(int i) {
+            return ArrayIterator<T>(mBegin, mCur + i, mEnd);
+        }
+
+        ArrayIterator<T>& operator+=(int i) {
+            mCur += i;
+            if (mCur > mEnd) throw std::runtime_error("iter went past end. " LOCATION);
+            return *this;
+        }
+
+        ArrayIterator<T>& operator--() {
+            --mCur;
+            if (mCur < mBegin - 1) throw std::runtime_error("iter went past end. " LOCATION);
+            return *this;
+        }
+
+        ArrayIterator<T> operator--(int) {
+            return ArrayIterator<T>(mBegin, mCur - 1, mEnd);
+        }
+
+        ArrayIterator<T> operator-(int i) {
+            return ArrayIterator<T>(mBegin, mCur - i, mEnd);
+        }
+
+        ArrayIterator<T>& operator-=(int i) {
+            mCur -= i;
+            if (mCur < mBegin - 1) throw std::runtime_error("iter went past end. " LOCATION);
+            return *this;
+        }
+
+
+        T& operator*() {
+            if (mCur >= mEnd || mCur < mBegin)throw std::runtime_error("deref past begin or end. " LOCATION);
+            return *mCur; 
+        }
+
+        T& operator[](i64 i) {
+            if (mCur + i >= mEnd || mCur + i < mBegin)throw std::runtime_error("idx went past begin or end. " LOCATION);
+            return mCur[i];
+        }
+
+        bool operator<(const ArrayIterator<T>& cmp) { return mCur < cmp.mCur; }
+        bool operator>(const ArrayIterator<T>& cmp) { return mCur > cmp.mCur; }
+        bool operator<=(const ArrayIterator<T>& cmp) { return mCur <= cmp.mCur; }
+        bool operator>=(const ArrayIterator<T>& cmp) { return mCur >= cmp.mCur; }
+        bool operator==(const ArrayIterator<T>& cmp) { return mCur == cmp.mCur; }
+        bool operator!=(const ArrayIterator<T>& cmp) { return mCur != cmp.mCur; }
+
+        ArrayIterator<T>* operator=(const ArrayIterator<T>& cmp)
+        {
+            mBegin = cmp.mBegin; mCur = cmp.mCur; mEnd = cmp.mEnd; return *this;
+        }
+
+        operator T*() { return mCur; }
+    };
+#endif
+
     template<class T>
     class ArrayView
     {
-
+         
         T* mData;
         u64 mSize;
         bool mOwner;
-    public:
-        typedef T* Iterator;
+    public: 
 
 
         ArrayView()
@@ -101,8 +180,23 @@ namespace osuCrypto {
 
         T* data() const { return mData; };
 
-        Iterator begin() const { return mData; };
-        Iterator end() const { return mData + mSize; }
+#ifdef NDEBUG
+        T* begin() const { return mData; };
+        T* end() const { return mData + mSize; }
+#else
+        ArrayIterator<T> begin() const
+        {
+            T* b = mData;
+            T* c = mData;
+            T* e = (T*)mData + (mSize);
+
+            return ArrayIterator<T>(b, c, e);
+        };
+        ArrayIterator<T> end() const {
+            T* e = (T*)mData + (mSize);
+            return ArrayIterator<T>(mData, e, e);
+        }
+#endif
 
         //T& operator[](int idx) { if (idx >= mSize) throw std::runtime_error(LOCATION); return mData[idx]; }
         T& operator[](u64 idx) const

@@ -127,39 +127,26 @@ namespace osuCrypto
 
 #endif // !NDEBUG
 
-#ifdef AES_HASH
-        std::array<block, 10> sums, hashOut;
-
-        for (u64 i = 0; i < correlatedMgs.size(); ++i)
-        {
-            sums[i] = correlatedMgs[i] ^
-                (otCorrectionMessage[i] ^ inputword[i]) & mChoiceBlks[i];
-        }
-        // compute the AES hash H(x) = AES(x_1) + x_1 + ... + AES(x_n) + x_n 
-        mAesFixedKey.ecbEncBlocks(sums.data(), correlatedMgs.size(), hashOut.data());
-
-        val = ZeroBlock;
-        for (u64 i = 0; i < correlatedMgs.size(); ++i)
-        {
-            val = val ^ sums[i] ^ hashOut[i];
-        }
-#else
         SHA1  sha1;
-        block sum;
         u8 hashBuff[SHA1::HashSize];
+        std::array<block, 10> codeword;
+
+        auto* corVal = mCorrectionVals.data() + otIdx * mCorrectionVals.size()[1];
+        auto* tVal = mT.data() + otIdx * mT.size()[1];
 
         for (u64 i = 0; i < mT.size()[1]; ++i)
         {
-            sum = mT[otIdx][i] ^
-                (mCorrectionVals[otIdx][i] ^ inputword[i]) & mChoiceBlks[i];
+            //block t0 = mCorrectionVals[otIdx][i] ^ codeword[i];
+            block t0 = corVal[i] ^ inputword[i];
+            block t1 = t0 & mChoiceBlks[i];
 
-            sha1.Update((u8*)&sum, sizeof(block));
+            codeword[i]
+                = tVal[i]
+                ^ t1;
         }
-
+        sha1.Update((u8*)codeword.data(), sizeof(block) * mT.size()[1]);
         sha1.Final(hashBuff);
         val = toBlock(hashBuff);
-
-#endif // AES_HASH
 
     }
 
@@ -186,7 +173,7 @@ namespace osuCrypto
 #endif // !NDEBUG        
 
 
-        auto* dest = mCorrectionVals.begin() + (mCorrectionIdx * mCorrectionVals.size()[1]);
+        auto dest = mCorrectionVals.begin() + (mCorrectionIdx * mCorrectionVals.size()[1]);
         chl.recv(dest,
             recvCount * sizeof(block) * mCorrectionVals.size()[1]);
 

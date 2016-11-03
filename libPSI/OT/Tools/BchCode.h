@@ -12,6 +12,7 @@ namespace osuCrypto
     public:
         BchCode();
         ~BchCode();
+        BchCode(const BchCode& cp);
 
 
         void loadTxtFile(const std::string& fileName);
@@ -31,7 +32,8 @@ namespace osuCrypto
         std::vector<block> mG;
         //std::vector<std::array<block, 2>> mG1;
         //std::vector<std::array<block, 4>> mG2;
-        std::vector<std::array<block, 256>> mG8;
+        //std::vector<std::array<block, 256>> mG8;
+        std::vector<block> mG8;
 
         u64 plaintextBlkSize()const;
         u64 codewordBlkSize()const;

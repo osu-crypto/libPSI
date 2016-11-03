@@ -214,8 +214,7 @@ namespace osuCrypto
 
 
 
-        TODO("actually compute the required mask size!!!!!!!!!!!!!!!!!!!!!!");
-        u64 maskSize = 16;
+        u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN) - 1, 8) / 8;
 
         if (maskSize > sizeof(block))
             throw std::runtime_error("masked are stored in blocks, so they can exceed that size");
@@ -411,6 +410,7 @@ namespace osuCrypto
                 }
 
 
+
                 Buff buff;
                 otIdx = 0;
 
@@ -418,9 +418,6 @@ namespace osuCrypto
                 permDone.get();
                 if (tIdx == 0) gTimer.setTimePoint("online.send.permPromDone");
 
-                std::vector<u16> binPerm(mBins.mMaxBinSize);
-                for (u64 i = 0; i < binPerm.size(); ++i)
-                    binPerm[i] = (u16)i;
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
@@ -478,6 +475,10 @@ namespace osuCrypto
 
                 }
                 if (tIdx == 0) gTimer.setTimePoint("online.send.sendMask");
+
+
+                otRecv.check(chl);
+                otSend.check(chl);
 
                 // block until all masks are computed. the last to finish will set the promise...
                 if (--remainingMasks)

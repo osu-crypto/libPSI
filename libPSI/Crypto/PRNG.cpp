@@ -69,24 +69,24 @@ namespace osuCrypto {
         return mSeed;
     }
 
-    void PRNG::get(u8 * dest, u64 length)
-    {
+    //void PRNG::get(u8 * dest, u64 length)
+    //{
 
-        u8* destu8 = (u8*)dest;
-        while (length)
-        {
-            u64 step = std::min(length, mBufferByteCapacity - mBytesIdx);
+    //    u8* destu8 = (u8*)dest;
+    //    while (length)
+    //    {
+    //        u64 step = std::min(length, mBufferByteCapacity - mBytesIdx);
 
-            memcpy(destu8, ((u8*)mBuffer.data()) + mBytesIdx, step);
+    //        memcpy(destu8, ((u8*)mBuffer.data()) + mBytesIdx, step);
 
-            destu8 += step;
-            length -= step;
-            mBytesIdx += step;
+    //        destu8 += step;
+    //        length -= step;
+    //        mBytesIdx += step;
 
-            if (mBytesIdx == mBufferByteCapacity)
-                refillBuffer();
-        }
-    }
+    //        if (mBytesIdx == mBufferByteCapacity)
+    //            refillBuffer();
+    //    }
+    //}
 
 
     void PRNG::refillBuffer()

@@ -15,16 +15,16 @@ namespace osuCrypto
         T* mData;
 
         // Matrix is index by [rowIdx][columnIdx]
-        std::array<u64,2> mSize;
+        std::array<u64, 2> mSize;
         bool mOwner;
 
     public:
-        typedef T* Iterator;
 
+        
 
         MatrixView()
             :mData(nullptr),
-            mSize({0,0}),
+            mSize({ 0,0 }),
             mOwner(false)
         {
         }
@@ -41,7 +41,7 @@ namespace osuCrypto
             mOwner(av.mOwner)
         {
             av.mData = nullptr;
-            av.mSize = {0,0};
+            av.mSize = { 0,0 };
             av.mOwner = false;
         }
 
@@ -62,6 +62,13 @@ namespace osuCrypto
             mSize({ rowSize, columnSize }),
             mOwner(owner)
         {}
+
+        MatrixView(T* start, T* end, u64 numColumns) :
+            mData(&*start),
+            mSize({ (end - start) / numColumns, numColumns }),
+            mOwner(false)
+        {
+        }
 
         template <class Iter>
         MatrixView(Iter start, Iter end, u64 numColumns, typename Iter::iterator_category *p = 0) :
@@ -92,7 +99,7 @@ namespace osuCrypto
             mOwner = copy.mOwner;
 
             copy.mData = nullptr;
-            copy.mSize = std::array<u64, 2>{0,0};
+            copy.mSize = std::array<u64, 2>{0, 0};
             copy.mOwner = false;
 
             return copy;
@@ -110,9 +117,23 @@ namespace osuCrypto
 
         const std::array<u64, 2>& size() const { return mSize; }
         T* data() const { return mData; };
+#ifndef NDEBUG
+        ArrayIterator<T> begin() const 
+        { 
+            T* b = mData;
+            T* c = mData;
+            T* e = (T*)mData + (mSize[0] * mSize[1]);
 
-        Iterator begin() const { return mData; };
-        Iterator end() const { return mData + mSize; }
+            return ArrayIterator<T>(b, c, e);
+        };
+        ArrayIterator<T> end() const {
+            T* e = (T*)mData + (mSize[0] * mSize[1]);
+            return ArrayIterator<T>(mData, e, e);
+        }
+#else
+        T* begin() const { return mData; };
+        T* end() const { return mData + mSize; }
+#endif
 
         ArrayView<T> operator[](u64 rowIdx) const
         {

@@ -31,6 +31,8 @@ namespace osuCrypto
 
     EllipticCurve::~EllipticCurve()
     {
+        mG = std::vector<Point>();
+
         if (mMiracl)
         {
             mirexit(mMiracl);

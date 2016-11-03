@@ -233,6 +233,7 @@ namespace osuCrypto
     {
         sendInput(inputs, { &chl });
     }
+
     void OtBinMPsiReceiver::sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls)
     {
         // this is the online phase.
@@ -242,11 +243,10 @@ namespace osuCrypto
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
 
+
+        
         std::vector<block> recvMasks(mN);
-
-
-        TODO("actually compute the required mask size!!!!!!!!!!!!!!!!!!!!!!");
-        u64 maskSize = 16;
+        u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN) - 1, 8) / 8;
 
         if (maskSize > sizeof(block))
             throw std::runtime_error("masked are stored in blocks, so they can exceed that size");
@@ -415,6 +415,7 @@ namespace osuCrypto
                     otRecv.sendCorrection(chl, currentStepSize * mBins.mMaxBinSize);
                 }
 
+
                 if (tIdx == 0) gTimer.setTimePoint("online.recv.recvMask");
 
                 otIdx = 0;
@@ -488,6 +489,10 @@ namespace osuCrypto
                     }
 
                 }
+
+
+                otSend.check(chl);
+                otRecv.check(chl);
 
                 // use aes as a hash function. A weak invertable one. but security doesnt matter here.
                 mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());

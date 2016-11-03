@@ -129,7 +129,9 @@ namespace osuCrypto
             throw std::runtime_error("not implemented");
 
 
+
         mHashes.resize(n * mParams.mNumHashes, u64(-1));
+
 
         mHashesView = MatrixView<u64>(mHashes.begin(), mHashes.end(), mParams.mNumHashes);
 
@@ -157,26 +159,36 @@ namespace osuCrypto
         Workspace& w)
     {
 
+        u64 width = mHashesView.size()[1];
         u64 remaining = inputIdxs.size();
         u64 tryCount = 0;
+
+#ifndef  NDEBUG
+        if (hashs.size()[1] != width)
+            throw std::runtime_error("" LOCATION);
+#endif // ! NDEBUG
+
 
         for (u64 i = 0; i < inputIdxs.size(); ++i)
         {
             for (u64 j = 0; j < mParams.mNumHashes; ++j)
             {
-                mHashesView[inputIdxs[i]][j] = hashs[i][j];
+                //mHashesView[inputIdxs[i]][j] = hashs[i][j];
+                (mHashesView.data() + inputIdxs[i] * width)[j] = (hashs.data() + i * width)[j];
             }
             w.curHashIdxs[i] = 0;
         }
 
-        while (remaining && tryCount++ < 1000)
+
+        while (remaining && tryCount++ < 100)
         {
 
             // this data fetch can be slow (after the first loop). 
             // As such, lets do several fetches in parallel.
             for (u64 i = 0; i < remaining; ++i)
             {
-                w.curAddrs[i] = mHashesView[inputIdxs[i]][w.curHashIdxs[i]] % mBins.size();
+                //w.curAddrs[i] = mHashesView[inputIdxs[i]][w.curHashIdxs[i]] % mBins.size();
+                w.curAddrs[i] = (mHashesView.data() + inputIdxs[i] * width)[w.curHashIdxs[i]] % mBins.size();
             }
 
             // same thing here, this fetch is slow. Do them in parallel.

@@ -17,6 +17,14 @@ namespace osuCrypto
     {
     }
 
+    BchCode::BchCode(const BchCode &cp)
+        :
+        mCodewordBitSize(cp.mCodewordBitSize),
+        mG(cp.mG),
+        mG8(cp.mG8)
+    {
+    }
+
     void BchCode::loadTxtFile(const std::string & fileName)
     {
         std::ifstream in;
@@ -39,7 +47,7 @@ namespace osuCrypto
 
         mG.resize(numRows * ((numCols + 127) / 128));
         //mG1.resize(numRows * ((numCols + 127) / 128));
-        
+
         auto iter = mG.begin();
         //auto iter1 = mG1.begin();
 
@@ -91,7 +99,7 @@ namespace osuCrypto
     void BchCode::loadBinFile(std::istream & out)
     {
 
-        u64 size =0;
+        u64 size = 0;
 
         out.read((char *)&size, sizeof(u64));
         out.read((char *)&mCodewordBitSize, sizeof(u64));
@@ -105,7 +113,6 @@ namespace osuCrypto
         mG.resize(size);
         //mG1.resize(size);
         //mG2.resize(size / 2);
-        mG8.resize(roundUpTo((size + 7 )/ 8, 8));
 
         out.read((char *)mG.data(), mG.size() * sizeof(block));
 
@@ -143,15 +150,18 @@ namespace osuCrypto
     void BchCode::generateMod8Table()
     {
 
-        memset(mG8.data(), 0, mG8.size() * sizeof(std::array<block, 256>));
+        mG8.resize(roundUpTo((mG.size() + 7) / 8, 8) * 256);
+
+        memset(mG8.data(), 0, mG8.size() * sizeof(block));
 
         MatrixView<block> g(mG.begin(), mG.end(), codewordBlkSize());
-        MatrixView<std::array<block, 256>> g8(mG8.begin(), mG8.end(), codewordBlkSize());
+        MatrixView<block> g8(mG8.begin(), mG8.end(), codewordBlkSize() * 256);
 
 
         for (u64 i = 0; i < g8.size()[0]; ++i)
         {
-            //std::array<std::vector<u64>, 256> counts;
+
+            MatrixView<block> g8Block(g8[i].begin(), g8[i].end(), codewordBlkSize());
 
             for (u64 gRow = 0; gRow < 8; ++gRow)
             {
@@ -165,12 +175,10 @@ namespace osuCrypto
                         if (i * 8 + gRow < g.size()[0])
                         {
 
-                            //counts[g8Row].push_back(gRow);
-
                             for (u64 wordIdx = 0; wordIdx < codewordBlkSize(); ++wordIdx)
                             {
-                                g8[i][wordIdx][g8Row] 
-                                    = g8[i][wordIdx][g8Row]  
+                                g8Block[g8Row][wordIdx]
+                                    = g8Block[g8Row][wordIdx]
                                     ^ g[i * 8 + gRow][wordIdx];
                             }
                         }
@@ -181,52 +189,6 @@ namespace osuCrypto
                     g8Row += stride;
                 }
             }
-
-
-            //block exp = ZeroBlock;// = g[i * 8 + 0][0] ^ g[i * 8 + 1][0];
-            //for (u64 j = 0; j < 8; ++j)
-            //{
-            //    if(i * 8 + j < g.size()[0])
-            //        exp = exp ^ g[i * 8 + j][0];
-            //}
-
-            //if (neq(exp, g8[i][0][255]))
-            //{
-            //    Log::out << "failed " << i << Log::endl;
-            //    Log::out << g8[i][0][255] << "  " << g8[i][0][0] << Log::endl;
-            //    Log::out <<exp << "  " << ZeroBlock << Log::endl;
-            //}
-
-            //if (i == 0)
-            //{
-
-            //    for (u64 j = 0; j < 256; ++j)
-            //    {
-            //        Log::out << j << ":  ";
-
-            //        u64 k = 0, b = 0;
-            //        while (k < counts[j].size())
-            //        {
-            //            if (b == counts[j][k])
-            //            {
-            //                Log::out << "1";
-            //                ++k;
-            //            }
-            //            else
-            //            {
-            //                Log::out << "0";
-            //            }
-            //            ++b;
-            //        }
-            //        //for (u64 k = 0; k < counts[j].size(); ++k)
-            //        //{
-            //        //    if (k) Log::out << ",";
-            //        //    Log::out << " " << counts[j][k];
-            //        //}
-            //        Log::out << Log::endl;
-            //    }
-            //    Log::out << Log::endl;
-            //}
         }
     }
 
@@ -261,194 +223,60 @@ namespace osuCrypto
         if (plaintxt.size() != plaintextBlkSize() ||
             codeword.size() < codewordBlkSize())
             throw std::runtime_error("");
+
+        if (codewordBlkSize() != 4 || plaintextBitSize() != 76)
+            throw std::runtime_error("generalize this code. a naive version is below but realize this is significantly slower " LOCATION);
+
+        ////A general for loop, slower...
+        //for (u64 i = 0, k = 0; i < cnt; ++i)
+        //{
+        //    for (u64 j = 0; j < codeword.size(); ++j, ++k)
+        //    {
+        //        // sBlock works as an if statment, but its faster...
+        //        codeword[j] = codeword[j] ^ (mG[k] & sBlockMasks[*bitIter++]);
+        //    }
+        //}
+#endif
+        std::array<block, 8>
+            c{ ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock,ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock };
+
+        u8* byteView = (u8*)plaintxt.data();
+        u64 kStop = (mG8.size() / 8) * 8,
+            k = 0,
+            i = 0;
+
+        u64 byteStep = 2;
+        u64 codeSize = 4;
+        u64 rowSize = 256 * codeSize;
+        u64 kStep = rowSize * byteStep;
+
+        for (; k < kStop; i += byteStep, k += kStep)
+        {
+            block* g0 = mG8.data() + k + byteView[i] * codeSize;
+            block* g1 = mG8.data() + k + byteView[i + 1] * codeSize + rowSize;
+
+#ifndef NDEBUG
+            if (g1 >= mG8.data() + mG8.size() + 4)throw std::runtime_error("bad indexing");
 #endif
 
-        BitIterator bitIter((u8*)plaintxt.data(), 0);
 
-        u64 cnt = plaintextBitSize();
+            c[0] = c[0] ^ g0[0];
+            c[1] = c[1] ^ g0[1];
+            c[2] = c[2] ^ g0[2];
+            c[3] = c[3] ^ g0[3];
 
-        // use an outer swich to speed up the inner loop;
-        switch (codewordBlkSize())
-        {
-        case 1:
-            codeword[0] = ZeroBlock;
-
-            for (u64 i = 0, k = 0; i < cnt; ++i)
-            {
-                u8 b = *bitIter++;
-                // sBlock works as an if statment, but its faster...
-                codeword[0] = codeword[0] ^ (mG[k++] & sBlockMasks[b]);
-            }
-            break;
-        case 2:
-            codeword[0] = ZeroBlock;
-            codeword[1] = ZeroBlock;
-
-            for (u64 i = 0, k = 0; i < cnt; ++i)
-            {
-                u8 b = *bitIter++;
-                codeword[0] = codeword[0] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[1] = codeword[1] ^ (mG[k++] & sBlockMasks[b]);
-            }
-            break;
-        case 3:
-            codeword[0] = ZeroBlock;
-            codeword[1] = ZeroBlock;
-            codeword[2] = ZeroBlock;
-
-            for (u64 i = 0, k = 0; i < cnt; ++i)
-            {
-                u8 b = *bitIter++;
-                codeword[0] = codeword[0] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[1] = codeword[1] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[2] = codeword[2] ^ (mG[k++] & sBlockMasks[b]);
-            }
-            break;
-        case 4:
-
-        {
-
-#define G8
-#ifdef G8
-
-            std::array<block, 8>
-                c{ ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock,ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock };
-
-                u8* byteView = (u8*)plaintxt.data();
-                u64 byteCount = roundUpTo(cnt, 8) / 8,
-                    kStop = (mG8.size() / 8) * 8,
-                    k = 0, 
-                    i = 0;
-
-                for (; k < kStop; i += 2, k += 8)
-                {
-                    c[0] = c[0] ^ mG8[k + 0][byteView[i]];
-                    c[1] = c[1] ^ mG8[k + 1][byteView[i]];
-                    c[2] = c[2] ^ mG8[k + 2][byteView[i]];
-                    c[3] = c[3] ^ mG8[k + 3][byteView[i]];
-
-                    c[4] = c[4] ^ mG8[k + 4][byteView[i + 1]];
-                    c[5] = c[5] ^ mG8[k + 5][byteView[i + 1]];
-                    c[6] = c[6] ^ mG8[k + 6][byteView[i + 1]];
-                    c[7] = c[7] ^ mG8[k + 7][byteView[i + 1]];
-                }
-
-                codeword[0] = c[0] ^ c[4];
-                codeword[1] = c[1] ^ c[5];
-                codeword[2] = c[2] ^ c[6];
-                codeword[3] = c[3] ^ c[7];
-#else
-            std::array<block, 8>
-                b, b2,
-                t{ ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock,ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock },
-                c{ ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock,ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock };
-
-            std::array<u8, 128>& bb = *(std::array<u8, 128>*)&b;
-
-            block mask = _mm_set_epi8(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
-
-
-            if (cnt != 76)
-                throw std::runtime_error(LOCATION);
-            //for (u64 i = 0, k = 0; i < plaintxt.size(); ++i)
-            {
-                //const std::bitset<128> b((u8*)&plaintxt[i],16);
-                static const u64 stop = 76;// std::min(u64(128), cnt - (i * 128));
-                static const u64 i = 0;
-
-                // b[i] holds 16 bytes \in {0,1}. the g8Row'th byte of b, b[i][g8Row] 
-                //    holds the (i + g8Row * 8)'th bit of plaintext[i]. That is,
-                //    if we view plaintext[i] as 16 bytes, the b[i] holds the 
-                //    i'th bit of each byte. 
-                //    Viewing b as a long array of bytes called bb, then 
-                //    bb[(g8Row / 8) + (g8Row % 8) * 16] is the g8Row'th bit of plaintext[i].
-                //    Also, _mm_srai_epi16(p,i) is just  p >> i. At least for us it is.
-                b[0] = mask & plaintxt[i];
-                b[1] = mask & _mm_srai_epi16(plaintxt[i], 1);
-                b[2] = mask & _mm_srai_epi16(plaintxt[i], 2);
-                b[3] = mask & _mm_srai_epi16(plaintxt[i], 3);
-                b[4] = mask & _mm_srai_epi16(plaintxt[i], 4);
-                b[5] = mask & _mm_srai_epi16(plaintxt[i], 5);
-                b[6] = mask & _mm_srai_epi16(plaintxt[i], 6);
-                b[7] = mask & _mm_srai_epi16(plaintxt[i], 7);
-
-                // we now iterate throw the bits of plaintext[i]. But keep in mind 
-                // they are out of order now. 
-                for (u64 row = 0, k = 0; row < stop; )
-                {
-                    auto
-                        *j0 = bb.data() + row / 8,
-                        *j1 = bb.data() + row / 8 + 16;
-
-                    for (u64 l = 0; l < 4 && row < stop; ++l, k += 8, row += 2, j0 += 32, j1 += 32)
-                    {
-                        t[0] = (mG[k] & sBlockMasks[*j0]);
-                        t[1] = (mG[k + 1] & sBlockMasks[*j0]);
-                        t[2] = (mG[k + 2] & sBlockMasks[*j0]);
-                        t[3] = (mG[k + 3] & sBlockMasks[*j0]);
-                        t[4] = (mG[k + 4] & sBlockMasks[*j1]);
-                        t[5] = (mG[k + 5] & sBlockMasks[*j1]);
-                        t[6] = (mG[k + 6] & sBlockMasks[*j1]);
-                        t[7] = (mG[k + 7] & sBlockMasks[*j1]);
-
-                        c[0] = c[0] ^ t[0];
-                        c[1] = c[1] ^ t[1];
-                        c[2] = c[2] ^ t[2];
-                        c[3] = c[3] ^ t[3];
-                        c[4] = c[4] ^ t[4];
-                        c[5] = c[5] ^ t[5];
-                        c[6] = c[6] ^ t[6];
-                        c[7] = c[7] ^ t[7];
-                    }
-                }
-
-                codeword[0] = c[0] ^ c[4];
-                codeword[1] = c[1] ^ c[5];
-                codeword[2] = c[2] ^ c[6];
-                codeword[3] = c[3] ^ c[7];
-            }
-#endif // G8
-
-            break;
-            }
-        case 5:
-            for (u64 i = 0, k = 0; i < cnt; ++i)
-            {
-                u8 b = *bitIter++;
-                codeword[0] = codeword[0] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[1] = codeword[1] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[2] = codeword[2] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[3] = codeword[3] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[4] = codeword[4] ^ (mG[k++] & sBlockMasks[b]);
-            }
-            break;
-        case 6:
-            for (u64 i = 0, k = 0; i < cnt; ++i)
-            {
-                u8 b = *bitIter++;
-                codeword[0] = codeword[0] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[1] = codeword[1] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[2] = codeword[2] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[3] = codeword[3] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[4] = codeword[4] ^ (mG[k++] & sBlockMasks[b]);
-                codeword[5] = codeword[5] ^ (mG[k++] & sBlockMasks[b]);
-            }
-            break;
-        default:
-
-            // just to use a general for loop, slower...
-            for (u64 i = 0, k = 0; i < cnt; ++i)
-            {
-                for (u64 j = 0; j < codeword.size(); ++j, ++k)
-                {
-                    // sBlock works as an if statment, but its faster...
-                    codeword[j] = codeword[j] ^ (mG[k] & sBlockMasks[*bitIter++]);
-                }
-            }
-            break;
+            c[4] = c[4] ^ g1[0];
+            c[5] = c[5] ^ g1[1];
+            c[6] = c[6] ^ g1[2];
+            c[7] = c[7] ^ g1[3];
         }
-        }
+
+        codeword[0] = c[0] ^ c[4];
+        codeword[1] = c[1] ^ c[5];
+        codeword[2] = c[2] ^ c[6];
+        codeword[3] = c[3] ^ c[7];
 
 
 
     }
+}

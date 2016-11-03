@@ -57,8 +57,6 @@ void KkrtNcoOt_Test_Impl()
     BtIOService ios(0);
     BtEndpoint ep0(ios, "localhost", 1212, true, name);
     BtEndpoint ep1(ios, "localhost", 1212, false, name);
-
-
     auto &recvChl = ep1.addChannel(name, name);
     auto &sendChl = ep0.addChannel(name, name);
 
@@ -129,7 +127,16 @@ void OosNcoOt_Test_Impl()
 
     PRNG prng0(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
-    u64 numOTs = 128;
+    u64 numOTs = 128 * 8;
+
+
+    std::string name = "n";
+    BtIOService ios(0);
+    BtEndpoint ep0(ios, "localhost", 1212, true, name);
+    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    auto &recvChl = ep1.addChannel(name, name);
+    auto &sendChl = ep0.addChannel(name, name);
+
 
     BchCode code;
     code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/OT/Tools/bch511.bin");
@@ -153,57 +160,62 @@ void OosNcoOt_Test_Impl()
         baseRecv[i] = baseSend[i][baseChoice[i]];
     }
 
-
-
     sender.setBaseOts(baseRecv, baseChoice);
-    sender.init(numOTs);
-
     recv.setBaseOts(baseSend);
-    recv.init(numOTs);
-
-
-    //BitVector t0, t1, q, s = sender.mBaseChoiceBits;
-    //for (u64 i = 0; i < recvMsgs[0].size(); ++i)
-    //{
-    //    t0.append((u8*)&recvMsgs[0][i][0], 8 * sizeof(block));
-    //    t1.append((u8*)&recvMsgs[0][i][1], 8 * sizeof(block));
-    //    q.append((u8*)&sendMsgs[0][i], 8 * sizeof(block));
-    //}
-
-    //auto exp = (t0 & ~s) | (t1 & s);
-
-    //Log::out << Log::endl
-    //    << exp << Log::endl
-    //    << q << Log::endl
-    //    << (q^exp) << Log::endl << Log::endl;
-
 
     std::vector<block> choice(ncoinputBlkSize), correction(codeSize);
-    for (size_t j = 0; j < 10; j++)
+    for (size_t j = 0; j < 2; j++)
     {
+
+        sender.init(numOTs);
+        recv.init(numOTs);
 
         for (u64 i = 0; i < numOTs; ++i)
         {
             prng0.get((u8*)choice.data(), ncoinputBlkSize * sizeof(block));
 
+
+            bool skip = prng0.getBit();
+
             block encoding1, encoding2;
-            recv.encode(i, choice,  encoding1);
+            if (skip)
+            {
+                recv.zeroEncode(i);
+            }
+            else
+            {
+                recv.encode(i, choice,  encoding1);
+            }
+
+            recv.sendCorrection(recvChl, 1);
+            sender.recvCorrection(sendChl, 1);
 
             sender.encode(i, choice, encoding2);
 
-            if (neq(encoding1, encoding2))
+            if (!skip && neq(encoding1, encoding2))
                 throw UnitTestFail();
 
             prng0.get((u8*)choice.data(), ncoinputBlkSize * sizeof(block));
 
             sender.encode(i, choice, encoding2);
 
-            if (eq(encoding1, encoding2))
+            if (!skip && eq(encoding1, encoding2))
                 throw UnitTestFail();
         }
 
+        auto thrd = std::thread([&]() {recv.check(recvChl); });
+
+        sender.check(sendChl);
+
+        thrd.join();
     }
 
+    sendChl.close();
+    recvChl.close();
+
+    ep0.stop();
+    ep1.stop();
+    ios.stop();
 }
 
 

@@ -33,7 +33,7 @@ namespace osuCrypto
         void SetSeed(const block& b);
         const block getSeed() const;
 
-
+         
         template<typename T>
         T get()
         {
@@ -43,9 +43,30 @@ namespace osuCrypto
             return ret;
         }
 
+        template<typename T>
+        void get(T* dest, u64 length)
+        {
+            static_assert(std::is_pod<T>::value, "T must be POD");
+            u64 lengthu8 = length * sizeof(T);
+            u8* destu8 = (u8*)dest;
+            while (lengthu8)
+            {
+                u64 step = std::min(lengthu8, mBufferByteCapacity - mBytesIdx);
+
+                memcpy(destu8, ((u8*)mBuffer.data()) + mBytesIdx, step);
+
+                destu8 += step;
+                lengthu8 -= step;
+                mBytesIdx += step;
+
+                if (mBytesIdx == mBufferByteCapacity)
+                    refillBuffer();
+            }
+        }
+
 
         u8 getBit() { return get<u8>() & 1; }
-        void get(u8* ans, u64 len);
+        //void get(u8* ans, u64 len);
 
 
 

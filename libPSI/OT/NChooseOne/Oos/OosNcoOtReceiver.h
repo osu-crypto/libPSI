@@ -18,10 +18,7 @@ namespace osuCrypto
     public:
 
 
-        OosNcoOtReceiver(BchCode& code)
-            :mHasBase(false),
-             mCode(code)
-        {}
+        OosNcoOtReceiver(BchCode& code);
 
         bool hasBaseOts()const override
         {
@@ -36,6 +33,10 @@ namespace osuCrypto
         MatrixView<block> mT1;
         MatrixView<block> mW;
         u64 mCorrectionIdx;
+
+#ifndef NDEBUG
+        std::vector<u8> mEncodeFlags;
+#endif
 
         void setBaseOts(
             ArrayView<std::array<block, 2>> baseRecvOts) override;

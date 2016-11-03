@@ -4,10 +4,15 @@
 #include "Common/Log.h"
 #include  <mmintrin.h>
 #include "OosDefines.h"
+#include "Common/ByteStream.h"
 using namespace std;
 
 namespace osuCrypto
 {
+    inline OosNcoOtReceiver::OosNcoOtReceiver(BchCode & code)
+        :mHasBase(false),
+        mCode(code)
+    {}
     void OosNcoOtReceiver::setBaseOts(ArrayView<std::array<block, 2>> baseRecvOts)
     {
 
@@ -48,9 +53,16 @@ namespace osuCrypto
         u64 extraDoneIdx = 0;
 
         mCorrectionIdx = 0;
+
         mW = std::move(MatrixView<block>(numOtExt, mCode.plaintextBlkSize()));
         mT0 = std::move(MatrixView<block>(numOtExt, numCols / 128));
         mT1 = std::move(MatrixView<block>(numOtExt, numCols / 128));
+
+#ifndef NDEBUG
+        mEncodeFlags.resize(numOtExt,0);
+#endif
+
+
 
         // NOTE: We do not transpose a bit-matrix of size numCol * numCol.
         //   Instead we break it down into smaller chunks. We do 128 columns 
@@ -141,13 +153,15 @@ namespace osuCrypto
 
         if (eq(mT0[otIdx][0], ZeroBlock))
             throw std::runtime_error("uninitialized OT extenion");
+
+        mEncodeFlags[otIdx] = 1;
 #endif // !NDEBUG
 
         // use this for two thing, to store the code word and 
         // to store the zero message from base OT matrix transposed.
         std::array<block, 10> codeword;
-
         mCode.encode(choice, codeword);
+
 
         for (u64 i = 0; i < mW.size()[1]; ++i)
         {
@@ -200,7 +214,14 @@ namespace osuCrypto
 #ifndef NDEBUG
         if (eq(mT0[otIdx][0], ZeroBlock))
             throw std::runtime_error("uninitialized OT extenion");
+
+        mEncodeFlags[otIdx] = 1;
 #endif // !NDEBUG
+
+        for (u64 i = 0; i < mW.size()[1]; ++i)
+        {
+            mW[otIdx][i] = ZeroBlock;
+        }
 
         for (u64 i = 0; i < mT0.size()[1]; ++i)
         {
@@ -235,11 +256,19 @@ namespace osuCrypto
 
         inputBlkSize = mCode.plaintextBlkSize();
 
-        TODO("check to see if things still work if we dont have a multiple of 128...");
         baseOtCount = mCode.codewordBlkSize() * 128;
     }
     void OosNcoOtReceiver::sendCorrection(Channel & chl, u64 sendCount)
     {
+
+#ifndef NDEBUG
+        for (u64 i = mCorrectionIdx; i < sendCount + mCorrectionIdx; ++i)
+        {
+            if (mEncodeFlags[i] == 0)
+                throw std::runtime_error("an item was not encoded. " LOCATION);
+        }
+
+#endif
 
         // this is potentially dangerous. We dont have a guarantee that mT1 will still exist when 
         // the network gets around to sending this. Oh well.
@@ -249,7 +278,159 @@ namespace osuCrypto
 
         mCorrectionIdx += sendCount;
     }
+
     void OosNcoOtReceiver::check(Channel & chl)
     {
+        block wordSeed = AllOneBlock;
+        PRNG prng(wordSeed);
+        u64 statSecParam(40);
+
+
+        std::unique_ptr<ByteStream> wBuff(new Buff(sizeof(block) * statSecParam * mW.size()[1]));
+        std::unique_ptr<ByteStream> tBuff(new Buff(sizeof(block) * statSecParam * mT0.size()[1]));
+        auto tSum = tBuff->getArrayView<block>();
+        auto wSum = wBuff->getArrayView<block>();
+
+        // generate random words.
+        prng.get(wSum.data(), wSum.size());
+
+        MatrixView<block> words(wSum.begin(), wSum.end(), mCode.plaintextBlkSize());
+        block seed;
+        for (u64 i = 0; i < statSecParam; ++i)
+        {
+            encode(mCorrectionIdx + i, words[i], seed);
+
+            // initialize the tSum array with the T0 value used to encode these
+            // random words.
+            for (u64 j = 0; j < mT0.size()[1]; ++j)
+            {
+                tSum[i * mT0.size()[1] + j] = mT0[mCorrectionIdx + i][j];
+            }
+        }
+        sendCorrection(chl, statSecParam);
+
+
+        chl.recv(&seed, sizeof(block));
+        AES aes(seed);
+        u64 aesIdx(0);
+        u64 k = 0;
+
+        std::array<block, 2> zeroAndAllOneBlocks{ ZeroBlock, AllOneBlock };
+
+        if (mT0.size()[1] != 4 || mW.size()[1] != 1)
+            throw std::runtime_error("generalize this" LOCATION);
+
+
+        chl.send(mT0.data(), mT0.size()[0] * mT0.size()[1] * sizeof(block));
+        chl.send(mW.data(), mW.size()[0] * mW.size()[1] * sizeof(block));
+
+
+
+        //for (auto& blk : tSum) blk = ZeroBlock;
+        //for (auto& blk : wSum) blk = ZeroBlock;
+
+        std::vector<block> challengeBuff(statSecParam);
+        std::vector<block> expandedBuff(statSecParam * 8);
+        block mask = _mm_set_epi8(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+        u8* byteView = (u8*)expandedBuff.data();
+
+        auto mT0Iter = mT0.data();
+        auto mWIter = mW.data();
+
+        u64 lStop = mT0.size()[0] / 128 - 1;
+        for (u64 l = 0; l < lStop; ++l)
+        {
+
+            for (u64 i = 0; i < statSecParam; ++i)
+            {
+
+                aes.ecbEncCounterMode(aesIdx, statSecParam, challengeBuff.data());
+                aesIdx += statSecParam;
+
+                expandedBuff[i * 8 + 0] = mask & _mm_srai_epi16(challengeBuff[i], 0);
+                expandedBuff[i * 8 + 1] = mask & _mm_srai_epi16(challengeBuff[i], 1);
+                expandedBuff[i * 8 + 2] = mask & _mm_srai_epi16(challengeBuff[i], 2);
+                expandedBuff[i * 8 + 3] = mask & _mm_srai_epi16(challengeBuff[i], 3);
+                expandedBuff[i * 8 + 4] = mask & _mm_srai_epi16(challengeBuff[i], 4);
+                expandedBuff[i * 8 + 5] = mask & _mm_srai_epi16(challengeBuff[i], 5);
+                expandedBuff[i * 8 + 6] = mask & _mm_srai_epi16(challengeBuff[i], 6);
+                expandedBuff[i * 8 + 7] = mask & _mm_srai_epi16(challengeBuff[i], 7);
+            }
+
+            //Log::out << Log::lock;
+            u64 kk = k;
+            u64 stopIdx = std::min(mCorrectionIdx - statSecParam - k, u64(128));
+            u8* byteIter = byteView;
+            for (u64 i = 0; i < stopIdx; ++i, ++kk, mT0Iter += 4)
+            {
+
+                auto tSumIter = tSum.data();
+
+                for (u64 j = 0; j < statSecParam / 2; ++j, tSumIter += 8)
+                {
+                    u8 x0 = *byteIter++;
+                    u8 x1 = *byteIter++; 
+
+                    auto t0x0 = *(mT0Iter + 0) & zeroAndAllOneBlocks[x0];
+                    auto t0x1 = *(mT0Iter + 1) & zeroAndAllOneBlocks[x0];
+                    auto t0x2 = *(mT0Iter + 2) & zeroAndAllOneBlocks[x0];
+                    auto t0x3 = *(mT0Iter + 3) & zeroAndAllOneBlocks[x0];
+                    auto t0x4 = *(mT0Iter + 0) & zeroAndAllOneBlocks[x1];
+                    auto t0x5 = *(mT0Iter + 1) & zeroAndAllOneBlocks[x1];
+                    auto t0x6 = *(mT0Iter + 2) & zeroAndAllOneBlocks[x1];
+                    auto t0x7 = *(mT0Iter + 3) & zeroAndAllOneBlocks[x1];
+                    
+                    tSumIter[0] = tSumIter[0] ^ t0x0;
+                    tSumIter[1] = tSumIter[1] ^ t0x1;
+                    tSumIter[2] = tSumIter[2] ^ t0x2;
+                    tSumIter[3] = tSumIter[3] ^ t0x3;
+                    tSumIter[4] = tSumIter[4] ^ t0x4;
+                    tSumIter[5] = tSumIter[5] ^ t0x5;
+                    tSumIter[6] = tSumIter[6] ^ t0x6;
+                    tSumIter[7] = tSumIter[7] ^ t0x7;
+
+                }
+            }
+            //Log::out << Log::unlock;
+
+
+            kk = k;
+            k += 128;
+
+            byteIter = byteView;
+            for (u64 i = 0; i < stopIdx; ++i, ++kk, ++mWIter)
+            {
+                auto wSumIter = wSum.data();
+
+                for (u64 j = 0; j < statSecParam / 8; ++j, wSumIter += 8)
+                {
+
+                    auto wx0 = (*mWIter & zeroAndAllOneBlocks[byteIter[0]]);
+                    auto wx1 = (*mWIter & zeroAndAllOneBlocks[byteIter[1]]);
+                    auto wx2 = (*mWIter & zeroAndAllOneBlocks[byteIter[2]]);
+                    auto wx3 = (*mWIter & zeroAndAllOneBlocks[byteIter[3]]);
+                    auto wx4 = (*mWIter & zeroAndAllOneBlocks[byteIter[4]]);
+                    auto wx5 = (*mWIter & zeroAndAllOneBlocks[byteIter[5]]);
+                    auto wx6 = (*mWIter & zeroAndAllOneBlocks[byteIter[6]]);
+                    auto wx7 = (*mWIter & zeroAndAllOneBlocks[byteIter[7]]);
+
+                    byteIter += 8;
+
+                    wSumIter[0] = wSumIter[0] ^ wx0;
+                    wSumIter[1] = wSumIter[1] ^ wx1;
+                    wSumIter[2] = wSumIter[2] ^ wx2;
+                    wSumIter[3] = wSumIter[3] ^ wx3;
+                    wSumIter[4] = wSumIter[4] ^ wx4;
+                    wSumIter[5] = wSumIter[5] ^ wx5;
+                    wSumIter[6] = wSumIter[6] ^ wx6;
+                    wSumIter[7] = wSumIter[7] ^ wx7;
+                }
+            }
+
+        }
+
+
+        chl.asyncSend(std::move(tBuff));
+        chl.asyncSend(std::move(wBuff));
     }
 }

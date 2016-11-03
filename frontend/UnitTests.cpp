@@ -141,11 +141,11 @@ void run_all()
 {
     //BchCode_Test_Impl();
     //run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
-   // run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
-    //run("OtBinPsi_Oos_SingltonSet_Test_Impl       ", OtBinPsi_Oos_SingltonSet_Test_Impl);
+    //run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
+    run("OtBinPsi_Oos_SingltonSet_Test_Impl       ", OtBinPsi_Oos_SingltonSet_Test_Impl);
 
     //run("OtBinPsi_Kkrt_SingltonSet_Test_Impl      ", OtBinPsi_Kkrt_SingltonSet_Test_Impl);
-    NetWork_all();
+    //NetWork_all();
     //bitVec_all();
     //Ecc_all();
     //OT_all();
