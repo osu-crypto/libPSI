@@ -275,11 +275,40 @@ namespace osuCrypto {
         auto i16y2 =  (i * 16) + 2 * y;
         auto i16y21 = (i * 16) + 2 * y + 1;
 
-        for (int l = 0; l < 16; l++)
-        {
-            outByteView[0][l] = inByteView[x16 + l][i16y2];
-            outByteView[1][l] = inByteView[x16 + l][i16y21];
-        }
+
+        outByteView[0][0] = inByteView[x16 + 0][i16y2];
+        outByteView[1][0] = inByteView[x16 + 0][i16y21];
+        outByteView[0][1] = inByteView[x16 + 1][i16y2];
+        outByteView[1][1] = inByteView[x16 + 1][i16y21];
+        outByteView[0][2] = inByteView[x16 + 2][i16y2];
+        outByteView[1][2] = inByteView[x16 + 2][i16y21];
+        outByteView[0][3] = inByteView[x16 + 3][i16y2];
+        outByteView[1][3] = inByteView[x16 + 3][i16y21];
+        outByteView[0][4] = inByteView[x16 + 4][i16y2];
+        outByteView[1][4] = inByteView[x16 + 4][i16y21];
+        outByteView[0][5] = inByteView[x16 + 5][i16y2];
+        outByteView[1][5] = inByteView[x16 + 5][i16y21];
+        outByteView[0][6] = inByteView[x16 + 6][i16y2];
+        outByteView[1][6] = inByteView[x16 + 6][i16y21];
+        outByteView[0][7] = inByteView[x16 + 7][i16y2];
+        outByteView[1][7] = inByteView[x16 + 7][i16y21];
+        outByteView[0][8] = inByteView[x16 + 8][i16y2];
+        outByteView[1][8] = inByteView[x16 + 8][i16y21];
+        outByteView[0][9] = inByteView[x16 + 9][i16y2];
+        outByteView[1][9] = inByteView[x16 + 9][i16y21];
+        outByteView[0][10] = inByteView[x16 + 10][i16y2];
+        outByteView[1][10] = inByteView[x16 + 10][i16y21];
+        outByteView[0][11] = inByteView[x16 + 11][i16y2];
+        outByteView[1][11] = inByteView[x16 + 11][i16y21];
+        outByteView[0][12] = inByteView[x16 + 12][i16y2];
+        outByteView[1][12] = inByteView[x16 + 12][i16y21];
+        outByteView[0][13] = inByteView[x16 + 13][i16y2];
+        outByteView[1][13] = inByteView[x16 + 13][i16y21];
+        outByteView[0][14] = inByteView[x16 + 14][i16y2];
+        outByteView[1][14] = inByteView[x16 + 14][i16y21];
+        outByteView[0][15] = inByteView[x16 + 15][i16y2];
+        outByteView[1][15] = inByteView[x16 + 15][i16y21];
+
     }
 
 
@@ -294,14 +323,42 @@ namespace osuCrypto {
         auto x16_7 = x * 16 + 7;
         auto x16_15 = x * 16 + 15;
 
-        for (int j = 0; j < 8; j++)
-        {
-            outU16View[x16_7 - j] [i8y] = _mm_movemask_epi8(in[0]);
-            outU16View[x16_15 - j][i8y] = _mm_movemask_epi8(in[1]);
+        block b0 = _mm_slli_epi64(in[0], 0);
+        block b1 = _mm_slli_epi64(in[0], 1);
+        block b2 = _mm_slli_epi64(in[0], 2);
+        block b3 = _mm_slli_epi64(in[0], 3);
+        block b4 = _mm_slli_epi64(in[0], 4);
+        block b5 = _mm_slli_epi64(in[0], 5);
+        block b6 = _mm_slli_epi64(in[0], 6);
+        block b7 = _mm_slli_epi64(in[0], 7);
 
-            in[0] = _mm_slli_epi64(in[0], 1);
-            in[1] = _mm_slli_epi64(in[1], 1);
-        }
+        outU16View[x16_7 - 0][i8y] = _mm_movemask_epi8(b0);
+        outU16View[x16_7 - 1][i8y] = _mm_movemask_epi8(b1);
+        outU16View[x16_7 - 2][i8y] = _mm_movemask_epi8(b2);
+        outU16View[x16_7 - 3][i8y] = _mm_movemask_epi8(b3);
+        outU16View[x16_7 - 4][i8y] = _mm_movemask_epi8(b4);
+        outU16View[x16_7 - 5][i8y] = _mm_movemask_epi8(b5);
+        outU16View[x16_7 - 6][i8y] = _mm_movemask_epi8(b6);
+        outU16View[x16_7 - 7][i8y] = _mm_movemask_epi8(b7);
+
+       b0 = _mm_slli_epi64(in[1], 0);
+       b1 = _mm_slli_epi64(in[1], 1);
+       b2 = _mm_slli_epi64(in[1], 2);
+       b3 = _mm_slli_epi64(in[1], 3);
+       b4 = _mm_slli_epi64(in[1], 4);
+       b5 = _mm_slli_epi64(in[1], 5);
+       b6 = _mm_slli_epi64(in[1], 6);
+       b7 = _mm_slli_epi64(in[1], 7);
+
+        outU16View[x16_15 - 0][i8y] = _mm_movemask_epi8(b0);
+        outU16View[x16_15 - 1][i8y] = _mm_movemask_epi8(b1);
+        outU16View[x16_15 - 2][i8y] = _mm_movemask_epi8(b2);
+        outU16View[x16_15 - 3][i8y] = _mm_movemask_epi8(b3);
+        outU16View[x16_15 - 4][i8y] = _mm_movemask_epi8(b4);
+        outU16View[x16_15 - 5][i8y] = _mm_movemask_epi8(b5);
+        outU16View[x16_15 - 6][i8y] = _mm_movemask_epi8(b6);
+        outU16View[x16_15 - 7][i8y] = _mm_movemask_epi8(b7);
+
     }
 
 

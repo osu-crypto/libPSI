@@ -199,7 +199,7 @@ namespace osuCrypto {
 #endif
 
         //T& operator[](int idx) { if (idx >= mSize) throw std::runtime_error(LOCATION); return mData[idx]; }
-        T& operator[](u64 idx) const
+        inline T& operator[](u64 idx) const
         {
 #ifndef NDEBUG
             if (idx >= mSize) throw std::runtime_error(LOCATION); 

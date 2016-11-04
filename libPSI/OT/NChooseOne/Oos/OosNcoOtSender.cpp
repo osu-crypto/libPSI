@@ -98,17 +98,25 @@ namespace osuCrypto
 
                 for (u64 tIdx = 0, colIdx = i * 128; tIdx < 128; ++tIdx, ++colIdx)
                 {
-                    mGens[colIdx].mAes.ecbEncCounterMode(mGens[colIdx].mBlockIdx, superBlkSize, t[tIdx].data());
+                    mGens[colIdx].mAes.ecbEncCounterMode(mGens[colIdx].mBlockIdx, superBlkSize, ((block*)t.data() + superBlkSize * tIdx));
                     mGens[colIdx].mBlockIdx += superBlkSize;
                 }
 
                 sse_transpose128x1024(t);
 
+                block* __restrict mTIter = mT.data() + doneIdx * mT.size()[1] + i;
+
                 for (u64 rowIdx = doneIdx, j = 0; rowIdx < stopIdx; ++j)
                 {
+
+                    block* __restrict tIter = (((block*)t.data()) + j);
+
                     for (u64 k = 0; rowIdx < stopIdx && k < 128; ++rowIdx, ++k)
                     {
-                        mT[rowIdx][i] = t[k][j];
+                        *mTIter = *tIter;
+
+                        tIter += superBlkSize;
+                        mTIter += mT.size()[1];
                     }
                 }
 
@@ -140,14 +148,35 @@ namespace osuCrypto
         auto* corVal = mCorrectionVals.data() + otIdx * mCorrectionVals.size()[1];
         auto* tVal = mT.data() + otIdx * mT.size()[1];
 
-        for (u64 i = 0; i < mT.size()[1]; ++i)
+        if (mT.size()[1] == 4)
         {
-            block t0 = corVal[i] ^ codeword[i];
-            block t1 = t0 & mChoiceBlks[i];
+            block t0 = corVal[0] ^ codeword[0];
+            block t1 = corVal[1] ^ codeword[1];
+            block t2 = corVal[2] ^ codeword[2];
+            block t3 = corVal[3] ^ codeword[3];
 
-            codeword[i]
-                = tVal[i]
-                ^ t1;
+            t0 = t0 & mChoiceBlks[0];
+            t1 = t1 & mChoiceBlks[1];
+            t2 = t2 & mChoiceBlks[2];
+            t3 = t3 & mChoiceBlks[3];
+
+            codeword[0] = tVal[0] ^ t0;
+            codeword[1] = tVal[1] ^ t1;
+            codeword[2] = tVal[2] ^ t2;
+            codeword[3] = tVal[3] ^ t3;
+        }
+        else
+        {
+
+            for (u64 i = 0; i < mT.size()[1]; ++i)
+            {
+                block t0 = corVal[i] ^ codeword[i];
+                block t1 = t0 & mChoiceBlks[i];
+
+                codeword[i]
+                    = tVal[i]
+                    ^ t1;
+            }
         }
 
         sha1.Update((u8*)codeword.data(), sizeof(block) * mT.size()[1]);

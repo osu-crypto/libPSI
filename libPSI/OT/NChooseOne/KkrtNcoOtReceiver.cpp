@@ -52,17 +52,18 @@ namespace osuCrypto
         // NOTE: We do not transpose a bit-matrix of size numCol * numCol.
         //   Instead we break it down into smaller chunks. We do 128 columns 
         //   times 8 * 128 rows at a time, where 8 = superBlkSize. This is done for  
-        //   performance reasons. The reason is that most CPUs have 8 AES vector lanes, 
-        //   and so its most efficient to encrypt (aka prng) 8 blocks at a time.
+        //   performance reasons. The reason for 8 is that most CPUs have 8 AES vector  
+        //   lanes, and so its more efficient to encrypt (aka prng) 8 blocks at a time.
         //   So thats what we do. 
         for (u64 superBlkIdx = 0; superBlkIdx < numSuperBlocks; ++superBlkIdx)
         {
-            // compute at what row does the user want use to stop.
-            // the code will still compute the transpose for these
+            // compute at what row does the user want us to stop.
+            // The code will still compute the transpose for these
             // extra rows, but it is thrown away.
             u64 stopIdx
                 = doneIdx
                 + std::min(u64(128) * superBlkSize, numOtExt - doneIdx);
+
 
             for (u64 i = 0; i < numCols / 128; ++i)
             {
@@ -73,8 +74,8 @@ namespace osuCrypto
                     // AES in counter mode acting as a PRNG. We dont use the normal
                     // PRNG interface because that would result in a data copy when 
                     // we mode it into the T0,T1 matrices. Instead we do it directly.
-                    mGens[colIdx][0].mAes.ecbEncCounterMode(mGens[colIdx][0].mBlockIdx, superBlkSize, t0[tIdx].data());
-                    mGens[colIdx][1].mAes.ecbEncCounterMode(mGens[colIdx][1].mBlockIdx, superBlkSize, t1[tIdx].data());
+                    mGens[colIdx][0].mAes.ecbEncCounterMode(mGens[colIdx][0].mBlockIdx, superBlkSize, ((block*)t0.data() + superBlkSize * tIdx));
+                    mGens[colIdx][1].mAes.ecbEncCounterMode(mGens[colIdx][1].mBlockIdx, superBlkSize, ((block*)t1.data() + superBlkSize * tIdx));
 
                     // increment the counter mode idx.
                     mGens[colIdx][0].mBlockIdx += superBlkSize;
@@ -87,21 +88,35 @@ namespace osuCrypto
                 sse_transpose128x1024(t1);
 
                 // Now copy the transposed data into the correct spot.
-                for (u64 rowIdx = doneIdx, j = 0; rowIdx < stopIdx; ++j)
+                u64 j = 0, k = 0;
+
+                block* __restrict mT0Iter = mT0.data() + mT0.size()[1] * doneIdx + i;
+                block* __restrict mT1Iter = mT1.data() + mT1.size()[1] * doneIdx + i;
+
+                for (u64 rowIdx = doneIdx; rowIdx < stopIdx; ++j)
                 {
-                    for (u64 k = 0; rowIdx < stopIdx && k < 128; ++rowIdx, ++k)
+                    block* __restrict t0Iter = ((block*)t0.data()) + j;
+                    block* __restrict t1Iter = ((block*)t1.data()) + j;
+
+                    for (k = 0; rowIdx < stopIdx && k < 128; ++rowIdx, ++k)
                     {
-                        mT0[rowIdx][i] = t0[k][j];
-                        mT1[rowIdx][i] = t1[k][j];
+                        *mT0Iter = *(t0Iter);
+                        *mT1Iter = *(t1Iter);
+
+                        t0Iter += superBlkSize;
+                        t1Iter += superBlkSize;
+
+                        mT0Iter += mT0.size()[1];
+                        mT1Iter += mT0.size()[1];
                     }
                 }
             }
 
             // If we wanted streaming OTs, aka you already know your 
             // choices, do the encode here.... 
-
             doneIdx = stopIdx;
         }
+
     }
 
 

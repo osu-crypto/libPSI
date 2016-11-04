@@ -75,6 +75,7 @@ namespace osuCrypto
         u64 numCols = mGens.size();
 
 
+
         for (u64 superBlkIdx = 0; superBlkIdx < numSuperBlocks; ++superBlkIdx)
         {
             // compute at what row does the user want use to stop.
@@ -89,17 +90,25 @@ namespace osuCrypto
 
                 for (u64 tIdx = 0, colIdx = i * 128; tIdx < 128; ++tIdx, ++colIdx)
                 {
-                    mGens[colIdx].mAes.ecbEncCounterMode(mGens[colIdx].mBlockIdx, superBlkSize, t[tIdx].data());
+                    mGens[colIdx].mAes.ecbEncCounterMode(mGens[colIdx].mBlockIdx, superBlkSize, ((block*)t.data() + superBlkSize * tIdx));
                     mGens[colIdx].mBlockIdx += superBlkSize;
                 }
 
                 sse_transpose128x1024(t);
 
+                block* __restrict mTIter = mT.data() + doneIdx * mT.size()[1] + i;
+
                 for (u64 rowIdx = doneIdx, j = 0; rowIdx < stopIdx; ++j)
                 {
+
+                    block* __restrict tIter = (((block*)t.data()) + j);
+
                     for (u64 k = 0; rowIdx < stopIdx && k < 128; ++rowIdx, ++k)
                     {
-                        mT[rowIdx][i] = t[k][j];
+                        *mTIter = *tIter;
+
+                        tIter += superBlkSize;
+                        mTIter += mT.size()[1];
                     }
                 }
 

@@ -9,7 +9,7 @@ using namespace std;
 
 namespace osuCrypto
 {
-    inline OosNcoOtReceiver::OosNcoOtReceiver(BchCode & code)
+    OosNcoOtReceiver::OosNcoOtReceiver(BchCode & code)
         :mHasBase(false),
         mCode(code)
     {}
@@ -79,8 +79,6 @@ namespace osuCrypto
                 = doneIdx
                 + std::min(u64(128) * superBlkSize, numOtExt - doneIdx);
 
-            // This is the stop index for the extra rows.  
-            u64 extraStopIdx = std::min((stopIdx - doneIdx) - u64(128) * superBlkSize, statSecParam - extraDoneIdx);
 
             for (u64 i = 0; i < numCols / 128; ++i)
             {
@@ -91,8 +89,8 @@ namespace osuCrypto
                     // AES in counter mode acting as a PRNG. We dont use the normal
                     // PRNG interface because that would result in a data copy when 
                     // we mode it into the T0,T1 matrices. Instead we do it directly.
-                    mGens[colIdx][0].mAes.ecbEncCounterMode(mGens[colIdx][0].mBlockIdx, superBlkSize, t0[tIdx].data());
-                    mGens[colIdx][1].mAes.ecbEncCounterMode(mGens[colIdx][1].mBlockIdx, superBlkSize, t1[tIdx].data());
+                    mGens[colIdx][0].mAes.ecbEncCounterMode(mGens[colIdx][0].mBlockIdx, superBlkSize, ((block*)t0.data() + superBlkSize * tIdx));
+                    mGens[colIdx][1].mAes.ecbEncCounterMode(mGens[colIdx][1].mBlockIdx, superBlkSize, ((block*)t1.data() + superBlkSize * tIdx));
 
                     // increment the counter mode idx.
                     mGens[colIdx][0].mBlockIdx += superBlkSize;
@@ -106,19 +104,31 @@ namespace osuCrypto
 
                 // Now copy the transposed data into the correct spot.
                 u64 j = 0, k = 0;
+
+                block* __restrict mT0Iter = mT0.data() + mT0.size()[1] * doneIdx + i;
+                block* __restrict mT1Iter = mT1.data() + mT1.size()[1] * doneIdx + i;
+
                 for (u64 rowIdx = doneIdx; rowIdx < stopIdx; ++j)
                 {
+                    block* __restrict t0Iter = ((block*)t0.data()) + j;
+                    block* __restrict t1Iter = ((block*)t1.data()) + j;
+
                     for (k = 0; rowIdx < stopIdx && k < 128; ++rowIdx, ++k)
                     {
-                        mT0[rowIdx][i] = t0[k][j];
-                        mT1[rowIdx][i] = t1[k][j];
+                        *mT0Iter = *(t0Iter);
+                        *mT1Iter = *(t1Iter);
+
+                        t0Iter += superBlkSize;
+                        t1Iter += superBlkSize;
+
+                        mT0Iter += mT0.size()[1];
+                        mT1Iter += mT0.size()[1];
                     }
                 }
             }
 
             // If we wanted streaming OTs, aka you already know your 
             // choices, do the encode here.... 
-            extraDoneIdx = extraStopIdx;
             doneIdx = stopIdx;
         }
 
@@ -163,10 +173,7 @@ namespace osuCrypto
         mCode.encode(choice, codeword);
 
 
-        for (u64 i = 0; i < mW.size()[1]; ++i)
-        {
-            mW[otIdx][i] = choice[i];
-        }
+
 
 #ifdef AES_HASH
         std::array<block, 10> correlatedZero, hashOut;
@@ -189,17 +196,46 @@ namespace osuCrypto
             val = val ^ correlatedZero[i] ^ hashOut[i];
         }
 #else
-        SHA1  sha1;
-        for (u64 i = 0; i < mT0.size()[1]; ++i)
-        {
-            // reuse mT1 as the place we store the correlated value. 
-            // this will later get sent to the sender.
-            mT1[otIdx][i]
-                = codeword[i]
-                ^ mT0[otIdx][i]
-                ^ mT1[otIdx][i];
-        }
+        block* t0Val = mT0.data() + mT0.size()[1] * otIdx;
+        block* t1Val = mT1.data() + mT0.size()[1] * otIdx;
+        block* wVal = mW.data() + mW.size()[1] * otIdx;
 
+        SHA1  sha1;
+
+        if (mT0.size()[1] == 4)
+        {
+#ifndef NDEBUG
+            if (mW.size()[1] != 1) throw std::runtime_error(LOCATION);
+#endif
+            wVal[0] = choice[0];
+
+            t1Val[0] = t1Val[0] ^ codeword[0];
+            t1Val[1] = t1Val[1] ^ codeword[1];
+            t1Val[2] = t1Val[2] ^ codeword[2];
+            t1Val[3] = t1Val[3] ^ codeword[3];
+
+            t1Val[0] = t1Val[0] ^ t0Val[0];
+            t1Val[1] = t1Val[1] ^ t0Val[1];
+            t1Val[2] = t1Val[2] ^ t0Val[2];
+            t1Val[3] = t1Val[3] ^ t0Val[3];
+        }
+        else
+        {
+            for (u64 i = 0; i < mW.size()[1]; ++i)
+            {
+                wVal[i] = choice[i];
+            }
+
+            for (u64 i = 0; i < mT0.size()[1]; ++i)
+            {
+                // reuse mT1 as the place we store the correlated value. 
+                // this will later get sent to the sender.
+                t1Val[i]
+                    = codeword[i]
+                    ^ t0Val[i]
+                    ^ t1Val[i];
+            }
+        }
         sha1.Update((u8*)mT0[otIdx].data(), mT0[otIdx].size() * sizeof(block));
 
         u8 hashBuff[SHA1::HashSize];
@@ -496,4 +532,4 @@ namespace osuCrypto
         chl.asyncSend(std::move(tBuff));
         chl.asyncSend(std::move(wBuff));
     }
-}
+    }
