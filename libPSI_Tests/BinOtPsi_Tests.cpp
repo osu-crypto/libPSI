@@ -7,12 +7,12 @@
 #include "Network/BtEndpoint.h"
 #include "Common/Log.h"
 
-#include "OT/NChooseOne/KkrtNcoOtReceiver.h"
-#include "OT/NChooseOne/KkrtNcoOtSender.h"
+#include "NChooseOne/KkrtNcoOtReceiver.h"
+#include "NChooseOne/KkrtNcoOtSender.h"
 
 
-#include "OT/NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "OT/NChooseOne/Oos/OosNcoOtSender.h"
+#include "NChooseOne/Oos/OosNcoOtReceiver.h"
+#include "NChooseOne/Oos/OosNcoOtSender.h"
 #include "MPSI/Beta/CuckooHasher.h"
 
 #include <array>
@@ -298,8 +298,8 @@ void OtBinPsi_Oos_EmptrySet_Test_Impl()
     std::vector<Channel*> recvChl{ &ep1.addChannel(name, name) };
     std::vector<Channel*> sendChl{ &ep0.addChannel(name, name) };
     std::string solution(SOLUTION_DIR);
-    BchCode code;
-    code.loadBinFile(solution + "/libPSI/OT/Tools/bch511.bin");
+    LinearCode code;
+    code.loadBinFile(solution + "/libPSI/Tools/bch511.bin");
 
     OosNcoOtReceiver otRecv0(code), otRecv1(code);
     OosNcoOtSender otSend0(code), otSend1(code);
@@ -384,8 +384,8 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
         recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
-    BchCode code;
-    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/OT/Tools/bch511.bin");
+    LinearCode code;
+    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/Tools/bch511.bin");
 
     OosNcoOtReceiver otRecv0(code), otRecv1(code);
     OosNcoOtSender otSend0(code), otSend1(code);
@@ -444,8 +444,8 @@ void OtBinPsi_Oos_SingltonSet_Test_Impl()
     Channel& recvChl = ep1.addChannel(name, name);
     Channel& sendChl = ep0.addChannel(name, name);
 
-    BchCode code;
-    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/OT/Tools/bch511.bin");
+    LinearCode code;
+    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/Tools/bch511.bin");
 
     OosNcoOtReceiver otRecv0(code), otRecv1(code);
     OosNcoOtSender otSend0(code), otSend1(code);

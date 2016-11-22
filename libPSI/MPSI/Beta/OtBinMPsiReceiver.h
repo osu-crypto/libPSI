@@ -2,7 +2,7 @@
 
 #include "Common/Defines.h"
 #include "Network/Channel.h"
-#include "OT/NChooseOne/NcoOtExt.h"
+#include "NChooseOne/NcoOtExt.h"
 #include "MPSI/Beta/SimpleHasher.h"
 
 namespace osuCrypto

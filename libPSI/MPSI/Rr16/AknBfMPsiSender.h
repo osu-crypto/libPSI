@@ -2,7 +2,7 @@
 #include "Common/Defines.h"
 #include "Network/Channel.h"
 #include "Crypto/sha1.h"
-#include "OT/NChooseK/AknOtSender.h"
+#include "NChooseK/AknOtSender.h"
 
 namespace osuCrypto {
 

@@ -1,12 +1,12 @@
 #include "DcwRBfPsiReceiver.h"
 #include "Crypto/PRNG.h"
 #include "Crypto/Commit.h"
-#include "OT/TwoChooseOne/KosOtExtReceiver.h"
+#include "TwoChooseOne/KosOtExtReceiver.h"
 #include "Common/Log.h"
 #include <unordered_map>
 #include "Common/Timer.h"
-#include "Crypto/ShamirSSScheme.h"
-#include "OT/Base/naor-pinkas.h"
+#include "ShamirSSScheme.h"
+#include "Base/naor-pinkas.h"
 #include <unordered_map>
 
 namespace osuCrypto

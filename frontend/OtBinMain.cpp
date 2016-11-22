@@ -9,11 +9,11 @@ using namespace osuCrypto;
 
 #include "Common/Defines.h"
 #include "Network/BtEndpoint.h" 
-#include "OT/NChooseOne/KkrtNcoOtReceiver.h"
-#include "OT/NChooseOne/KkrtNcoOtSender.h"
+#include "NChooseOne/KkrtNcoOtReceiver.h"
+#include "NChooseOne/KkrtNcoOtSender.h"
 
-#include "OT/NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "OT/NChooseOne/Oos/OosNcoOtSender.h"
+#include "NChooseOne/Oos/OosNcoOtReceiver.h"
+#include "NChooseOne/Oos/OosNcoOtSender.h"
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"
@@ -54,8 +54,8 @@ void otBinSend()
     senderGetLatency(*sendChls_[0]);
     sendChls_[0]->resetStats();
 
-    BchCode code;
-    code.loadBinFile(SOLUTION_DIR "/libPSI/OT/Tools/bch511.bin");
+    LinearCode code;
+    code.loadBinFile(SOLUTION_DIR "../libOTe/libOTe/Tools/bch511.bin");
 
     //for (auto pow : {/* 8,12,*/ 16/*, 20 */ })
     for (auto pow : pows)
@@ -162,8 +162,9 @@ void otBinRecv()
     BtIOService ios(0);
     BtEndpoint recvEP(ios, "localhost", 1213, false, name);
 
-    BchCode code;
-    code.loadBinFile(SOLUTION_DIR "/libPSI/OT/Tools/bch511.bin");
+    LinearCode code; 
+
+    code.loadBinFile(SOLUTION_DIR "/../libOTe/libOTe/Tools/bch511.bin");
 
     std::vector<Channel*> recvChls_(numThreads);
     for (u64 i = 0; i < numThreads; ++i)

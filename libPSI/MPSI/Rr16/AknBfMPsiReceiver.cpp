@@ -1,7 +1,7 @@
 #include "AknBfMPsiReceiver.h"
 #include "Crypto/PRNG.h"
 #include "Crypto/Commit.h"
-#include "OT/TwoChooseOne/KosOtExtReceiver.h"
+#include "TwoChooseOne/KosOtExtReceiver.h"
 #include "Common/Log.h"
 #include <unordered_map>
 #include "Common/Timer.h"

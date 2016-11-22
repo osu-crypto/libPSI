@@ -4,7 +4,7 @@
 #include "Crypto/sha1.h"
 #include "Common/BitVector.h"
 #include <vector>
-#include "OT/TwoChooseOne/OTExtInterface.h"
+#include "TwoChooseOne/OTExtInterface.h"
 namespace osuCrypto
 {
 

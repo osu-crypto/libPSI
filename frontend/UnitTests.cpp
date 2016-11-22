@@ -76,7 +76,7 @@ void OT_all()
     run("AknOt_sendRecv1000_Test                 ", AknOt_sendRecv1000_Test);
     run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
     run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
-    run("BchCode_Test_Impl                       ", BchCode_Test_Impl);
+    run("LinearCode_Test_Impl                       ", LinearCode_Test_Impl);
     run("NaorPinkasOt_Test                       ", NaorPinkasOt_Test_Impl);
 }
 
@@ -139,7 +139,7 @@ void ShamirSSScheme_all()
 
 void run_all()
 {
-    //BchCode_Test_Impl();
+    //LinearCode_Test_Impl();
     //run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
     //run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
     run("OtBinPsi_Oos_SingltonSet_Test_Impl       ", OtBinPsi_Oos_SingltonSet_Test_Impl);

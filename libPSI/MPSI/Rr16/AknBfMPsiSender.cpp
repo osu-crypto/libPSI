@@ -1,6 +1,6 @@
 #include "AknBfMPsiSender.h"
 #include "AknBfMPsiSender.h"
-#include "OT/TwoChooseOne/KosOtExtSender.h"
+#include "TwoChooseOne/KosOtExtSender.h"
 #include "Crypto/PRNG.h"
 #include "Crypto/Commit.h"
 #include "Common/Log.h"

@@ -1,21 +1,21 @@
 #include "OT_Tests.h"
 
-#include "OT/TwoChooseOne/OTExtInterface.h"
+#include "TwoChooseOne/OTExtInterface.h"
 
-#include "OT/Tools/Tools.h"
-#include "OT/Tools/BchCode.h"
+#include "Tools/Tools.h"
+#include "Tools/LinearCode.h"
 #include "Network/BtChannel.h"
 #include "Network/BtEndpoint.h"
 #include "Common/Log.h"
 
-#include "OT/TwoChooseOne/IknpOtExtReceiver.h"
-#include "OT/TwoChooseOne/IknpOtExtSender.h"
+#include "TwoChooseOne/IknpOtExtReceiver.h"
+#include "TwoChooseOne/IknpOtExtSender.h"
 
-#include "OT/TwoChooseOne/KosOtExtReceiver.h"
-#include "OT/TwoChooseOne/KosOtExtSender.h"
+#include "TwoChooseOne/KosOtExtReceiver.h"
+#include "TwoChooseOne/KosOtExtSender.h"
 
-#include "OT/NChooseOne/KkrtNcoOtReceiver.h"
-#include "OT/NChooseOne/KkrtNcoOtSender.h"
+#include "NChooseOne/KkrtNcoOtReceiver.h"
+#include "NChooseOne/KkrtNcoOtSender.h"
 
 #include "Common.h"
 #include <thread>

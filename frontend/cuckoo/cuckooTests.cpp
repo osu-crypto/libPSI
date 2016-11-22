@@ -214,7 +214,7 @@ void simpleTest_find_e(int argc, char** argv)
             } 
 
             // first print spaces to clear what was on screen, then print the actual string.
-            Log::out   << Log::flush;
+            //Log::out   << Log::flush;
 
 
             //stop = max;
@@ -426,7 +426,7 @@ void simpleTest(int argc, char** argv)
             std::string str = ss.str();
 
             // first print spaces to clear what was on screen, then print the actual string.
-            Log::out << '\r' << std::string(' ', stringLength) << Log::flush << str << Log::flush;
+            //Log::out << '\r' << std::string(' ', stringLength) << Log::flush << str << Log::flush;
 
             // update how long the string that we just printed is.
             stringLength = str.size();
@@ -613,7 +613,7 @@ void simpleTest_var_h(int argc, char** argv)
                 std::string str = ss.str();
 
                 // first print spaces to clear what was on screen, then print the actual string.
-                Log::out << '\r' << std::string(' ', stringLength) << Log::flush << str << Log::flush;
+                //Log::out << '\r' << std::string(' ', stringLength) << Log::flush << str << Log::flush;
 
                 // update how long the string that we just printed is.
                 stringLength = str.size();

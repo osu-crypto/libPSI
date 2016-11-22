@@ -79,7 +79,7 @@ namespace osuCrypto_tests
         TEST_METHOD(Bch_200Receive_TestVS)
         {
             InitDebugPrinting();
-            BchCode_Test_Impl();
+            LinearCode_Test_Impl();
         }
 
 

@@ -1,11 +1,11 @@
 #include "DcwRBfPsiSender.h"
-#include "OT/TwoChooseOne/KosOtExtSender.h"
+#include "TwoChooseOne/KosOtExtSender.h"
 #include "Crypto/PRNG.h"
 #include "Crypto/Commit.h"
 #include "Common/Log.h" 
 //#include "Crypto/ShamirSSScheme2.h"  
-#include "OT/Base/naor-pinkas.h"
-#include "Crypto/ShamirSSScheme.h"  
+#include "Base/naor-pinkas.h"
+#include "ShamirSSScheme.h"  
 
 
 namespace osuCrypto {

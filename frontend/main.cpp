@@ -10,27 +10,24 @@ using namespace osuCrypto;
 #include "dktMain.h"
 #include "OtBinMain.h"
 
-#include "OT/TwoChooseOne/KosOtExtReceiver.h"
-#include "OT/TwoChooseOne/KosOtExtSender.h"
+#include "TwoChooseOne/KosOtExtReceiver.h"
+#include "TwoChooseOne/KosOtExtSender.h"
 #include "Network/BtChannel.h"
 #include "Network/BtEndpoint.h"
 #include <numeric>
 #include "Common/Log.h"
 int miraclTestMain();
 
-#include "OT/Tools/BchCode.h"
-#include "OT/NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "OT/NChooseOne/Oos/OosNcoOtSender.h"
 #include "cuckoo/cuckooTests.h"
 
 int main(int argc, char** argv)
 {
 
-    simpleTest(argc, argv);
-    return 0;
+    //simpleTest(argc, argv);
+    //return 0;
 
-    //BchCode code;
-    //code.loadBinFile(SOLUTION_DIR "/libPSI/OT/Tools/bch511.bin");
+    //LinearCode code;
+    //code.loadBinFile(libOTe_DIR "/libPSI/Tools/bch511.bin");
     //std::vector<block> in(code.plaintextBlkSize()), out(code.codewordBlkSize());
 
     //Timer t;
@@ -61,7 +58,7 @@ int main(int argc, char** argv)
         //DcwSend();
         //DcwRSend();
         //test(0);
-        //otBinSend();
+        otBinSend();
         //bfSend();
     }
     else if (argc == 3)
@@ -70,7 +67,7 @@ int main(int argc, char** argv)
         //DcwRecv();
         //DcwRRecv();
         //test(1);
-        //otBinRecv();
+        otBinRecv();
         //bfRecv();
     }
     else

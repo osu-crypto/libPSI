@@ -3,9 +3,9 @@
 #include "Crypto/Commit.h"
 #include "Common/Log.h"
 #include "Common/Timer.h"
-#include "OT/Base/naor-pinkas.h"
-#include "OT/TwoChooseOne/KosOtExtReceiver.h"
-#include "OT/TwoChooseOne/KosOtExtSender.h"
+#include "Base/naor-pinkas.h"
+#include "TwoChooseOne/KosOtExtReceiver.h"
+#include "TwoChooseOne/KosOtExtSender.h"
 namespace osuCrypto
 {
 

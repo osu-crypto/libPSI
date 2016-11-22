@@ -1,18 +1,18 @@
 #include "OT_Tests.h"
 
-#include "OT/TwoChooseOne/OTExtInterface.h"
+#include "TwoChooseOne/OTExtInterface.h"
 
-#include "OT/Tools/Tools.h"
-#include "OT/Tools/BchCode.h"
+#include "Tools/Tools.h"
+#include "Tools/LinearCode.h"
 #include "Network/BtChannel.h"
 #include "Network/BtEndpoint.h"
 #include "Common/Log.h"
  
-#include "OT/NChooseOne/KkrtNcoOtReceiver.h"
-#include "OT/NChooseOne/KkrtNcoOtSender.h"
+#include "NChooseOne/KkrtNcoOtReceiver.h"
+#include "NChooseOne/KkrtNcoOtSender.h"
 
-#include "OT/NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "OT/NChooseOne/Oos/OosNcoOtSender.h"
+#include "NChooseOne/Oos/OosNcoOtReceiver.h"
+#include "NChooseOne/Oos/OosNcoOtSender.h"
 
 #include "Common.h"
 #include <thread>
@@ -136,8 +136,8 @@ void OosNcoOt_Test_Impl()
     auto &sendChl = ep0.addChannel(name, name);
 
 
-    BchCode code;
-    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/OT/Tools/bch511.bin");
+    LinearCode code;
+    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/Tools/bch511.bin");
 
     OosNcoOtSender sender(code);
     OosNcoOtReceiver recv(code);
@@ -217,14 +217,14 @@ void OosNcoOt_Test_Impl()
 }
 
 
-void BchCode_Test_Impl()
+void LinearCode_Test_Impl()
 {
-    BchCode code;
+    LinearCode code;
 
 
-    code.loadTxtFile(std::string(SOLUTION_DIR) + "/libPSI/OT/Tools/bch511.txt");
-    code.writeBinFile(std::string(SOLUTION_DIR) + "/libPSI/OT/Tools/bch511.bin");
-    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/OT/Tools/bch511.bin");
+    code.loadTxtFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.txt");
+    code.writeBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
+    code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
     //Log::out << code.codewordBitSize() << "  " << code.codewordBlkSize() <<
     //    "\n  " << code.plaintextBitSize() << "  " << code.plaintextBlkSize() << Log::endl;
 

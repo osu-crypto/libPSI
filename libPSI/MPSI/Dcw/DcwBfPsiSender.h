@@ -2,7 +2,7 @@
 #include "Common/Defines.h"
 #include "Network/Channel.h"
 #include "Crypto/sha1.h"
-#include "OT/TwoChooseOne/OTExtInterface.h"
+#include "TwoChooseOne/OTExtInterface.h"
 
 namespace osuCrypto {
 

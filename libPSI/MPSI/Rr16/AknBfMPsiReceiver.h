@@ -1,7 +1,7 @@
 #pragma once
 #include "Common/Defines.h"
 #include "Network/Channel.h"
-#include "OT/NChooseK/AknOtReceiver.h"
+#include "NChooseK/AknOtReceiver.h"
 
 
 namespace osuCrypto

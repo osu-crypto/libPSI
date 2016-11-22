@@ -9,11 +9,11 @@ using namespace osuCrypto;
 
 #include "Common/Defines.h"
 #include "Network/BtEndpoint.h" 
-#include "OT/TwoChooseOne/KosOtExtReceiver.h"
-#include "OT/TwoChooseOne/KosOtExtSender.h"
+#include "TwoChooseOne/KosOtExtReceiver.h"
+#include "TwoChooseOne/KosOtExtSender.h"
 
-#include "OT/TwoChooseOne/LzKosOtExtReceiver.h"
-#include "OT/TwoChooseOne/LzKosOtExtSender.h"
+#include "TwoChooseOne/LzKosOtExtReceiver.h"
+#include "TwoChooseOne/LzKosOtExtSender.h"
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"

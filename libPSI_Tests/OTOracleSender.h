@@ -1,5 +1,5 @@
 #pragma once
-#include "OT/TwoChooseOne/OTExtInterface.h"
+#include "TwoChooseOne/OTExtInterface.h"
 #ifdef GetMessage
 #undef GetMessage
 #endif

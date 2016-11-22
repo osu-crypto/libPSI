@@ -6,11 +6,11 @@
 
 #include "MPSI/Beta/SimpleHasher.h"
 #include "Common/Log.h"
-#include "OT/Base/naor-pinkas.h"
+#include "Base/naor-pinkas.h"
 #include <unordered_map>
 
-#include "OT/TwoChooseOne/KosOtExtReceiver.h"
-#include "OT/TwoChooseOne/KosOtExtSender.h"
+#include "TwoChooseOne/KosOtExtReceiver.h"
+#include "TwoChooseOne/KosOtExtSender.h"
 
 #include "CuckooHasher.h"
 
