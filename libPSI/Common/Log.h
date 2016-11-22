@@ -80,6 +80,7 @@ namespace osuCrypto
         enum Modifier
         {
             endl,
+            flush,
             lock,
             unlock
         };
@@ -138,6 +139,9 @@ namespace osuCrypto
             {
             case Log::Modifier::endl:
                 *mSink << std::endl;
+                break;
+            case Log::Modifier::flush:
+                *mSink << std::flush;
                 break;
             case Log::Modifier::lock:
                 mMtx.lock();

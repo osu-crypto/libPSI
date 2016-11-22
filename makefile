@@ -32,7 +32,9 @@ PRIMARY_DIR=$(SRC)/libPSI/
 PRIMARYTESTS_DIR=$(SRC)/libPSI_Tests
 
 
-FRONTEND_SRC=$(wildcard $(FRONTEND_DIR)/*.cpp)
+FRONTEND_SRC=\
+	$(call rwildcard, $(FRONTEND_DIR), *.cpp)
+
 FRONTEND_OBJ=$(addprefix $(BINARYDIR)/,$(FRONTEND_SRC:.cpp=.o))
 
 

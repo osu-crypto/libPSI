@@ -20,7 +20,7 @@
 #include "Common.h"
 #include <thread>
 #include <vector>
-#include <boost/multiprecision/cpp_int.hpp>
+
 
 #ifdef GetMessage
 #undef GetMessage
@@ -29,7 +29,7 @@
 #pragma warning(disable: 4800)
 
 using namespace osuCrypto;
-using namespace boost::multiprecision;
+
 
 void OT_100Receive_Test(BitVector& choiceBits, ArrayView<block> recv, ArrayView<std::array<block, 2>>  sender)
 {

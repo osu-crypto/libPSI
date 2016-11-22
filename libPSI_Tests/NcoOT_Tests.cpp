@@ -16,15 +16,13 @@
 
 #include "Common.h"
 #include <thread>
-#include <vector>
-#include <boost/multiprecision/cpp_int.hpp>
+#include <vector> 
 
 #ifdef GetMessage
 #undef GetMessage
 #endif
 
-using namespace osuCrypto;
-using namespace boost::multiprecision;
+using namespace osuCrypto; 
 
 
 

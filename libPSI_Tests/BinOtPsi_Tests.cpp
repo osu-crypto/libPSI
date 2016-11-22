@@ -25,14 +25,18 @@ using namespace osuCrypto;
 void OtBinPsi_CuckooHasher_Test_Impl()
 {
     u64 setSize = 10000;
-    std::vector<u64> _hashes(setSize * 2);
-    MatrixView<u64> hashes(_hashes.begin(), _hashes.end(), 2);
+
+    u64 h = 2;
+    std::vector<u64> _hashes(setSize * h + 1);
+    MatrixView<u64> hashes(_hashes.begin(), _hashes.end(), h);
     PRNG prng(ZeroBlock);
 
     for (u64 i = 0; i < hashes.size()[0]; ++i)
     {
-        hashes[i][0] = prng.get<u64>();
-        hashes[i][1] = prng.get<u64>();
+        for (u64 j = 0; j < h; ++j)
+        {
+            hashes[i][j] = prng.get<u64>();
+        }
     }
 
     CuckooHasher hashMap0;
@@ -41,8 +45,8 @@ void OtBinPsi_CuckooHasher_Test_Impl()
 
     hashMap0.init(setSize, 40, true);
     hashMap1.init(setSize, 40, true);
-    
-    
+
+
     for (u64 i = 0; i < setSize; ++i)
     {
         //if (i == 6) hashMap0.print();
@@ -63,7 +67,7 @@ void OtBinPsi_CuckooHasher_Test_Impl()
 
         //    throw UnitTestFail();
         //}
-    
+
     }
 
     if (hashMap0 != hashMap1)
@@ -76,7 +80,7 @@ void OtBinPsi_CuckooHasher_Test_Impl()
 
 void OtBinPsi_Kkrt_EmptrySet_Test_Impl()
 {
-    u64 setSize = 8, psiSecParam = 40, bitSize= 128;
+    u64 setSize = 8, psiSecParam = 40, bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -131,7 +135,7 @@ void OtBinPsi_Kkrt_EmptrySet_Test_Impl()
     std::thread thrd([&]() {
 
 
-        send.init(setSize, psiSecParam,bitSize, sendChl, otSend0, otRecv0, prng.get<block>());
+        send.init(setSize, psiSecParam, bitSize, sendChl, otSend0, otRecv0, prng.get<block>());
         send.sendInput(sendSet, sendChl);
     });
 
@@ -216,7 +220,7 @@ void OtBinPsi_Kkrt_FullSet_Test_Impl()
 void OtBinPsi_Kkrt_SingltonSet_Test_Impl()
 {
     Log::setThreadName("Sender");
-    u64 setSize = 128, psiSecParam = 40, bitSize= 128;
+    u64 setSize = 128, psiSecParam = 40, bitSize = 128;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -355,7 +359,7 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
     Log::setThreadName("CP_Test_Thread");
     u64 setSize = 8, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-     
+
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -389,7 +393,7 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
     OtBinMPsiSender send;
     OtBinMPsiReceiver recv;
     std::thread thrd([&]() {
-        
+
         send.init(setSize, psiSecParam, bitSize, sendChls, otSend0, otRecv0, prng.get<block>());
         send.sendInput(sendSet, sendChls);
     });
