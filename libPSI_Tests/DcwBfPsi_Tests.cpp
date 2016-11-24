@@ -146,10 +146,6 @@ void DcwBfPsi_FullSet_Test_Impl()
     recvPSI.init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
     recvPSI.sendInput(recvSet, recvChls);
 
-    if (recvPSI.mIntersection.size() != setSize)
-        throw UnitTestFail();
-
-
 
     thrd.join();
 
@@ -162,6 +158,10 @@ void DcwBfPsi_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
+
+    if (recvPSI.mIntersection.size() != setSize)
+        throw UnitTestFail("Bad intersection size");
+
 
 }
 
@@ -210,9 +210,6 @@ void DcwBfPsi_SingltonSet_Test_Impl()
 
     recvPSI.sendInput(recvSet, recvChl);
 
-    if (recvPSI.mIntersection.size() != 1 ||
-        recvPSI.mIntersection[0] != 0)
-        throw UnitTestFail();
 
     thrd.join();
 
@@ -222,6 +219,11 @@ void DcwBfPsi_SingltonSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
+
+
+    if (recvPSI.mIntersection.size() != 1 ||
+        recvPSI.mIntersection[0] != 0)
+        throw UnitTestFail();
 }
 
 

@@ -39,8 +39,8 @@ int main(int argc, char** argv)
     //t.setTimePoint("done");
     //Log::out << t << Log::endl;
 
-    //run_all();
-    //return 0;
+    run_all();
+    return 0;
     //Ecc2mNumber_Test();
     //return 0;
     //miraclTestMain();

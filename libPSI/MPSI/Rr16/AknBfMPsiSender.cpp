@@ -158,7 +158,7 @@ namespace osuCrypto {
                 gTimer.setTimePoint("sender.online.masksStart");
 
 
-            //Log::out << Log::lock;
+            Log::out << Log::lock;
 
             for (u64 i = start, k = 0; i < end; ++i, ++k)
             {
@@ -173,7 +173,7 @@ namespace osuCrypto {
 
                 hasher.ecbEncBlocks(indexArray.data(), indexArray.size(), bv.data());
 
-                //Log::out << "inputs[" << i << "] " << inputs[i] << "  " << indexArray.size() << Log::endl;
+                Log::out << "S inputs[" << i << "] " << inputs[i] << "  " << indexArray.size() << Log::endl;
 
                 for (u64 j = 0; j < mHashs.size(); ++j)
                 {
@@ -181,13 +181,13 @@ namespace osuCrypto {
 
                     auto pIdx = permutes[idx];
 
-                    //Log::out << "send " << i << "  " << j << "  " << pIdx  <<"   ("<<idx<<")"<< Log::endl;
+                    Log::out << "send " << i << "  " << j << "  " << pIdx  <<"   ("<<idx<<")"<< Log::endl;
 
                     myMasks[k] = myMasks[k] ^ mAknOt.mMessages[pIdx][1];
                 }
             }
 
-            //Log::out << Log::unlock;
+            Log::out << Log::unlock;
 
 
             if (t == 0)

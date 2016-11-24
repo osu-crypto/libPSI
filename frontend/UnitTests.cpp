@@ -23,7 +23,7 @@ using namespace osuCrypto;
 void run(std::string name, std::function<void(void)> func)
 {
     Log::out << name;
-
+    std::cout << std::flush;
     auto start = std::chrono::high_resolution_clock::now();
     try
     {
@@ -72,6 +72,7 @@ void OT_all()
 
     run("Transpose_Test_Impl                     ", Transpose_Test_Impl);
     run("KosOtExt_100Receive_Test_Impl           ", KosOtExt_100Receive_Test_Impl);
+    run("LzKosOtExt_100Receive_Test_Impl         ", LzKosOtExt_100Receive_Test_Impl);
     run("IknpOtExt_100Receive_Test_Impl          ", IknpOtExt_100Receive_Test_Impl);
     run("AknOt_sendRecv1000_Test                 ", AknOt_sendRecv1000_Test);
     run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
@@ -142,15 +143,15 @@ void run_all()
     //LinearCode_Test_Impl();
     //run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
     //run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
-    run("OtBinPsi_Oos_SingltonSet_Test_Impl       ", OtBinPsi_Oos_SingltonSet_Test_Impl);
+    //run("OtBinPsi_Oos_SingltonSet_Test_Impl       ", OtBinPsi_Oos_SingltonSet_Test_Impl);
 
     //run("OtBinPsi_Kkrt_SingltonSet_Test_Impl      ", OtBinPsi_Kkrt_SingltonSet_Test_Impl);
     //NetWork_all();
     //bitVec_all();
     //Ecc_all();
-    //OT_all();
-    //AknBfPsi_all();
-    //OtBinPsi_all();
-    //DcwPsi_all();
-    //DktPsi_all();
+    OT_all();
+    AknBfPsi_all();
+    OtBinPsi_all();
+    DcwPsi_all();
+    DktPsi_all();
 }

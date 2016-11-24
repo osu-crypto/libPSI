@@ -161,6 +161,8 @@ namespace osuCrypto
             auto idxIter = idxs.begin();
             u8 hashOut[SHA1::HashSize];
 
+            Log::out << Log::lock;
+
             for (u64 i = start; i < end; ++i)
             {
                 auto& item = inputs[i];
@@ -173,6 +175,7 @@ namespace osuCrypto
 
                 hasher.ecbEncBlocks(indexArray.data(), indexArray.size(), bv.data());
 
+                Log::out << "R inputs[" << i << "] " << inputs[i] << "  " << indexArray.size() << Log::endl;
 
                 for (u64 j = 0; j < mHashs.size(); ++j)
                 {
@@ -182,6 +185,7 @@ namespace osuCrypto
                     //auto idx = hasher.get<u64>() % mBfBitCount;
 
                     *idxIter = iv[j] % mBfBitCount;
+                    Log::out << "R send " << i << "  " << j << "  bf[" << *idxIter<< "] = 1 "<< Log::endl;
 
                     bf[*idxIter++] = 1;
 
@@ -201,6 +205,8 @@ namespace osuCrypto
                 //}
 
             }
+            Log::out << Log::unlock;
+
 
             if (--hashingsRemaing == 0)
                 hashingsDoneProm.set_value();

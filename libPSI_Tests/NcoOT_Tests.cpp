@@ -34,12 +34,13 @@ void KkrtNcoOt_Test_Impl()
     PRNG prng0(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     u64 numOTs = 128;
+    
 
     KkrtNcoOtSender sender;
     KkrtNcoOtReceiver recv;
     u64 codeSize, baseCount;
     sender.getParams(true,128, 40, 128, numOTs, codeSize, baseCount);
-    
+
     std::vector<block> baseRecv(baseCount);
     std::vector<std::array<block, 2>> baseSend(baseCount);
     BitVector baseChoice(baseCount);
@@ -99,14 +100,14 @@ void KkrtNcoOt_Test_Impl()
             sender.encode(i, codeword,  encoding2);
 
             if (neq(encoding1, encoding2))
-                throw UnitTestFail();
+                throw UnitTestFail("OTs not equal");
 
             prng0.get((u8*)codeword.data(), codeSize * sizeof(block));
 
             sender.encode(i, codeword,  encoding2);
 
             if (eq(encoding1, encoding2))
-                throw UnitTestFail();
+                throw UnitTestFail("OTs equal");
         }
 
     }
@@ -137,7 +138,7 @@ void OosNcoOt_Test_Impl()
 
 
     LinearCode code;
-    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/Tools/bch511.bin");
+    code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
 
     OosNcoOtSender sender(code);
     OosNcoOtReceiver recv(code);

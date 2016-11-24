@@ -62,6 +62,13 @@ namespace osuCrypto_tests
         }
 
 
+        TEST_METHOD(LzKos_200Receive_TestVS)
+        {
+            InitDebugPrinting();
+            LzKosOtExt_100Receive_Test_Impl();
+        }
+
+
         TEST_METHOD(Kkrt_200Receive_TestVS)
         {
             InitDebugPrinting();

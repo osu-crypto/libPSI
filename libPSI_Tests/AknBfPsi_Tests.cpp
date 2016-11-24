@@ -101,7 +101,6 @@ void AknBfPsi_FullSet_Test_Impl()
     OTOracleSender otSend(ZeroBlock);
 
 
-
     AknBfMPsiSender send;
     AknBfMPsiReceiver recv;
     std::thread thrd([&]() {
@@ -112,11 +111,10 @@ void AknBfPsi_FullSet_Test_Impl()
 
     recv.init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
-
-    if (recv.mIntersection.size() != setSize)
-        throw UnitTestFail();
-
     thrd.join();
+
+
+
 
     for (u64 i = 0; i < numThreads; ++i)
     {
@@ -128,12 +126,16 @@ void AknBfPsi_FullSet_Test_Impl()
     ep1.stop();
     ios.stop();
 
+
+    if (recv.mIntersection.size() != setSize)
+        throw UnitTestFail("Bad intersection size.");
+
 }
 
 void AknBfPsi_SingltonSet_Test_Impl()
 {
     Log::setThreadName("Sender");
-    u64 setSize = 8, psiSecParam = 40;
+    u64 setSize = 1, psiSecParam = 40;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -174,11 +176,6 @@ void AknBfPsi_SingltonSet_Test_Impl()
 
     thrd.join();
 
-    if (recv.mIntersection.size() != 1 ||
-        recv.mIntersection[0] != 0)
-        throw UnitTestFail();
-
-
     //Log::out << gTimer << Log::endl;
 
     sendChl.close();
@@ -187,4 +184,9 @@ void AknBfPsi_SingltonSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
+
+    if (recv.mIntersection.size() != 1 ||
+        recv.mIntersection[0] != 0)
+        throw UnitTestFail("Bad intersection size");
+
 }

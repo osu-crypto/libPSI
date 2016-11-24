@@ -299,7 +299,7 @@ void OtBinPsi_Oos_EmptrySet_Test_Impl()
     std::vector<Channel*> sendChl{ &ep0.addChannel(name, name) };
     std::string solution(SOLUTION_DIR);
     LinearCode code;
-    code.loadBinFile(solution + "/libPSI/Tools/bch511.bin");
+    code.loadBinFile(solution + "/../libOTe/libOTe/Tools/bch511.bin");
 
     OosNcoOtReceiver otRecv0(code), otRecv1(code);
     OosNcoOtSender otSend0(code), otSend1(code);
@@ -385,7 +385,7 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
     }
 
     LinearCode code;
-    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/Tools/bch511.bin");
+    code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
 
     OosNcoOtReceiver otRecv0(code), otRecv1(code);
     OosNcoOtSender otSend0(code), otSend1(code);
@@ -445,7 +445,7 @@ void OtBinPsi_Oos_SingltonSet_Test_Impl()
     Channel& sendChl = ep0.addChannel(name, name);
 
     LinearCode code;
-    code.loadBinFile(std::string(SOLUTION_DIR) + "/libPSI/Tools/bch511.bin");
+    code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
 
     OosNcoOtReceiver otRecv0(code), otRecv1(code);
     OosNcoOtSender otSend0(code), otSend1(code);

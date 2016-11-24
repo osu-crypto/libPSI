@@ -14,6 +14,9 @@
 #include "TwoChooseOne/KosOtExtReceiver.h"
 #include "TwoChooseOne/KosOtExtSender.h"
 
+#include "TwoChooseOne/LzKosOtExtReceiver.h"
+#include "TwoChooseOne/LzKosOtExtSender.h"
+
 #include "NChooseOne/KkrtNcoOtReceiver.h"
 #include "NChooseOne/KkrtNcoOtSender.h"
 
@@ -343,6 +346,72 @@ void KosOtExt_100Receive_Test_Impl()
     //recvNetMg
 }
 
+
+void LzKosOtExt_100Receive_Test_Impl()
+{
+    Log::setThreadName("Sender");
+
+    BtIOService ios(0);
+    BtEndpoint ep0(ios, "127.0.0.1", 1212, true, "ep");
+    BtEndpoint ep1(ios, "127.0.0.1", 1212, false, "ep");
+    Channel& senderChannel = ep1.addChannel("chl", "chl");
+    Channel& recvChannel = ep0.addChannel("chl", "chl");
+
+    PRNG prng0(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+    PRNG prng1(_mm_set_epi32(4253233465, 334565, 0, 235));
+
+    u64 numOTs = 200;
+
+    std::vector<block> recvMsg(numOTs), baseRecv(128);
+    std::vector<std::array<block, 2>> sendMsg(numOTs), baseSend(128);
+    BitVector choices(numOTs), baseChoice(128);
+    choices.randomize(prng0);
+    baseChoice.randomize(prng0);
+
+
+    for (u64 i = 0; i < 128; ++i)
+    {
+        baseSend[i][0] = prng0.get<block>();
+        baseSend[i][1] = prng0.get<block>();
+        baseRecv[i] = baseSend[i][baseChoice[i]];
+    }
+
+
+    LzKosOtExtSender sender;
+    LzKosOtExtReceiver recv;
+
+    std::thread thrd = std::thread([&]() {
+        Log::setThreadName("receiver");
+
+        recv.setBaseOts(baseSend);
+        recv.receive(choices, recvMsg, prng0, recvChannel);
+    });
+
+    sender.setBaseOts(baseRecv, baseChoice);
+    sender.send(sendMsg, prng1, senderChannel);
+    thrd.join();
+
+    //for (u64 i = 0; i < baseOTs.receiver_outputs.size(); ++i)
+    //{
+    //    Log::out << sender.GetMessage(i, 0) << " " << sender.GetMessage(i, 1) << "\n" << recv.GetMessage(1) << "  " << recv.mChoiceBits[i] << Log::endl;
+    //}
+
+    OT_100Receive_Test(choices, recvMsg, sendMsg);
+
+
+
+    senderChannel.close();
+    recvChannel.close();
+
+
+    ep1.stop();
+    ep0.stop();
+
+    ios.stop();
+
+    //senderNetMgr.Stop();
+    //recvNetMg
+}
 
 
 void IknpOtExt_100Receive_Test_Impl()

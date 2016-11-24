@@ -106,6 +106,9 @@
     <ClInclude Include="OT_Tests.h" />
     <ClInclude Include="ShamirSSScheme_Tests.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

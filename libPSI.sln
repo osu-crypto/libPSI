@@ -26,13 +26,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libPSI_TestsVS", "libPSI_Te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{5280458E-A3DB-4965-9A35-5FB0A9F9124D}"
 	ProjectSection(SolutionItems) = preProject
-		debug.mak = debug.mak
+		CMakeLists.txt = CMakeLists.txt
+		copySourceToLinux.ps1 = copySourceToLinux.ps1
 		ExternalDependancies.props = ExternalDependancies.props
-		makefile = makefile
-		release.mak = release.mak
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "linuxFrontend", "linuxFrontend\linuxFrontend.vcxproj", "{72427940-1136-4BFA-8634-713FBD9A2B0B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cryptoTools", "cryptoTools\cryptoTools.vcxproj", "{B707F703-490A-447F-9737-C6A70B8D7A61}"
 EndProject
@@ -78,12 +75,6 @@ Global
 		{65381340-EC08-45B1-928E-74A4C5D46985}.Release|x64.ActiveCfg = Release|x64
 		{65381340-EC08-45B1-928E-74A4C5D46985}.Release|x64.Build.0 = Release|x64
 		{65381340-EC08-45B1-928E-74A4C5D46985}.Release|x86.ActiveCfg = Release|x64
-		{72427940-1136-4BFA-8634-713FBD9A2B0B}.Debug|ARM.ActiveCfg = Debug|x64
-		{72427940-1136-4BFA-8634-713FBD9A2B0B}.Debug|x64.ActiveCfg = Debug|x64
-		{72427940-1136-4BFA-8634-713FBD9A2B0B}.Debug|x86.ActiveCfg = Debug|x64
-		{72427940-1136-4BFA-8634-713FBD9A2B0B}.Release|ARM.ActiveCfg = Release|x64
-		{72427940-1136-4BFA-8634-713FBD9A2B0B}.Release|x64.ActiveCfg = Release|x64
-		{72427940-1136-4BFA-8634-713FBD9A2B0B}.Release|x86.ActiveCfg = Release|x64
 		{B707F703-490A-447F-9737-C6A70B8D7A61}.Debug|ARM.ActiveCfg = Debug|x64
 		{B707F703-490A-447F-9737-C6A70B8D7A61}.Debug|x64.ActiveCfg = Debug|x64
 		{B707F703-490A-447F-9737-C6A70B8D7A61}.Debug|x64.Build.0 = Debug|x64
