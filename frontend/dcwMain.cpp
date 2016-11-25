@@ -1,5 +1,6 @@
 #include "dcwMain.h"
 
+#include "Network/BtEndpoint.h" 
 
 
 #include "MPSI/Dcw/DcwBfPsiReceiver.h"
@@ -10,7 +11,6 @@
 
 
 #include "Common/Defines.h"
-#include "Network/BtEndpoint.h" 
 #include "TwoChooseOne/KosOtExtReceiver.h"
 #include "TwoChooseOne/KosOtExtSender.h"
 

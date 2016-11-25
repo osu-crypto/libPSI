@@ -1,10 +1,10 @@
 #include "AknBfPsi_Tests.h"
 
+#include "Network/BtEndpoint.h"
 #include "Common.h"
 #include "Common/Defines.h"
 #include "MPSI/Rr16/AknBfMPsiReceiver.h"
 #include "MPSI/Rr16/AknBfMPsiSender.h"
-#include "Network/BtEndpoint.h"
 #include "OTOracleReceiver.h"
 #include "OTOracleSender.h"
 #include "Common/Log.h"
@@ -134,6 +134,9 @@ void AknBfPsi_FullSet_Test_Impl()
 
 void AknBfPsi_SingltonSet_Test_Impl()
 {
+    Timer& t = gTimer;
+    t.setTimePoint("s1");
+
     Log::setThreadName("Sender");
     u64 setSize = 1, psiSecParam = 40;
 
@@ -170,9 +173,11 @@ void AknBfPsi_SingltonSet_Test_Impl()
         send.init(setSize, psiSecParam, otSend, sendChl, prng.get<block>());
         send.sendInput(sendSet, sendChl);
     });
+    t.setTimePoint("s2");
 
     recv.init(setSize, psiSecParam, otRecv, recvChl, ZeroBlock);
     recv.sendInput(recvSet, recvChl);
+    t.setTimePoint("s3");
 
     thrd.join();
 
@@ -185,6 +190,8 @@ void AknBfPsi_SingltonSet_Test_Impl()
     ep1.stop();
     ios.stop();
 
+    t.setTimePoint("s4");
+    Log::out << t << Log::endl;
     if (recv.mIntersection.size() != 1 ||
         recv.mIntersection[0] != 0)
         throw UnitTestFail("Bad intersection size");

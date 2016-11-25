@@ -53,14 +53,13 @@ namespace osuCrypto
         auto theirCommFutre = chl.asyncRecv(theirComm.data(), theirComm.size());
 
         //u64 statSecParam(40);
-        u64 totalOnesCount, numHashFunctions, cncThreshold;
+        u64 totalOnesCount,  cncThreshold;
         double cncProb;
         gTimer.setTimePoint("Init.params");
 
-        computeAknBfParams(mMyInputSize, statSecParam, mTotalOtCount, totalOnesCount, cncThreshold, cncProb, numHashFunctions, mBfBitCount);
+        computeAknBfParams(mMyInputSize, statSecParam, mTotalOtCount, totalOnesCount, cncThreshold, cncProb, mNumHashFunctions, mBfBitCount);
 
 
-        mHashs.resize(numHashFunctions);
 
 
         gTimer.setTimePoint("Init.aknOTstart");
@@ -80,12 +79,7 @@ namespace osuCrypto
         chl.recv(&theirHashingSeed, sizeof(block));
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
-        PRNG hashSeedGen(mHashingSeed);
 
-        for (u64 i = 0; i < mHashs.size(); ++i)
-        {
-            mHashs[i].Update(hashSeedGen.get<block>());
-        }
         gTimer.setTimePoint("Init.done");
         //Log::out << timer;
     }
@@ -139,25 +133,16 @@ namespace osuCrypto
         ByteStream permuteBuff(mBfBitCount * permByteSize);
         //Log::out << "size  " << permuteBuff.size() << " = " <<mBfBitCount << " * " << permByteSize  << Log::endl;
 
-        std::vector<u8> hashBuff(roundUpTo(mHashs.size() * sizeof(u64), sizeof(block)));
-        ArrayView<block>bv((block*)hashBuff.data(), hashBuff.size() / sizeof(block));
-        ArrayView<u64>iv((u64*)hashBuff.data(), hashBuff.size() / sizeof(u64));
-        std::vector<block> indexArray(hashBuff.size() / sizeof(block));
-
-
-        for (u64 i = 0; i < indexArray.size(); ++i)
-        {
-            indexArray[i] = _mm_set1_epi64x(i);
-        }
-
+        ArrayView<block>bv((mNumHashFunctions + 1) / 2);
         auto routine = [&](u64 t)
         {
             auto & chl = *chls[t];
             auto start = inputs.size() * t / chls.size();
             auto end = inputs.size() * (t + 1) / chls.size();
+            SHA1 hash; 
 
 
-            std::vector<u64> idxs((end - start)* mHashs.size());
+            std::vector<u64> idxs((end - start)* mNumHashFunctions);
             auto idxIter = idxs.begin();
             u8 hashOut[SHA1::HashSize];
 
@@ -166,18 +151,28 @@ namespace osuCrypto
             for (u64 i = start; i < end; ++i)
             {
                 auto& item = inputs[i];
-                auto hash = mHashs[0];
+                //auto hash = mHashs[0];
+                hash.Reset();
 
+
+                hash.Update(mHashingSeed);
                 hash.Update(inputs[i]);
                 hash.Final(hashOut);
-                auto key = *(block*)hashOut;
+
+                Log::out << "r " << (u64)hashOut << Log::endl;
+
+                auto key = toBlock(hashOut);
                 AES hasher(key);
 
-                hasher.ecbEncBlocks(indexArray.data(), indexArray.size(), bv.data());
+                hasher.ecbEncCounterMode(0, bv.size(), bv.data());
+                ArrayView<u64>iv((u64*)bv.data(), mNumHashFunctions);
 
-                Log::out << "R inputs[" << i << "] " << inputs[i] << "  " << indexArray.size() << Log::endl;
 
-                for (u64 j = 0; j < mHashs.size(); ++j)
+                Log::out << "R inputs[" << i << "] " << inputs[i]  << " h -> " 
+                    << toBlock(hashOut) << " = H(" << mHashingSeed << " || " << inputs[i] << ")" << Log::endl; 
+                //<< toBlock(hashOut) << Log::endl;
+
+                for (u64 j = 0; j < mNumHashFunctions; ++j)
                 {
                     // copy the hash since its stateful
 
@@ -185,7 +180,7 @@ namespace osuCrypto
                     //auto idx = hasher.get<u64>() % mBfBitCount;
 
                     *idxIter = iv[j] % mBfBitCount;
-                    Log::out << "R send " << i << "  " << j << "  bf[" << *idxIter<< "] = 1 "<< Log::endl;
+                    //Log::out << "R send " << i << "  " << j << "  bf[" << *idxIter<< "] = 1  "<< Log::endl;
 
                     bf[*idxIter++] = 1;
 
@@ -193,7 +188,7 @@ namespace osuCrypto
 
                     //myMasks[k] = myMasks[k] ^ mAknOt.mMessages[pIdx][1];
                 }
-                //for (u64 j = 0; j < mHashs.size(); ++j)
+                //for (u64 j = 0; j < mNumHashFunctions; ++j)
                 //{
                 //    // copy the hash since its stateful and has the seed in it
                 //    auto hash = mHashs[j];
@@ -291,7 +286,7 @@ namespace osuCrypto
                 block mask(ZeroBlock);
                 //Log::out << "inputs[" << i << "] " << inputs[i] << Log::endl;
                 const u64 stepSize = 2;
-                u64 stepCount = mHashs.size() / stepSize;
+                u64 stepCount = mNumHashFunctions / stepSize;
 
                 for (u64 j = 0; j < stepCount; ++j)
                 {
@@ -328,7 +323,7 @@ namespace osuCrypto
                         //^ mAknOt.mMessages[idxs[7]]
                         ;
                 }
-                for (u64 j = stepSize * stepCount; j < mHashs.size(); ++j)
+                for (u64 j = stepSize * stepCount; j < mNumHashFunctions; ++j)
                 {
                     auto idx = *idxIter++;
                     auto pIdx = permute[idx];
@@ -501,6 +496,7 @@ namespace osuCrypto
         {
             switch (n)
             {
+            case 1:
             case 4:
                 totalOtCount = 8295;
                 totalOnesCount = 517;

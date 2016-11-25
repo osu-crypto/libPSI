@@ -1,4 +1,6 @@
 #include <iostream>
+#include "Network/BtChannel.h"
+#include "Network/BtEndpoint.h"
 
 using namespace std;
 #include "UnitTests.h" 
@@ -12,8 +14,6 @@ using namespace osuCrypto;
 
 #include "TwoChooseOne/KosOtExtReceiver.h"
 #include "TwoChooseOne/KosOtExtSender.h"
-#include "Network/BtChannel.h"
-#include "Network/BtEndpoint.h"
 #include <numeric>
 #include "Common/Log.h"
 int miraclTestMain();

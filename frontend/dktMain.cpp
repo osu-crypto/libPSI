@@ -1,5 +1,6 @@
 #include "dcwMain.h"
 
+#include "Network/BtEndpoint.h" 
 
 #include "MPSI/DKT/DktMPsiReceiver.h"
 #include "MPSI/DKT/DktMPsiSender.h"
@@ -7,7 +8,6 @@
 
 
 #include "Common/Defines.h"
-#include "Network/BtEndpoint.h" 
 #include "Common/Log.h"
 #include "Common/Timer.h"
 #include "Crypto/PRNG.h"

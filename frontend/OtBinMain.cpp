@@ -1,4 +1,5 @@
 #include "bloomFilterMain.h"
+#include "Network/BtEndpoint.h" 
 
 #include "MPSI/Beta/OtBinMPsiReceiver.h"
 #include "MPSI/Beta/OtBinMPsiSender.h"
@@ -8,7 +9,6 @@ using namespace osuCrypto;
 #include "util.h"
 
 #include "Common/Defines.h"
-#include "Network/BtEndpoint.h" 
 #include "NChooseOne/KkrtNcoOtReceiver.h"
 #include "NChooseOne/KkrtNcoOtSender.h"
 

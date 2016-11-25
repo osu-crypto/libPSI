@@ -38,13 +38,13 @@ namespace osuCrypto {
         auto theirCommFutre = chl0.asyncRecv(theirComm.data(), theirComm.size());
 
         //u64 statSecParam(40);
-        u64 totalOtCount, cncOnesThreshold, numHashFunctions, totalOnesCount;
+        u64 totalOtCount, cncOnesThreshold, totalOnesCount;
         double cncProb;
 
-        computeAknBfParams(n, statSecParam, totalOtCount, totalOnesCount, cncOnesThreshold, cncProb, numHashFunctions, mBfBitCount);
+        computeAknBfParams(n, statSecParam, totalOtCount, totalOnesCount, cncOnesThreshold, cncProb, mNumHashFunctions, mBfBitCount);
 
 
-        mHashs.resize(numHashFunctions);
+        //mHashs.resize(numHashFunctions);
 
 
         gTimer.setTimePoint("sender.init.aknOT.start");
@@ -55,7 +55,7 @@ namespace osuCrypto {
         if (mBfBitCount > mAknOt.mMessages.size())
             throw std::runtime_error(LOCATION);
 
-        //mAknOt.init(m, mBinSize * mHashs.size(), mNumBins, mHashs.size(), otExt, chl, prng);
+        //mAknOt.init(m, mBinSize * mNumHashFunctions, mNumBins, mNumHashFunctions, otExt, chl, prng);
 
         theirCommFutre.get();
         chl0.asyncSend(&myHashSeed, sizeof(block));
@@ -63,12 +63,7 @@ namespace osuCrypto {
         chl0.recv(&theirHashingSeed, sizeof(block));
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
-        PRNG hashSeedGen(mHashingSeed);
 
-        for (u64 i = 0; i < mHashs.size(); ++i)
-        {
-            mHashs[i].Update(hashSeedGen.get<block>());
-        }
 
         gTimer.setTimePoint("sender.init.done");
 
@@ -108,15 +103,8 @@ namespace osuCrypto {
         std::shared_future<bool> isValidPermFuture(isValidPerm.get_future());
 
 
-        std::vector<u8> hashBuff(roundUpTo(mHashs.size() * sizeof(u64), sizeof(block)));
-        ArrayView<block>bv((block*)hashBuff.data(), hashBuff.size() / sizeof(block));
-        ArrayView<u64>iv((u64*)hashBuff.data(), hashBuff.size() / sizeof(u64));
-        std::vector<block> indexArray(hashBuff.size() / sizeof(block));
-
-        for (u64 i = 0; i < indexArray.size(); ++i)
-        {
-            indexArray[i] = _mm_set1_epi64x(i);
-        }
+        //std::vector<u8> hashBuff(roundUpTo(mNumHashFunctions * sizeof(u64), sizeof(block)));
+        ArrayView<block>bv((mNumHashFunctions + 1) / 2);
 
         ByteStream piBuff;
         piBuff.resize(mBfBitCount * sizeof(LogOtCount_t));
@@ -152,6 +140,7 @@ namespace osuCrypto {
             std::unique_ptr<ByteStream> myMasksBuff(new ByteStream((end - start) * sizeof(block)));
             myMasksBuff->setp(myMasksBuff->capacity());
             auto myMasks = myMasksBuff->getArrayView<block>();
+            SHA1 hash;
             u8 hashOut[SHA1::HashSize];
 
             if (t == 0)
@@ -163,25 +152,31 @@ namespace osuCrypto {
             for (u64 i = start, k = 0; i < end; ++i, ++k)
             {
                 myMasks[k] = ZeroBlock;
-                auto hash = mHashs[0];
+                //auto hash = mHashs[0];
 
+                hash.Reset();
+                hash.Update(mHashingSeed);
                 hash.Update(inputs[i]);
-                hash.Final(hashOut);
+                hash.Final(hashOut); 
+                Log::out << "s " << (u64)hashOut << Log::endl;
+
                 //PRNG hasher( *(block*)hashOut);
 
-                AES hasher(*(block*)hashOut);
+                AES hasher(toBlock(hashOut));
 
-                hasher.ecbEncBlocks(indexArray.data(), indexArray.size(), bv.data());
+                hasher.ecbEncCounterMode(0, bv.size(), bv.data());
+                ArrayView<u64>iv((u64*)bv.data(), mNumHashFunctions);
 
-                Log::out << "S inputs[" << i << "] " << inputs[i] << "  " << indexArray.size() << Log::endl;
+                Log::out << "S inputs[" << i << "] " << inputs[i]  << " h -> " 
+                    << toBlock(hashOut) << " = H("<< mHashingSeed <<" || "<< inputs[i]<<")"<< Log::endl;
 
-                for (u64 j = 0; j < mHashs.size(); ++j)
+                for (u64 j = 0; j < mNumHashFunctions; ++j)
                 {
                     auto idx = iv[j] % mBfBitCount;
 
                     auto pIdx = permutes[idx];
 
-                    Log::out << "send " << i << "  " << j << "  " << pIdx  <<"   ("<<idx<<")"<< Log::endl;
+                    //Log::out << "send " << i << "  " << j << "  " << pIdx  <<"   ("<<idx<<")"<< Log::endl;
 
                     myMasks[k] = myMasks[k] ^ mAknOt.mMessages[pIdx][1];
                 }
@@ -244,7 +239,7 @@ namespace osuCrypto {
         //    for (u64 i = 0; i < inputs.size(); ++i)
         //    {
         //        myMasks[i] = ZeroBlock;
-        //        for (u64 j = 0; j < mHashs.size(); ++j)
+        //        for (u64 j = 0; j < mNumHashFunctions; ++j)
         //        {
         //            // copy the hash since its stateful
         //            auto hash = mHashs[j];

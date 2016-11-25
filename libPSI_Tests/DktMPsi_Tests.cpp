@@ -1,10 +1,10 @@
 #include "DktMPsi_Tests.h"
 
+#include "Network/BtEndpoint.h"
 #include "Common.h"
 #include "Common/Defines.h"
 #include "MPSI/DKT/DktMPsiReceiver.h"
 #include "MPSI/DKT/DktMPsiSender.h"
-#include "Network/BtEndpoint.h"
 #include "OTOracleReceiver.h"
 #include "OTOracleSender.h"
 #include "Common/Log.h"

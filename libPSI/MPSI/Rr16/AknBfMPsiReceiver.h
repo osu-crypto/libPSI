@@ -20,8 +20,8 @@ namespace osuCrypto
         ~AknBfMPsiReceiver();
 
         AknOtReceiver mAknOt;
-        std::vector<SHA1> mHashs;
-        u64 mMyInputSize, mTheirInputSize, mBfBitCount, mStatSecParam, mTotalOtCount;
+        //SHA1 mHash;
+        u64 mMyInputSize, mTheirInputSize, mBfBitCount, mStatSecParam, mTotalOtCount, mNumHashFunctions;
         block mHashingSeed, mSeed;
         std::vector<u64> mIntersection;
 

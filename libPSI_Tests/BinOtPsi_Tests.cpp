@@ -1,10 +1,10 @@
 #include "BinOtPsi_Tests.h"
 
 #include "Common.h"
+#include "Network/BtEndpoint.h"
 #include "Common/Defines.h"
 #include "MPSI/Beta/OtBinMPsiReceiver.h"
 #include "MPSI/Beta/OtBinMPsiSender.h"
-#include "Network/BtEndpoint.h"
 #include "Common/Log.h"
 
 #include "NChooseOne/KkrtNcoOtReceiver.h"
