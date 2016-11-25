@@ -27,7 +27,7 @@ void DcwSend()
 {
 
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 numThreads(1);
 
     std::fstream online, offline;
@@ -36,7 +36,7 @@ void DcwSend()
     u64 numTrial(8);
 
 
-    Log::out << "role  = sender (" << numThreads << ") Dcw" << Log::endl;
+    std::cout << "role  = sender (" << numThreads << ") Dcw" << std::endl;
 
     std::string name("psi");
 
@@ -99,7 +99,7 @@ void DcwSend()
             //auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
             //auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-            //Log::out << setSize << "  " << offlineTime << "  " << Log::endl;
+            //std::cout << setSize << "  " << offlineTime << "  " << std::endl;
 
 
         }
@@ -123,7 +123,7 @@ void DcwRecv()
 {
     u8 dummy[1];
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 numThreads(1);
 
     std::fstream online, offline;
@@ -143,7 +143,7 @@ void DcwRecv()
         recvChls[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
-    Log::out << "role  = recv(" << numThreads << ")" << Log::endl;
+    std::cout << "role  = recv(" << numThreads << ")" << std::endl;
 
     for (auto pow : { 8,12,16,20 })
     {
@@ -202,7 +202,7 @@ void DcwRecv()
 
             offlineTimeTot += offlineTime;
             onlineTimeTot += online;
-            Log::out << setSize << "  " << offlineTime << "  " << online << Log::endl;
+            std::cout << setSize << "  " << offlineTime << "  " << online << std::endl;
 
         }
 
@@ -228,7 +228,7 @@ void DcwRSend()
 {
 
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 numThreads(1);
 
     std::fstream online, offline;
@@ -237,7 +237,7 @@ void DcwRSend()
     u64 numTrial(8);
 
 
-    Log::out << "role  = sender (" << numThreads << ") Dcw" << Log::endl;
+    std::cout << "role  = sender (" << numThreads << ") Dcw" << std::endl;
 
     std::string name("psi");
 
@@ -300,7 +300,7 @@ void DcwRSend()
             //auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
             //auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-            //Log::out << setSize << "  " << offlineTime << "  " << Log::endl;
+            //std::cout << setSize << "  " << offlineTime << "  " << std::endl;
 
 
         }
@@ -324,7 +324,7 @@ void DcwRRecv()
 {
     u8 dummy[1];
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 numThreads(1);
 
     std::fstream online, offline;
@@ -344,7 +344,7 @@ void DcwRRecv()
         recvChls[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
-    Log::out << "role  = recv(" << numThreads << ")" << Log::endl;
+    std::cout << "role  = recv(" << numThreads << ")" << std::endl;
 
     for (auto pow : { 8,12,16,20 })
     {
@@ -403,7 +403,7 @@ void DcwRRecv()
 
             offlineTimeTot += offlineTime;
             onlineTimeTot += online;
-            Log::out << setSize << "  " << offlineTime << "  " << online << Log::endl;
+            std::cout << setSize << "  " << offlineTime << "  " << online << std::endl;
 
         }
 

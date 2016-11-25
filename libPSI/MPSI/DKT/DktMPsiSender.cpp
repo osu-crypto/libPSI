@@ -106,7 +106,7 @@ namespace osuCrypto
 
                 PRNG inputPrng(toBlock(hashOut));
                 point.randomize(inputPrng);
-                //Log::out << "sp  " << point << "  " << toBlock(hashOut) << Log::endl;
+                //std::cout << "sp  " << point << "  " << toBlock(hashOut) << std::endl;
 
                 if (i == myInputStartIdx)
                     pch = point;
@@ -149,7 +149,7 @@ namespace osuCrypto
 
 
 
-            //Log::out << "sZ  " << Z << Log::endl;
+            //std::cout << "sZ  " << Z << std::endl;
 
             std::vector<EccNumber> sigmaPhis;
             std::vector<EccPoint> Ms, Ns, Mps, sigmaBs, sigma2As;
@@ -195,7 +195,7 @@ namespace osuCrypto
                 if (buff.size() != curStepSize * Z.sizeBytes() * 3)
                 {
 
-                    Log::out << "error @ " <<(LOCATION) << Log::endl;
+                    std::cout << "error @ " <<(LOCATION) << std::endl;
                     throw std::runtime_error(LOCATION);
                 }
                 auto iter = buff.data();
@@ -227,12 +227,12 @@ namespace osuCrypto
 
                 sigma2Hasher.Update(sendBuff->data(), sendBuff->size());
                 chl.asyncSend(std::move(sendBuff));
-                //Log::out << " buff  " << (u32)buff.data()[10] << Log::endl;
-                //Log::out << " M.back()  " << Ms.back() << Log::endl;
-                //Log::out << " Mp.back() " << Mps.back() << Log::endl;
-                //Log::out << " Rs " << Rs << Log::endl;
+                //std::cout << " buff  " << (u32)buff.data()[10] << std::endl;
+                //std::cout << " M.back()  " << Ms.back() << std::endl;
+                //std::cout << " Mp.back() " << Mps.back() << std::endl;
+                //std::cout << " Rs " << Rs << std::endl;
 
-                //Log::out << "mps"
+                //std::cout << "mps"
             }
 
 
@@ -269,7 +269,7 @@ namespace osuCrypto
 
                 sigmaHasher.Final(hashOut);
                 sigmaE.randomize(toBlock(hashOut));
-                //Log::out << Log::lock << "s e        " << sigmaE << Log::endl << Log::unlock;
+                //std::cout << IoStream::lock << "s e        " << sigmaE << std::endl << IoStream::unlock;
 
 
                 chl.recv(buff);
@@ -303,7 +303,7 @@ namespace osuCrypto
 
 
 
-            //Log::out << "s g^z      " << sigmaGZ << Log::endl;
+            //std::cout << "s g^z      " << sigmaGZ << std::endl;
             //EccNumber zero(curve, 0);
 
 
@@ -315,7 +315,7 @@ namespace osuCrypto
 
                 if (buff.size() != curStepSize * sigmaPhi.sizeBytes())
                 {
-                    Log::out << "error @ " << (LOCATION) << Log::endl;
+                    std::cout << "error @ " << (LOCATION) << std::endl;
                     throw std::runtime_error(LOCATION);
                 }
                 auto iter = buff.data();
@@ -334,10 +334,10 @@ namespace osuCrypto
                     if (checkVal != proof)
                     {
 
-                        Log::out << "Bad sigma Proof " << sigmaPhis[ii] << Log::endl;
-                        Log::out << "s sigmaPhis " << sigmaPhis[ii] << Log::endl;
-                        Log::out << "s expected  " << checkVal << Log::endl;
-                        Log::out << "s actual    " << proof << Log::endl;
+                        std::cout << "Bad sigma Proof " << sigmaPhis[ii] << std::endl;
+                        std::cout << "s sigmaPhis " << sigmaPhis[ii] << std::endl;
+                        std::cout << "s expected  " << checkVal << std::endl;
+                        std::cout << "s actual    " << proof << std::endl;
                         // bad sigma proof
                         //throw std::runtime_error(LOCATION);
                     }
@@ -375,7 +375,7 @@ namespace osuCrypto
                 {
 
                     Ksj = inputPoints[ii] * Rs;
-                    //Log::out << "Ks[" << i << "] " << Ksj << Log::endl;
+                    //std::cout << "Ks[" << i << "] " << Ksj << std::endl;
 
                     outputHasher.Reset();
                     Ksj.toBytes(buff.data());
@@ -389,7 +389,7 @@ namespace osuCrypto
                     outputHasher.Final(hashOut);
 
 
-                    //Log::out << "s " << toBlock(hashOut) << Log::endl;
+                    //std::cout << "s " << toBlock(hashOut) << std::endl;
 
                     view[j] = toBlock(hashOut);
                 }

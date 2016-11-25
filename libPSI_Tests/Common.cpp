@@ -12,7 +12,7 @@ std::string SolutionDir = "../../";
 
 void InitDebugPrinting(std::string filePath)
 {
-    Log::out << "changing sink" << Log::endl;
+    std::cout << "changing sink" << std::endl;
 
     if (file == nullptr)
     {
@@ -32,6 +32,6 @@ void InitDebugPrinting(std::string filePath)
 
     std::cout.rdbuf(file->rdbuf());
     std::cerr.rdbuf(file->rdbuf());
-    //Log::SetSink(*file); 
+    //SetSink(*file); 
 }
 

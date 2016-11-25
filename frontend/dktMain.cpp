@@ -21,9 +21,9 @@ std::vector<u32> pows{ 8,12,16,20 };
 void DktSend()
 {
 
-        Log::out << "role  = sender Dkt" << Log::endl;
+        std::cout << "role  = sender Dkt" << std::endl;
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
 
     std::fstream online, offline;
     online.open("./online.txt", online.trunc | online.out);
@@ -95,7 +95,7 @@ void DktSend()
 
                 //std::accumulate(sendChls[0]->getTotalDataSent())
 
-                Log::out << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << Log::endl;
+                std::cout << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << std::endl;
                 for (u64 g = 0; g < sendChls.size(); ++g)
                     sendChls[g]->resetStats();
 
@@ -103,7 +103,7 @@ void DktSend()
                 //auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
                 //auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-                //Log::out << setSize << "  " << offlineTime << "  " << Log::endl;
+                //std::cout << setSize << "  " << offlineTime << "  " << std::endl;
 
 
             }
@@ -128,7 +128,7 @@ void DktRecv()
 {
     u8 dummy[1];
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
 
     std::fstream online, offline;
     online.open("./online.txt", online.trunc | online.out);
@@ -148,7 +148,7 @@ void DktRecv()
             recvChls[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
         }
 
-        Log::out << "role  = recv(" << numThreads << ") Dkt" << Log::endl;
+        std::cout << "role  = recv(" << numThreads << ") Dkt" << std::endl;
 
         for (auto pow : pows)
         {
@@ -203,7 +203,7 @@ void DktRecv()
 
                 offlineTimeTot += offlineTime;
                 onlineTimeTot += onlineTime;
-                Log::out << setSize << "  " << offlineTime << "  " << onlineTime << Log::endl;
+                std::cout << setSize << "  " << offlineTime << "  " << onlineTime << std::endl;
 
 
 
@@ -213,14 +213,14 @@ void DktRecv()
                     dataSent += recvChls[g]->getTotalDataSent();
                     
 
-                    //Log::out << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << Log::endl;
+                    //std::cout << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << std::endl;
                 }
 
                 double time = offlineTime + onlineTime;
                 time /= 1000;
                 auto Mbps = dataSent * 8 / time / (1 << 20);
 
-                Log::out << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB" << Log::endl;
+                std::cout << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB" << std::endl;
 
                 for (u64 g = 0; g < recvChls.size(); ++g)
                     recvChls[g]->resetStats();

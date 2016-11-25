@@ -42,7 +42,7 @@ void ShamirSSScheme_Test()
         //NTL::ZZFromBytes(nums[i], (u8*)&shares[i], sizeof(block));
         nums[i] = shares[i];
 
-        //Log::out << "shares[" << i << "] = " << shares[i] << Log::endl;
+        //std::cout << "shares[" << i << "] = " << shares[i] << std::endl;
     }
 
     //auto recovered = ss.getSecret(idxs, nums);
@@ -59,7 +59,7 @@ void ShamirSSScheme_Test()
     if (neq(secret, recovered2))
     {
 
-        Log::out << secret << "  " << recovered2 << Log::endl;
+        std::cout << secret << "  " << recovered2 << std::endl;
         throw UnitTestFail();
 
     }

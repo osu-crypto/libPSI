@@ -77,7 +77,7 @@ namespace osuCrypto
             u64 end = std::min((t + 1) * n / total, n);
             GF2X aux, share;
 
-            //Log::out << t << "  " << start << "  " << end << Log::endl;
+            //std::cout << t << "  " << start << "  " << end << std::endl;
 
             TODO("remove this and actual implement FFT??");
             u64 ln = (u64)std::log2(m_nK);
@@ -104,7 +104,7 @@ namespace osuCrypto
 
                 NTL::BytesFromGF2X((u8*)&shares[i], share, sizeof(block));
 
-                //Log::out << "share[" << i << "] " << share << Log::endl;
+                //std::cout << "share[" << i << "] " << share << std::endl;
 
             }
         };
@@ -126,7 +126,7 @@ namespace osuCrypto
 
         //timer.setTimePoint("computeShareEnd");
 
-        //Log::out << shares.size() << " shares computed ("<< m_nK * m_nN << " evals) in:" << Log::endl << timer << Log::endl;
+        //std::cout << shares.size() << " shares computed ("<< m_nK * m_nN << " evals) in:" << std::endl << timer << std::endl;
         
     }
 
@@ -157,7 +157,7 @@ namespace osuCrypto
 
             shares[i] = share;
 
-            //Log::out << "share[" << i << "] " << share << Log::endl;
+            //std::cout << "share[" << i << "] " << share << std::endl;
         }
     }
 
@@ -249,7 +249,7 @@ namespace osuCrypto
 
             GF2XFromBytes(x[i], (u8*)&xx, sizeof(xx));
 
-            //Log::out << "x[" << i << "] = " << x[i] << "    ( = " << xInts[i] + 1 << ")' "  << Log::endl;
+            //std::cout << "x[" << i << "] = " << x[i] << "    ( = " << xInts[i] + 1 << ")' "  << std::endl;
 
         }
 
@@ -268,7 +268,7 @@ namespace osuCrypto
                     NTL::InvMod(inv, diff, mPrime);
                     NTL::MulMod(quotent,x[j], inv, mPrime);
 
-                    //Log::out << "1 ?= " << (diff * inv) % mPrime << " = " << inv << " * " << diff <</* "    (" <<x[j] << ", " << x[i] <<")" << */Log::endl;
+                    //std::cout << "1 ?= " << (diff * inv) % mPrime << " = " << inv << " * " << diff <</* "    (" <<x[j] << ", " << x[i] <<")" << */std::endl;
 
 
                     MulMod(prod, prod, quotent, mPrime);
@@ -284,7 +284,7 @@ namespace osuCrypto
             secret = (secret + y * prod) % mPrime;
         }
 
-        //Log::out << "secret " << secret << Log::endl;
+        //std::cout << "secret " << secret << std::endl;
 
         //return true;
 

@@ -589,6 +589,6 @@ namespace osuCrypto
 
         gTimer.setTimePoint("online.recv.exit");
 
-        //Log::out << gTimer;
+        //std::cout << gTimer;
     }
 }

@@ -165,7 +165,7 @@ namespace osuCrypto
 
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                //Log::out << Log::lock << "s sendOt " << l << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
+                //std::cout << IoStream::lock << "s sendOt " << l << "  " << (**chlIter).getName() << std::endl << IoStream::unlock;
                 sendRoutine(i + 1, numSendThreads + 1, *mOtSends[i], **chlIter);
             });
             ++chlIter;
@@ -177,7 +177,7 @@ namespace osuCrypto
 
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                //Log::out << Log::lock << "s recvOt " << l << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
+                //std::cout << IoStream::lock << "s recvOt " << l << "  " << (**chlIter).getName() << std::endl << IoStream::unlock;
                 recvOtRountine(i, numRecvThreads, *mOtRecvs[i], **chlIter);
             });
             ++chlIter;
@@ -337,7 +337,7 @@ namespace osuCrypto
                         mBins.mBins[addr].emplace_back(i + j);
                     }
                 }
-                //<< Log::lock << "Sender"<< Log::endl;
+                //<< IoStream::lock << "Sender"<< std::endl;
                 //mBins.insertItemsWithPhasing(range, mStatSecParam, inputs.size());
 
 

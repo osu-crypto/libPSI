@@ -81,7 +81,7 @@ namespace osuCrypto
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
         gTimer.setTimePoint("Init.done");
-        //Log::out << timer;
+        //std::cout << timer;
     }
 
 
@@ -131,7 +131,7 @@ namespace osuCrypto
 
         u64 permByteSize = sizeof(LogOtCount_t);
         ByteStream permuteBuff(mBfBitCount * permByteSize);
-        //Log::out << "size  " << permuteBuff.size() << " = " <<mBfBitCount << " * " << permByteSize  << Log::endl;
+        //std::cout << "size  " << permuteBuff.size() << " = " <<mBfBitCount << " * " << permByteSize  << std::endl;
 
         ArrayView<block>bv((mNumHashFunctions + 1) / 2);
         auto routine = [&](u64 t)
@@ -146,7 +146,7 @@ namespace osuCrypto
             auto idxIter = idxs.begin();
             u8 hashOut[SHA1::HashSize];
 
-            Log::out << Log::lock;
+            //std::cout << IoStream::lock;
 
             for (u64 i = start; i < end; ++i)
             {
@@ -159,7 +159,7 @@ namespace osuCrypto
                 hash.Update(inputs[i]);
                 hash.Final(hashOut);
 
-                Log::out << "r " << (u64)hashOut << Log::endl;
+                //std::cout << "r " << (u64)hashOut << std::endl;
 
                 auto key = toBlock(hashOut);
                 AES hasher(key);
@@ -168,9 +168,9 @@ namespace osuCrypto
                 ArrayView<u64>iv((u64*)bv.data(), mNumHashFunctions);
 
 
-                Log::out << "R inputs[" << i << "] " << inputs[i]  << " h -> " 
-                    << toBlock(hashOut) << " = H(" << mHashingSeed << " || " << inputs[i] << ")" << Log::endl; 
-                //<< toBlock(hashOut) << Log::endl;
+                //std::cout << "R inputs[" << i << "] " << inputs[i]  << " h -> " 
+                //    << toBlock(hashOut) << " = H(" << mHashingSeed << " || " << inputs[i] << ")" << std::endl; 
+                //<< toBlock(hashOut) << std::endl;
 
                 for (u64 j = 0; j < mNumHashFunctions; ++j)
                 {
@@ -180,7 +180,7 @@ namespace osuCrypto
                     //auto idx = hasher.get<u64>() % mBfBitCount;
 
                     *idxIter = iv[j] % mBfBitCount;
-                    //Log::out << "R send " << i << "  " << j << "  bf[" << *idxIter<< "] = 1  "<< Log::endl;
+                    //std::cout << "R send " << i << "  " << j << "  bf[" << *idxIter<< "] = 1  "<< std::endl;
 
                     bf[*idxIter++] = 1;
 
@@ -200,7 +200,7 @@ namespace osuCrypto
                 //}
 
             }
-            Log::out << Log::unlock;
+            //std::cout << IoStream::unlock;
 
 
             if (--hashingsRemaing == 0)
@@ -242,10 +242,10 @@ namespace osuCrypto
                 //TODO("Split this send into several");
                 //u8 dummy[1];
                 //chl.asyncSendCopy(dummy, 1);
-                //Log::out << "size  " << permuteBuff.size() << Log::endl;
+                //std::cout << "size  " << permuteBuff.size() << std::endl;
                 chl.asyncSend(permuteBuff.data(), permuteBuff.size());
                 //u64 blockSize = 4096 * 128 * 20;
-                //Log::out << "blockSize " << blockSize << Log::endl;
+                //std::cout << "blockSize " << blockSize << std::endl;
 
                 //for (i64 i = 0; i < (i64)permuteBuff.size(); i += blockSize)
                 //{
@@ -280,11 +280,11 @@ namespace osuCrypto
             auto permute = permuteBuff.getArrayView<LogOtCount_t>();
 
 
-            //Log::out << Log::lock;
+            //std::cout << IoStream::lock;
             for (u64 i = start; i < end; ++i)
             {
                 block mask(ZeroBlock);
-                //Log::out << "inputs[" << i << "] " << inputs[i] << Log::endl;
+                //std::cout << "inputs[" << i << "] " << inputs[i] << std::endl;
                 const u64 stepSize = 2;
                 u64 stepCount = mNumHashFunctions / stepSize;
 
@@ -310,7 +310,7 @@ namespace osuCrypto
                     //idxs[6] = permute[idxs[6]];
                     //idxs[7] = permute[idxs[7]];
 
-                    //Log::out << "recv " << i << "  " << j << "  " << pIdx << "  ("<<idx<< ")" << Log::endl;
+                    //std::cout << "recv " << i << "  " << j << "  " << pIdx << "  ("<<idx<< ")" << std::endl;
 
                     mask = mask
                         ^ mAknOt.mMessages[idxs[0]]
@@ -328,14 +328,14 @@ namespace osuCrypto
                     auto idx = *idxIter++;
                     auto pIdx = permute[idx];
 
-                    //Log::out << "recv " << i << "  " << j << "  " << pIdx << "  ("<<idx<< ")" << Log::endl;
+                    //std::cout << "recv " << i << "  " << j << "  " << pIdx << "  ("<<idx<< ")" << std::endl;
 
                     mask = mask ^ mAknOt.mMessages[pIdx];
                 }
 
                 localMasks.emplace(*(u64*)&mask, std::pair<block, u64>(mask, i));
             }
-            //Log::out << Log::unlock;
+            //std::cout << IoStream::unlock;
 
 
             // ok we have computed out masks. Lets have the thread that is first 
@@ -435,7 +435,7 @@ namespace osuCrypto
 
         gTimer.setTimePoint("online.done");
 
-        //Log::out << timer;
+        //std::cout << timer;
     }
 
 

@@ -63,7 +63,7 @@ void OtBinPsi_CuckooHasher_Test_Impl()
 
         //if (hashMap0 != hashMap1)
         //{
-        //    Log::out << i << Log::endl;
+        //    std::cout << i << std::endl;
 
         //    throw UnitTestFail();
         //}
@@ -155,7 +155,7 @@ void OtBinPsi_Kkrt_EmptrySet_Test_Impl()
 
 void OtBinPsi_Kkrt_FullSet_Test_Impl()
 {
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 setSize = 8, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -219,7 +219,7 @@ void OtBinPsi_Kkrt_FullSet_Test_Impl()
 
 void OtBinPsi_Kkrt_SingltonSet_Test_Impl()
 {
-    Log::setThreadName("Sender");
+    setThreadName("Sender");
     u64 setSize = 128, psiSecParam = 40, bitSize = 128;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
@@ -264,7 +264,7 @@ void OtBinPsi_Kkrt_SingltonSet_Test_Impl()
         throw UnitTestFail();
 
 
-    //Log::out << gTimer << Log::endl;
+    //std::cout << gTimer << std::endl;
 
     sendChl.close();
     recvChl.close();
@@ -356,7 +356,7 @@ void OtBinPsi_Oos_EmptrySet_Test_Impl()
 
 void OtBinPsi_Oos_FullSet_Test_Impl()
 {
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 setSize = 8, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -421,7 +421,7 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
 
 void OtBinPsi_Oos_SingltonSet_Test_Impl()
 {
-    Log::setThreadName("Sender");
+    setThreadName("Sender");
     u64 setSize = 128, psiSecParam = 40, bitSize = 128;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
@@ -469,7 +469,7 @@ void OtBinPsi_Oos_SingltonSet_Test_Impl()
         throw UnitTestFail();
 
 
-    //Log::out << gTimer << Log::endl;
+    //std::cout << gTimer << std::endl;
 
     sendChl.close();
     recvChl.close();

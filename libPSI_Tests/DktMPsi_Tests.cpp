@@ -69,7 +69,7 @@ void DktMPsi_EmptrySet_Test_Impl()
 
 void DktMPsi_FullSet_Test_Impl()
 {
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 setSize = 40, psiSecParam = 40, numThreads(2);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -131,7 +131,7 @@ void DktMPsi_FullSet_Test_Impl()
 
 void DktMPsi_SingltonSet_Test_Impl()
 {
-    Log::setThreadName("Sender");
+    setThreadName("Sender");
     u64 setSize = 40, psiSecParam = 40;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));

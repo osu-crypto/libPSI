@@ -35,7 +35,7 @@ namespace osuCrypto
 
 
 
-        //Log::out << Log::lock;
+        //std::cout << IoStream::lock;
         for (u32 i = 0, j = 0; i < choices.size() && j < idxs.size(); ++i)
         {
             if (choices[i] == 0)
@@ -45,7 +45,7 @@ namespace osuCrypto
 
 
                 //mEncSeed = msgs[i] ^ mMessages[i]; 
-                //Log::out << "enc " << i << "  " << shares[j] <<  " = " << msgs[i] << " ^ " << mMessages[i]  << "  " << (u32)(mRandChoices[i] ^ choices[i]) << "   but really " << mRandChoices[i] << Log::endl;
+                //std::cout << "enc " << i << "  " << shares[j] <<  " = " << msgs[i] << " ^ " << mMessages[i]  << "  " << (u32)(mRandChoices[i] ^ choices[i]) << "   but really " << mRandChoices[i] << std::endl;
 
 
                 ++j;
@@ -54,14 +54,14 @@ namespace osuCrypto
             }
         }
 
-        //Log::out << "interp " << shares.size() << Log::endl;
+        //std::cout << "interp " << shares.size() << std::endl;
         ShamirSSScheme ss;
         NTL::GF2XFromBytes(ss.mPrime, (u8*)&prime, sizeof(block));
-        //Log::out << "recv Prime  " << ss.mPrime << Log::endl;
+        //std::cout << "recv Prime  " << ss.mPrime << std::endl;
 
         return ss.reconstruct(idxs, shares);
 
-        //Log::out << Log::unlock;
+        //std::cout << IoStream::unlock;
 
     }
 
@@ -131,7 +131,7 @@ namespace osuCrypto
             // compute the region of the OTs im going to do
             u64 start = std::min(roundUpTo(i *     mMessages.size() / total, 128), mMessages.size());
             u64 end = std::min(roundUpTo((i + 1) * mMessages.size() / total, 128), mMessages.size());
-            //Log::out << Log::lock << "recv Chl " << chl.getName() << " get " << start << " - " << end << Log::endl << Log::unlock;
+            //std::cout << IoStream::lock << "recv Chl " << chl.getName() << " get " << start << " - " << end << std::endl << IoStream::unlock;
 
             if (end - start)
             {
@@ -181,7 +181,7 @@ namespace osuCrypto
             // spawn the thread and call the routine.
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                //Log::out<< Log::lock << "r recvOt " <<i << "  "<< (**chlIter).getName() << Log::endl << Log::unlock;
+                //std::cout<< IoStream::lock << "r recvOt " <<i << "  "<< (**chlIter).getName() << std::endl << IoStream::unlock;
                 recvOtRountine(i + 1, numRecvThreads + 1, *recvOts[i].get(), seed, **chlIter);
             });
 
@@ -208,7 +208,7 @@ namespace osuCrypto
             thrd.join();
 
         gTimer.setTimePoint("Init.done");
-        //Log::out << timer;
+        //std::cout << timer;
     }
 
 
@@ -268,7 +268,7 @@ namespace osuCrypto
             for (u64 i = start; i < end; ++i)
             {
                 auto& item = inputs[i];
-                //Log::out << "input[" << i << "] " << inputs[i] << Log::endl;
+                //std::cout << "input[" << i << "] " << inputs[i] << std::endl;
 
                 for (u64 j = 0; j < mHashs.size(); ++j)
                 {
@@ -279,7 +279,7 @@ namespace osuCrypto
                     hash.Final(hashOut);
 
                     *idxIter = *(u64*)hashOut% mBfBitCount;
-                    //Log::out << "recver " << i << " " << j << "   " /*<< garbledBF[idx] << "  " << mask */ << "  " << *idxIter << Log::endl;
+                    //std::cout << "recver " << i << " " << j << "   " /*<< garbledBF[idx] << "  " << mask */ << "  " << *idxIter << std::endl;
 
                     bf[*idxIter++] = 1;
 
@@ -332,7 +332,7 @@ namespace osuCrypto
 
 
 
-                //Log::out << "recv seed " << mEncSeed << Log::endl;
+                //std::cout << "recv seed " << mEncSeed << std::endl;
 
                 const u64 stepSize = 128;
                 AES enc(mEncSeed);
@@ -353,7 +353,7 @@ namespace osuCrypto
                     {
                         auto blkEnc = garbledBF[ii] ^ encBuff[j];
 
-                        //Log::out << "recver " << ii << "  " << blkEnc << " <- " << garbledBF[ii] << Log::endl;
+                        //std::cout << "recver " << ii << "  " << blkEnc << " <- " << garbledBF[ii] << std::endl;
 
                         garbledBF[ii] = blkEnc;
                     }
@@ -376,7 +376,7 @@ namespace osuCrypto
             std::vector<u64> localIntersection;
 
             std::set<u64> ss;
-            //Log::out << Log::lock;
+            //std::cout << IoStream::lock;
             for (u64 i = start; i < end; ++i)
             {
 
@@ -392,7 +392,7 @@ namespace osuCrypto
                         auto gbf = mMessages[*idxIter] ^ garbledBF[*idxIter];
                         mask = mask ^ gbf;
 
-                        //Log::out << "recver " << i << " " << j << "   " << gbf << "   " << *idxIter << Log::endl;
+                        //std::cout << "recver " << i << " " << j << "   " << gbf << "   " << *idxIter << std::endl;
 
                         ss.emplace(*idxIter);
                     }
@@ -403,14 +403,14 @@ namespace osuCrypto
 
                 if (eq(mask, inputs[i]))
                 {
-                    //Log::out << i << " eq" << Log::endl;
-                    //Log::out << inputs[i] << Log::endl;
+                    //std::cout << i << " eq" << std::endl;
+                    //std::cout << inputs[i] << std::endl;
                     localIntersection.push_back(i);
                 }
                 else
                 {
-                    //Log::out << i << " NEQ" << Log::endl;
-                    //Log::out << inputs[i] << Log::endl;
+                    //std::cout << i << " NEQ" << std::endl;
+                    //std::cout << inputs[i] << std::endl;
 
                 }
 
@@ -452,6 +452,6 @@ namespace osuCrypto
 
         gTimer.setTimePoint("online.done");
 
-        //Log::out << timer;
+        //std::cout << timer;
     }
 }

@@ -29,7 +29,7 @@ void bfSend()
 {
 
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 numThreads(64);
 
     std::fstream online, offline;
@@ -38,7 +38,7 @@ void bfSend()
     u64 numTrial(1);
 
 
-    Log::out << "role  = sender (" << numThreads << ") akn" << Log::endl;
+    std::cout << "role  = sender (" << numThreads << ") akn" << std::endl;
 
     std::string name("psi");
 
@@ -67,7 +67,7 @@ void bfSend()
             if (pow == 8)
                 cc = std::min(8, cc);
 
-            //Log::out << "numTHreads = " << cc << Log::endl;
+            //std::cout << "numTHreads = " << cc << std::endl;
 
             sendChls.insert(sendChls.begin(), sendChls_.begin(), sendChls_.begin() + cc);
 
@@ -106,13 +106,13 @@ void bfSend()
                 gTimer.reset();
 
                 u64 otIdx = 0;
-                //Log::out << "sender init" << Log::endl;
+                //std::cout << "sender init" << std::endl;
                 sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 
                 //return;
                 sendChls[0]->asyncSend(dummy, 1);
                 sendChls[0]->recv(dummy, 1);
-                //Log::out << "sender init done" << Log::endl;
+                //std::cout << "sender init done" << std::endl;
 
                 sendPSIs.sendInput(sendSet, sendChls);
 
@@ -124,11 +124,11 @@ void bfSend()
 
                 //std::accumulate(sendChls[0]->getTotalDataSent())
 
-                Log::out << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << Log::endl;
+                std::cout << setSize << "    " << dataSent / std::pow(2,20) << " byte  " << std::endl;
                 for (u64 g = 0; g < sendChls.size(); ++g)
                     sendChls[g]->resetStats();
 
-                //Log::out << gTimer << Log::endl;
+                //std::cout << gTimer << std::endl;
             }
 
         }
@@ -150,7 +150,7 @@ void bfSend()
 void bfRecv()
 {
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 numThreads(64);
 
     std::fstream online, offline;
@@ -169,7 +169,7 @@ void bfRecv()
         recvChls_[i] = &recvEP.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
-    Log::out << "role  = recv(" << numThreads << ") akn" << Log::endl;
+    std::cout << "role  = recv(" << numThreads << ") akn" << std::endl;
     u8 dummy[1];
     recverGetLatency(*recvChls_[0]);
 
@@ -185,7 +185,7 @@ void bfRecv()
 
             u64 setSize = (1 << pow), psiSecParam = 40;
 
-            Log::out << "numTHreads = " << cc << "  n=" << setSize << Log::endl;
+            std::cout << "numTHreads = " << cc << "  n=" << setSize << std::endl;
 
             recvChls.insert(recvChls.begin(), recvChls_.begin(), recvChls_.begin() + cc);
 
@@ -262,25 +262,25 @@ void bfRecv()
                 for (u64 g = 0; g < recvChls.size(); ++g)
                 {
                     dataSent += recvChls[g]->getTotalDataSent();
-                    //Log::out << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << Log::endl;
+                    //std::cout << "chl[" << g << "] " << recvChls[g]->getTotalDataSent() << "   " << sss[g] << std::endl;
                 }
 
                 double time = offlineTime + onlineTime;
                 time /= 1000;
                 auto Mbps = dataSent * 8 / time / (1 << 20);
 
-                Log::out << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB"  << Log::endl;
+                std::cout << setSize << "  " << offlineTime << "  " << onlineTime << "        " << Mbps << " Mbps      " << (dataSent / std::pow(2.0, 20)) << " MB"  << std::endl;
 
                 for (u64 g = 0; g < recvChls.size(); ++g)
                     recvChls[g]->resetStats();
 
-                //Log::out << "threads =  " << numThreads << Log::endl << timer << Log::endl << Log::endl << Log::endl;
+                //std::cout << "threads =  " << numThreads << std::endl << timer << std::endl << std::endl << std::endl;
 
 
-                //Log::out << numThreads << Log::endl;
-                //Log::out << timer << Log::endl;
+                //std::cout << numThreads << std::endl;
+                //std::cout << timer << std::endl;
 
-                //Log::out << gTimer << Log::endl;
+                //std::cout << gTimer << std::endl;
 
                 //if (recv.mIntersection.size() != setSize)
                 //    throw std::runtime_error("");
@@ -323,7 +323,7 @@ void bfRecv()
 void bf(int role)
 {
 
-    Log::setThreadName("CP_Test_Thread");
+    setThreadName("CP_Test_Thread");
     u64 numThreads(64);
 
     std::fstream online, offline;
@@ -332,7 +332,7 @@ void bf(int role)
     u64 numTrial(8);
 
 
-    Log::out << "role  = " << role << Log::endl;
+    std::cout << "role  = " << role << std::endl;
 
     for (auto pow : pows)
     {
@@ -423,16 +423,16 @@ void bf(int role)
 
             offlineTimeTot += offlineTime;
             onlineTimeTot += onlineTime;
-            Log::out << setSize << "  " << offlineTime << "  " << onlineTime << Log::endl;
+            std::cout << setSize << "  " << offlineTime << "  " << onlineTime << std::endl;
 
 
-            //Log::out << "threads =  " << numThreads << Log::endl << timer << Log::endl << Log::endl << Log::endl;
+            //std::cout << "threads =  " << numThreads << std::endl << timer << std::endl << std::endl << std::endl;
 
 
-            //Log::out << numThreads << Log::endl;
-            //Log::out << timer << Log::endl;
+            //std::cout << numThreads << std::endl;
+            //std::cout << timer << std::endl;
 
-            //Log::out << gTimer << Log::endl;
+            //std::cout << gTimer << std::endl;
 
             //if (recv.mIntersection.size() != setSize)
             //    throw std::runtime_error("");

@@ -62,40 +62,40 @@ namespace osuCrypto
     void SimpleCuckoo::print() const
     {
 
-        Log::out << "Cuckoo Hasher  " << Log::endl;
+        std::cout << "Cuckoo Hasher  " << std::endl;
 
 
         for (u64 i = 0; i < mBins.size(); ++i)
         {
-            Log::out << "Bin #" << i;
+            std::cout << "Bin #" << i;
 
             if (mBins[i].isEmpty())
             {
-                Log::out << " - " << Log::endl;
+                std::cout << " - " << std::endl;
             }
             else
             {
-                Log::out << "    c_idx=" << mBins[i].idx() << "  hIdx=" << mBins[i].hashIdx() << Log::endl;
+                std::cout << "    c_idx=" << mBins[i].idx() << "  hIdx=" << mBins[i].hashIdx() << std::endl;
 
             }
 
         }
         for (u64 i = 0; i < mStash.size() && mStash[i].isEmpty() == false; ++i)
         {
-            Log::out << "Bin #" << i;
+            std::cout << "Bin #" << i;
 
             if (mStash[i].isEmpty())
             {
-                Log::out << " - " << Log::endl;
+                std::cout << " - " << std::endl;
             }
             else
             {
-                Log::out << "    c_idx=" << mStash[i].idx() << "  hIdx=" << mStash[i].hashIdx() << Log::endl;
+                std::cout << "    c_idx=" << mStash[i].idx() << "  hIdx=" << mStash[i].hashIdx() << std::endl;
 
             }
 
         }
-        Log::out << Log::endl;
+        std::cout << std::endl;
 
     }
 
@@ -152,7 +152,7 @@ namespace osuCrypto
 
         for (u64 i = 0; i < inputIdxs.size(); ++i)
         {
-            //Log::out << inputIdxs[i] << " hs ";
+            //std::cout << inputIdxs[i] << " hs ";
 
             for (u64 j = 0; j < mParams.mNumHashes; ++j)
             {
@@ -162,11 +162,11 @@ namespace osuCrypto
                 (mHashesView.data() + inputIdxs[i] * width)[j] = (hashs.data() + i * width)[j];
 #endif // ! NDEBUG
 
-                //Log::out << hashs[i][j] << "   ";
+                //std::cout << hashs[i][j] << "   ";
 
             }
 
-            //Log::out << Log::endl;
+            //std::cout << std::endl;
 
             w.curHashIdxs[i] = 0;
         }
@@ -184,9 +184,9 @@ namespace osuCrypto
 #else
                 w.curAddrs[i] = (mHashesView.data() + inputIdxs[i] * width)[w.curHashIdxs[i]] % mBins.size();
 #endif
-                //Log::out <<  i << "   idx " << inputIdxs[i]  <<  "  addr "<< w.curAddrs[i] << Log::endl;
+                //std::cout <<  i << "   idx " << inputIdxs[i]  <<  "  addr "<< w.curAddrs[i] << std::endl;
             }
-            //Log::out << Log::endl;
+            //std::cout << std::endl;
 
             // same thing here, this fetch is slow. Do them in parallel.
             for (u64 i = 0; i < remaining; ++i)
@@ -201,10 +201,10 @@ namespace osuCrypto
 
                 //u64 oldIdx = w.oldVals[i] & (u64(-1) >> 8);
                 //u64 oldHash = (w.oldVals[i] >> 56);
-                //Log::out 
+                //std::cout 
                 //    << i << "   bin[" << w.curAddrs[i] << "]  " 
                 //    << " gets (" << inputIdxs[i] << ", "<< w.curHashIdxs[i]<< "),"
-                //    << " evicts ("<< oldIdx << ", "<< oldHash<< ")" << Log::endl;
+                //    << " evicts ("<< oldIdx << ", "<< oldHash<< ")" << std::endl;
 
             }
 
@@ -249,10 +249,10 @@ namespace osuCrypto
             remaining = putIdx;
             //evists += remaining;
 
-            //Log::out << Log::endl;
+            //std::cout << std::endl;
             //for (u64 i = 0; i < remaining; ++i)
-            //    Log::out<< "evicted[" << i << "]'  " << inputIdxs[i] << "  " << w.curHashIdxs[i] << Log::endl;
-            //Log::out << Log::endl;
+            //    std::cout<< "evicted[" << i << "]'  " << inputIdxs[i] << "  " << w.curHashIdxs[i] << std::endl;
+            //std::cout << std::endl;
 
         }
 
@@ -265,7 +265,7 @@ namespace osuCrypto
                 ++i;
         }
 
-        //Log::out << "total evicts "<< evists << Log::endl;
+        //std::cout << "total evicts "<< evists << std::endl;
     }
 
 

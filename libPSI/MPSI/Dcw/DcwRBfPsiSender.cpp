@@ -23,7 +23,7 @@ namespace osuCrypto {
     block DcwRBfPsiSender::computeSecureSharing(ArrayView<block> shares)
     {
 
-        //Log::out << "# shares = " << shares.size() << "   (" << shares.size() * shares.size() / 2 << ")" << Log::endl;
+        //std::cout << "# shares = " << shares.size() << "   (" << shares.size() * shares.size() / 2 << ")" << std::endl;
 
 
             ShamirSSScheme ss;
@@ -34,7 +34,7 @@ namespace osuCrypto {
 
             NTL::BytesFromGF2X((u8*)&mSharesPrime, ss.mPrime, sizeof(block));
 
-            //Log::out << "send Prime  " << ss.mPrime << Log::endl;
+            //std::cout << "send Prime  " << ss.mPrime << std::endl;
 
             return ret;
         
@@ -93,7 +93,7 @@ namespace osuCrypto {
             otExt.setBaseOts(baseMsg, choices);
 
             //gTimer.setTimePoint("baseDone");
-            //Log::out << gTimer;
+            //std::cout << gTimer;
         }
 
 
@@ -106,7 +106,7 @@ namespace osuCrypto {
             u64 start = std::min(roundUpTo(i *     mSendOtMessages.size() / total, 128), mSendOtMessages.size());
             u64 end = std::min(roundUpTo((i + 1) * mSendOtMessages.size() / total, 128), mSendOtMessages.size());
 
-            //Log::out << Log::lock << "send Chl " << chl.getName() <<" "<< i << "/"<< total << " get " << start << " - " << end << Log::endl << Log::unlock;
+            //std::cout << IoStream::lock << "send Chl " << chl.getName() <<" "<< i << "/"<< total << " get " << start << " - " << end << std::endl << IoStream::unlock;
 
             if (end - start)
             {
@@ -149,7 +149,7 @@ namespace osuCrypto {
 
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                //Log::out << Log::lock << "r sendOt " << i << "  " << (**chlIter).getName() << Log::endl << Log::unlock;
+                //std::cout << IoStream::lock << "r sendOt " << i << "  " << (**chlIter).getName() << std::endl << IoStream::unlock;
                 sendOtRountine(i + 1, numSendThreads + 1, *sendOts[i].get(), seed, **chlIter);
             });
 
@@ -225,15 +225,15 @@ namespace osuCrypto {
         myMasksBuff->setp(myMasksBuff->capacity());
         auto zeroMessages = myMasksBuff->getArrayView<block>();
         u8 hashOut[SHA1::HashSize];
-        //Log::out << Log::lock;
+        //std::cout << IoStream::lock;
 
         for (u64 i = 0, k = 0; i < mBfBitCount; ++i, ++k)
         {
 
             zeroMessages[i] = mShares[i] ^ mSendOtMessages[i][otCorrection[i]];
 
-            //Log::out << "enc' " << i << "  " << mShares[i] << " = " << zeroMessages[i] << " ^ " << mSendOtMessages[i][otCorrection[i]]
-                //<< "  " << otCorrection[i] << "   " << mSendOtMessages[i][otCorrection[i] ^ 1] << Log::endl;
+            //std::cout << "enc' " << i << "  " << mShares[i] << " = " << zeroMessages[i] << " ^ " << mSendOtMessages[i][otCorrection[i]]
+                //<< "  " << otCorrection[i] << "   " << mSendOtMessages[i][otCorrection[i] ^ 1] << std::endl;
         }
 
         //std::unique_ptr<ByteStream> primeBuff(new ByteStream(sizeof(block)));
@@ -251,7 +251,7 @@ namespace osuCrypto {
         std::vector<block> encBuff(stepSize);
         AES enc(mEncSeed);
 
-        //Log::out << "send seed " << mEncSeed << Log::endl;ss.mPrime
+        //std::cout << "send seed " << mEncSeed << std::endl;ss.mPrime
 
         for (u64 i = 0; i < mSendOtMessages.size(); i += stepSize)
         {
@@ -270,7 +270,7 @@ namespace osuCrypto {
                 auto blkEnc = mSendOtMessages[idx][otCorrection[idx] ^ 1] ^ encBuff[j];
 
 
-                //Log::out << "sender " << idx << "  " << blkEnc << " <- " << mSendOtMessages[idx][otCorrection[idx] ^ 1] << Log::endl;
+                //std::cout << "sender " << idx << "  " << blkEnc << " <- " << mSendOtMessages[idx][otCorrection[idx] ^ 1] << std::endl;
 
                 mSendOtMessages[idx][otCorrection[idx] ^ 1] = blkEnc;
 
@@ -298,11 +298,11 @@ namespace osuCrypto {
                 myMasks[i] = myMasks[i] ^ mSendOtMessages[idx][otCorrection[idx] ^ 1];
 
             }
-            //Log::out << "sender "<< i << " " << myMasks[i] << "  <-  " << inputs[i] << Log::endl;
+            //std::cout << "sender "<< i << " " << myMasks[i] << "  <-  " << inputs[i] << std::endl;
         }
 
 
-        //Log::out << Log::unlock;
+        //std::cout << IoStream::unlock;
 
         chl.asyncSend(std::move(myMasksBuff));
         gTimer.setTimePoint("online.masksSent");
@@ -338,7 +338,7 @@ namespace osuCrypto {
         //for (auto& thrd : thrds)
         //    thrd.join();
 
-        //    //Log::out << Log::lock << "s" << Log::endl;;
+        //    //std::cout << IoStream::lock << "s" << std::endl;;
         //    for (u64 i = 0; i < inputs.size(); ++i)
         //    {
         //        myMasks[i] = ZeroBlock;
@@ -359,17 +359,17 @@ namespace osuCrypto {
 
         //            //if (i == 0)
         //            //{
-        //            //    Log::out << mDcwOt.mMessages[pIdx][1] << "  " << pIdx << "  " << mDcwOt.mMessages[pIdx][0] << "  " << Log::endl;
+        //            //    std::cout << mDcwOt.mMessages[pIdx][1] << "  " << pIdx << "  " << mDcwOt.mMessages[pIdx][0] << "  " << std::endl;
         //            //}
 
         //        }
 
         //        //if (i == 0)
         //        //{
-        //        //    Log::out << myMasks[i] << Log::endl;
+        //        //    std::cout << myMasks[i] << std::endl;
         //        //}
         //    }
-        //    //Log::out << Log::unlock;
+        //    //std::cout << IoStream::unlock;
 
         //    chl.asyncSend(std::move(myMasksBuff));
         //}

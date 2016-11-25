@@ -495,7 +495,7 @@ using namespace osuCrypto;
 void print(std::string s, big x)
 {
     cotstr(m, x, m->IOBUFF);
-    Log::out << s << m->IOBUFF << Log::endl;
+    std::cout << s << m->IOBUFF << std::endl;
 }
 
 

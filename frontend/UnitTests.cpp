@@ -22,33 +22,31 @@ using namespace osuCrypto;
 
 void run(std::string name, std::function<void(void)> func)
 {
-    Log::out << name;
+    std::cout << name;
     std::cout << std::flush;
     auto start = std::chrono::high_resolution_clock::now();
     try
     {
-        func(); Log::out << Log::Color::Green << "  Passed" << Log::ColorDefault;
+        func(); std::cout << Color::Green << "  Passed" << ColorDefault;
     }
     catch (const std::exception& e)
     {
-        Log::out << Log::Color::Red << "Failed - " << e.what() << Log::ColorDefault;
+        std::cout << Color::Red << "Failed - " << e.what() << ColorDefault;
     }
 
     auto end = std::chrono::high_resolution_clock::now();
 
     u64 time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
-    Log::out << "   " << time << "ms" << Log::endl;
+    std::cout << "   " << time << "ms" << std::endl;
 
 
-    if (Log::out.mSink != &std::cout)
-        throw std::runtime_error("");
 }
 
 
 void NetWork_all()
 {
-    Log::out << Log::endl;
+    std::cout << std::endl;
     run("BtNetwork_Connect1_Boost_Test        ", BtNetwork_Connect1_Boost_Test);
     run("BtNetwork_OneMegabyteSend_Boost_Test ", BtNetwork_OneMegabyteSend_Boost_Test);
     run("BtNetwork_ConnectMany_Boost_Test     ", BtNetwork_ConnectMany_Boost_Test);
@@ -59,7 +57,7 @@ void NetWork_all()
 
 void bitVec_all()
 {
-    Log::out << Log::endl;
+    std::cout << std::endl;
     run("BitVector_Indexing_Test                 ", BitVector_Indexing_Test_Impl);
     run("BitVector_Parity                        ", BitVector_Parity_Test_Impl);
     run("BitVector_Append_Test                   ", BitVector_Append_Test_Impl);
@@ -68,7 +66,7 @@ void bitVec_all()
 
 void OT_all()
 {
-    Log::out << Log::endl;
+    std::cout << std::endl;
 
     run("Transpose_Test_Impl                     ", Transpose_Test_Impl);
     run("KosOtExt_100Receive_Test_Impl           ", KosOtExt_100Receive_Test_Impl);
@@ -84,7 +82,7 @@ void OT_all()
 
 void Ecc_all()
 {
-    Log::out << Log::endl;
+    std::cout << std::endl;
 
     run("Ecc2mNumber_Test                        ", Ecc2mNumber_Test);
     run("Ecc2mPoint_Test                         ", Ecc2mPoint_Test);
@@ -98,7 +96,7 @@ void Ecc_all()
 
 void DktPsi_all()
 { 
-    Log::out << Log::endl;
+    std::cout << std::endl;
     run("DktPsi_EmptrySet_Test_Impl              ", DktMPsi_EmptrySet_Test_Impl);
     run("DktPsi_FullSet_Test_Impl                ", DktMPsi_FullSet_Test_Impl);
     run("DktPsi_SingltonSet_Test_Imp             ", DktMPsi_SingltonSet_Test_Impl);
@@ -107,7 +105,7 @@ void DktPsi_all()
 
 void DcwPsi_all()
 {
-    Log::out << Log::endl;
+    std::cout << std::endl;
     run("DcwPsi_EmptrySet_Test_Impl              ", DcwBfPsi_EmptrySet_Test_Impl);
     run("DcwPsi_FullSet_Test_Impl                ", DcwBfPsi_FullSet_Test_Impl);
     run("DcwPsi_SingltonSet_Test_Imp             ", DcwBfPsi_SingltonSet_Test_Impl);
@@ -115,14 +113,14 @@ void DcwPsi_all()
 
 void AknBfPsi_all()
 {
-    Log::out << Log::endl;
+    std::cout << std::endl;
     run("AknBfPsi_EmptrySet_Test_Impl            ", AknBfPsi_EmptrySet_Test_Impl);
     run("AknBfPsi_FullSet_Test_Impl              ", AknBfPsi_FullSet_Test_Impl);
     run("AknBfPsi_SingltonSet_Test_Impl          ", AknBfPsi_SingltonSet_Test_Impl);
 }
 void OtBinPsi_all()
 {
-    Log::out << Log::endl;
+    std::cout << std::endl;
     run("OtBinPsi_CuckooHasher_Test_Impl          ", OtBinPsi_CuckooHasher_Test_Impl);
     run("OtBinPsi_Kkrt_EmptrySet_Test_Impl        ", OtBinPsi_Kkrt_EmptrySet_Test_Impl);
     run("OtBinPsi_Kkrt_FullSet_Test_Impl          ", OtBinPsi_Kkrt_FullSet_Test_Impl);
@@ -134,7 +132,7 @@ void OtBinPsi_all()
 }
 void ShamirSSScheme_all()
 {
-    Log::out << Log::endl;
+    std::cout << std::endl;
     run("ShamirSSScheme_GF2X_Test                 ", ShamirSSScheme_Test);
 }
 

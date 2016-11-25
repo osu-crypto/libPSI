@@ -45,7 +45,7 @@ void tt()
     {
         if (idxret[i] != i)
         {
-            Log::out << i << Log::endl;
+            std::cout << i << std::endl;
             throw std::runtime_error("");
         }
     }
@@ -83,14 +83,14 @@ void simpleTest_find_e(int argc, char** argv)
     u64 numThrds = cmd.getInt("x");
     double step = cmd.getDouble("s");
 
-    Log::out << "N=" << N << "  h=" << h << "  e=" << e << "  t=" << t << "  s=" << step << Log::endl;
+    std::cout << "N=" << N << "  h=" << h << "  e=" << e << "  t=" << t << "  s=" << step << std::endl;
 
     std::atomic<u64> max(0);
 
     while (step > 0 ? e <= eEnd : e >= eEnd)
     {
 
-        //Log::out << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << Log::endl;
+        //std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
 
         std::vector<std::array<u64, 400>> counts(numThrds);
         memset(counts.data(), 0, sizeof(u64) * 400 * numThrds);
@@ -118,7 +118,7 @@ void simpleTest_find_e(int argc, char** argv)
 
             for (u64 i = 0; i < count; ++i)
             {
-                //if (i % step == 0)Log::out << "\r" << (i / step) << "%" << Log::flush;
+                //if (i % step == 0)std::cout << "\r" << (i / step) << "%" << flush;
 
 
                 prng.mAes.ecbEncCounterMode(prng.mBlockIdx, n * h / 2, (block*)hashs.data());
@@ -148,9 +148,9 @@ void simpleTest_find_e(int argc, char** argv)
 
                 //completed.fetch_add(1, std::memory_order::memory_order_relaxed);
                 //maxStash = std::max((u64)maxStash, stashSize);
-                //Log::out << stashSize << Log::endl;
+                //std::cout << stashSize << std::endl;
             }
-            //Log::out << "\r";
+            //std::cout << "\r";
 
             //completed++;
         };
@@ -185,7 +185,7 @@ void simpleTest_find_e(int argc, char** argv)
 
             double percent = curTotal * 10000 / tries / 100.0;
 
-            Log::out << "\r " << std::setw(5) << percent << "%  t=" << t << "   e=" << e << "  n="<< n;
+            std::cout << "\r " << std::setw(5) << percent << "%  t=" << t << "   e=" << e << "  n="<< n;
             auto p = std::setprecision(3);
             //auto w = std::setw(5);
             u64 good = 0;
@@ -198,23 +198,23 @@ void simpleTest_find_e(int argc, char** argv)
 
                 if (bad == 0)
                 {
-                    Log::out << "  >" << std::fixed << p << secLevel; 
+                    std::cout << "  >" << std::fixed << p << secLevel; 
                 }
                 else if (good == 0)
                 {
-                    Log::out << "  <" << std::fixed << p << secLevel; 
+                    std::cout << "  <" << std::fixed << p << secLevel; 
                 }
                 else
                 {
-                    Log::out << "  " << secLevel; 
+                    std::cout << "  " << secLevel; 
                 }
 
-                //Log::out << "  "<< std::fixed <<p << secLevel << "  (" << good << " " << bad<<")";
+                //std::cout << "  "<< std::fixed <<p << secLevel << "  (" << good << " " << bad<<")";
                 
             } 
 
             // first print spaces to clear what was on screen, then print the actual string.
-            //Log::out   << Log::flush;
+            //std::cout   << flush;
 
 
             //stop = max;
@@ -242,7 +242,7 @@ void simpleTest_find_e(int argc, char** argv)
 
         auto w = std::setw(5);
 
-        Log::out << "\r" << e << "   n " << n;
+        std::cout << "\r" << e << "   n " << n;
         out << "e "<< e << "   n "<< n;
         u64 good =0;
         for (u64 i = 0; i < stashSize; ++i)
@@ -253,29 +253,29 @@ void simpleTest_find_e(int argc, char** argv)
             // the count of all bad events.
             u64 bad = curTotal - good;
 
-            //Log::out << " (" << i<<" "<< good << ", " << bad << ") ";
+            //std::cout << " (" << i<<" "<< good << ", " << bad << ") ";
 
             double secLevel = std::log2(std::max(u64(1), good)) - std::log2(std::max(u64(1), bad));
 
             if (bad == 0)
             {
-                Log::out << "  >" << secLevel;
+                std::cout << "  >" << secLevel;
                 out << "  >" << secLevel;
             }
             else if (good == 0)
             {
-                Log::out << "  <" << secLevel;
+                std::cout << "  <" << secLevel;
                 out << "  <" << secLevel;
             }
             else
             {
-                Log::out << "  " << secLevel;
+                std::cout << "  " << secLevel;
                 out << "  " << secLevel;
             }
 
         }
 
-        Log::out << "                                 " << Log::endl;
+        std::cout << "                                 " << std::endl;
         out << std::endl;
 
 
@@ -296,7 +296,7 @@ void simpleTest_find_e(int argc, char** argv)
 
     }
 
-    Log::out  << Log::endl;
+    std::cout  << std::endl;
 
 }
 
@@ -327,14 +327,14 @@ void simpleTest(int argc, char** argv)
     u64 numThrds = cmd.getInt("x");
     double step = cmd.getDouble("s");
 
-    //Log::out << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << Log::endl;
+    //std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
 
     u64 max = 1;
 
     while (max)
     {
 
-        Log::out << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << Log::endl;
+        std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
 
         std::array<std::atomic<u64>, 400> counts;
 
@@ -363,7 +363,7 @@ void simpleTest(int argc, char** argv)
 
             for (u64 i = 0; i < count; ++i)
             {
-                //if (i % step == 0)Log::out << "\r" << (i / step) << "%" << Log::flush;
+                //if (i % step == 0)std::cout << "\r" << (i / step) << "%" << flush;
 
 
                 prng.mAes.ecbEncCounterMode(prng.mBlockIdx, n * h / 2, (block*)hashs.data());
@@ -393,9 +393,9 @@ void simpleTest(int argc, char** argv)
 
                 ++completed;
                 //maxStash = std::max((u64)maxStash, stashSize);
-                //Log::out << stashSize << Log::endl;
+                //std::cout << stashSize << std::endl;
             }
-            //Log::out << "\r";
+            //std::cout << "\r";
 
         };
 
@@ -426,7 +426,7 @@ void simpleTest(int argc, char** argv)
             std::string str = ss.str();
 
             // first print spaces to clear what was on screen, then print the actual string.
-            //Log::out << '\r' << std::string(' ', stringLength) << Log::flush << str << Log::flush;
+            //std::cout << '\r' << std::string(' ', stringLength) << flush << str << flush;
 
             // update how long the string that we just printed is.
             stringLength = str.size();
@@ -455,22 +455,22 @@ void simpleTest(int argc, char** argv)
             }
         }
 
-        Log::out << "\r                                                " << Log::endl;
+        std::cout << "\r                                                " << std::endl;
 
         for (u64 i = min; i <= max; ++i)
         {
-            Log::out << i << "  " << counts[i] << Log::endl;
+            std::cout << i << "  " << counts[i] << std::endl;
         }
 
         //if (!stop)
         //{
 
-        //    Log::out << "\r" << "h=" << h << "  e=" << e << " passed                                                " << Log::endl;
+        //    std::cout << "\r" << "h=" << h << "  e=" << e << " passed                                                " << std::endl;
         //    out << "h=" << h << "  e=" << e << " passed" << std::endl;
         //}
         //else
         //{
-        //    Log::out << "\r" << "h=" << h << "  e=" << e << " failed " << completed << " / " << tries << "                  "<< Log::endl;
+        //    std::cout << "\r" << "h=" << h << "  e=" << e << " failed " << completed << " / " << tries << "                  "<< std::endl;
         //    out << "h=" << h << "  e=" << e << " failed " << completed << " / " << tries << std::endl;
         //}
 
@@ -508,7 +508,7 @@ void simpleTest_var_h(int argc, char** argv)
     u64 t = cmd.getInt("t");
     u64 numThrds = cmd.getInt("x");
 
-    //Log::out << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << Log::endl;
+    //std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
 
     e = 1;
     double step = 0.05;
@@ -520,7 +520,7 @@ void simpleTest_var_h(int argc, char** argv)
         while (max)
         {
 
-            Log::out << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << Log::endl;
+            std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
 
             std::atomic<bool>  stop(false);
             std::array<std::atomic<u64>, 400> counts;
@@ -550,7 +550,7 @@ void simpleTest_var_h(int argc, char** argv)
 
                 for (u64 i = 0; i < count && !stop; ++i)
                 {
-                    //if (i % step == 0)Log::out << "\r" << (i / step) << "%" << Log::flush;
+                    //if (i % step == 0)std::cout << "\r" << (i / step) << "%" << flush;
 
 
                     prng.mAes.ecbEncCounterMode(prng.mBlockIdx, n * h / 2, (block*)hashs.data());
@@ -580,9 +580,9 @@ void simpleTest_var_h(int argc, char** argv)
 
                     ++completed;
                     //maxStash = std::max((u64)maxStash, stashSize);
-                    //Log::out << stashSize << Log::endl;
+                    //std::cout << stashSize << std::endl;
                 }
-                //Log::out << "\r";
+                //std::cout << "\r";
 
             };
 
@@ -613,7 +613,7 @@ void simpleTest_var_h(int argc, char** argv)
                 std::string str = ss.str();
 
                 // first print spaces to clear what was on screen, then print the actual string.
-                //Log::out << '\r' << std::string(' ', stringLength) << Log::flush << str << Log::flush;
+                //std::cout << '\r' << std::string(' ', stringLength) << flush << str << flush;
 
                 // update how long the string that we just printed is.
                 stringLength = str.size();
@@ -622,7 +622,7 @@ void simpleTest_var_h(int argc, char** argv)
 
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }
-            Log::out << "\r" << Log::endl;
+            std::cout << "\r" << std::endl;
 
             max = 0;
             for (u64 i = counts.size() - 1; i != 0; --i)

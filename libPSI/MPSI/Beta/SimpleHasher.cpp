@@ -21,24 +21,24 @@ namespace osuCrypto
     void SimpleHasher::print() const
     {
 
-        //Log::out << Log::lock;
+        //std::cout << IoStream::lock;
         for (u64 i = 0; i < mBins.size(); ++i)
         {
-            Log::out << "Bin #" << i << Log::endl;
+            std::cout << "Bin #" << i << std::endl;
 
-            Log::out << " contains " << mBins[i].size() << " elements" << Log::endl;
+            std::cout << " contains " << mBins[i].size() << " elements" << std::endl;
 
             for (u64 j = 0; j < mBins[i].size(); ++j)
             {
-                Log::out
+                std::cout
                     << "    " << mBins[i][j]  
-                    /*<< "  " << mBins[i][j].second */<< Log::endl;
+                    /*<< "  " << mBins[i][j].second */<< std::endl;
             }
 
-            Log::out << Log::endl; 
+            std::cout << std::endl; 
         }
 
-        Log::out << Log::endl;// << Log::unlock;
+        std::cout << std::endl;// << IoStream::unlock;
     }
 
     double maxprob(u64 balls, u64 bins, u64 k)
@@ -95,9 +95,9 @@ namespace osuCrypto
                 best = total;
                 mBinCount = bins;
                 mMaxBinSize = maxBin;
-                //Log::out << "##########################################################" << Log::endl;
-                //Log::out << n << "  " << bins << "   " << maxBin << "    " << logBinCount << "     " << total << Log::endl;
-                //Log::out << "##########################################################" << Log::endl;
+                //std::cout << "##########################################################" << std::endl;
+                //std::cout << n << "  " << bins << "   " << maxBin << "    " << logBinCount << "     " << total << std::endl;
+                //std::cout << "##########################################################" << std::endl;
 
             }
         }
@@ -131,10 +131,10 @@ namespace osuCrypto
 
     //    //SHA1 fSeed;
     //    //fSeed.Update(mHashSeed);
-    //    //Log::out << "hash seed     " << mHashSeed << Log::endl;
-    //    //Log::out << "mInputBitSize " << mInputBitSize << Log::endl;
-    //    //Log::out << "mRepSize      " << mRepSize << Log::endl;
-    //    //Log::out << "totalRepSize  " << totalRepSize << Log::endl << Log::endl;
+    //    //std::cout << "hash seed     " << mHashSeed << std::endl;
+    //    //std::cout << "mInputBitSize " << mInputBitSize << std::endl;
+    //    //std::cout << "mRepSize      " << mRepSize << std::endl;
+    //    //std::cout << "totalRepSize  " << totalRepSize << std::endl << std::endl;
 
     //    u8 xrHash[SHA1::HashSize];
 
@@ -143,7 +143,7 @@ namespace osuCrypto
     //    //for (u64 i = 0; i < mySet.size(); ++i)
     //    //{
     //    //    auto& item = mySet[i];
-    //    //    //Log::out << "  item[" << i << "] " << item << Log::endl;
+    //    //    //std::cout << "  item[" << i << "] " << item << std::endl;
 
     //    //    //u64 xr(0),xl(0);
 
@@ -171,9 +171,9 @@ namespace osuCrypto
 
     //    //    auto addr = (xl + xrHashVal) % mBinCount;
 
-    //    //    //Log::out << "     xr   " << xr << Log::endl;
-    //    //    //Log::out << "     xl   " << xl << Log::endl;
-    //    //    //Log::out << "     addr " << addr <<  Log::endl;
+    //    //    //std::cout << "     xr   " << xr << std::endl;
+    //    //    //std::cout << "     xl   " << xl << std::endl;
+    //    //    //std::cout << "     addr " << addr <<  std::endl;
 
     //    //    BitVector val(mRepSize);
     //    //    memcpy(val.data(), &xr, std::min(sizeof(xr), val.sizeBytes()));
@@ -184,7 +184,7 @@ namespace osuCrypto
 
     //    //    //if (i == 0)
     //    //    //{
-    //    //    //    Log::out << Log::lock << item << "  -> addr = " << addr << "  val = " << xr << "  (" << mBins[addr].second.back() << ")" << Log::endl << Log::unlock;
+    //    //    //    std::cout << IoStream::lock << item << "  -> addr = " << addr << "  val = " << xr << "  (" << mBins[addr].second.back() << ")" << std::endl << IoStream::unlock;
     //    //    //}
     //    //}
     //}

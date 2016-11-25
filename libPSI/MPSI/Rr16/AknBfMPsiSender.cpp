@@ -90,7 +90,7 @@ namespace osuCrypto {
 
         auto& chl0 = *chls[0];
 
-        //Log::out << "mBfBitCount " << mBfBitCount << Log::endl;
+        //std::cout << "mBfBitCount " << mBfBitCount << std::endl;
 
         //u8 dummy[1];
         //chl.recv(dummy, 1);
@@ -110,7 +110,7 @@ namespace osuCrypto {
         piBuff.resize(mBfBitCount * sizeof(LogOtCount_t));
 
         //u64 blockSize = 4096 * 128 * 20;
-        ////Log::out << "blockSize " << blockSize << Log::endl;
+        ////std::cout << "blockSize " << blockSize << std::endl;
         //for (i64 i = 0; i < (i64)piBuff.size();i += blockSize)
         //{
         //    auto ss = std::min(blockSize, piBuff.size() - i);
@@ -147,7 +147,7 @@ namespace osuCrypto {
                 gTimer.setTimePoint("sender.online.masksStart");
 
 
-            Log::out << Log::lock;
+            //std::cout << IoStream::lock;
 
             for (u64 i = start, k = 0; i < end; ++i, ++k)
             {
@@ -158,7 +158,7 @@ namespace osuCrypto {
                 hash.Update(mHashingSeed);
                 hash.Update(inputs[i]);
                 hash.Final(hashOut); 
-                Log::out << "s " << (u64)hashOut << Log::endl;
+                //std::cout << "s " << (u64)hashOut << std::endl;
 
                 //PRNG hasher( *(block*)hashOut);
 
@@ -167,8 +167,8 @@ namespace osuCrypto {
                 hasher.ecbEncCounterMode(0, bv.size(), bv.data());
                 ArrayView<u64>iv((u64*)bv.data(), mNumHashFunctions);
 
-                Log::out << "S inputs[" << i << "] " << inputs[i]  << " h -> " 
-                    << toBlock(hashOut) << " = H("<< mHashingSeed <<" || "<< inputs[i]<<")"<< Log::endl;
+                //std::cout << "S inputs[" << i << "] " << inputs[i]  << " h -> " 
+                //    << toBlock(hashOut) << " = H("<< mHashingSeed <<" || "<< inputs[i]<<")"<< std::endl;
 
                 for (u64 j = 0; j < mNumHashFunctions; ++j)
                 {
@@ -176,13 +176,13 @@ namespace osuCrypto {
 
                     auto pIdx = permutes[idx];
 
-                    //Log::out << "send " << i << "  " << j << "  " << pIdx  <<"   ("<<idx<<")"<< Log::endl;
+                    //std::cout << "send " << i << "  " << j << "  " << pIdx  <<"   ("<<idx<<")"<< std::endl;
 
                     myMasks[k] = myMasks[k] ^ mAknOt.mMessages[pIdx][1];
                 }
             }
 
-            Log::out << Log::unlock;
+            //std::cout << IoStream::unlock;
 
 
             if (t == 0)
@@ -235,7 +235,7 @@ namespace osuCrypto {
         for (auto& thrd : thrds)
             thrd.join();
 
-        //    //Log::out << Log::lock << "s" << Log::endl;;
+        //    //std::cout << IoStream::lock << "s" << std::endl;;
         //    for (u64 i = 0; i < inputs.size(); ++i)
         //    {
         //        myMasks[i] = ZeroBlock;
@@ -256,17 +256,17 @@ namespace osuCrypto {
 
         //            //if (i == 0)
         //            //{
-        //            //    Log::out << mAknOt.mMessages[pIdx][1] << "  " << pIdx << "  " << mAknOt.mMessages[pIdx][0] << "  " << Log::endl;
+        //            //    std::cout << mAknOt.mMessages[pIdx][1] << "  " << pIdx << "  " << mAknOt.mMessages[pIdx][0] << "  " << std::endl;
         //            //}
 
         //        }
 
         //        //if (i == 0)
         //        //{
-        //        //    Log::out << myMasks[i] << Log::endl;
+        //        //    std::cout << myMasks[i] << std::endl;
         //        //}
         //    }
-        //    //Log::out << Log::unlock;
+        //    //std::cout << IoStream::unlock;
 
         //    chl.asyncSend(std::move(myMasksBuff));
         //}

@@ -98,7 +98,7 @@ namespace osuCrypto
 
             if (curve.getGenerators().size() < 3)
             {
-                Log::out << ("DktMPsi require at least 3 generators") << Log::endl;
+                std::cout << ("DktMPsi require at least 3 generators") << std::endl;
                 throw std::runtime_error("DktMPsi require at least 3 generators");
             }
 
@@ -255,7 +255,7 @@ namespace osuCrypto
                 sigmaPhi = *rr[1];
             }
 
-            //Log::out << Log::lock << "r e        " << sigmaE << Log::endl << Log::unlock;
+            //std::cout << IoStream::lock << "r e        " << sigmaE << std::endl << IoStream::unlock;
 
 
 
@@ -264,7 +264,7 @@ namespace osuCrypto
             EccNumber one(curve, 1);
             EccNumber zero(curve, 0);
 
-            //Log::out << "r g^z      " << sigmaGZ << Log::endl;
+            //std::cout << "r g^z      " << sigmaGZ << std::endl;
 
             for (u64 i = myInputStartIdx, ii = 0; i < myInputEndIdx;)
             {
@@ -281,7 +281,7 @@ namespace osuCrypto
 
                     if (sigmaPhis[ii].iszero())
                     {
-                        Log::out << "zero " << ii << "  " << t << Log::endl;
+                        std::cout << "zero " << ii << "  " << t << std::endl;
                     }
 
                     sigmaPhis[ii].toBytes(iter); iter += sigmaPhis[ii].sizeBytes();
@@ -289,8 +289,8 @@ namespace osuCrypto
                     auto XMN = (X - (Ms[ii] + Ns[ii]));
 
 
-                    //Log::out << "XMN    " << XMN << Log::endl;
-                    //Log::out << "sigmaE " << sigmaE << Log::endl;
+                    //std::cout << "XMN    " << XMN << std::endl;
+                    //std::cout << "sigmaE " << sigmaE << std::endl;
                     //auto t = XMN * sigmaE;
 
                     //auto proof = (sigmaA - sigmaBs[ii]) + t;
@@ -298,15 +298,15 @@ namespace osuCrypto
 
                     //if (checkVal != proof)
                     //{
-                    //    Log::out <<Log::lock << "r expected " << checkVal << Log::endl;
-                    //    Log::out << "r actual   " << proof << Log::endl << Log::endl << Log::unlock;
+                    //    std::cout <<IoStream::lock << "r expected " << checkVal << std::endl;
+                    //    std::cout << "r actual   " << proof << std::endl << std::endl << IoStream::unlock;
                     //    // bad sigma proof
                     //    //throw std::runtime_error(LOCATION);
                     //}
                     //else
                     //{
 
-                    //    Log::out << Log::lock << "* expected " << checkVal << Log::endl << Log::unlock;
+                    //    std::cout << IoStream::lock << "* expected " << checkVal << std::endl << IoStream::unlock;
                     //}
                 }
 
@@ -372,7 +372,7 @@ namespace osuCrypto
 
                 if (sigma2ggPhiExpected != sigma2ggPhi)
                 {
-                    Log::out << "sender's sigma proof failed." << Log::endl;
+                    std::cout << "sender's sigma proof failed." << std::endl;
                     throw std::runtime_error("sender's sigma proof failed.");
                 }
 
@@ -425,11 +425,11 @@ namespace osuCrypto
                     auto negRcs = (zero - Rcs[ii]);
                     auto ZRcsi = Z * negRcs;
                     Kci = ZRcsi + Mpi;
-                    //Log::out << "Kc[" << i << "] " << Kci << Log::endl;
+                    //std::cout << "Kc[" << i << "] " << Kci << std::endl;
 
                     SHA1 sha;
                     Kci.toBytes(buff2.data());
-                    //Log::out << "buff " << buff << Log::endl;
+                    //std::cout << "buff " << buff << std::endl;
 
                     sha.Update(buff2.data(), Kci.sizeBytes());
 
@@ -443,7 +443,7 @@ namespace osuCrypto
 
                     auto blk = toBlock(hashOut);
                     auto idx = *(u64*)&blk;
-                    //Log::out << "r " << blk << "  " << idx << Log::endl;
+                    //std::cout << "r " << blk << "  " << idx << std::endl;
                     
                     if (t == 0)
                     {
@@ -460,7 +460,7 @@ namespace osuCrypto
 
                     if (sigma2MsiPhiExpected != sigma2MsiPhi)
                     {
-                        Log::out << "sender's sigma proof failed (msi)." << Log::endl;
+                        std::cout << "sender's sigma proof failed (msi)." << std::endl;
                         throw std::runtime_error("sender's sigma proof failed (msi).");
                     }
                 }
@@ -496,14 +496,14 @@ namespace osuCrypto
                 for (auto& Tsj : view)
                 {
                     auto idx = *(u64*)&Tsj;
-                    //Log::out << "recv " << Tsj << Log::endl;
-                    //Log::out << "idx " << idx << Log::endl;
+                    //std::cout << "recv " << Tsj << std::endl;
+                    //std::cout << "idx " << idx << std::endl;
                     auto iter = hashs.find(idx);
 
 
                     if (iter != hashs.end())
                     {
-                        //Log::out << "pm " << iter->second.mHash << "  " << iter->second.mInputIdx << Log::endl;
+                        //std::cout << "pm " << iter->second.mHash << "  " << iter->second.mInputIdx << std::endl;
 
                         if (eq(iter->second.mHash, Tsj))
                         {
