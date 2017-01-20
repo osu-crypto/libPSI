@@ -49,7 +49,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/cryptoTools;$(solutionDir)thirdparty\win\boost\;$(SolutionDir)/libPSI_Tests;$(SolutionDir)/libPSI;$(SolutionDir)thirdparty\win\;$(SolutionDir)thirdparty/win/miracl;$(SolutionDir)thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include;$(libOTeDir)/libOTe;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(solutionDir)thirdparty\win\boost\;$(SolutionDir)/libPSI_Tests;$(SolutionDir)/libPSI;$(libOTeDir)/thirdparty\win\;$(libOTeDir)/thirdparty/win/miracl;$(SolutionDir)/thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;$(libOTeDir)/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -62,7 +62,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/cryptoTools;$(solutionDir)thirdparty\win\boost\;$(SolutionDir)/libPSI_Tests;$(SolutionDir)/libPSI;$(SolutionDir)thirdparty\win\;$(SolutionDir)thirdparty/win/miracl;$(SolutionDir)thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include;$(libOTeDir)/libOTe;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(solutionDir)thirdparty\win\boost\;$(SolutionDir)/libPSI_Tests;$(SolutionDir)/libPSI;$(libOTeDir)/thirdparty\win\;$(libOTeDir)/thirdparty/win/miracl;$(SolutionDir)/thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;$(libOTeDir)/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>

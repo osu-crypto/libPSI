@@ -5,10 +5,10 @@
 #include <memory>
 
 #include "Common.h"
-#include "Common/Defines.h"
+#include "cryptoTools/Common/Defines.h"
 #include "MPSI/Dcw/ShamirSSScheme.h" 
-#include "Common/Log.h"
-#include "Crypto/PRNG.h"
+#include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Crypto/PRNG.h"
 using namespace osuCrypto;
 
 //namespace osuCrypto_tests

@@ -63,25 +63,39 @@ void simpleTest_find_e(int argc, char** argv)
 
     CLP cmd;
     cmd.parse(argc, argv);
-    cmd.setDefault("n", "1000");
+    cmd.setDefault("n", "1024");
     cmd.setDefault("h", "3");
     cmd.setDefault("e", "1.35");
     cmd.setDefault("t", "12");
     cmd.setDefault("x", "3");
     cmd.setDefault("s", "0.05");
-    cmd.setDefault("ss", "4");
+    cmd.setDefault("ss", "6");
 
 
+    // a parameter that shows the security level up to a stash size stashSize. Does not
+    // effect performance.
     u64 stashSize = cmd.getInt("ss");;
+
+    // the size of the hash table. n= N / e items will be inserted...
     u64 N = cmd.getInt("n");
-    u64 h = cmd.getInt("h");
+
+    // the expension factor. see N.
     double e = cmd.getDouble("e");
+
+    // number of hash functions
+    u64 h = cmd.getInt("h");
+
+    // the number of times we construct the cuckoo table.
     u64 t = cmd.getInt("t");
 
-    cmd.setDefault("eEnd", ToString(e));
-    double eEnd = cmd.getDouble("eEnd");
-    u64 numThrds = cmd.getInt("x");
+    // the last expansion factor that is considered. If set, all e between e and eEnd in steps of step are tried.
+    double eEnd = cmd.isSet("eEnd") ? cmd.getDouble("eEnd") : e;
+
+    // the step size of e that should be tried.
     double step = cmd.getDouble("s");
+
+    // the number of threads
+    u64 numThrds = cmd.getInt("x");
 
     std::cout << "N=" << N << "  h=" << h << "  e=" << e << "  t=" << t << "  s=" << step << std::endl;
 
@@ -161,6 +175,12 @@ void simpleTest_find_e(int argc, char** argv)
         {
             thrds[i] = std::thread([&, i]() {routine(i); });
         }
+
+
+        ///////////////////////////////////////////////////////////////////
+        //               Process printing below here                     //
+        ///////////////////////////////////////////////////////////////////
+
 
         u64 curTotal(0);
         u64 total = (u64(1) << t);
@@ -259,12 +279,12 @@ void simpleTest_find_e(int argc, char** argv)
 
             if (bad == 0)
             {
-                std::cout << "  >" << secLevel;
+                //std::cout << "  >" << secLevel;
                 out << "  >" << secLevel;
             }
             else if (good == 0)
             {
-                std::cout << "  <" << secLevel;
+                //std::cout << "  <" << secLevel;
                 out << "  <" << secLevel;
             }
             else

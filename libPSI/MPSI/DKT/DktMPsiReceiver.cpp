@@ -1,10 +1,10 @@
 #include "DktMPsiReceiver.h"
-#include "Crypto/Curve.h"
-#include "Crypto/sha1.h"
-#include "Common/Log.h"
+#include "cryptoTools/Crypto/Curve.h"
+#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Common/Log.h"
 
 #include <unordered_map>
-#include "Common/ByteStream.h"
+#include "cryptoTools/Common/ByteStream.h"
 
 namespace osuCrypto
 {

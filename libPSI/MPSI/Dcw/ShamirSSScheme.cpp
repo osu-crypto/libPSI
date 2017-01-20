@@ -6,8 +6,8 @@ using namespace NTL;
 //#include "NTL/ZZ_p.h"
 #include "NTL/GF2EX.h" 
 #include "NTL/GF2XFactoring.h"
-//#include "Common/Log.h
-#include "Common/Log.h"
+//#include "cryptoTools/Common/Log.h
+#include "cryptoTools/Common/Log.h"
 #include <thread>
 
 

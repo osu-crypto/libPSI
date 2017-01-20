@@ -1,11 +1,13 @@
 #include "OtBinMPsiSender.h"
 
-#include "Crypto/Commit.h"
-#include "Common/Log.h"
-#include "Common/Timer.h"
-#include "Base/naor-pinkas.h"
-#include "TwoChooseOne/KosOtExtReceiver.h"
-#include "TwoChooseOne/KosOtExtSender.h"
+#include "cryptoTools/Crypto/Commit.h"
+#include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
+#include "libOTe/Base/naor-pinkas.h"
+#include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
+#include "libOTe/TwoChooseOne/KosOtExtSender.h"
+
+#include "OtBinMPsiDefines.h"
 namespace osuCrypto
 {
 
@@ -349,7 +351,7 @@ namespace osuCrypto
 
                 if (tIdx == 0) gTimer.setTimePoint("online.send.insert");
 
-                const u64 stepSize = 16;
+                //const u64 stepSize = 128;
 
                 auto binStart = tIdx       * mBins.mBinCount / thrds.size();
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
@@ -477,8 +479,8 @@ namespace osuCrypto
                 if (tIdx == 0) gTimer.setTimePoint("online.send.sendMask");
 
 
-                otRecv.check(chl);
-                otSend.check(chl);
+                otRecv.check(chl, prng.get<block>());
+                otSend.check(chl, prng.get<block>());
 
                 // block until all masks are computed. the last to finish will set the promise...
                 if (--remainingMasks)

@@ -1,23 +1,23 @@
 #include "OT_Tests.h"
 
-#include "TwoChooseOne/OTExtInterface.h"
+#include "libOTe/TwoChooseOne/OTExtInterface.h"
 
-#include "Tools/Tools.h"
-#include "Tools/LinearCode.h"
-#include "Network/BtChannel.h"
-#include "Network/BtEndpoint.h"
-#include "Common/Log.h"
+#include "libOTe/Tools/Tools.h"
+#include "libOTe/Tools/LinearCode.h"
+#include "cryptoTools/Network/BtChannel.h"
+#include "cryptoTools/Network/BtEndpoint.h"
+#include "cryptoTools/Common/Log.h"
  
-#include "NChooseOne/KkrtNcoOtReceiver.h"
-#include "NChooseOne/KkrtNcoOtSender.h"
+#include "libOTe/NChooseOne/KkrtNcoOtReceiver.h"
+#include "libOTe/NChooseOne/KkrtNcoOtSender.h"
 
-#include "NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "NChooseOne/Oos/OosNcoOtSender.h"
+#include "libOTe/NChooseOne/Oos/OosNcoOtReceiver.h"
+#include "libOTe/NChooseOne/Oos/OosNcoOtSender.h"
 
 #include "Common.h"
 #include <thread>
 #include <vector> 
-
+#include "cryptoTools/Crypto/PRNG.h"
 #ifdef GetMessage
 #undef GetMessage
 #endif
@@ -140,8 +140,8 @@ void OosNcoOt_Test_Impl()
     LinearCode code;
     code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
 
-    OosNcoOtSender sender(code);
-    OosNcoOtReceiver recv(code);
+    OosNcoOtSender sender(code, 40);
+    OosNcoOtReceiver recv(code, 40);
 
 
     u64 ncoinputBlkSize, baseCount;
@@ -202,9 +202,9 @@ void OosNcoOt_Test_Impl()
                 throw UnitTestFail();
         }
 
-        auto thrd = std::thread([&]() {recv.check(recvChl); });
+        auto thrd = std::thread([&]() {recv.check(recvChl, ZeroBlock); });
 
-        sender.check(sendChl);
+        sender.check(sendChl, ZeroBlock);
 
         thrd.join();
     }

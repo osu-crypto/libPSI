@@ -1,9 +1,9 @@
 #pragma once
-#include "Common/Defines.h"
-#include "Common/Log.h"
-#include "Common/BitVector.h"
-#include "Common/ArrayView.h"
-#include "Common/MatrixView.h"
+#include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/BitVector.h"
+#include "cryptoTools/Common/ArrayView.h"
+#include "cryptoTools/Common/MatrixView.h"
 //#include <mutex>
 #include <atomic>
 #include "MPSI/Beta/CuckooHasher.h"

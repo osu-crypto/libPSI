@@ -1,10 +1,10 @@
 #include <iostream>
-#include "Network/BtChannel.h"
-#include "Network/BtEndpoint.h"
+#include "cryptoTools/Network/BtChannel.h"
+#include "cryptoTools/Network/BtEndpoint.h"
 
 using namespace std;
 #include "UnitTests.h" 
-#include "Common/Defines.h"
+#include "cryptoTools/Common/Defines.h"
 using namespace osuCrypto;
 
 #include "bloomFilterMain.h"
@@ -12,10 +12,10 @@ using namespace osuCrypto;
 #include "dktMain.h"
 #include "OtBinMain.h"
 
-#include "TwoChooseOne/KosOtExtReceiver.h"
-#include "TwoChooseOne/KosOtExtSender.h"
+#include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
+#include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include <numeric>
-#include "Common/Log.h"
+#include "cryptoTools/Common/Log.h"
 int miraclTestMain();
 
 #include "cuckoo/cuckooTests.h"
@@ -23,8 +23,8 @@ int miraclTestMain();
 int main(int argc, char** argv)
 {
 
-    //simpleTest(argc, argv);
-    //return 0;
+    simpleTest(argc, argv);
+    return 0;
 
     //LinearCode code;
     //code.loadBinFile(libOTe_DIR "/libPSI/Tools/bch511.bin");

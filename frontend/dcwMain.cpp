@@ -1,6 +1,6 @@
 #include "dcwMain.h"
 
-#include "Network/BtEndpoint.h" 
+#include "cryptoTools/Network/BtEndpoint.h" 
 
 
 #include "MPSI/Dcw/DcwBfPsiReceiver.h"
@@ -10,15 +10,15 @@
 
 
 
-#include "Common/Defines.h"
-#include "TwoChooseOne/KosOtExtReceiver.h"
-#include "TwoChooseOne/KosOtExtSender.h"
+#include "cryptoTools/Common/Defines.h"
+#include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
+#include "libOTe/TwoChooseOne/KosOtExtSender.h"
 
-#include "TwoChooseOne/LzKosOtExtReceiver.h"
-#include "TwoChooseOne/LzKosOtExtSender.h"
-#include "Common/Log.h"
-#include "Common/Timer.h"
-#include "Crypto/PRNG.h"
+#include "libOTe/TwoChooseOne/LzKosOtExtReceiver.h"
+#include "libOTe/TwoChooseOne/LzKosOtExtSender.h"
+#include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
+#include "cryptoTools/Crypto/PRNG.h"
 #include <fstream>
 
 using namespace osuCrypto;

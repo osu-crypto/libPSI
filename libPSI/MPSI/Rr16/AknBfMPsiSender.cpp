@@ -1,9 +1,9 @@
 #include "AknBfMPsiSender.h"
 #include "AknBfMPsiSender.h"
-#include "TwoChooseOne/KosOtExtSender.h"
-#include "Crypto/PRNG.h"
-#include "Crypto/Commit.h"
-#include "Common/Log.h"
+#include "libOTe/TwoChooseOne/KosOtExtSender.h"
+#include "cryptoTools/Crypto/PRNG.h"
+#include "cryptoTools/Crypto/Commit.h"
+#include "cryptoTools/Common/Log.h"
 #include <set>
 
 namespace osuCrypto {

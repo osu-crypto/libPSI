@@ -1,10 +1,10 @@
 #pragma once
-#include "Common/Defines.h"
-#include "Network/Channel.h"
-#include "Crypto/sha1.h"
-#include "Common/BitVector.h"
+#include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Network/Channel.h"
+#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Common/BitVector.h"
 #include <vector>
-#include "TwoChooseOne/OTExtInterface.h"
+#include "libOTe/TwoChooseOne/OTExtInterface.h"
 namespace osuCrypto
 {
 

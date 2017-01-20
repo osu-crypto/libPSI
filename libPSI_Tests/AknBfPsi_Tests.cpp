@@ -1,13 +1,13 @@
 #include "AknBfPsi_Tests.h"
 
-#include "Network/BtEndpoint.h"
+#include "cryptoTools/Network/BtEndpoint.h"
 #include "Common.h"
-#include "Common/Defines.h"
+#include "cryptoTools/Common/Defines.h"
 #include "MPSI/Rr16/AknBfMPsiReceiver.h"
 #include "MPSI/Rr16/AknBfMPsiSender.h"
 #include "OTOracleReceiver.h"
 #include "OTOracleSender.h"
-#include "Common/Log.h"
+#include "cryptoTools/Common/Log.h"
 //
 //#include "cryptopp/aes.h"
 //#include "cryptopp/modes.h"

@@ -1,5 +1,5 @@
 #include "bloomFilterMain.h"
-#include "Network/BtEndpoint.h" 
+#include "cryptoTools/Network/BtEndpoint.h" 
 
 #include "MPSI/Beta/OtBinMPsiReceiver.h"
 #include "MPSI/Beta/OtBinMPsiSender.h"
@@ -8,15 +8,15 @@
 using namespace osuCrypto;
 #include "util.h"
 
-#include "Common/Defines.h"
-#include "NChooseOne/KkrtNcoOtReceiver.h"
-#include "NChooseOne/KkrtNcoOtSender.h"
+#include "cryptoTools/Common/Defines.h"
+#include "libOTe/NChooseOne/KkrtNcoOtReceiver.h"
+#include "libOTe/NChooseOne/KkrtNcoOtSender.h"
 
-#include "NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "NChooseOne/Oos/OosNcoOtSender.h"
-#include "Common/Log.h"
-#include "Common/Timer.h"
-#include "Crypto/PRNG.h"
+#include "libOTe/NChooseOne/Oos/OosNcoOtReceiver.h"
+#include "libOTe/NChooseOne/Oos/OosNcoOtSender.h"
+#include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
+#include "cryptoTools/Crypto/PRNG.h"
 #include <numeric>
 
 #define OOS
@@ -92,8 +92,8 @@ void otBinSend()
                 }
 
 #ifdef OOS
-                OosNcoOtReceiver otRecv(code);
-                OosNcoOtSender otSend(code);
+                OosNcoOtReceiver otRecv(code, 40);
+                OosNcoOtSender otSend(code, 40);
 #else
                 KkrtNcoOtReceiver otRecv;
                 KkrtNcoOtSender otSend;
@@ -214,8 +214,8 @@ void otBinRecv()
 
 
 #ifdef OOS
-                OosNcoOtReceiver otRecv(code);
-                OosNcoOtSender otSend(code);
+                OosNcoOtReceiver otRecv(code, 40);
+                OosNcoOtSender otSend(code, 40);
 #else
                 KkrtNcoOtReceiver otRecv;
                 KkrtNcoOtSender otSend;

@@ -1,10 +1,10 @@
 #include "AknBfMPsiReceiver.h"
-#include "Crypto/PRNG.h"
-#include "Crypto/Commit.h"
-#include "TwoChooseOne/KosOtExtReceiver.h"
-#include "Common/Log.h"
+#include "cryptoTools/Crypto/PRNG.h"
+#include "cryptoTools/Crypto/Commit.h"
+#include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
+#include "cryptoTools/Common/Log.h"
 #include <unordered_map>
-#include "Common/Timer.h"
+#include "cryptoTools/Common/Timer.h"
 
 
 namespace osuCrypto

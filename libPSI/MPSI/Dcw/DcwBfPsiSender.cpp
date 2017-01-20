@@ -1,9 +1,9 @@
 #include "DcwBfPsiSender.h"
-#include "TwoChooseOne/KosOtExtSender.h"
-#include "Crypto/PRNG.h"
-#include "Crypto/Commit.h"
-#include "Common/Log.h" 
-#include "Base/naor-pinkas.h"
+#include "libOTe/TwoChooseOne/KosOtExtSender.h"
+#include "cryptoTools/Crypto/PRNG.h"
+#include "cryptoTools/Crypto/Commit.h"
+#include "cryptoTools/Common/Log.h" 
+#include "libOTe/Base/naor-pinkas.h"
 #include "ShamirSSScheme.h"  
 #include <set>
 

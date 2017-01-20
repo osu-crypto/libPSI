@@ -1,17 +1,18 @@
 #include "OtBinMPsiReceiver.h"
 #include <future>
 
-#include "Crypto/PRNG.h"
-#include "Crypto/Commit.h"
+#include "cryptoTools/Crypto/PRNG.h"
+#include "cryptoTools/Crypto/Commit.h"
 
 #include "MPSI/Beta/SimpleHasher.h"
-#include "Common/Log.h"
-#include "Base/naor-pinkas.h"
+#include "cryptoTools/Common/Log.h"
+#include "libOTe/Base/naor-pinkas.h"
 #include <unordered_map>
 
-#include "TwoChooseOne/KosOtExtReceiver.h"
-#include "TwoChooseOne/KosOtExtSender.h"
+#include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
+#include "libOTe/TwoChooseOne/KosOtExtSender.h"
 
+#include "OtBinMPsiDefines.h"
 #include "CuckooHasher.h"
 
 namespace osuCrypto
@@ -367,7 +368,7 @@ namespace osuCrypto
                     perm[i] = i;
 
 
-                const u64 stepSize = 16;
+                //const u64 stepSize = 128;
 
 
                 u64 otIdx = 0;
@@ -491,8 +492,8 @@ namespace osuCrypto
                 }
 
 
-                otSend.check(chl);
-                otRecv.check(chl);
+                otSend.check(chl, prng.get<block>());
+                otRecv.check(chl, prng.get<block>());
 
                 // use aes as a hash function. A weak invertable one. but security doesnt matter here.
                 mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());

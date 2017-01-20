@@ -1,7 +1,7 @@
 #pragma once
-#include "Common/Defines.h"
-#include "Common/BitVector.h"
-#include "Common/ArrayView.h"
+#include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/BitVector.h"
+#include "cryptoTools/Common/ArrayView.h"
 
 namespace osuCrypto
 {

@@ -1,18 +1,18 @@
 #include "BinOtPsi_Tests.h"
 
 #include "Common.h"
-#include "Network/BtEndpoint.h"
-#include "Common/Defines.h"
+#include "cryptoTools/Network/BtEndpoint.h"
+#include "cryptoTools/Common/Defines.h"
 #include "MPSI/Beta/OtBinMPsiReceiver.h"
 #include "MPSI/Beta/OtBinMPsiSender.h"
-#include "Common/Log.h"
+#include "cryptoTools/Common/Log.h"
 
-#include "NChooseOne/KkrtNcoOtReceiver.h"
-#include "NChooseOne/KkrtNcoOtSender.h"
+#include "libOTe/NChooseOne/KkrtNcoOtReceiver.h"
+#include "libOTe/NChooseOne/KkrtNcoOtSender.h"
 
 
-#include "NChooseOne/Oos/OosNcoOtReceiver.h"
-#include "NChooseOne/Oos/OosNcoOtSender.h"
+#include "libOTe/NChooseOne/Oos/OosNcoOtReceiver.h"
+#include "libOTe/NChooseOne/Oos/OosNcoOtSender.h"
 #include "MPSI/Beta/CuckooHasher.h"
 
 #include <array>
@@ -301,8 +301,8 @@ void OtBinPsi_Oos_EmptrySet_Test_Impl()
     LinearCode code;
     code.loadBinFile(solution + "/../libOTe/libOTe/Tools/bch511.bin");
 
-    OosNcoOtReceiver otRecv0(code), otRecv1(code);
-    OosNcoOtSender otSend0(code), otSend1(code);
+    OosNcoOtReceiver otRecv0(code, 40), otRecv1(code, 40);
+    OosNcoOtSender otSend0(code, 40), otSend1(code, 40);
 
 
     //u64 baseCount = 128 * 7;
@@ -387,8 +387,8 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
     LinearCode code;
     code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
 
-    OosNcoOtReceiver otRecv0(code), otRecv1(code);
-    OosNcoOtSender otSend0(code), otSend1(code);
+    OosNcoOtReceiver otRecv0(code, 40), otRecv1(code, 40);
+    OosNcoOtSender otSend0(code, 40), otSend1(code, 40);
 
     OtBinMPsiSender send;
     OtBinMPsiReceiver recv;
@@ -447,8 +447,8 @@ void OtBinPsi_Oos_SingltonSet_Test_Impl()
     LinearCode code;
     code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
 
-    OosNcoOtReceiver otRecv0(code), otRecv1(code);
-    OosNcoOtSender otSend0(code), otSend1(code);
+    OosNcoOtReceiver otRecv0(code, 40), otRecv1(code, 40);
+    OosNcoOtSender otSend0(code, 40), otSend1(code, 40);
 
     OtBinMPsiSender send;
     OtBinMPsiReceiver recv;

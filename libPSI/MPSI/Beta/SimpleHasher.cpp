@@ -1,8 +1,8 @@
 #include "SimpleHasher.h"
-#include "Crypto/sha1.h"
-#include "Crypto/PRNG.h"
+#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Crypto/PRNG.h"
 #include <random>
-#include "Common/Log.h"
+#include "cryptoTools/Common/Log.h"
 #include <numeric>
 
 namespace osuCrypto

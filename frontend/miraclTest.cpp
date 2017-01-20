@@ -37,7 +37,7 @@ the CertiVox MIRACL Crypto SDK with a closed source product.               *
 *
 */
 
-#include "Crypto/Curve.h"
+#include "cryptoTools/Crypto/Curve.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -489,7 +489,7 @@ double powers_precomp(int gb, int eb, big p)
     return elapsed;
 }
 #include <string>
-#include "Common/Log.h"
+#include "cryptoTools/Common/Log.h"
 using namespace osuCrypto;
 
 void print(std::string s, big x)

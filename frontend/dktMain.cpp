@@ -1,16 +1,16 @@
 #include "dcwMain.h"
 
-#include "Network/BtEndpoint.h" 
+#include "cryptoTools/Network/BtEndpoint.h" 
 
 #include "MPSI/DKT/DktMPsiReceiver.h"
 #include "MPSI/DKT/DktMPsiSender.h"
 
 
 
-#include "Common/Defines.h"
-#include "Common/Log.h"
-#include "Common/Timer.h"
-#include "Crypto/PRNG.h"
+#include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
+#include "cryptoTools/Crypto/PRNG.h"
 #include <fstream>
 
 using namespace osuCrypto;

@@ -1,8 +1,8 @@
 #pragma once
 //#include "NTL/ZZ_pEX.h"
 #include <vector> 
-#include "Common/Defines.h"
-#include "Common/ArrayView.h"
+#include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/ArrayView.h"
 #include "NTL/GF2EX.h"
 
 namespace osuCrypto

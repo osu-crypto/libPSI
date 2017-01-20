@@ -1,15 +1,15 @@
 #include "DcwBfPsi_Tests.h"
 
 #include "Common.h"
-#include "Network/BtEndpoint.h"
-#include "Common/Defines.h"
+#include "cryptoTools/Network/BtEndpoint.h"
+#include "cryptoTools/Common/Defines.h"
 #include "MPSI/Dcw/DcwBfPsiReceiver.h"
 #include "MPSI/Dcw/DcwBfPsiSender.h"
 #include "MPSI/Dcw/DcwRBfPsiReceiver.h"
 #include "MPSI/Dcw/DcwRBfPsiSender.h"
 #include "OTOracleReceiver.h"
 #include "OTOracleSender.h"
-#include "Common/Log.h"
+#include "cryptoTools/Common/Log.h"
 //
 //#include "cryptopp/aes.h"
 //#include "cryptopp/modes.h"
