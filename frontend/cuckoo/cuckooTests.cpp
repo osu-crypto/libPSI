@@ -260,7 +260,7 @@ void simpleTest_find_e(int argc, char** argv)
 
 
 
-        auto w = std::setw(5);
+        //auto w = std::setw(5);
 
         std::cout << "\r" << e << "   n " << n;
         out << "e "<< e << "   n "<< n;
@@ -426,7 +426,7 @@ void simpleTest(int argc, char** argv)
             thrds[i] = std::thread([&, i]() {routine(i); });
         }
 
-        u64 stringLength = 0;
+        //u64 stringLength = 0;
         while ((u64)completed != tries)
         {
             double percent = completed * 10000 / tries / 100.0;
@@ -449,7 +449,7 @@ void simpleTest(int argc, char** argv)
             //std::cout << '\r' << std::string(' ', stringLength) << flush << str << flush;
 
             // update how long the string that we just printed is.
-            stringLength = str.size();
+            //stringLength = str.size();
 
             //stop = max;
 
@@ -523,7 +523,7 @@ void simpleTest_var_h(int argc, char** argv)
     cmd.setDefault("x", "1");
 
     u64 n = cmd.getInt("n");
-    u64 h = cmd.getInt("h");
+    //u64 h = cmd.getInt("h");
     double e = cmd.getDouble("e");
     u64 t = cmd.getInt("t");
     u64 numThrds = cmd.getInt("x");
@@ -613,7 +613,7 @@ void simpleTest_var_h(int argc, char** argv)
                 thrds[i] = std::thread([&, i]() {routine(i); });
             }
 
-            u64 stringLength = 0;
+            //u64 stringLength = 0;
             while ((u64)completed != tries && !stop)
             {
                 double percent = completed * 10000 / tries / 100.0;
@@ -636,7 +636,7 @@ void simpleTest_var_h(int argc, char** argv)
                 //std::cout << '\r' << std::string(' ', stringLength) << flush << str << flush;
 
                 // update how long the string that we just printed is.
-                stringLength = str.size();
+                //stringLength = str.size();
 
                 stop = max;
 

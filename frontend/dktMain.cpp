@@ -51,8 +51,6 @@ void DktSend()
         for (auto pow : pows)
         {
 
-            u64 offlineTimeTot(0);
-            u64 onlineTimeTot(0);
             //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
             for (u64 jj = 0; jj < numTrial; jj++)
             {
@@ -182,7 +180,6 @@ void DktRecv()
 
                 gTimer.reset();
 
-                u64 otIdx = 0;
 
 
                 Timer timer;

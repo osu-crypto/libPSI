@@ -134,7 +134,7 @@ void AknBfPsi_FullSet_Test_Impl()
 
 void AknBfPsi_SingltonSet_Test_Impl()
 {
-    Timer& t = gTimer;
+    //Timer& t = gTimer;
 
     setThreadName("Sender");
     u64 setSize = 1, psiSecParam = 40;

@@ -16,15 +16,15 @@ using namespace osuCrypto;
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include <numeric>
 #include "cryptoTools/Common/Log.h"
-int miraclTestMain();
+//int miraclTestMain();
 
 #include "cuckoo/cuckooTests.h"
 
 int main(int argc, char** argv)
 {
 
-    simpleTest(argc, argv);
-    return 0;
+    //simpleTest(argc, argv);
+    //return 0;
 
     //LinearCode code;
     //code.loadBinFile(libOTe_DIR "/libPSI/Tools/bch511.bin");
@@ -39,8 +39,8 @@ int main(int argc, char** argv)
     //t.setTimePoint("done");
     //std::cout << t << std::endl;
 
-    //run_all();
-    //return 0;
+    run_all();
+    return 0;
     //Ecc2mNumber_Test();
     //return 0;
     //miraclTestMain();

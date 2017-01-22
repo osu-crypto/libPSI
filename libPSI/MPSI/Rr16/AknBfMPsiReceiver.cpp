@@ -98,9 +98,7 @@ namespace osuCrypto
             throw std::runtime_error(LOCATION);
         //Timer timer;
         gTimer.setTimePoint("online.start");
-        u64 numBits = 32;
 
-        //TODO("need real seed");
         PRNG prng(mSeed);
 
         std::vector<u8> bf(mBfBitCount, 0);
@@ -150,8 +148,6 @@ namespace osuCrypto
 
             for (u64 i = start; i < end; ++i)
             {
-                auto& item = inputs[i];
-                //auto hash = mHashs[0];
                 hash.Reset();
 
 
@@ -271,7 +267,6 @@ namespace osuCrypto
 
             //TODO("make masks smaller");
             //u64 maskSize = (mStatSecParam + log2ceil(inputs.size()) + 7) / 8;
-            u64 maskSize = sizeof(block);
 
 
             // store all masks in the local hash table. will be merged together in a bit.
@@ -378,14 +373,7 @@ namespace osuCrypto
             if (t == 0)
                 gTimer.setTimePoint("online.recvMasked");
 
-            auto theirInputStart = mTheirInputSize * t / chls.size();
-            auto theirInputEnd = mTheirInputSize * (t + 1) / chls.size();
-            auto numMasks = theirInputEnd - theirInputStart;
-
-
-            auto maskIter = theirMasksBuff.data();
             auto theirMasks = theirMasksBuff.getArrayView<block>();
-            //auto theirMasks2 = theirMasksBuff.getArrayView<ArrayView<u8,3>>();
 
             //u64 numMasks = theirMasksBuff.size() / maskSize;
             std::vector<u64> localIntersection;
@@ -684,8 +672,8 @@ namespace osuCrypto
         double cStep = 0.001;
 
         double best = 9999999999999999999999999999.0;
-        double pBest(-1), cBest, cPrimeBest;
-        u64 mh1Best, thresholdBest, hBest;
+        double pBest(-1), cBest(0);
+        u64 mh1Best(0), thresholdBest(0), hBest(0);
 
         for (u64 h = 80; h < 100; ++h)
         {
@@ -724,7 +712,6 @@ namespace osuCrypto
                     best = total;
                     pBest = p;
                     cBest = c;
-                    cPrimeBest = cPrime;
                     hBest = h;
                     mh1Best = mh;
                     thresholdBest = threshold;

@@ -55,14 +55,12 @@ void DcwBfPsi_EmptrySet_Test_Impl()
 
         for (u64 j = 0; j < repeatCount; ++j)
         {
-            u64 otIdx = 0;
             sendPSIs[j].init(setSize, psiSecParam, otSend, sendChl, prng.get<block>());
         }
     });
 
     for (u64 j = 0; j < repeatCount; ++j)
     {
-        u64 otIdx = 0;
         recvPSIs[j].init(setSize, psiSecParam, otRecv, *recvChl[0], ZeroBlock);
     }
 
@@ -263,14 +261,12 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
 
         for (u64 j = 0; j < repeatCount; ++j)
         {
-            u64 otIdx = 0;
             sendPSIs[j].init(setSize, psiSecParam, otSend, sendChl, prng.get<block>());
         }
     });
 
     for (u64 j = 0; j < repeatCount; ++j)
     {
-        u64 otIdx = 0;
         recvPSIs[j].init(setSize, psiSecParam, otRecv, *recvChl[0], ZeroBlock);
     }
 
@@ -351,7 +347,6 @@ void DcwRBfPsi_FullSet_Test_Impl()
 
         for (u64 j = 0; j < repeatCount; ++j)
         {
-            u64 otIdx = 0;
 
             sendPSIs[j].init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
             sendPSIs[j].sendInput(sendSet, sendChls);
@@ -360,7 +355,6 @@ void DcwRBfPsi_FullSet_Test_Impl()
 
     for (u64 j = 0; j < repeatCount; ++j)
     {
-        u64 otIdx = 0;
         recvPSIs[j].init(setSize, psiSecParam, otRecv, recvChls, ZeroBlock);
 
         DcwRBfPsiReceiver& recv = recvPSIs[j];
@@ -426,7 +420,6 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
 
         for (u64 j = 0; j < repeatCount; ++j)
         {
-            u64 otIdx = 0;
 
             std::vector<Channel*> cc{ &sendChl };
             sendPSIs[j].init(setSize, psiSecParam, otSend, cc, prng.get<block>());
@@ -435,7 +428,6 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
 
     for (u64 j = 0; j < repeatCount; ++j)
     {
-        u64 otIdx = 0;
         recvPSIs[j].init(setSize, psiSecParam, otRecv, recvChl, ZeroBlock);
     }
 

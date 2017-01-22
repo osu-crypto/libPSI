@@ -55,8 +55,6 @@ void DcwSend()
     for (auto pow : { 8,12, 16, 20 })
     {
 
-        u64 offlineTimeTot(0);
-        u64 onlineTimeTot(0);
         //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
         for (u64 jj = 0; jj < numTrial; jj++)
         {
@@ -181,7 +179,6 @@ void DcwRecv()
 
             gTimer.reset();
 
-            u64 otIdx = 0;
 
 
             Timer timer;
@@ -256,8 +253,6 @@ void DcwRSend()
     for (auto pow : { 8,12, 16, 20 })
     {
 
-        u64 offlineTimeTot(0);
-        u64 onlineTimeTot(0);
         //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
         for (u64 jj = 0; jj < numTrial; jj++)
         {
@@ -382,7 +377,6 @@ void DcwRRecv()
 
             gTimer.reset();
 
-            u64 otIdx = 0;
 
 
             Timer timer;

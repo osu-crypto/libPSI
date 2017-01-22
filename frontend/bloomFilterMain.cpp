@@ -71,8 +71,6 @@ void bfSend()
 
             sendChls.insert(sendChls.begin(), sendChls_.begin(), sendChls_.begin() + cc);
 
-            u64 offlineTimeTot(0);
-            u64 onlineTimeTot(0);
             //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
             for (u64 jj = 0; jj < numTrial; jj++)
             {
@@ -105,7 +103,6 @@ void bfSend()
 
                 gTimer.reset();
 
-                u64 otIdx = 0;
                 //std::cout << "sender init" << std::endl;
                 sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
 
@@ -227,7 +224,6 @@ void bfRecv()
 
                 gTimer.reset();
 
-                u64 otIdx = 0;
 
 
                 Timer timer;
@@ -394,7 +390,6 @@ void bf(int role)
             thrd = std::thread([&]() {
 
 
-                u64 otIdx = 0;
 
                 sendPSIs.init(setSize, psiSecParam, otSend, sendChls, prng.get<block>());
                 sendPSIs.sendInput(sendSet, sendChls);
@@ -403,7 +398,6 @@ void bf(int role)
 
             gTimer.reset();
 
-            u64 otIdx = 0;
 
 
             Timer timer;

@@ -94,11 +94,6 @@ namespace osuCrypto
         // to compute how many bins we need, the max size of bins, etc.
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam);
 
-        // figure out how many OTs we need in total.
-        u64 perBinOtCount = mBins.mMaxBinSize;
-        u64 otCount = perBinOtCount * mBins.mBinCount;
-
-
         gTimer.setTimePoint("Init.recv.baseStart");
         // since we are doing mmlicious PSI, we need OTs going in both directions. 
         // This will hold the send OTs
@@ -354,14 +349,9 @@ namespace osuCrypto
                 // get the region of the base OTs that this thread should do.
                 auto binStart = tIdx       * mBins.mBinCount / thrds.size();
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
-                auto otStart = binStart * mBins.mMaxBinSize;
-                auto otEnd = binEnd * mBins.mMaxBinSize;
-
+                
                 PRNG prng(seed);
 
-                u8 hashBuff[SHA1::HashSize];
-                //if (!tIdx)
-                    //gTimer.setTimePoint("sendInput.PSI");
 
                 std::vector<u16> perm(mBins.mMaxBinSize);
                 for (size_t i = 0; i < perm.size(); i++)

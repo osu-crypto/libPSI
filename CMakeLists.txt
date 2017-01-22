@@ -12,7 +12,7 @@ set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib)
 #            Flag and #defines              #
 #############################################
 add_definitions(-DSOLUTION_DIR=\"${CMAKE_SOURCE_DIR}\")
-set(CMAKE_C_FLAGS "-ffunction-sections -Wall  -maes -msse2 -msse4.1 -mpclmul -Wfatal-errors -pthread")
+set(CMAKE_C_FLAGS "-ffunction-sections -Wall -Wno-strict-aliasing  -maes -msse2 -msse4.1 -mpclmul -Wfatal-errors -pthread")
 set(CMAKE_CXX_FLAGS  "${CMAKE_C_FLAGS}  -std=c++14")
 
 # Set a default build type for single-configuration
@@ -37,28 +37,28 @@ SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
 
 # default location for libOTe
 set(libOTe_Dirs "${CMAKE_SOURCE_DIR}/../libOTe/")
-include_directories("${libOTe_Dirs}/libOTe/") 
-link_directories("${libOTe_Dirs}/lib/")
+include_directories("${libOTe_Dirs}/") 
+#link_directories("${libOTe_Dirs}/lib/")
 
 # default location for miracl
-set(Miracl_Dirs "${CMAKE_SOURCE_DIR}/thirdparty/linux/miracl/")
+set(Miracl_Dirs "${libOTe_Dirs}/thirdparty/linux/miracl/")
 include_directories("${Miracl_Dirs}") 
-link_directories("${Miracl_Dirs}/miracl/source/")
+#link_directories("${Miracl_Dirs}/miracl/source/")
 
 # default location for NTL
 set(NTL_Dirs "${CMAKE_SOURCE_DIR}/thirdparty/linux/ntl/")
 include_directories("${NTL_Dirs}/include/")
-link_directories("${NTL_Dirs}/src/") 
+#link_directories("${NTL_Dirs}/src/") 
 
 # default location for Boost
-set(BOOST_ROOT "${CMAKE_SOURCE_DIR}/thirdparty/linux/boost/")
+set(BOOST_ROOT "${libOTe_Dirs}/thirdparty/linux/boost/")
+
 
 
 #############################################
 #            Build cryptoTools              #
 #############################################
-add_subdirectory(cryptoTools)
-include_directories(cryptoTools)
+#add_subdirectory(${libOTe_Dirs}/ ${CMAKE_CURRENT_BINARY_DIR}/)
 
 
 #############################################

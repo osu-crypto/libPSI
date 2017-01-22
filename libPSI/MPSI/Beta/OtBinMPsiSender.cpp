@@ -77,9 +77,6 @@ namespace osuCrypto
 
         //mPsis.resize(mBins.mBinCount);
 
-        u64 perBinOtCount = mBins.mMaxBinSize;// mPsis[0].PsiOTCount(mBins.mMaxBinSize, mBins.mRepSize);
-        u64 otCount = perBinOtCount * mBins.mBinCount;
-
         gTimer.setTimePoint("init.send.baseStart");
 
         if (otSend.hasBaseOts() == false ||
@@ -357,7 +354,6 @@ namespace osuCrypto
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
 
                 auto otStart = binStart * mBins.mMaxBinSize;
-                auto otEnd = binEnd * mBins.mMaxBinSize;
 
 
 

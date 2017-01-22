@@ -226,7 +226,6 @@ namespace osuCrypto
             throw std::runtime_error(LOCATION);
         //Timer timer;
         gTimer.setTimePoint("online.start");
-        u64 numBits = 32;
 
         if (chls.size() > 1)
             throw std::runtime_error("not impl");

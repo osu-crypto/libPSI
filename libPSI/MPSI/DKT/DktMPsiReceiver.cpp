@@ -39,7 +39,6 @@ namespace osuCrypto
 
 
         auto RcSeed = mPrng.get<block>();
-        auto sigmaDSeed = mPrng.get<block>();
 
 
         std::vector<std::future<block>> 

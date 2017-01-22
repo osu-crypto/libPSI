@@ -72,8 +72,6 @@ void otBinSend()
 
             sendChls.insert(sendChls.begin(), sendChls_.begin(), sendChls_.begin() + cc);
 
-            u64 offlineTimeTot(0);
-            u64 onlineTimeTot(0);
             //for (u64 numThreads = 1; numThreads < 129; numThreads *= 2)
             for (u64 jj = 0; jj < numTrial; jj++)
             {
@@ -104,7 +102,6 @@ void otBinSend()
 
                 sendChls[0]->asyncSend(dummy, 1);
                 sendChls[0]->recv(dummy, 1);
-                u64 otIdx = 0;
                 //std::cout << "sender init" << std::endl;
                 sendPSIs.init(setSize, psiSecParam,128, sendChls,otSend, otRecv, prng.get<block>());
 
@@ -227,7 +224,6 @@ void otBinRecv()
                 gTimer.reset();
                 recvChls[0]->asyncSend(dummy, 1);
 
-                u64 otIdx = 0;
 
 
                 Timer timer;

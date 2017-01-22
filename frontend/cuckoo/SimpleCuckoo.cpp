@@ -261,7 +261,7 @@ namespace osuCrypto
         {
             mStash[j].swap(inputIdxs[i], w.curHashIdxs[i]);
 
-            if (inputIdxs[i] == -1)
+            if (inputIdxs[i] == u64(-1))
                 ++i;
         }
 
@@ -282,7 +282,7 @@ namespace osuCrypto
 
             for (u64 i = 0; i < hashes.size()[0]; ++i)
             {
-                idxs[i] = -1;
+                idxs[i] = u64(-1);
 
                 addr[0] = (hashes[i][0]) % mBins.size();
                 addr[1] = (hashes[i][1]) % mBins.size();
@@ -298,7 +298,7 @@ namespace osuCrypto
 
             for (u64 i = 0; i < hashes.size()[0]; ++i)
             {
-                if (w.findVal[i][0] != -1)
+                if (w.findVal[i][0] != u64(-1))
                 {
                     u64 itemIdx = w.findVal[i][0] & (u64(-1) >> 8);
 
@@ -309,7 +309,7 @@ namespace osuCrypto
                     if (match) idxs[i] = itemIdx;
                 }
 
-                if (w.findVal[i][1] != -1)
+                if (w.findVal[i][1] != u64(-1))
                 {
                     u64 itemIdx = w.findVal[i][1] & (u64(-1) >> 8);
 
@@ -321,7 +321,7 @@ namespace osuCrypto
                 }
 
                 // stash
-                if (idxs[i] == -1)
+                if (idxs[i] == u64(-1))
                 {
                     u64 j = 0;
                     while (j < mStash.size() && mStash[j].isEmpty() == false)
@@ -361,7 +361,7 @@ namespace osuCrypto
 
             for (u64 i = 0; i < hashes.size()[0]; ++i)
             {
-                idxs[i] = -1;
+                idxs[i] = u64(-1);
 
                 for(u64 j =0; j < hashes.size()[1]; ++j)
                     addr[j] = hashes[i][j] % mBins.size();
@@ -377,10 +377,10 @@ namespace osuCrypto
 
             for (u64 i = 0; i < hashes.size()[0]; ++i)
             {
-                for (u64 j = 0; j < hashes.size()[1] && idxs[i] == -1; ++j)
+                for (u64 j = 0; j < hashes.size()[1] && idxs[i] == u64(-1); ++j)
                 {
 
-                    if (w.findVal[i][j] != -1)
+                    if (w.findVal[i][j] != u64(-1))
                     {
                         u64 itemIdx = w.findVal[i][j] & (u64(-1) >> 8);
 
@@ -396,7 +396,7 @@ namespace osuCrypto
                 }
 
                 // stash
-                if (idxs[i] == -1)
+                if (idxs[i] == u64(-1))
                 {
                     u64 j = 0;
                     while (j < mStash.size() && mStash[j].isEmpty() == false)
@@ -434,7 +434,7 @@ namespace osuCrypto
     u64 SimpleCuckoo::stashUtilization()
     {
 
-        i64 i = 0;
+        u64 i = 0;
         while (i < mStash.size() && mStash[i].isEmpty() == false)
         {
             ++i;

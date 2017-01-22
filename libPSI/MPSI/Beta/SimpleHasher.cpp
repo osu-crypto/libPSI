@@ -51,8 +51,6 @@ namespace osuCrypto
         mHashSeed = hashSeed;
         mN = n;
 
-        auto log2n = log2ceil(n);
-
         mInputBitSize = numBits;
 
         double best = (999999999999999.0);

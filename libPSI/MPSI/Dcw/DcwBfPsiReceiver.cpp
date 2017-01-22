@@ -225,7 +225,6 @@ namespace osuCrypto
             throw std::runtime_error(LOCATION);
         //Timer timer;
         gTimer.setTimePoint("online.start");
-        u64 numBits = 32;
 
         //TODO("need real seed");
         PRNG prng(mSeed);
