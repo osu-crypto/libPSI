@@ -214,12 +214,12 @@ int main(int argc, char** argv)
     run(DktRecv, DktSend, dktTags, cmd);
 
 
-    if (cmd.isSet(unitTestTags) == false &&
+    if ((cmd.isSet(unitTestTags) == false &&
         cmd.isSet(DcwTags) == false &&
         cmd.isSet(DcwrTags) == false &&
         cmd.isSet(rr16Tags) == false &&
         cmd.isSet(rr17Tags) == false &&
-        cmd.isSet(dktTags) == false ||
+        cmd.isSet(dktTags) == false) ||
         cmd.isSet(helpTags))
     {
         std::cout

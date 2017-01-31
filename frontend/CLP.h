@@ -4,7 +4,13 @@
 #include <set>
 #include <list>
 #include <vector>
+#include <string>
+#include <sstream>
+#include <iostream>
+#include "cryptoTools/Common/Defines.h"
 
+using namespace osuCrypto;
+ 
 class CommandLineParserError : public std::exception
 {
 
