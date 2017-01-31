@@ -28,16 +28,95 @@ public:
     bool hasValue(std::string name);
     bool hasValue(std::vector<std::string> names);
 
-    int getInt(std::string name);
-    int getInt(std::vector<std::string> names, std::string failMessage = "");
 
-    double getDouble(std::string name);
-    double getDouble(std::vector<std::string> names, std::string failMessage = "");
+    template<typename T>
+    T get(const std::string& name)
+    {
+        std::stringstream ss;
+        ss << *mKeyValues[name].begin();
 
-    std::string getString(std::string name);
-    std::list<std::string> getStrings(std::string name);
+        T ret;
+        ss >> ret;
 
-    std::string getString(std::vector<std::string> names, std::string failMessage = "");
-    std::list<std::string> getStrings(std::vector<std::string> names, std::string failMessage = "");
+        return ret;
+    }
+
+    template<typename T>
+    T get(const std::vector<std::string>& names, const std::string& failMessage = "")
+    {
+        for (auto name : names)
+        {
+            if (hasValue(name))
+            {
+                return get<T>(name);
+            }
+        }
+
+        if (failMessage != "")
+            std::cout << failMessage << std::endl;
+
+        throw CommandLineParserError();
+    }
+
+    template<typename T>
+    std::vector<T> getMany(const std::string& name)
+    {
+
+        std::vector<T> ret(mKeyValues[name].size());
+
+        auto iter = mKeyValues[name].begin();
+
+        for (u64 i = 0; i < ret.size(); ++i)
+        {
+            std::stringstream ss(*iter++);
+            ss >> ret[i];
+        }
+
+        return ret;
+    }
+
+    template<typename T>
+    std::vector<T> getMany(const std::vector<std::string>& names)
+    {
+        for (auto name : names)
+        {
+            if (hasValue(name))
+            {
+                return getMany<T>(name);
+            }
+        }
+
+        throw CommandLineParserError();
+    }
+
+
+    template<typename T>
+    std::vector<T> getMany(const std::vector<std::string>& names, const std::string& failMessage)
+    {
+        for (auto name : names)
+        {
+            if (hasValue(name))
+            {
+                return getMany<T>(name);
+            }
+        }
+
+        if (failMessage != "")
+            std::cout << failMessage << std::endl;
+
+        throw CommandLineParserError();
+    }
+
+    //double getDouble(std::string name);
+    //double getDouble(std::vector<std::string> names, std::string failMessage = "");
+
+    //std::vector<int> getInts(const std::string& name);
+    //std::vector<int> getInts(const std::vector<std::string>& names);
+
+    //std::string getString(std::string name);
+    //std::list<std::string> getStrings(std::string name);
+
+    //std::string getString(std::vector<std::string> names, std::string failMessage = "");
+    //std::list<std::string> getStrings(std::vector<std::string> names, std::string failMessage = "");
 };
 

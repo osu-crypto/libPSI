@@ -51,7 +51,14 @@ void CLP::setDefault(std::string key, std::string value)
 {
     if (hasValue(key) == false)
     {
-        mKeyValues.emplace(std::make_pair(key, std::list<std::string>{ value }));
+        if (isSet(key))
+        {
+            mKeyValues[key].emplace_back(value);
+        }
+        else
+        {
+            mKeyValues.emplace(std::make_pair(key, std::list<std::string>{ value }));
+        }
     }
 
 }
@@ -61,7 +68,6 @@ void CLP::setDefault(std::vector<std::string> keys, std::string value)
     {
         setDefault(keys[0], value);
     }
-
 }
 
 bool CLP::isSet(std::string name)
@@ -96,100 +102,92 @@ bool CLP::hasValue(std::vector<std::string> names)
     return false;
 }
 
-int CLP::getInt(std::string name)
-{
-    std::stringstream ss;
-    ss << *mKeyValues[name].begin();
-
-    int ret;
-    ss >> ret;
-
-    return ret;
-}
-
-int CLP::getInt(std::vector<std::string> names, std::string failMessage)
-{
-    for (auto name : names)
-    {
-        if (hasValue(name))
-        {
-            return getInt(name);
-        }
-    }
-
-    if (failMessage != "")
-        std::cout << failMessage << std::endl;
-
-    throw CommandLineParserError();
-}
-
-double CLP::getDouble(std::string name)
-{
-    std::stringstream ss;
-    ss << *mKeyValues[name].begin();
-
-    double ret;
-    ss >> ret;
-
-    return ret;
-}
-
-double CLP::getDouble(std::vector<std::string> names, std::string failMessage)
-{
-    for (auto name : names)
-    {
-        if (hasValue(name))
-        {
-            return getDouble(name);
-        }
-    }
-
-    if (failMessage != "")
-        std::cout << failMessage << std::endl;
-
-    throw CommandLineParserError();
-}
-
-std::string CLP::getString(std::string name)
-{
-    return *mKeyValues[name].begin();
-}
-
-std::list<std::string> CLP::getStrings(std::string name)
-{
-    return mKeyValues[name];
-}
-
-std::list<std::string> CLP::getStrings(std::vector<std::string> names, std::string failMessage)
-{
-    for (auto name : names)
-    {
-        if (hasValue(name))
-        {
-            return getStrings(name);
-        }
-    }
-
-    if (failMessage != "")
-        std::cout << failMessage << std::endl;
-
-    throw CommandLineParserError();
-}
 
 
-std::string CLP::getString(std::vector<std::string> names, std::string failMessage)
-{
-    for (auto name : names)
-    {
-        if (hasValue(name))
-        {
-            return getString(name);
-        }
-    }
-
-    if (failMessage != "")
-        std::cout << failMessage << std::endl;
-
-    throw CommandLineParserError();
-}
-
+//
+//int CLP::getInt(std::vector<std::string> names, std::string failMessage)
+//{
+//    for (auto name : names)
+//    {
+//        if (hasValue(name))
+//        {
+//            return getInt(name);
+//        }
+//    }
+//
+//    if (failMessage != "")
+//        std::cout << failMessage << std::endl;
+//
+//    throw CommandLineParserError();
+//}
+//
+//double CLP::getDouble(std::string name)
+//{
+//    std::stringstream ss;
+//    ss << *mKeyValues[name].begin();
+//
+//    double ret;
+//    ss >> ret;
+//
+//    return ret;
+//}
+//
+//double CLP::getDouble(std::vector<std::string> names, std::string failMessage)
+//{
+//    for (auto name : names)
+//    {
+//        if (hasValue(name))
+//        {
+//            return getDouble(name);
+//        }
+//    }
+//
+//    if (failMessage != "")
+//        std::cout << failMessage << std::endl;
+//
+//    throw CommandLineParserError();
+//}
+//
+//std::string CLP::getString(std::string name)
+//{
+//    return *mKeyValues[name].begin();
+//}
+//
+//std::list<std::string> CLP::getStrings(std::string name)
+//{
+//    return mKeyValues[name];
+//}
+//
+//std::list<std::string> CLP::getStrings(std::vector<std::string> names, std::string failMessage)
+//{
+//    for (auto name : names)
+//    {
+//        if (hasValue(name))
+//        {
+//            return getStrings(name);
+//        }
+//    }
+//
+//    if (failMessage != "")
+//        std::cout << failMessage << std::endl;
+//
+//    throw CommandLineParserError();
+//}
+//
+//
+//std::string CLP::getString(std::vector<std::string> names, std::string failMessage)
+//{
+//    for (auto name : names)
+//    {
+//        if (hasValue(name))
+//        {
+//            return getString(name);
+//        }
+//    }
+//
+//    if (failMessage != "")
+//        std::cout << failMessage << std::endl;
+//
+//    throw CommandLineParserError();
+//}
+//

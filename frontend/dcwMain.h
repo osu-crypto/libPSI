@@ -4,13 +4,16 @@
 
 
 
+#include "util.h"
+
+
+#include <vector> 
+#include "cryptoTools/Common/Defines.h"
+
+void DcwSend(LaunchParams&);
+void DcwRecv(LaunchParams&);
 
 
 
-void DcwSend();
-void DcwRecv();
-
-
-
-void DcwRSend();
-void DcwRRecv();
+void DcwRSend(LaunchParams&);
+void DcwRRecv(LaunchParams&);

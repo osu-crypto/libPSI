@@ -17,6 +17,12 @@ namespace WeGarbleTests
             OtBinPsi_CuckooHasher_Test_Impl();
         }
 
+        TEST_METHOD(OtBinPsi_CuckooHasher_parallel_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_CuckooHasher_parallel_Test_Impl();
+        }
+
         TEST_METHOD(OtBinPsi_Kkrt_EmptrySet_Test)
         {
             InitDebugPrinting();
@@ -45,6 +51,12 @@ namespace WeGarbleTests
         {
             InitDebugPrinting();
             OtBinPsi_Oos_FullSet_Test_Impl();
+        }
+
+        TEST_METHOD(OtBinPsi_Oos_parallel_FullSet_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_Oos_parallel_FullSet_Test_Impl();
         }
 
         TEST_METHOD(OtBinPsi_Oos_SingltonSet_Test)

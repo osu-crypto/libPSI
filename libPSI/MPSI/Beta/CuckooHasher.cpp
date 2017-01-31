@@ -9,26 +9,27 @@ namespace osuCrypto
 {
 
     // parameters for k=2 hash functions, 2^n items, and statistical security 40
+    CuckooParam k2n28s40CuckooParam
+    { 2, 2.4, 2, 1 << 28 };
     CuckooParam k2n24s40CuckooParam
-    { 2, 2.4, 2, 21 };
+    { 2, 2.4, 2, 1 << 24 };
     CuckooParam k2n20s40CuckooParam
-    { 2, 2.4, 2, 20 };
+    { 2, 2.4, 2, 1 << 20 };
     CuckooParam k2n16s40CuckooParam
-    { 3, 2.4, 2, 19 };
+    { 3, 2.4, 2, 1 << 16 };
     CuckooParam k2n12s40CuckooParam
-    { 5, 2.4, 2, 18 };
+    { 5, 2.4, 2, 1 << 12 };
     CuckooParam k2n08s40CuckooParam
-    { 8, 2.4, 2, 17 };
+    { 8, 2.4, 2, 1 << 8 };
 
     // not sure if this needs a stash of 40, but should be safe enough.
     CuckooParam k2n07s40CuckooParam
-    { 40, 2.4, 2, 17 };
+    { 40, 2.4, 2, 1 << 7 };
 
 
     CuckooHasher::CuckooHasher()
         :mTotalTries(0)
-    {
-    }
+    { }
 
     CuckooHasher::~CuckooHasher()
     {
@@ -125,9 +126,13 @@ namespace osuCrypto
             mParams = k2n20s40CuckooParam;
         else if (n <= 1 << 24)
             mParams = k2n24s40CuckooParam;
+        else if (n <= 1 << 28)
+            mParams = k2n28s40CuckooParam;
         else
-            throw std::runtime_error("not implemented");
-
+        {
+            std::cout << "Failed to find cuckoo parameters large enough\n" LOCATION << std::endl;
+            throw std::runtime_error("not implemented " LOCATION);
+        }
 
 
         mHashes.resize(n * mParams.mNumHashes, u64(-1));
@@ -135,7 +140,7 @@ namespace osuCrypto
 
         mHashesView = MatrixView<u64>(mHashes.begin(), mHashes.end(), mParams.mNumHashes);
 
-        u64 binCount = mParams.mBinScaler * n;
+        u64 binCount = mParams.mBinScaler * mParams.mN;
 
         mBins.resize(binCount);
         mStash.resize(mParams.mStashSize);
@@ -173,8 +178,15 @@ namespace osuCrypto
         {
             for (u64 j = 0; j < mParams.mNumHashes; ++j)
             {
-                //mHashesView[inputIdxs[i]][j] = hashs[i][j];
+#ifndef  NDEBUG
+                if ((mHashesView.data() + inputIdxs[i] * width)[j] != -1)
+                {
+                    std::cout << IoStream::lock << "cuckoo index " << inputIdxs[i] << " already inserted" << std::endl << IoStream::unlock;
+                    throw std::runtime_error(LOCATION);
+                }
+#endif // ! NDEBUG
                 (mHashesView.data() + inputIdxs[i] * width)[j] = (hashs.data() + i * width)[j];
+
             }
             w.curHashIdxs[i] = 0;
         }
@@ -201,6 +213,11 @@ namespace osuCrypto
                 w.oldVals[i] = mBins[w.curAddrs[i]].mVal;
                 mBins[w.curAddrs[i]].mVal = newVal;
 #endif
+//#ifndef  NDEBUG
+                //if (newVal == w.oldVals[i])
+                //    throw std::runtime_error(LOCATION);
+//#endif // ! NDEBUG
+
             }
 
             // this loop will update the items that were just evicted. The main
@@ -247,6 +264,9 @@ namespace osuCrypto
         // put any that remain in the stash.
         for (u64 i = 0, j = 0; i < remaining; ++j)
         {
+            if (j >= mStash.size())
+                throw std::runtime_error(LOCATION);
+
             mStash[j].swap(inputIdxs[i], w.curHashIdxs[i]);
 
             if (inputIdxs[i] == u64(-1))

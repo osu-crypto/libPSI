@@ -7,7 +7,7 @@
 //#include <mutex>
 #include <atomic>
 
-//#define THREAD_SAFE_CUCKOO
+#define THREAD_SAFE_CUCKOO
 
 namespace osuCrypto
 {
@@ -15,7 +15,7 @@ namespace osuCrypto
     {
         u64 mStashSize;
         double mBinScaler;
-        u64 mNumHashes, mSenderBinSize;
+        u64 mNumHashes, mN;// , mSenderBinSize;
     };
 
 

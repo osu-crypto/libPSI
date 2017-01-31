@@ -1,7 +1,7 @@
 #pragma once
 
 
+#include "util.h"
 
-void bfSend();
-void bfRecv();
-void bf(int role);
+void bfSend(LaunchParams& params);
+void bfRecv(LaunchParams& params);

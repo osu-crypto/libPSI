@@ -89,7 +89,6 @@
     <ClCompile Include="dcwMain.cpp" />
     <ClCompile Include="dktMain.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="miraclTest.cpp" />
     <ClCompile Include="OtBinMain.cpp" />
     <ClCompile Include="UnitTests.cpp" />
     <ClCompile Include="util.cpp" />

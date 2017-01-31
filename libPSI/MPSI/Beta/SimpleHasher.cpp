@@ -48,9 +48,9 @@ namespace osuCrypto
 
     void SimpleHasher::init(u64 n, u64 numBits, block hashSeed, u64 secParam)
     {
+#ifdef OLD_SIMPLE_HASH_PARAM
         mHashSeed = hashSeed;
         mN = n;
-
         mInputBitSize = numBits;
 
         double best = (999999999999999.0);
@@ -103,6 +103,22 @@ namespace osuCrypto
         mMtx.reset(new std::mutex[mBinCount]);
         mBins.resize(mBinCount);
         mRepSize = mInputBitSize - (u32)std::log2(mBinCount);
+#else
+        mBinCount = n;
+        mN = n;
+        mMtx.reset(new std::mutex[mBinCount]);
+        mBins.resize(mBinCount);
+
+        double k = 1;
+        mMaxBinSize = 10;
+        while (k > std::pow(2, -double(secParam)))
+        {
+            ++mMaxBinSize;
+            // cite: Scalable Private Set Intersection Based on OT Extension - Pinkas, et. al
+            k = double(mBinCount) * std::pow(mN * 2.6 / mBinCount / mMaxBinSize, mMaxBinSize);
+        }
+        --mMaxBinSize;
+#endif
     }
 
     //void SimpleHasher::preHashedInsertItems(ArrayView<block> mySet, u64 itemIdx)

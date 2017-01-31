@@ -24,7 +24,7 @@ namespace osuCrypto
         typedef std::vector<u64> MtBin;
         //typedef std::vector<std::pair<u64, block>> MtBin;
 
-        u64 mBinCount , mMaxBinSize, mRepSize, mInputBitSize, mN;
+        u64 mBinCount , mMaxBinSize/*, mRepSize, mInputBitSize*/, mN;
 
         std::unique_ptr<std::mutex[]> mMtx;
         std::vector<MtBin> mBins;

@@ -12,6 +12,9 @@ using namespace osuCrypto;
 #include "dktMain.h"
 #include "OtBinMain.h"
 
+#include "util.h"
+
+#include "cryptoTools/Common/MatrixView.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include <numeric>
@@ -19,81 +22,250 @@ using namespace osuCrypto;
 //int miraclTestMain();
 
 #include "cuckoo/cuckooTests.h"
+#include "CLP.h"
 
-int main(int argc, char** argv)
+
+std::vector<std::string>
+unitTestTags{ "u", "unitTest" },
+DcwTags{ "dcw" },
+DcwrTags{ "dcwr" },
+rr16Tags{ "rr16" },
+rr17Tags{ "rr17" },
+dktTags{ "dkt" },
+helpTags{ "h", "help" },
+numThreads{ "t", "threads" },
+numItems{ "n","numItems" },
+powNumItems{ "nn","powNumItems" },
+verboseTags{ "v", "verbose" },
+trialsTags{ "trials" },
+roleTag{ "r", "role" },
+hostNameTag{ "ip" },
+pingTag{ "ping" };
+
+
+void run(
+    std::function<void(LaunchParams&)> recvProtol,
+    std::function<void(LaunchParams&)> sendProtol,
+    std::vector<std::string> tag,
+    CLP& cmd)
 {
 
-    //simpleTest(argc, argv);
-    //return 0;
+    LaunchParams params;
 
-    //LinearCode code;
-    //code.loadBinFile(libOTe_DIR "/libPSI/Tools/bch511.bin");
-    //std::vector<block> in(code.plaintextBlkSize()), out(code.codewordBlkSize());
+    params.mNumThreads = cmd.getMany<u64>(numThreads);
+    params.mVerbose = cmd.get<u64>(verboseTags);
+    params.mTrials = cmd.get<u64>(trialsTags);
+    params.mHostName = cmd.get<std::string>(hostNameTag);
 
-    //Timer t;
-    //t.setTimePoint("");
-    //for (u64 j = 0; j < 1000000; ++j)
-    //{
-    //    code.encode(in, out);
-    //}
-    //t.setTimePoint("done");
-    //std::cout << t << std::endl;
-
-    run_all();
-    return 0;
-    //Ecc2mNumber_Test();
-    //return 0;
-    //miraclTestMain();
-    //return 0;
-
-    //test2();
-    //return 0;
-    //kpPSI();
-    //return 0 ;
-    //sim(); 
-    //return 0;
-    if (argc == 2)
+    if (cmd.isSet(powNumItems))
     {
-        //DktSend();
-        //DcwSend();
-        //DcwRSend();
-        //test(0);
-        otBinSend();
-        //bfSend();
-    }
-    else if (argc == 3)
-    {
-        //DktRecv();
-        //DcwRecv();
-        //DcwRRecv();
-        //test(1);
-        otBinRecv();
-        //bfRecv();
+        params.mNumItems = cmd.getMany<u64>(powNumItems);
+        std::transform(
+            params.mNumItems.begin(),
+            params.mNumItems.end(),
+            params.mNumItems.begin(),
+            [](u64 v) { return 1 << v; });
     }
     else
     {
-        auto thrd = std::thread([]() {
-
-            //DktRecv();
-            otBinRecv();
-            //test(0);
-            //bfRecv();
-        });
-
-        //DktSend();
-        otBinSend();
-        //test(1);
-        //bfSend();
-
-        thrd.join();
-        //blogb();
-        //otBin();
-
-        //params();
-        //bf(3);
-        //KosTest();
-        //run_all();
+        params.mNumItems = cmd.getMany<u64>(numItems);
     }
 
+    if (cmd.isSet(tag))
+    {
+        BtIOService ios(0);
+
+        if (cmd.hasValue(roleTag))
+        {
+            BtEndpoint ep(ios, "localhost", 1213, cmd.get<u32>(roleTag), "none");
+            params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
+
+            for (u64 i = 0; i < params.mChls.size(); ++i)
+                params.mChls[i] = &ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+
+            if (cmd.get<bool>(roleTag))
+            {
+                recvProtol(params);
+            }
+            else
+            {
+                sendProtol(params);
+            }
+
+            for (u64 i = 0; i < params.mChls.size(); ++i)
+                params.mChls[i]->close();
+
+            ep.stop();
+        }
+        else
+        {
+            auto params2 = params;
+
+            auto thrd = std::thread([&]() 
+            {
+                BtEndpoint ep(ios, "localhost", 1213, 0, "none");
+                params2.mChls.resize(*std::max_element(params2.mNumThreads.begin(), params2.mNumThreads.end()));
+
+                for (u64 i = 0; i < params2.mChls.size(); ++i)
+                    params2.mChls[i] = &ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+
+                recvProtol(params2); 
+
+
+                for (u64 i = 0; i < params.mChls.size(); ++i)
+                    params2.mChls[i]->close();
+                ep.stop();
+
+            });
+            
+            BtEndpoint ep(ios, "localhost", 1213, 1, "none");
+            params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
+
+            for (u64 i = 0; i < params.mChls.size(); ++i)
+                params.mChls[i] = &ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+
+            sendProtol(params);
+            
+
+            for (u64 i = 0; i < params.mChls.size(); ++i)
+                params.mChls[i]->close();
+
+            thrd.join();
+
+            ep.stop();
+        }
+
+        ios.stop();
+    }
+}
+
+void pingTest(CLP& cmd)
+{
+
+    BtIOService ios(0);
+
+    if (cmd.hasValue(roleTag))
+    {
+        if (cmd.get<bool>(roleTag))
+        {
+            BtEndpoint sendEP(ios, cmd.get<std::string>(hostNameTag), true, "pringTest");
+            auto& chl = sendEP.addChannel("test");
+            senderGetLatency(chl);
+            chl.close();
+            sendEP.stop();
+        }
+        else
+        {
+            BtEndpoint recvEP(ios, cmd.get<std::string>(hostNameTag), false, "pringTest");
+            auto& chl = recvEP.addChannel("test");
+            recverGetLatency(chl);
+            chl.close();
+            recvEP.stop();
+        }
+    }
+    else
+    {
+        auto thrd = std::thread([&]()
+        {
+            BtEndpoint sendEP(ios, cmd.get<std::string>(hostNameTag), true, "pringTest");
+            auto& chl = sendEP.addChannel("test");
+            senderGetLatency(chl);
+            chl.close();
+            sendEP.stop();
+        });
+
+        BtEndpoint recvEP(ios, cmd.get<std::string>(hostNameTag), false, "pringTest");
+        auto& chl = recvEP.addChannel("test");
+        recverGetLatency(chl);
+        chl.close();
+        recvEP.stop();
+        thrd.join();
+    }
+
+    ios.stop();
+}
+
+
+int main(int argc, char** argv)
+{
+    CLP cmd;
+    cmd.parse(argc, argv);
+
+    //cmd.setDefault(rr17Tags, "");
+
+    cmd.setDefault(numThreads, "1");
+    cmd.setDefault(numItems, std::to_string(1 << 8));
+    //cmd.setDefault(verboseTags, "0");
+    cmd.setDefault(trialsTags, "1");
+    cmd.setDefault(hostNameTag, "127.0.0.1:1212");
+
+    cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
+
+    if (cmd.isSet(unitTestTags))
+        run_all();
+
+    if(cmd.isSet(pingTag))
+        pingTest(cmd);
+
+    run(DcwRecv, DcwSend, DcwTags, cmd);
+    run(DcwRRecv, DcwRSend, DcwrTags, cmd);
+    run(bfRecv, bfSend, rr16Tags, cmd);
+    run(otBinRecv, otBinSend, rr17Tags, cmd);
+    run(DktRecv, DktSend, dktTags, cmd);
+
+
+    if (cmd.isSet(unitTestTags) == false &&
+        cmd.isSet(DcwTags) == false &&
+        cmd.isSet(DcwrTags) == false &&
+        cmd.isSet(rr16Tags) == false &&
+        cmd.isSet(rr17Tags) == false &&
+        cmd.isSet(dktTags) == false ||
+        cmd.isSet(helpTags))
+    {
+        std::cout
+            << "#######################################################\n"
+            << "#                      - libPSI -                     #\n"
+            << "#               A library for performing              #\n"
+            << "#               private set intersection              #\n"
+            << "#                      Peter Rindal                   #\n"
+            << "#######################################################\n" << std::endl;
+
+        std::cout << "Protocols:\n"
+            << "   -" << DcwTags[0] << " : DCW13 - Garbled Bloom Filter (semi-honest*)\n"
+            << "   -" << DcwrTags[0] << ": PSZ14 - Random Garbled Bloom Filter (semi-honest*)\n"
+            << "   -" << rr16Tags[0] << ": RR16  - Random Garbled Bloom Filter (malicious secure)\n"
+            << "   -" << rr17Tags[0] << ": RR17  - Hash to bins & compare style (malicious secure)\n"
+            << "   -" << dktTags[0] << " : DKT12 - Public key style (malicious secure)\n" << std::endl;
+
+        std::cout << "Parameters:\n"
+            << "   -" << roleTag[0]
+            << ": Two terminal mode. Value should be in { 0, 1 } where 0 means PSI sender and network server.\n"
+
+            << "   -" << numItems[0]
+            << ": Number of items each party has, white space delimited. (Default = " << cmd.get<std::string>(numItems) << ")\n"
+
+            << "   -" << powNumItems[0]
+            << ": 2^n number of items each party has, white space delimited.\n"
+
+            << "   -" << numThreads[0]
+            << ": Number of theads each party has, white space delimited. (Default = " << cmd.get<std::string>(numThreads) << ")\n"
+
+            << "   -" << trialsTags[0]
+            << ": Number of trials performed. (Default = " << cmd.get<std::string>(trialsTags) << ")\n"
+
+            << "   -" << verboseTags[0]
+            << ": print extra information. (Default = " << cmd.get<std::string>(verboseTags) << ")\n"
+
+            << "   -" << hostNameTag[0]
+            << ": The server's address (Default = " << cmd.get<std::string>(hostNameTag) << ")\n"
+
+            << "   -" << pingTag[0]
+            << ": Perform a ping and bandwidth test (Default = " << cmd.isSet(pingTag) << ")\n" << std::endl;
+
+
+        std::cout << "Unit Tests:\n"
+            << "   -" << unitTestTags[0] << ": Run all unit tests\n" << std::endl;
+
+    }
     return 0;
 }

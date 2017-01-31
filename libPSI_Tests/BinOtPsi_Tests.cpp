@@ -76,7 +76,61 @@ void OtBinPsi_CuckooHasher_Test_Impl()
     }
 }
 
+void OtBinPsi_CuckooHasher_parallel_Test_Impl()
+{
+#ifdef THREAD_SAFE_CUCKOO
 
+    u64 numThreads = 4;
+    u64 step = 16;
+    u64 setSize = 1 << 16;
+    u64 h = 2;
+    CuckooHasher hashMap;
+
+    hashMap.init(setSize, 40, true);
+
+    MatrixView<u64> hashes(setSize, h);
+    PRNG prng(ZeroBlock);
+    prng.get(hashes.data(), setSize * h);
+    std::vector<std::thread> thrds(numThreads);
+
+    for (u64 t = 0; t < numThreads; ++t)
+    {
+
+        thrds[t] = std::thread([&, t]() 
+        {
+
+            CuckooHasher::Workspace ws(step);
+
+            u64 start = t * setSize / numThreads;
+            u64 end = (t + 1) * setSize / numThreads;
+
+            for (u64 i = start; i < end; i += step)
+            {
+                u64 ss = std::min(step, setSize - i);
+                std::vector<u64> idx(ss);
+
+                MatrixView<u64> range(hashes[i].data(), ss, h, false);
+
+                for (u64 j = 0; j < ss; ++j)
+                    idx[j] = j + i;
+
+                hashMap.insertBatch(idx, range, ws);
+            }
+        });
+    }
+
+    for (u64 t = 0; t < numThreads; ++t)
+        thrds[t].join();
+
+    for (u64 i = 0; i < setSize; ++i)
+    {
+        if (hashMap.find(hashes[i]) != i)
+            throw UnitTestFail();
+    }
+
+#endif
+
+}
 
 void OtBinPsi_Kkrt_EmptrySet_Test_Impl()
 {
@@ -150,6 +204,10 @@ void OtBinPsi_Kkrt_EmptrySet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
+
+
+    if (recv.mIntersection.size())
+        throw UnitTestFail();
 }
 
 
@@ -199,10 +257,6 @@ void OtBinPsi_Kkrt_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, bitSize, recvChls, otRecv1, otSend1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
-    if (recv.mIntersection.size() != setSize)
-        throw UnitTestFail();
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -214,6 +268,10 @@ void OtBinPsi_Kkrt_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
+
+
+    if (recv.mIntersection.size() != setSize)
+        throw UnitTestFail();
 
 }
 
@@ -259,19 +317,16 @@ void OtBinPsi_Kkrt_SingltonSet_Test_Impl()
 
     thrd.join();
 
-    if (recv.mIntersection.size() != 1 ||
-        recv.mIntersection[0] != 0)
-        throw UnitTestFail();
-
-
-    //std::cout << gTimer << std::endl;
-
     sendChl.close();
     recvChl.close();
 
     ep0.stop();
     ep1.stop();
     ios.stop();
+
+    if (recv.mIntersection.size() != 1 ||
+        recv.mIntersection[0] != 0)
+        throw UnitTestFail();
 }
 
 
@@ -351,6 +406,9 @@ void OtBinPsi_Oos_EmptrySet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
+
+    if (recv.mIntersection.size())
+        throw UnitTestFail();
 }
 
 
@@ -358,6 +416,83 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
     u64 setSize = 8, psiSecParam = 40, numThreads(1), bitSize = 128;
+    PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+
+
+    std::vector<block> sendSet(setSize), recvSet(setSize);
+    for (u64 i = 0; i < setSize; ++i)
+    {
+        sendSet[i] = recvSet[i] = prng.get<block>();
+    }
+
+    //std::shuffle(sendSet.begin(), sendSet.end(), prng);
+
+
+    std::string name("psi");
+
+    BtIOService ios(0);
+    BtEndpoint ep0(ios, "localhost", 1212, true, name);
+    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+
+
+    std::vector<Channel*> sendChls(numThreads), recvChls(numThreads);
+    for (u64 i = 0; i < numThreads; ++i)
+    {
+        sendChls[i] = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+    }
+
+    LinearCode code;
+    code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");
+
+    OosNcoOtReceiver otRecv0(code, 40), otRecv1(code, 40);
+    OosNcoOtSender otSend0(code, 40), otSend1(code, 40);
+
+    OtBinMPsiSender send;
+    OtBinMPsiReceiver recv;
+    std::thread thrd([&]() {
+
+        send.init(setSize, psiSecParam, bitSize, sendChls, otSend0, otRecv0, prng.get<block>());
+        send.sendInput(sendSet, sendChls);
+    });
+
+    recv.init(setSize, psiSecParam, bitSize, recvChls, otRecv1, otSend1, ZeroBlock);
+    recv.sendInput(recvSet, recvChls);
+
+
+    thrd.join();
+
+    for (u64 i = 0; i < numThreads; ++i)
+    {
+        sendChls[i]->close();
+        recvChls[i]->close();
+    }
+
+    ep0.stop();
+    ep1.stop();
+    ios.stop();
+
+
+    if (recv.mIntersection.size() != setSize)
+    {
+        for (u64 i = 0; i < setSize; ++i)
+        {
+            if (std::find(recv.mIntersection.begin(), recv.mIntersection.end(), i) == recv.mIntersection.end())
+            {
+                std::cout << i << "  ";
+            }
+
+        }
+        std::cout << std::endl;
+        throw UnitTestFail();
+    }
+
+}
+
+void OtBinPsi_Oos_parallel_FullSet_Test_Impl()
+{
+    setThreadName("CP_Test_Thread");
+    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
@@ -402,9 +537,6 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
     recv.sendInput(recvSet, recvChls);
 
 
-    if (recv.mIntersection.size() != setSize)
-        throw UnitTestFail();
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -417,8 +549,10 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
     ep1.stop();
     ios.stop();
 
-}
 
+    if (recv.mIntersection.size() != setSize)
+        throw UnitTestFail();
+}
 void OtBinPsi_Oos_SingltonSet_Test_Impl()
 {
     setThreadName("Sender");
@@ -464,10 +598,6 @@ void OtBinPsi_Oos_SingltonSet_Test_Impl()
 
     thrd.join();
 
-    if (recv.mIntersection.size() != 1 ||
-        recv.mIntersection[0] != 0)
-        throw UnitTestFail();
-
 
     //std::cout << gTimer << std::endl;
 
@@ -477,4 +607,9 @@ void OtBinPsi_Oos_SingltonSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
+
+    if (recv.mIntersection.size() != 1 ||
+        recv.mIntersection[0] != 0)
+        throw UnitTestFail();
+
 }

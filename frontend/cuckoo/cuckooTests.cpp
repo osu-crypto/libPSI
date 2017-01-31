@@ -74,28 +74,28 @@ void simpleTest_find_e(int argc, char** argv)
 
     // a parameter that shows the security level up to a stash size stashSize. Does not
     // effect performance.
-    u64 stashSize = cmd.getInt("ss");;
+    u64 stashSize = cmd.get<u64>("ss");;
 
     // the size of the hash table. n= N / e items will be inserted...
-    u64 N = cmd.getInt("n");
+    u64 N = cmd.get<u64>("n");
 
     // the expension factor. see N.
-    double e = cmd.getDouble("e");
+    double e = cmd.get<double>("e");
 
     // number of hash functions
-    u64 h = cmd.getInt("h");
+    u64 h = cmd.get<u64>("h");
 
     // the number of times we construct the cuckoo table.
-    u64 t = cmd.getInt("t");
+    u64 t = cmd.get<u64>("t");
 
     // the last expansion factor that is considered. If set, all e between e and eEnd in steps of step are tried.
-    double eEnd = cmd.isSet("eEnd") ? cmd.getDouble("eEnd") : e;
+    double eEnd = cmd.isSet("eEnd") ? cmd.get<double>("eEnd") : e;
 
     // the step size of e that should be tried.
-    double step = cmd.getDouble("s");
+    double step = cmd.get<double>("s");
 
     // the number of threads
-    u64 numThrds = cmd.getInt("x");
+    u64 numThrds = cmd.get<u64>("x");
 
     std::cout << "N=" << N << "  h=" << h << "  e=" << e << "  t=" << t << "  s=" << step << std::endl;
 
@@ -340,12 +340,12 @@ void simpleTest(int argc, char** argv)
     cmd.setDefault("x", "1");
     cmd.setDefault("s", "1.1");
 
-    u64 n = cmd.getInt("n");
-    u64 h = cmd.getInt("h");
-    double e = cmd.getDouble("e");
-    u64 t = cmd.getInt("t");
-    u64 numThrds = cmd.getInt("x");
-    double step = cmd.getDouble("s");
+    u64 n = cmd.get<u64>("n");
+    u64 h = cmd.get<u64>("h");
+    double e = cmd.get<double>("e");
+    u64 t = cmd.get<u64>("t");
+    u64 numThrds = cmd.get<u64>("x");
+    double step = cmd.get<double>("s");
 
     //std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
 
@@ -522,11 +522,11 @@ void simpleTest_var_h(int argc, char** argv)
     cmd.setDefault("t", "16");
     cmd.setDefault("x", "1");
 
-    u64 n = cmd.getInt("n");
-    //u64 h = cmd.getInt("h");
-    double e = cmd.getDouble("e");
-    u64 t = cmd.getInt("t");
-    u64 numThrds = cmd.getInt("x");
+    u64 n = cmd.get<u64>("n");
+    //u64 h = cmd.get<u64>("h");
+    double e = cmd.get<double>("e");
+    u64 t = cmd.get<u64>("t");
+    u64 numThrds = cmd.get<u64>("x");
 
     //std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
 

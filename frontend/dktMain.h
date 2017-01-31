@@ -3,9 +3,10 @@
 
 
 
+#include <vector> 
+#include "cryptoTools/Common/Defines.h"
 
 
 
-
-void DktSend();
-void DktRecv();
+void DktSend(LaunchParams& params);
+void DktRecv(LaunchParams& params);

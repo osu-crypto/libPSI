@@ -134,7 +134,7 @@ namespace osuCrypto
             // now set these ~800 OTs as the base of our N choose 1 OTs.
             otRecv.setBaseOts(kcoRecvBase);
         }
-        
+
 
         gTimer.setTimePoint("Init.recv.ExtStart");
 
@@ -161,8 +161,6 @@ namespace osuCrypto
         // compute how amny threads we want to do for each direction.
         // the current thread will do one of the OT receives so -1 for that.
         u64 numThreads = chls.size() - 1;
-        u64 numRecvThreads = numThreads / 2;
-        u64 numSendThreads = numThreads - numRecvThreads;
 
         // where we will store the threads that are doing the extension
         std::vector<std::thread> thrds(numThreads);
@@ -172,49 +170,31 @@ namespace osuCrypto
         auto chlIter = chls.begin() + 1;
 
         mOtRecvs.resize(chls.size());
+        mOtSends.resize(chls.size());
 
         // now make the threads that will to the extension
-        for (u64 i = 0; i < numRecvThreads; ++i)
+        for (u64 i = 0; i < numThreads; ++i)
         {
-            mOtRecvs[i + 1] = std::move(otRecv.split());
+            mOtRecvs[i] = std::move(otRecv.split());
+            mOtSends[i] = std::move(otSend.split());
 
             // spawn the thread and call the routine.
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                recvOtRoutine(i + 1, numRecvThreads + 1,*mOtRecvs[i+1],**chlIter);
+                recvOtRoutine(i, chls.size(), *mOtRecvs[i], **chlIter);
+                sendOtRoutine(i, chls.size(), *mOtSends[i], **chlIter);
             });
 
             ++chlIter;
         }
 
-        mOtSends.resize(chls.size());
-        // do the same thing but for the send OT extensions
-        for (u64 i = 0; i < numSendThreads; ++i)
-        {
-
-            mOtSends[i] = std::move(otSend.split());
-
-            *thrdIter++ = std::thread([&, i, chlIter]()
-            {
-                sendOtRoutine(i, numSendThreads, *mOtSends[i], **chlIter);
-            });
-
-            ++chlIter;
-        }
-
-        mOtRecvs[0] = std::move(otRecv.split());
 
         // now use this thread to do a recv routine.
-        recvOtRoutine(0, numRecvThreads + 1, *mOtRecvs[0],  chl0);
+        mOtRecvs.back() = std::move(otRecv.split());
+        mOtSends.back() = std::move(otSend.split());
+        recvOtRoutine(chls.size() - 1, chls.size(), *mOtRecvs.back(), chl0);
+        sendOtRoutine(chls.size() - 1, chls.size(), *mOtSends.back(), chl0);
 
-        // if the caller doesnt want to do things in parallel
-        // the we will need to do the send OT Ext now...
-        if (numSendThreads == 0)
-        {
-            mOtSends[0] = std::move(otSend.split());
-
-            sendOtRoutine(0, 1, *mOtSends[0], chl0);
-        }
 
         // join any threads that we created.
         for (auto& thrd : thrds)
@@ -240,9 +220,9 @@ namespace osuCrypto
             throw std::runtime_error(LOCATION);
 
 
-        
+
         std::vector<block> recvMasks(mN);
-        u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN) - 1, 8) / 8;
+        u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1, 8) / 8;
 
         if (maskSize > sizeof(block))
             throw std::runtime_error("masked are stored in blocks, so they can exceed that size");
@@ -277,9 +257,11 @@ namespace osuCrypto
 
         std::vector<std::vector<block>> ncoInputBuff(mNcoInputBlkSize);
 
+
         for (u64 hashIdx = 0; hashIdx < ncoInputBuff.size(); ++hashIdx)
             ncoInputBuff[hashIdx].resize(inputs.size());
 
+        //std::cout << ncoInputBuff.data() << "  " << ncoInputBuff[0].data() << std::endl;
 
         // fr each thread, spawn it.
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
@@ -308,7 +290,7 @@ namespace osuCrypto
 
                 for (u64 i = startIdx; i < endIdx; i += 128)
                 {
-                    auto currentStepSize = std::min(u64(128), inputs.size() - i);
+                    auto currentStepSize = std::min(u64(128), endIdx - i);
 
                     for (u64 hashIdx = 0; hashIdx < ncoInputHasher.size(); ++hashIdx)
                     {
@@ -349,7 +331,7 @@ namespace osuCrypto
                 // get the region of the base OTs that this thread should do.
                 auto binStart = tIdx       * mBins.mBinCount / thrds.size();
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
-                
+
                 PRNG prng(seed);
 
 
@@ -394,7 +376,7 @@ namespace osuCrypto
 
                         for (u64 i = bin.size(); i < mBins.mMaxBinSize; ++i)
                         {
-                            otRecv.zeroEncode(otIdx + perm[i]);      
+                            otRecv.zeroEncode(otIdx + perm[i]);
                         }
 
 
@@ -410,12 +392,13 @@ namespace osuCrypto
                 if (tIdx == 0) gTimer.setTimePoint("online.recv.recvMask");
 
                 otIdx = 0;
+                //std::cout << IoStream::lock;
 
                 std::vector<block> tempMaskBuff(32);
                 std::vector<u64> tempIdxBuff(tempMaskBuff.size());
                 CuckooHasher::Workspace w(tempMaskBuff.size());
                 u64 tempMaskIdx = 0;
-
+                //std::cout << IoStream::lock << "bidx[" << tIdx << "] = " << binStart << " ~ " << binEnd << "  (" << mBins.mBinCount << ")" << std::endl << IoStream::unlock;
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
 
@@ -434,16 +417,20 @@ namespace osuCrypto
                         {
 
                             u64 inputIdx = bin[i];
+                            //if (inputIdx > ncoInputBuff[0].size())
+                            //    throw std::runtime_error(LOCATION);
+
+                            //std::cout << IoStream::lock << bIdx <<" "<< inputIdx << std::endl << IoStream::unlock;
 
                             u64 innerOtIdx = otIdx;
+                            for (u64 j = 0; j < ncoInput.size(); ++j)
+                            {
+                                ncoInput[j] = ncoInputBuff[j][inputIdx];
+                            }
+
 
                             for (u64 l = 0; l < mBins.mMaxBinSize; ++l)
                             {
-                                for (u64 j = 0; j < ncoInput.size(); ++j)
-                                {
-                                    ncoInput[j] = ncoInputBuff[j][inputIdx];
-                                }
-
                                 block sendMask;
 
                                 otSend.encode(
@@ -451,10 +438,19 @@ namespace osuCrypto
                                     ncoInput,
                                     sendMask);
 
+                                //if (inputIdx ==2 )
+                                //{
+                                //    std::cout 
+                                //        << "r " << inputIdx << " " << inputs[inputIdx] << " " << l << ": "
+                                //        << (sendMask ^ recvMasks[inputIdx]) << " = " 
+                                //        << sendMask << " ^ " << recvMasks[inputIdx] << std::endl;
+                                //}
+
                                 sendMask = sendMask ^ recvMasks[inputIdx];
 
 
                                 tempIdxBuff[tempMaskIdx] = inputIdx * mBins.mMaxBinSize + l;
+
 
                                 tempMaskBuff[tempMaskIdx] = ZeroBlock;
                                 memcpy(&tempMaskBuff[tempMaskIdx], &sendMask, maskSize);
@@ -466,6 +462,7 @@ namespace osuCrypto
                                     // use aes as a hash function. A weak invertable one. but security doesnt matter here.
                                     mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
                                     MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2, false);
+
                                     maskMap.insertBatch(tempIdxBuff, hashes, w);
 
                                     tempMaskIdx = 0;
@@ -480,6 +477,7 @@ namespace osuCrypto
                     }
 
                 }
+                //std::cout << IoStream::unlock;
 
 
                 otSend.check(chl, prng.get<block>());
@@ -534,6 +532,9 @@ namespace osuCrypto
                         auto mask = maskView[i];
                         tempMaskBuff[j] = ZeroBlock;
                         memcpy(&tempMaskBuff[j], mask.data(), maskSize);
+
+
+                        //std::cout << tempMaskBuff[j] << "    " << (i) << std::endl;
                     }
 
                     mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), curStepSize, tempMaskBuff.data());
@@ -557,8 +558,8 @@ namespace osuCrypto
                     if (mIntersection.size())
                     {
                         mIntersection.insert(
-                            mIntersection.end(), 
-                            localIntersection.begin(), 
+                            mIntersection.end(),
+                            localIntersection.begin(),
                             localIntersection.end());
                     }
                     else
@@ -577,6 +578,8 @@ namespace osuCrypto
         // join the threads.
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
             thrds[tIdx].join();
+
+        //std::cout << IoStream::lock << "exit" << std::endl << IoStream::unlock;
 
         gTimer.setTimePoint("online.recv.exit");
 

@@ -127,12 +127,9 @@ namespace osuCrypto
 
         mOtSends.resize(chls.size());
         mOtRecvs.resize(chls.size());
-        for (u64 i = 0; i < chls.size(); ++i)
-        {
-        }
 
 
-        auto sendRoutine = [&](u64 tIdx, u64 total, NcoOtExtSender& ots, Channel& chl)
+        auto sendOtRoutine = [&](u64 tIdx, u64 total, NcoOtExtSender& ots, Channel& chl)
         {
             auto start = (  tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
             auto end =   ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
@@ -140,7 +137,7 @@ namespace osuCrypto
             ots.init(end - start);
         };
 
-        auto recvOtRountine = [&](u64 tIdx, u64 total, NcoOtExtReceiver& ots, Channel& chl)
+        auto recvOtRoutine = [&](u64 tIdx, u64 total, NcoOtExtReceiver& ots, Channel& chl)
         {
             auto start = (tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
             auto end = ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
@@ -149,8 +146,6 @@ namespace osuCrypto
         };
 
         u64 numThreads = chls.size() - 1;
-        u64 numSendThreads = numThreads / 2;
-        u64 numRecvThreads = numThreads - numSendThreads;
 
 
         std::vector<std::thread> thrds(numThreads);
@@ -158,39 +153,24 @@ namespace osuCrypto
         auto chlIter = chls.begin() + 1;
 
 
-        for (u64 i = 0; i < numSendThreads; ++i)
+        for (u64 i = 0; i < numThreads; ++i)
         {
             mOtSends[i] = std::move(otSend.split());
-
-            *thrdIter++ = std::thread([&, i, chlIter]()
-            {
-                //std::cout << IoStream::lock << "s sendOt " << l << "  " << (**chlIter).getName() << std::endl << IoStream::unlock;
-                sendRoutine(i + 1, numSendThreads + 1, *mOtSends[i], **chlIter);
-            });
-            ++chlIter;
-        }
-
-        for (u64 i = 0; i < numRecvThreads; ++i)
-        {
             mOtRecvs[i] = std::move(otRecv.split());
 
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                //std::cout << IoStream::lock << "s recvOt " << l << "  " << (**chlIter).getName() << std::endl << IoStream::unlock;
-                recvOtRountine(i, numRecvThreads, *mOtRecvs[i], **chlIter);
+                sendOtRoutine(i, chls.size(), *mOtSends[i], **chlIter);
+                recvOtRoutine(i, chls.size(), *mOtRecvs[i], **chlIter);
             });
             ++chlIter;
         }
 
-        mOtSends[0] = std::move(otSend.split());
-        sendRoutine(0, numSendThreads + 1, *mOtSends[0], chl0);
+        mOtSends.back() = std::move(otSend.split());
+        mOtRecvs.back() = std::move(otRecv.split());
 
-        if (numRecvThreads == 0)
-        {
-            mOtRecvs[0] = std::move(otRecv.split());
-
-            recvOtRountine(0, 1, *mOtRecvs[0], chl0);
-        }
+        sendOtRoutine(chls.size() - 1, chls.size(), *mOtSends.back(), chl0);
+        recvOtRoutine(chls.size() - 1, chls.size(), *mOtRecvs.back(), chl0);
 
 
         for (auto& thrd : thrds)
@@ -213,7 +193,7 @@ namespace osuCrypto
 
 
 
-        u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN) - 1, 8) / 8;
+        u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1, 8) / 8;
 
         if (maskSize > sizeof(block))
             throw std::runtime_error("masked are stored in blocks, so they can exceed that size");
@@ -249,7 +229,7 @@ namespace osuCrypto
             for (u64 i = 0; i < maskPerm.size(); ++i)
                 maskPerm[i] = i;
 
-            std::shuffle(maskPerm.begin(), maskPerm.end(), prng);
+            std::random_shuffle(maskPerm.begin(), maskPerm.end(), prng);
             //u64 l, u32Max = (u32(-1));
             //for (l = maskPerm.size(); l > u32Max; --l)
             //{
@@ -271,7 +251,7 @@ namespace osuCrypto
             permProm.set_value();
         });
 
-
+        std::atomic<u64> maskIdx(0);
         uPtr<Buff> sendMaskBuff(new Buff);
         sendMaskBuff->resize(maskPerm.size() * mBins.mMaxBinSize * maskSize);
         auto maskView = sendMaskBuff->getMatrixView<u8>(maskSize);
@@ -353,16 +333,13 @@ namespace osuCrypto
                 auto binStart = tIdx       * mBins.mBinCount / thrds.size();
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
 
-                auto otStart = binStart * mBins.mMaxBinSize;
-
-
-
                 std::vector<u16> permutation(mBins.mMaxBinSize);
                 for (size_t i = 0; i < permutation.size(); i++)
                     permutation[i] = (u16)i;
 
                 u64 otIdx = 0;
-                u64 maskIdx = otStart;
+                //u64 maskIdx = binStart;
+
                 std::vector<block> ncoInput(mNcoInputBlkSize);
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
@@ -416,6 +393,7 @@ namespace osuCrypto
                 permDone.get();
                 if (tIdx == 0) gTimer.setTimePoint("online.send.permPromDone");
 
+                //std::cout << IoStream::lock;
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
@@ -433,7 +411,7 @@ namespace osuCrypto
                         {
 
                             u64 inputIdx = bin[i];
-                            u64 baseMaskIdx = maskPerm[maskIdx] * mBins.mMaxBinSize;
+                            u64 baseMaskIdx = maskPerm[maskIdx++] * mBins.mMaxBinSize;
 
                             u64 innerOtIdx = otIdx;
 
@@ -452,6 +430,14 @@ namespace osuCrypto
                                     ncoInput,
                                     sendMask);
 
+                                //if (inputIdx == 2)
+                                //{
+                                //    std::cout 
+                                //        << "s "<<inputIdx<<" " << inputs[inputIdx] << " " << l << ": "
+                                //        << (sendMask ^ recvMasks[inputIdx]) << " = "
+                                //        << sendMask << " ^ " << recvMasks[inputIdx] << "     " << (baseMaskIdx + l) << std::endl ;
+                                //}
+
                                 sendMask = sendMask ^ recvMasks[inputIdx];
 
                                 // truncate the block size mask down to "maskSize" bytes
@@ -460,20 +446,28 @@ namespace osuCrypto
                                     maskView[baseMaskIdx + l].data(),
                                     (u8*)&sendMask,
                                     maskSize);
+                                //if (inputIdx == 2)
+                                //{
 
+                                //    std::cout << IoStream::lock
+                                //        << "s 2 " << inputs[inputIdx] << " " << l << ": "
+                                //        << (sendMask ^ recvMasks[inputIdx]) << " = "
+                                //        << sendMask << " ^ " << recvMasks[inputIdx] << std::endl << IoStream::unlock;
+                                //}
 
                                 ++innerOtIdx;
                             }
 
-                            ++maskIdx;
                         }
 
+                        //++maskIdx;
                         otIdx += mBins.mMaxBinSize;
                     }
 
                 }
                 if (tIdx == 0) gTimer.setTimePoint("online.send.sendMask");
 
+                //std::cout << IoStream::unlock;
 
                 otRecv.check(chl, prng.get<block>());
                 otSend.check(chl, prng.get<block>());
