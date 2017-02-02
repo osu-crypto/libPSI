@@ -251,7 +251,7 @@ namespace osuCrypto
             permProm.set_value();
         });
 
-        std::atomic<u64> maskIdx(0);
+        std::atomic<u64> maskIdx(0);// , inserts(0);
         uPtr<Buff> sendMaskBuff(new Buff);
         sendMaskBuff->resize(maskPerm.size() * mBins.mMaxBinSize * maskSize);
         auto maskView = sendMaskBuff->getMatrixView<u8>(maskSize);
@@ -287,7 +287,7 @@ namespace osuCrypto
 
                 for (u64 i = startIdx; i < endIdx; i += 128)
                 {
-                    auto currentStepSize = std::min(u64(128), inputs.size() - i);
+                    auto currentStepSize = std::min(u64(128), endIdx - i);
 
                     for (u64 hashIdx = 0; hashIdx < ncoInputHasher.size(); ++hashIdx)
                     {
@@ -311,6 +311,7 @@ namespace osuCrypto
                             ncoInputBuff[0][i + j] = _mm_srli_si128(item, 3);
                         else// if (phaseShift <= 2)
                             ncoInputBuff[0][i + j] = _mm_srli_si128(item, 2);
+
 
                         std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
                         mBins.mBins[addr].emplace_back(i + j);
@@ -411,7 +412,19 @@ namespace osuCrypto
                         {
 
                             u64 inputIdx = bin[i];
-                            u64 baseMaskIdx = maskPerm[maskIdx++] * mBins.mMaxBinSize;
+                            auto mm = maskIdx.fetch_add(1, std::memory_order::memory_order_relaxed);
+
+                            if (mm >= maskPerm.size())
+                            {
+                                u64 c(0);
+                                for (u64 bb = 0; bb < mBins.mBins.size(); ++bb)
+                                {
+                                    c += mBins.mBins[bb].size();
+                                }
+                                std::cout <<IoStream::lock << c << "  " << std::endl << IoStream::unlock;
+                            }
+
+                            u64 baseMaskIdx = maskPerm[mm] * mBins.mMaxBinSize;
 
                             u64 innerOtIdx = otIdx;
 

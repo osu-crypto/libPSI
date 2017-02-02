@@ -12,6 +12,7 @@
 #include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include <fstream>
+#include "dktMain.h"
 
 using namespace osuCrypto;
 
@@ -49,7 +50,7 @@ void DktSend(LaunchParams& params)
                     dataSent += sendChls[g]->getTotalDataSent();
                 }
 
-                std::cout << setSize << "    " << dataSent / std::pow(2, 20) << " byte  " << std::endl;
+                //std::cout << setSize << "    " << dataSent / std::pow(2, 20) << " byte  " << std::endl;
                 for (u64 g = 0; g < sendChls.size(); ++g)
                     sendChls[g]->resetStats();
             }
@@ -93,41 +94,8 @@ void DktRecv(LaunchParams& params)
                 auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
 
-                u64 dataSent = 0;
-                for (u64 g = 0; g < chls.size(); ++g)
-                {
-                    dataSent += chls[g]->getTotalDataSent();
-                    chls[g]->resetStats();
-                }
-
-                double time = offlineTime + onlineTime;
-                time /= 1000;
-                auto Mbps = dataSent * 8 / time / (1 << 20);
-
                 std::string tag("DKT11");
-                if (params.mVerbose)
-                {
-                    std::cout << tag << " n = " << setSize << "  threads = " << numThreads << "\n"
-                        << "      Total Time = " << time << " ms\n"
-                        << "         Offline = " << offlineTime << " ms\n"
-                        << "          Online = " << onlineTime << " ms\n"
-                        << "      Total Comm = " << (dataSent / std::pow(2.0, 20)) << " MB\n"
-                        << "       Bandwidth = " << Mbps << " Mbps\n" << std::endl;
-
-
-                    if (params.mVerbose > 1)
-                        std::cout << gTimer << std::endl;
-                }
-                else
-                {
-                    std::cout << tag
-                        << "   n=" << std::setw(6) << setSize
-                        << "   t=" << std::setw(3) << numThreads
-                        << "   offline=" << std::setw(6) << offlineTime << " ms"
-                        << "   online=" << std::setw(6) << onlineTime << "       "
-                        << "    Comm=" << std::setw(6) << (dataSent / std::pow(2.0, 20)) << " MB ("
-                        << std::setw(6) << Mbps << " Mbps)" << std::endl;
-                }
+                printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
 
             }
         }

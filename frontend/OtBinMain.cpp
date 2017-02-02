@@ -93,12 +93,13 @@ void otBinRecv(
 
     for (auto setSize : params.mNumItems)
     {
-        for (auto cc : params.mNumThreads)
+        for (auto numThreads : params.mNumThreads)
         {
-            auto chls = params.getChannels(cc);
+            auto chls = params.getChannels(numThreads);
 
             for (u64 jj = 0; jj < params.mTrials; jj++)
             {
+                std::string tag("RR17");
 
                 std::vector<block> sendSet(setSize), recvSet(setSize);
                 for (u64 i = 0; i < setSize; ++i)
@@ -144,42 +145,7 @@ void otBinRecv(
 
                 //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
 
-                u64 dataSent = 0;
-                for (u64 g = 0; g < chls.size(); ++g)
-                {
-                    dataSent += chls[g]->getTotalDataSent();
-                    chls[g]->resetStats();
-                }
-
-
-                double time = offlineTime + onlineTime;
-                time /= 1000;
-                auto Mbps = dataSent * 8 / time / (1 << 20);
-
-                std::string tag("RR17");
-                if (params.mVerbose)
-                {
-                    std::cout << tag << " n = " << setSize << "  threads = " << cc << "\n"
-                        << "      Total Time = " << time << " ms\n"
-                        << "         Offline = " << offlineTime << " ms\n"
-                        << "          Online = " << onlineTime << " ms\n"
-                        << "      Total Comm = " << (dataSent / std::pow(2.0, 20)) << " MB\n"
-                        << "       Bandwidth = " << Mbps << " Mbps\n" << std::endl;
-
-
-                    if (params.mVerbose > 1)
-                        std::cout << gTimer << std::endl;
-                }
-                else
-                {
-                    std::cout << tag
-                        << "   n="<<std::setw(6) << setSize 
-                        << "   t=" << std::setw(3) << cc 
-                        << "   offline=" << std::setw(6) << offlineTime << " ms"
-                        << "   online=" << std::setw(6) << onlineTime << "       "
-                        <<"    Comm=" << std::setw(6) << (dataSent / std::pow(2.0, 20)) << " MB ("
-                        << std::setw(6) << Mbps << " Mbps)" << std::endl;
-                }
+                printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
             }
         }
     }

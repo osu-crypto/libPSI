@@ -13,6 +13,7 @@ using namespace osuCrypto;
 #include "OtBinMain.h"
 
 #include "util.h"
+#include "signalHandle.h"
 
 #include "cryptoTools/Common/MatrixView.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
@@ -185,9 +186,16 @@ void pingTest(CLP& cmd)
     ios.stop();
 }
 
+#include "../GSL/gsl/gsl"
 
 int main(int argc, char** argv)
 {
+    backtraceHook();
+
+
+    gsl::span<int> gg;
+    //gg.
+
     CLP cmd;
     cmd.parse(argc, argv);
 
@@ -206,6 +214,10 @@ int main(int argc, char** argv)
 
     if(cmd.isSet(pingTag))
         pingTest(cmd);
+
+
+    if (cmd.isSet(DcwTags) || cmd.isSet(DcwrTags) || cmd.isSet(rr16Tags) || cmd.isSet(rr17Tags) || cmd.isSet(dktTags))
+        printHeader();
 
     run(DcwRecv, DcwSend, DcwTags, cmd);
     run(DcwRRecv, DcwRSend, DcwrTags, cmd);

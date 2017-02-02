@@ -21,11 +21,11 @@
 #include "cryptoTools/Crypto/PRNG.h"
 #include <fstream>
 #include <algorithm>
-
+#include "boost/format.hpp"
 extern u8 dummy[];
 
 using namespace osuCrypto;
-
+//using namespace std; //Don't if you're in a header-file
 void DcwSend(
     LaunchParams& params)
 {
@@ -69,15 +69,15 @@ void DcwRecv(
 
     for (auto setSize : params.mNumItems)
     {
-        for (auto tt : params.mNumThreads)
+        for (auto numThreads : params.mNumThreads)
         {
-            if (tt != 1)
+            if (numThreads != 1)
             {
-                std::cout << "dcw n = " << setSize << " t = " << tt << " skipped, t > 1 (multi-thread) not implemented." << std::endl;
+                std::cout << "dcw n = " << setSize << " t = " << numThreads << " skipped, t > 1 (multi-thread) not implemented." << std::endl;
                 continue;
             }
 
-            auto chls = params.getChannels(tt);
+            auto chls = params.getChannels(numThreads);
 
             for (u64 jj = 0; jj < params.mTrials; jj++)
             {
@@ -106,44 +106,10 @@ void DcwRecv(
                 auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
                 auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-                u64 dataSent = 0;
-                for (u64 g = 0; g < chls.size(); ++g)
-                {
-                    dataSent += chls[g]->getTotalDataSent();
-                    chls[g]->resetStats();
-                }
 
+                std::string tag("DCW");
 
-
-                double time = offlineTime + onlineTime;
-                time /= 1000;
-                auto Mbps = dataSent * 8 / time / (1 << 20);
-
-                std::string tag("RR16");
-                if (params.mVerbose)
-                {
-                    std::cout << tag << " n = " << setSize << "  threads = " << tt << "\n"
-                        << "      Total Time = " << time << " ms\n"
-                        << "         Offline = " << offlineTime << " ms\n"
-                        << "          Online = " << onlineTime << " ms\n"
-                        << "      Total Comm = " << (dataSent / std::pow(2.0, 20)) << " MB\n"
-                        << "       Bandwidth = " << Mbps << " Mbps\n" << std::endl;
-
-
-                    if (params.mVerbose > 1)
-                        std::cout << gTimer << std::endl;
-                }
-                else
-                {
-                    std::cout << tag
-                        << "   n=" << std::setw(6) << setSize
-                        << "   t=" << std::setw(3) << tt
-                        << "   offline=" << std::setw(6) << offlineTime << " ms"
-                        << "   online=" << std::setw(6) << onlineTime << "       "
-                        << "    Comm=" << std::setw(6) << (dataSent / std::pow(2.0, 20)) << " MB ("
-                        << std::setw(6) << Mbps << " Mbps)" << std::endl;
-                }
-                //std::cout << setSize << "  " << offlineTime << "  " << online << std::endl;
+                printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
             }
         }
     }
@@ -198,15 +164,15 @@ void DcwRRecv(
 
     for (auto setSize : params.mNumItems)
     {
-        for (u64 tt : params.mNumThreads)
+        for (u64 numThreads : params.mNumThreads)
         {
-            if (tt != 1)
+            if (numThreads != 1)
             {
-                std::cout << "dcwr n = " << setSize << " t = " << tt << " skipped, t > 1 (multi-thread) not implemented." << std::endl;
+                std::cout << "dcwr n = " << setSize << " t = " << numThreads << " skipped, t > 1 (multi-thread) not implemented." << std::endl;
                 continue;
             }
 
-            auto chls = params.getChannels(tt);
+            auto chls = params.getChannels(numThreads);
 
             for (u64 jj = 0; jj < params.mTrials; jj++)
             {
@@ -240,43 +206,9 @@ void DcwRRecv(
                 
                 //std::cout << setSize << "  " << offlineTime << "  " << online << std::endl;
 
-                u64 dataSent = 0;
-                for (u64 g = 0; g < chls.size(); ++g)
-                {
-                    dataSent += chls[g]->getTotalDataSent();
-                    chls[g]->resetStats();
-                }
+                std::string tag("DCWR");
 
-
-
-                double time = offlineTime + onlineTime;
-                time /= 1000;
-                auto Mbps = dataSent * 8 / time / (1 << 20);
-
-                std::string tag("RR16");
-                if (params.mVerbose)
-                {
-                    std::cout << tag << " n = " << setSize << "  threads = " << tt << "\n"
-                        << "      Total Time = " << time << " ms\n"
-                        << "         Offline = " << offlineTime << " ms\n"
-                        << "          Online = " << onlineTime << " ms\n"
-                        << "      Total Comm = " << (dataSent / std::pow(2.0, 20)) << " MB\n"
-                        << "       Bandwidth = " << Mbps << " Mbps\n" << std::endl;
-
-
-                    if (params.mVerbose > 1)
-                        std::cout << gTimer << std::endl;
-                }
-                else
-                {
-                    std::cout << tag
-                        << "   n=" << std::setw(6) << setSize
-                        << "   t=" << std::setw(3) << tt
-                        << "   offline=" << std::setw(6) << offlineTime << " ms"
-                        << "   online=" << std::setw(6) << onlineTime << "       "
-                        << "    Comm=" << std::setw(6) << (dataSent / std::pow(2.0, 20)) << " MB ("
-                        << std::setw(6) << Mbps << " Mbps)" << std::endl;
-                }
+                printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
 
             }
         }
