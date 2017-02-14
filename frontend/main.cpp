@@ -32,6 +32,7 @@ DcwTags{ "dcw" },
 DcwrTags{ "dcwr" },
 rr16Tags{ "rr16" },
 rr17Tags{ "rr17" },
+rr17bTags{ "rr17b" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -41,8 +42,10 @@ verboseTags{ "v", "verbose" },
 trialsTags{ "trials" },
 roleTag{ "r", "role" },
 hostNameTag{ "ip" },
-pingTag{ "ping" };
+pingTag{ "ping" },
+bitSizeTag{"b","bitSize"};
 
+bool firstRun(true);
 
 void run(
     std::function<void(LaunchParams&)> recvProtol,
@@ -57,6 +60,8 @@ void run(
     params.mVerbose = cmd.get<u64>(verboseTags);
     params.mTrials = cmd.get<u64>(trialsTags);
     params.mHostName = cmd.get<std::string>(hostNameTag);
+    params.mBitSize = cmd.get<u64>(bitSizeTag);
+
 
     if (cmd.isSet(powNumItems))
     {
@@ -76,6 +81,7 @@ void run(
     {
         BtIOService ios(0);
 
+
         if (cmd.hasValue(roleTag))
         {
             BtEndpoint ep(ios, "localhost", 1213, cmd.get<u32>(roleTag), "none");
@@ -86,6 +92,8 @@ void run(
 
             if (cmd.get<bool>(roleTag))
             {
+                if(firstRun) printHeader();
+
                 recvProtol(params);
             }
             else
@@ -101,6 +109,7 @@ void run(
         else
         {
             auto params2 = params;
+            if (firstRun) printHeader();
 
             auto thrd = std::thread([&]() 
             {
@@ -136,6 +145,7 @@ void run(
             ep.stop();
         }
 
+        firstRun = false;
         ios.stop();
     }
 }
@@ -186,15 +196,10 @@ void pingTest(CLP& cmd)
     ios.stop();
 }
 
-#include "../GSL/gsl/gsl"
-
 int main(int argc, char** argv)
 {
     backtraceHook();
 
-
-    gsl::span<int> gg;
-    //gg.
 
     CLP cmd;
     cmd.parse(argc, argv);
@@ -205,6 +210,7 @@ int main(int argc, char** argv)
     cmd.setDefault(numItems, std::to_string(1 << 8));
     //cmd.setDefault(verboseTags, "0");
     cmd.setDefault(trialsTags, "1");
+    cmd.setDefault(bitSizeTag, "-1");
     cmd.setDefault(hostNameTag, "127.0.0.1:1212");
 
     cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
@@ -216,13 +222,16 @@ int main(int argc, char** argv)
         pingTest(cmd);
 
 
-    if (cmd.isSet(DcwTags) || cmd.isSet(DcwrTags) || cmd.isSet(rr16Tags) || cmd.isSet(rr17Tags) || cmd.isSet(dktTags))
-        printHeader();
+    //if ((cmd.isSet(roleTag) == false || cmd.hasValue(roleTag) && cmd.get<int>(roleTag)) &&
+    //    (cmd.isSet(DcwTags) || cmd.isSet(DcwrTags) || cmd.isSet(rr16Tags) || cmd.isSet(rr17Tags) || cmd.isSet(dktTags)))
+    //    printHeader();
+
 
     run(DcwRecv, DcwSend, DcwTags, cmd);
     run(DcwRRecv, DcwRSend, DcwrTags, cmd);
     run(bfRecv, bfSend, rr16Tags, cmd);
     run(otBinRecv, otBinSend, rr17Tags, cmd);
+    run(otBinRecv_StandardModel, otBinSend_StandardModel, rr17bTags, cmd);
     run(DktRecv, DktSend, dktTags, cmd);
 
 
@@ -231,8 +240,10 @@ int main(int argc, char** argv)
         cmd.isSet(DcwrTags) == false &&
         cmd.isSet(rr16Tags) == false &&
         cmd.isSet(rr17Tags) == false &&
-        cmd.isSet(dktTags) == false) ||
-        cmd.isSet(helpTags))
+        cmd.isSet(rr17bTags) == false &&
+        cmd.isSet(dktTags) == false &&
+        cmd.isSet(pingTag) == false) ||
+        cmd.isSet(helpTags)) 
     {
         std::cout
             << "#######################################################\n"
@@ -243,11 +254,12 @@ int main(int argc, char** argv)
             << "#######################################################\n" << std::endl;
 
         std::cout << "Protocols:\n"
-            << "   -" << DcwTags[0] << " : DCW13 - Garbled Bloom Filter (semi-honest*)\n"
-            << "   -" << DcwrTags[0] << ": PSZ14 - Random Garbled Bloom Filter (semi-honest*)\n"
-            << "   -" << rr16Tags[0] << ": RR16  - Random Garbled Bloom Filter (malicious secure)\n"
-            << "   -" << rr17Tags[0] << ": RR17  - Hash to bins & compare style (malicious secure)\n"
-            << "   -" << dktTags[0] << " : DKT12 - Public key style (malicious secure)\n" << std::endl;
+            << "   -" << DcwTags[0] << "  : DCW13 - Garbled Bloom Filter (semi-honest*)\n"
+            << "   -" << DcwrTags[0] << " : PSZ14 - Random Garbled Bloom Filter (semi-honest*)\n"
+            << "   -" << rr16Tags[0] << " : RR16  - Random Garbled Bloom Filter (malicious secure)\n"
+            << "   -" << rr17Tags[0] << " : RR17  - Hash to bins & compare style (malicious secure)\n"
+            << "   -" << rr17bTags[0] << ": RR17b - Hash to bins & compare style (standard model malicious secure)\n"
+            << "   -" << dktTags[0] << "  : DKT12 - Public key style (malicious secure)\n" << std::endl;
 
         std::cout << "Parameters:\n"
             << "   -" << roleTag[0]

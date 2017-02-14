@@ -6,10 +6,19 @@
 #include "libOTe/Base/naor-pinkas.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
-
+#include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
+#include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
 #include "OtBinMPsiDefines.h"
 namespace osuCrypto
 {
+
+    inline block shiftRight(block v, u8 n)
+    {
+        auto v1 = _mm_srli_epi64(v, n);
+        auto v2 = _mm_srli_si128(v, 8);
+        v2 = _mm_slli_epi64(v2, 64 - (n));
+        return _mm_or_si128(v1, v2);
+    }
 
     OtBinMPsiSender::OtBinMPsiSender()
     {
@@ -21,22 +30,24 @@ namespace osuCrypto
     {
     }
 
-    void OtBinMPsiSender::init(u64 n, u64 statSec, u64 inputBitSize,
+    void OtBinMPsiSender::init(u64 n, u64 statSec,
         Channel & chl0,
         NcoOtExtSender&  ots,
         NcoOtExtReceiver& otRecv,
-        block seed)
+        block seed,
+        u64 inputBitSize)
     {
-        init(n, statSec, inputBitSize, { &chl0 }, ots, otRecv, seed);
+        init(n, statSec, { &chl0 }, ots, otRecv, seed);
     }
 
-    void OtBinMPsiSender::init(u64 n, u64 statSec, u64 inputBitSize,
+    void OtBinMPsiSender::init(u64 n, u64 statSecParam,
         const std::vector<Channel*>& chls,
         NcoOtExtSender& otSend,
         NcoOtExtReceiver& otRecv,
-        block seed)
+        block seed,
+        u64 inputBitSize)
     {
-        mStatSecParam = statSec;
+        mStatSecParam = statSecParam;
         mN = n;
         gTimer.setTimePoint("init.send.start");
 
@@ -46,9 +57,29 @@ namespace osuCrypto
 
         u64 compSecParam = 128;
 
+
+
+        // hash to smaller domain size?
+        if (inputBitSize == -1)
+        {
+            inputBitSize = statSecParam + log2ceil(n) - 1;
+            mHashToSmallerDomain = true;
+        }
+        else
+        {
+            inputBitSize -= log2ceil(n);
+            mHashToSmallerDomain = false;
+        }
+
+
         otSend.getParams(
             true, // input, is malicious
-            compSecParam, statSec, inputBitSize, mN, //  input
+            compSecParam, statSecParam, inputBitSize, mN, //  input
+            mNcoInputBlkSize, baseOtCount); // output
+
+        otRecv.getParams(
+            true, // input, is malicious
+            compSecParam, statSecParam, inputBitSize, mN, //  input
             mNcoInputBlkSize, baseOtCount); // output
 
         mOtMsgBlkSize = (baseOtCount + 127) / 128;
@@ -73,7 +104,7 @@ namespace osuCrypto
         gTimer.setTimePoint("init.send.hashSeed");
 
 
-        mBins.init(n, inputBitSize, mHashingSeed, statSec);
+        mBins.init(n, inputBitSize, mHashingSeed, statSecParam);
 
         //mPsis.resize(mBins.mBinCount);
 
@@ -97,12 +128,12 @@ namespace osuCrypto
 
 
             // we now have a bunch of recv OTs, lets seed the NcoOtExtSender
-            BitVector kcoSendBaseChoice; 
+            BitVector kcoSendBaseChoice;
             kcoSendBaseChoice.copy(recvChoice, 0, baseOtCount);
             ArrayView<block> kcoSendBase(
                 recvBaseMsg.begin(),
                 recvBaseMsg.begin() + baseOtCount);
-           
+
             otSend.setBaseOts(kcoSendBase, kcoSendBaseChoice);
 
 
@@ -129,39 +160,58 @@ namespace osuCrypto
         mOtRecvs.resize(chls.size());
 
 
-        auto sendOtRoutine = [&](u64 tIdx, u64 total, NcoOtExtSender& ots, Channel& chl)
-        {
-            auto start = (  tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
-            auto end =   ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
-
-            ots.init(end - start);
-        };
-
-        auto recvOtRoutine = [&](u64 tIdx, u64 total, NcoOtExtReceiver& ots, Channel& chl)
+        auto sendOtRoutine = [&](u64 tIdx, u64 total, NcoOtExtSender& ots, Channel& chl, PRNG& prng)
         {
             auto start = (tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
             auto end = ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
 
-            ots.init(end - start);
+            //std::cout << IoStream::unlock << "ss " << tIdx << " " << (end - start) << std::endl<<IoStream::unlock;
+
+            ots.init(end - start, prng, chl);
+        };
+
+        auto recvOtRoutine = [&](u64 tIdx, u64 total, NcoOtExtReceiver& ots, Channel& chl, PRNG& prng)
+        {
+            auto start = (tIdx     * mBins.mBinCount / total) * mBins.mMaxBinSize;
+            auto end = ((tIdx + 1) * mBins.mBinCount / total) * mBins.mMaxBinSize;
+
+            //std::cout << IoStream::unlock << "sr " << tIdx << " " << (end - start) << std::endl << IoStream::unlock;
+            ots.init(end - start, prng, chl);
         };
 
         u64 numThreads = chls.size() - 1;
 
+        //std::cout << IoStream::lock;
+        //for (u64 i = 0; i < dynamic_cast<Rr17NcoOtReceiver*>(&otRecv)->mKos.mGens.size(); ++i)
+        //{
+        //    std::cout << "sr " << i << "  " 
+        //        << dynamic_cast<Rr17NcoOtReceiver*>(&otRecv)->mKos.mGens[i][0].getSeed() << " " 
+        //        << dynamic_cast<Rr17NcoOtReceiver*>(&otRecv)->mKos.mGens[i][1].getSeed() << std::endl;
+        //}
+        //for (u64 i = 0; i < dynamic_cast<Rr17NcoOtSender*>(&otSend)->mKos.mGens.size(); ++i)
+        //{
+        //    std::cout << "ss " << i << "  "
+        //        << dynamic_cast<Rr17NcoOtSender*>(&otSend)->mKos.mGens[i].getSeed() << std::endl;
+        //}
+        //std::cout << IoStream::unlock;
 
         std::vector<std::thread> thrds(numThreads);
         auto thrdIter = thrds.begin();
         auto chlIter = chls.begin() + 1;
 
+        std::vector<PRNG> prngs(chls.size() - 1);
 
         for (u64 i = 0; i < numThreads; ++i)
         {
+            prngs[i].SetSeed(mPrng.get<block>());
+
             mOtSends[i] = std::move(otSend.split());
             mOtRecvs[i] = std::move(otRecv.split());
 
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                sendOtRoutine(i, chls.size(), *mOtSends[i], **chlIter);
-                recvOtRoutine(i, chls.size(), *mOtRecvs[i], **chlIter);
+                sendOtRoutine(i, chls.size(), *mOtSends[i], **chlIter, prngs[i]);
+                recvOtRoutine(i, chls.size(), *mOtRecvs[i], **chlIter, prngs[i]);
             });
             ++chlIter;
         }
@@ -169,9 +219,8 @@ namespace osuCrypto
         mOtSends.back() = std::move(otSend.split());
         mOtRecvs.back() = std::move(otRecv.split());
 
-        sendOtRoutine(chls.size() - 1, chls.size(), *mOtSends.back(), chl0);
-        recvOtRoutine(chls.size() - 1, chls.size(), *mOtRecvs.back(), chl0);
-
+        sendOtRoutine(chls.size() - 1, chls.size(), *mOtSends.back(), chl0, mPrng);
+        recvOtRoutine(chls.size() - 1, chls.size(), *mOtRecvs.back(), chl0, mPrng);
 
         for (auto& thrd : thrds)
             thrd.join();
@@ -190,8 +239,6 @@ namespace osuCrypto
     {
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
-
-
 
         u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1, 8) / 8;
 
@@ -255,7 +302,7 @@ namespace osuCrypto
         uPtr<Buff> sendMaskBuff(new Buff);
         sendMaskBuff->resize(maskPerm.size() * mBins.mMaxBinSize * maskSize);
         auto maskView = sendMaskBuff->getMatrixView<u8>(maskSize);
-        
+
         gTimer.setTimePoint("online.send.spaw");
 
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
@@ -283,18 +330,27 @@ namespace osuCrypto
                 for (u64 i = 0; i < ncoInputHasher.size(); ++i)
                     ncoInputHasher[i].setKey(_mm_set1_epi64x(i) ^ mHashingSeed);
 
-                u64 phaseShift = log2ceil(mN) / 8;
+                u64 phaseShift = log2ceil(mN);// / 8;
 
                 for (u64 i = startIdx; i < endIdx; i += 128)
                 {
                     auto currentStepSize = std::min(u64(128), endIdx - i);
 
-                    for (u64 hashIdx = 0; hashIdx < ncoInputHasher.size(); ++hashIdx)
+                    if (mHashToSmallerDomain)
                     {
-                        ncoInputHasher[hashIdx].ecbEncBlocks(
-                            inputs.data() + i,
-                            currentStepSize,
-                            ncoInputBuff[hashIdx].data() + i);
+
+                        for (u64 hashIdx = 0; hashIdx < ncoInputHasher.size(); ++hashIdx)
+                        {
+                            ncoInputHasher[hashIdx].ecbEncBlocks(
+                                inputs.data() + i,
+                                currentStepSize,
+                                ncoInputBuff[hashIdx].data() + i);
+                        }
+                    }
+                    else
+                    {
+                        // simple hack to skip hashing to smaller domain.
+                        memcpy(ncoInputBuff[0].data() + i, inputs.data() + i, currentStepSize * sizeof(block));
                     }
 
                     // since we are using random codes, lets just use the first part of the code 
@@ -307,15 +363,30 @@ namespace osuCrypto
                         // implements phase. Note that we are doing very course phasing. 
                         // At the byte level. This is good enough for use. Since we just 
                         // need things tp be smaller than 76 bits.
-                        if(phaseShift == 3)
-                            ncoInputBuff[0][i + j] = _mm_srli_si128(item, 3);
-                        else// if (phaseShift <= 2)
-                            ncoInputBuff[0][i + j] = _mm_srli_si128(item, 2);
+
+                        item = shiftRight(item, phaseShift);
+
+                        //switch (phaseShift)
+                        //{
+                        //case 1:
+                        //    ncoInputBuff[0][i + j] = _mm_srli_si128(item, 1);
+                        //    break;
+                        //case 2:
+                        //    ncoInputBuff[0][i + j] = _mm_srli_si128(item, 2);
+                        //    break;
+                        //case 3:
+                        //    ncoInputBuff[0][i + j] = _mm_srli_si128(item, 3);
+                        //    break;
+                        //default:
+                        //    break;
+                        //}
 
 
                         std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
                         mBins.mBins[addr].emplace_back(i + j);
                     }
+
+                    //if (tIdx == 0) std::cout << "\r" << std::setw(8) << i << " / " << endIdx << " a" << std::flush;
                 }
                 //<< IoStream::lock << "Sender"<< std::endl;
                 //mBins.insertItemsWithPhasing(range, mStatSecParam, inputs.size());
@@ -383,6 +454,10 @@ namespace osuCrypto
                     }
 
                     otRecv.sendCorrection(chl, currentStepSize * mBins.mMaxBinSize);
+
+
+                    //if (tIdx == 0) std::cout << "\r" << std::setw(8) << bIdx << " / " << binEnd << " b" << std::flush;
+
                 }
 
 
@@ -406,7 +481,7 @@ namespace osuCrypto
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
                         auto& bin = mBins.mBins[bIdx];
-                        
+
 
                         for (u64 i = 0; i < bin.size(); ++i)
                         {
@@ -421,7 +496,7 @@ namespace osuCrypto
                                 {
                                     c += mBins.mBins[bb].size();
                                 }
-                                std::cout <<IoStream::lock << c << "  " << std::endl << IoStream::unlock;
+                                //std::cout << IoStream::lock << c << "  " << std::endl << IoStream::unlock;
                             }
 
                             u64 baseMaskIdx = maskPerm[mm] * mBins.mMaxBinSize;
@@ -443,12 +518,13 @@ namespace osuCrypto
                                     ncoInput,
                                     sendMask);
 
-                                //if (inputIdx == 2)
+                                //if (inputIdx == 1)
                                 //{
-                                //    std::cout 
-                                //        << "s "<<inputIdx<<" " << inputs[inputIdx] << " " << l << ": "
+                                //    std::cout  << IoStream::lock
+                                //        << "s " << inputIdx << " " 
+                                //        << inputs[inputIdx] << " " << l << ": "
                                 //        << (sendMask ^ recvMasks[inputIdx]) << " = "
-                                //        << sendMask << " ^ " << recvMasks[inputIdx] << "     " << (baseMaskIdx + l) << std::endl ;
+                                //        << sendMask << " ^ " << recvMasks[inputIdx] << "     " << (baseMaskIdx + l) << " sendOtIdx " << innerOtIdx << std::endl << IoStream::unlock;
                                 //}
 
                                 sendMask = sendMask ^ recvMasks[inputIdx];
@@ -476,6 +552,7 @@ namespace osuCrypto
                         //++maskIdx;
                         otIdx += mBins.mMaxBinSize;
                     }
+                    //if (tIdx == 0) std::cout << "\r" << std::setw(8) << bIdx << " / " << binEnd << " c" << std::flush;
 
                 }
                 if (tIdx == 0) gTimer.setTimePoint("online.send.sendMask");

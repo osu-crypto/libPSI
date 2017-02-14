@@ -19,6 +19,7 @@ namespace osuCrypto
         OtBinMPsiSender();
         ~OtBinMPsiSender();
 
+        bool mHashToSmallerDomain;
         u64 mN, mStatSecParam, mNcoInputBlkSize,  mOtMsgBlkSize;
         block mHashingSeed;
         SimpleHasher mBins;
@@ -27,17 +28,19 @@ namespace osuCrypto
         std::vector<std::unique_ptr<NcoOtExtSender>> mOtSends;
         std::vector<std::unique_ptr<NcoOtExtReceiver>> mOtRecvs;
 
-        void init(u64 n, u64 statSecParam, u64 inputBitSize, 
+        void init(u64 n, u64 statSecParam,
             const std::vector<Channel*>& chls, 
             NcoOtExtSender& ots, 
             NcoOtExtReceiver& otRecv, 
-            block seed);
+            block seed,
+            u64 inputBitSize = -1);
 
-        void init(u64 n, u64 statSecParam, u64 inputBitSize, 
+        void init(u64 n, u64 statSecParam,
             Channel & chl0, 
             NcoOtExtSender& ots,
             NcoOtExtReceiver& otRecv,
-            block seed);
+            block seed,
+            u64 inputBitSize = -1);
 
         void sendInput(std::vector<block>& inputs, Channel& chl);
         void sendInput(std::vector<block>& inputs,const std::vector<Channel*>& chls);

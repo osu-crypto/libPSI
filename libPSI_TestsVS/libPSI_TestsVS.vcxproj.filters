@@ -29,16 +29,10 @@
     <ClCompile Include="AES_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OT_TestsVS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AknOT_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AknBfPsi_TestsVS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseOT_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DcwBfPsi_TestsVS.cpp">

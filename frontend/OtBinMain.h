@@ -14,3 +14,10 @@ void otBinRecv(
 void otBinSend(
     LaunchParams& params);
 
+//void otBin();
+void otBinRecv_StandardModel(
+    LaunchParams& params);
+
+void otBinSend_StandardModel(
+    LaunchParams& params);
+

@@ -21,9 +21,6 @@
     <ClCompile Include="Common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OT_Tests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OTOracleReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -34,9 +31,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AknBfPsi_Tests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseOT_Tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DcwBfPsi_Tests.cpp">
@@ -57,18 +51,12 @@
     <ClCompile Include="BinOtPsi_Tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NcoOT_Tests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AES_Tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OT_Tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OTOracleReceiver.h">
@@ -81,9 +69,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AknBfPsi_Tests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseOT_Tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DcwBfPsi_Tests.h">
@@ -102,9 +87,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BinOtPsi_Tests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NcoOT_Tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

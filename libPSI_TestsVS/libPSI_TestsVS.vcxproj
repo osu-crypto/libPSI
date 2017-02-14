@@ -98,13 +98,11 @@
     <ClCompile Include="AES_TestsVS.cpp" />
     <ClCompile Include="AknBfPsi_TestsVS.cpp" />
     <ClCompile Include="AknOT_TestsVS.cpp" />
-    <ClCompile Include="BaseOT_TestsVS.cpp" />
     <ClCompile Include="BinOtPsi_TestsVS.cpp" />
     <ClCompile Include="BtChannel_TestsVS.cpp" />
     <ClCompile Include="DcwBfPsi_TestsVS.cpp" />
     <ClCompile Include="DtkMPsi_TestsVS.cpp" />
     <ClCompile Include="Ecc_TestsVS.cpp" />
-    <ClCompile Include="OT_TestsVS.cpp" />
     <ClCompile Include="ShamirSSScheme_TestsVS.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -9,18 +9,22 @@ namespace osuCrypto
 {
 
     // parameters for k=2 hash functions, 2^n items, and statistical security 40
+    CuckooParam k2n32s40CuckooParam
+    { 4, 2.4, 2, u64(1) << 32 };
+    CuckooParam k2n30s40CuckooParam
+    { 4, 2.4, 2, u64(1) << 30 };
     CuckooParam k2n28s40CuckooParam
-    { 2, 2.4, 2, 1 << 28 };
+    { 2, 2.4, 2, u64(1) << 28 };
     CuckooParam k2n24s40CuckooParam
-    { 2, 2.4, 2, 1 << 24 };
+    { 2, 2.4, 2, u64(1) << 24 };
     CuckooParam k2n20s40CuckooParam
-    { 2, 2.4, 2, 1 << 20 };
+    { 2, 2.4, 2, u64(1) << 20 };
     CuckooParam k2n16s40CuckooParam
-    { 3, 2.4, 2, 1 << 16 };
+    { 3, 2.4, 2, u64(1) << 16 };
     CuckooParam k2n12s40CuckooParam
-    { 5, 2.4, 2, 1 << 12 };
+    { 5, 2.4, 2, u64(1) << 12 };
     CuckooParam k2n08s40CuckooParam
-    { 8, 2.4, 2, 1 << 8 };
+    { 8, 2.4, 2, u64(1) << 8 };
 
     // not sure if this needs a stash of 40, but should be safe enough.
     CuckooParam k2n07s40CuckooParam
@@ -113,24 +117,30 @@ namespace osuCrypto
     {
         if (statSecParam != 40) throw std::runtime_error("not implemented");
 
+        //std::cout << "Params: " << n << " " << std::log2(n) << std::endl;
 
         if (n <= 1 << 7)
             mParams = k2n07s40CuckooParam;
-        else if (n <= 1 << 8)
+        else if (n <= u64(1) << 8)
             mParams = k2n08s40CuckooParam;
-        else if (n <= 1 << 12)
+        else if (n <= u64(1) << 12)
             mParams = k2n12s40CuckooParam;
-        else if (n <= 1 << 16)
+        else if (n <= u64(1) << 16)
             mParams = k2n16s40CuckooParam;
-        else if (n <= 1 << 20)
+        else if (n <= u64(1) << 20)
             mParams = k2n20s40CuckooParam;
-        else if (n <= 1 << 24)
+        else if (n <= u64(1) << 24)
             mParams = k2n24s40CuckooParam;
-        else if (n <= 1 << 28)
+        else if (n <= u64(1) << 28)
             mParams = k2n28s40CuckooParam;
+        else if (n <= u64(1) << 30)
+            mParams = k2n30s40CuckooParam;
+        else if (n <= u64(1) << 32)
+            mParams = k2n32s40CuckooParam;
         else
         {
-            std::cout << "Failed to find cuckoo parameters large enough\n" LOCATION << std::endl;
+            std::cout << "Failed to find cuckoo parameters large enough  "<< n << " " << std::log2(n) << "\n" LOCATION << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
             throw std::runtime_error("not implemented " LOCATION);
         }
 
@@ -179,7 +189,7 @@ namespace osuCrypto
             for (u64 j = 0; j < mParams.mNumHashes; ++j)
             {
 #ifndef  NDEBUG
-                if ((mHashesView.data() + inputIdxs[i] * width)[j] != -1)
+                if ((mHashesView.data() + inputIdxs[i] * width)[j] != u64(-1))
                 {
                     std::cout << IoStream::lock << "cuckoo index " << inputIdxs[i] << " already inserted" << std::endl << IoStream::unlock;
                     throw std::runtime_error(LOCATION);

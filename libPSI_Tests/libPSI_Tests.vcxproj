@@ -76,34 +76,28 @@
     <ClCompile Include="AES_Tests.cpp" />
     <ClCompile Include="AknBfPsi_Tests.cpp" />
     <ClCompile Include="AknOt_Tests.cpp" />
-    <ClCompile Include="BaseOT_Tests.cpp" />
     <ClCompile Include="BinOtPsi_Tests.cpp" />
     <ClCompile Include="BtChannel_Tests.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="DcwBfPsi_Tests.cpp" />
     <ClCompile Include="DktMPsi_Tests.cpp" />
     <ClCompile Include="Ecc_Tests.cpp" />
-    <ClCompile Include="NcoOT_Tests.cpp" />
     <ClCompile Include="OTOracleReceiver.cpp" />
     <ClCompile Include="OTOracleSender.cpp" />
-    <ClCompile Include="OT_Tests.cpp" />
     <ClCompile Include="ShamirSSScheme_Tests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AES_Tests.h" />
     <ClInclude Include="AknBfPsi_Tests.h" />
     <ClInclude Include="AknOt_Tests.h" />
-    <ClInclude Include="BaseOT_Tests.h" />
     <ClInclude Include="BinOtPsi_Tests.h" />
     <ClInclude Include="BtChannel_Tests.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="DcwBfPsi_Tests.h" />
     <ClInclude Include="DktMPsi_Tests.h" />
     <ClInclude Include="Ecc_Tests.h" />
-    <ClInclude Include="NcoOT_Tests.h" />
     <ClInclude Include="OTOracleReceiver.h" />
     <ClInclude Include="OTOracleSender.h" />
-    <ClInclude Include="OT_Tests.h" />
     <ClInclude Include="ShamirSSScheme_Tests.h" />
   </ItemGroup>
   <ItemGroup>

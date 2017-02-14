@@ -33,6 +33,7 @@ struct LaunchParams
     std::vector<u64> mNumItems;
     std::vector<u64> mNumThreads;
 
+    u64 mBitSize;
     u64 mVerbose;
     u64 mTrials;
     u64 mStatSecParam;

@@ -43,16 +43,6 @@ void DktSend(LaunchParams& params)
                 sendChls[0]->asyncSend(dummy, 1);
 
                 sendPSIs.sendInput(set, sendChls);
-
-                u64 dataSent = 0;
-                for (u64 g = 0; g < sendChls.size(); ++g)
-                {
-                    dataSent += sendChls[g]->getTotalDataSent();
-                }
-
-                //std::cout << setSize << "    " << dataSent / std::pow(2, 20) << " byte  " << std::endl;
-                for (u64 g = 0; g < sendChls.size(); ++g)
-                    sendChls[g]->resetStats();
             }
         }
     }

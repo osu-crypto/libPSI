@@ -65,6 +65,32 @@ namespace WeGarbleTests
             OtBinPsi_Oos_SingltonSet_Test_Impl();
         }
 
+
+        TEST_METHOD(OtBinPsi_Rr17_EmptrySet_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_Rr17_EmptrySet_Test_Impl();
+        }
+
+        TEST_METHOD(OtBinPsi_Rr17_FullSet_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_Rr17_FullSet_Test_Impl();
+        }
+
+        TEST_METHOD(OtBinPsi_Rr17_parallel_FullSet_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_Rr17_parallel_FullSet_Test_Impl();
+        }
+
+        TEST_METHOD(OtBinPsi_Rr17_SingltonSet_Test)
+        {
+            InitDebugPrinting();
+            OtBinPsi_Rr17_SingltonSet_Test_Impl();
+        }
+
+
         //TEST_METHOD(OtBinPsi_SingltonSet_serial_Test)
         //{
         //    InitDebugPrinting();
