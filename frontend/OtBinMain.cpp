@@ -41,40 +41,43 @@ void otBinSend(
     {
         for (auto cc : params.mNumThreads)
         {
-            std::vector<Channel*> sendChls  =params.getChannels(cc);
+            std::vector<Channel*> sendChls = params.getChannels(cc);
 
-            for (u64 jj = 0; jj < params.mTrials; jj++)
+            for (auto ss : params.mBinScaler)
             {
-                std::vector<block> set(setSize);
-                prng.get(set.data(), set.size());
+                for (u64 jj = 0; jj < params.mTrials; jj++)
+                {
+                    std::vector<block> set(setSize);
+                    prng.get(set.data(), set.size());
 
 #ifdef OOS
-                OosNcoOtReceiver otRecv(code, 40);
-                OosNcoOtSender otSend(code, 40);
+                    OosNcoOtReceiver otRecv(code, 40);
+                    OosNcoOtSender otSend(code, 40);
 #else
-                KkrtNcoOtReceiver otRecv;
-                KkrtNcoOtSender otSend;
+                    KkrtNcoOtReceiver otRecv;
+                    KkrtNcoOtSender otSend;
 #endif
-                OtBinMPsiSender sendPSIs;
+                    OtBinMPsiSender sendPSIs;
 
-                sendChls[0]->asyncSend(dummy, 1);
-                sendChls[0]->recv(dummy, 1);
+                    sendChls[0]->asyncSend(dummy, 1);
+                    sendChls[0]->recv(dummy, 1);
 
-                sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>());
+                    sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), ss);
 
-                sendChls[0]->asyncSend(dummy, 1);
-                sendChls[0]->recv(dummy, 1);
+                    sendChls[0]->asyncSend(dummy, 1);
+                    sendChls[0]->recv(dummy, 1);
 
-                sendPSIs.sendInput(set, sendChls);
+                    sendPSIs.sendInput(set, sendChls);
 
-                u64 dataSent = 0;
-                for (u64 g = 0; g < sendChls.size(); ++g)
-                {
-                    dataSent += sendChls[g]->getTotalDataSent();
+                    u64 dataSent = 0;
+                    for (u64 g = 0; g < sendChls.size(); ++g)
+                    {
+                        dataSent += sendChls[g]->getTotalDataSent();
+                    }
+
+                    for (u64 g = 0; g < sendChls.size(); ++g)
+                        sendChls[g]->resetStats();
                 }
-
-                for (u64 g = 0; g < sendChls.size(); ++g)
-                    sendChls[g]->resetStats();
             }
         }
     }
@@ -100,55 +103,59 @@ void otBinRecv(
         {
             auto chls = params.getChannels(numThreads);
 
-            for (u64 jj = 0; jj < params.mTrials; jj++)
-            {
-                std::string tag("RR17");
 
-                std::vector<block> sendSet(setSize), recvSet(setSize);
-                for (u64 i = 0; i < setSize; ++i)
+            for (auto ss : params.mBinScaler)
+            {
+                for (u64 jj = 0; jj < params.mTrials; jj++)
                 {
-                    sendSet[i] = recvSet[i] = prng.get<block>();
-                }
+                    std::string tag("RR17");
+
+                    std::vector<block> sendSet(setSize), recvSet(setSize);
+                    for (u64 i = 0; i < setSize; ++i)
+                    {
+                        sendSet[i] = recvSet[i] = prng.get<block>();
+                    }
 
 
 #ifdef OOS
-                OosNcoOtReceiver otRecv(code, 40);
-                OosNcoOtSender otSend(code, 40);
+                    OosNcoOtReceiver otRecv(code, 40);
+                    OosNcoOtSender otSend(code, 40);
 #else
-                KkrtNcoOtReceiver otRecv;
-                KkrtNcoOtSender otSend;
+                    KkrtNcoOtReceiver otRecv;
+                    KkrtNcoOtSender otSend;
 #endif
-                OtBinMPsiReceiver recvPSIs;
+                    OtBinMPsiReceiver recvPSIs;
 
 
-                chls[0]->recv(dummy, 1);
-                gTimer.reset();
-                chls[0]->asyncSend(dummy, 1);
+                    chls[0]->recv(dummy, 1);
+                    gTimer.reset();
+                    chls[0]->asyncSend(dummy, 1);
 
 
 
-                Timer timer;
-                
-                auto start = timer.setTimePoint("start");
-                
-                recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>());
+                    Timer timer;
 
-                chls[0]->asyncSend(dummy, 1);
-                chls[0]->recv(dummy, 1);
-                auto mid = timer.setTimePoint("init");
+                    auto start = timer.setTimePoint("start");
 
+                    recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), ss);
 
-                recvPSIs.sendInput(recvSet, chls);
+                    chls[0]->asyncSend(dummy, 1);
+                    chls[0]->recv(dummy, 1);
+                    auto mid = timer.setTimePoint("init");
 
 
-                auto end = timer.setTimePoint("done");
+                    recvPSIs.sendInput(recvSet, chls);
 
-                auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
-                auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-                //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
+                    auto end = timer.setTimePoint("done");
 
-                printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
+                    auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+                    auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+
+                    //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
+
+                    printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads, ss);
+                }
             }
         }
     }
@@ -170,34 +177,37 @@ void otBinSend_StandardModel(
         {
             std::vector<Channel*> sendChls = params.getChannels(cc);
 
-            for (u64 jj = 0; jj < params.mTrials; jj++)
+            for (auto ss : params.mBinScaler)
             {
-                std::vector<block> set(setSize);
-                prng.get(set.data(), set.size());
-
-                Rr17NcoOtReceiver otRecv;
-                Rr17NcoOtSender otSend;
-
-                OtBinMPsiSender sendPSIs;
-
-                sendChls[0]->asyncSend(dummy, 1);
-                sendChls[0]->recv(dummy, 1);
-
-                sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), params.mBitSize);
-
-                sendChls[0]->asyncSend(dummy, 1);
-                sendChls[0]->recv(dummy, 1);
-
-                sendPSIs.sendInput(set, sendChls);
-
-                u64 dataSent = 0;
-                for (u64 g = 0; g < sendChls.size(); ++g)
+                for (u64 jj = 0; jj < params.mTrials; jj++)
                 {
-                    dataSent += sendChls[g]->getTotalDataSent();
-                }
+                    std::vector<block> set(setSize);
+                    prng.get(set.data(), set.size());
 
-                for (u64 g = 0; g < sendChls.size(); ++g)
-                    sendChls[g]->resetStats();
+                    Rr17NcoOtReceiver otRecv;
+                    Rr17NcoOtSender otSend;
+
+                    OtBinMPsiSender sendPSIs;
+
+                    sendChls[0]->asyncSend(dummy, 1);
+                    sendChls[0]->recv(dummy, 1);
+
+                    sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), ss, params.mBitSize);
+
+                    sendChls[0]->asyncSend(dummy, 1);
+                    sendChls[0]->recv(dummy, 1);
+
+                    sendPSIs.sendInput(set, sendChls);
+
+                    u64 dataSent = 0;
+                    for (u64 g = 0; g < sendChls.size(); ++g)
+                    {
+                        dataSent += sendChls[g]->getTotalDataSent();
+                    }
+
+                    for (u64 g = 0; g < sendChls.size(); ++g)
+                        sendChls[g]->resetStats();
+                }
             }
         }
     }
@@ -221,51 +231,54 @@ void otBinRecv_StandardModel(
         {
             auto chls = params.getChannels(numThreads);
 
-            for (u64 jj = 0; jj < params.mTrials; jj++)
+            for (auto ss : params.mBinScaler)
             {
-                std::string tag("RR17");
-
-                std::vector<block> sendSet(setSize), recvSet(setSize);
-                for (u64 i = 0; i < setSize; ++i)
+                for (u64 jj = 0; jj < params.mTrials; jj++)
                 {
-                    sendSet[i] = recvSet[i] = prng.get<block>();
+                    std::string tag("RR17");
+
+                    std::vector<block> sendSet(setSize), recvSet(setSize);
+                    for (u64 i = 0; i < setSize; ++i)
+                    {
+                        sendSet[i] = recvSet[i] = prng.get<block>();
+                    }
+
+
+                    Rr17NcoOtReceiver otRecv;
+                    Rr17NcoOtSender otSend;
+
+                    OtBinMPsiReceiver recvPSIs;
+
+
+                    chls[0]->recv(dummy, 1);
+                    gTimer.reset();
+                    chls[0]->asyncSend(dummy, 1);
+
+
+
+                    Timer timer;
+
+                    auto start = timer.setTimePoint("start");
+
+                    recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), ss, params.mBitSize);
+
+                    chls[0]->asyncSend(dummy, 1);
+                    chls[0]->recv(dummy, 1);
+                    auto mid = timer.setTimePoint("init");
+
+
+                    recvPSIs.sendInput(recvSet, chls);
+
+
+                    auto end = timer.setTimePoint("done");
+
+                    auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+                    auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+
+                    //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
+
+                    printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
                 }
-
-
-                Rr17NcoOtReceiver otRecv;
-                Rr17NcoOtSender otSend;
-
-                OtBinMPsiReceiver recvPSIs;
-
-
-                chls[0]->recv(dummy, 1);
-                gTimer.reset();
-                chls[0]->asyncSend(dummy, 1);
-
-
-
-                Timer timer;
-
-                auto start = timer.setTimePoint("start");
-
-                recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), params.mBitSize);
-
-                chls[0]->asyncSend(dummy, 1);
-                chls[0]->recv(dummy, 1);
-                auto mid = timer.setTimePoint("init");
-
-
-                recvPSIs.sendInput(recvSet, chls);
-
-
-                auto end = timer.setTimePoint("done");
-
-                auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
-                auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
-
-                //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
-
-                printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
             }
         }
     }

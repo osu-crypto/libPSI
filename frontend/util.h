@@ -32,6 +32,7 @@ struct LaunchParams
     std::vector<Channel*> mChls;
     std::vector<u64> mNumItems;
     std::vector<u64> mNumThreads;
+    std::vector<u64> mBinScaler;
 
     u64 mBitSize;
     u64 mVerbose;
@@ -54,6 +55,7 @@ void printTimings(
     long long offlineTime, long long onlineTime,
     LaunchParams & params,
     const osuCrypto::u64 &setSize,
-    const osuCrypto::u64 &numThreads);
+    const osuCrypto::u64 &numThreads,
+    int s = 1);
 
 void printHeader();

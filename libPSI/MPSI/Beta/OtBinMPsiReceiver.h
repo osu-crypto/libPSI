@@ -29,8 +29,10 @@ namespace osuCrypto
         SimpleHasher mBins;
         PRNG mPrng;
 
-        void init(u64 n, u64 statSecParam, Channel& chl0, NcoOtExtReceiver& otRecv, NcoOtExtSender& otSend, block seed, u64 inputBitSize = -1);
-        void init(u64 n, u64 statSecParam, const std::vector<Channel*>& chls, NcoOtExtReceiver& ots, NcoOtExtSender& otSend, block seed, u64 inputBitSize = -1);
+        void init(u64 n, u64 statSecParam, Channel& chl0, NcoOtExtReceiver& otRecv, NcoOtExtSender& otSend, block seed,
+            double binScaler = 1.0, u64 inputBitSize = -1);
+        void init(u64 n, u64 statSecParam, const std::vector<Channel*>& chls, NcoOtExtReceiver& ots, NcoOtExtSender& otSend, block seed,
+            double binScaler = 1.0, u64 inputBitSize = -1);
 
         void sendInput(std::vector<block>& inputs, Channel& chl);
         void sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls);

@@ -43,7 +43,8 @@ trialsTags{ "trials" },
 roleTag{ "r", "role" },
 hostNameTag{ "ip" },
 pingTag{ "ping" },
-bitSizeTag{"b","bitSize"};
+bitSizeTag{"b","bitSize"},
+binScalerTag{"s", "binScaler"};
 
 bool firstRun(true);
 
@@ -61,6 +62,7 @@ void run(
     params.mTrials = cmd.get<u64>(trialsTags);
     params.mHostName = cmd.get<std::string>(hostNameTag);
     params.mBitSize = cmd.get<u64>(bitSizeTag);
+    params.mBinScaler = cmd.getMany<u64>(binScalerTag);
 
 
     if (cmd.isSet(powNumItems))
@@ -211,6 +213,7 @@ int main(int argc, char** argv)
     //cmd.setDefault(verboseTags, "0");
     cmd.setDefault(trialsTags, "1");
     cmd.setDefault(bitSizeTag, "-1");
+    cmd.setDefault(binScalerTag, "1");
     cmd.setDefault(hostNameTag, "127.0.0.1:1212");
 
     cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));

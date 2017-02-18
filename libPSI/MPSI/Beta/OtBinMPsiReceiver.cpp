@@ -45,9 +45,10 @@ namespace osuCrypto
         NcoOtExtReceiver& ots,
         NcoOtExtSender& otSend,
         block seed,
+        double binScaler,
         u64 inputBitSize)
     {
-        init(n, statSecParam, { &chl0 }, ots, otSend, seed);
+        init(n, statSecParam, { &chl0 }, ots, otSend, seed, binScaler, inputBitSize);
     }
 
     void OtBinMPsiReceiver::init(
@@ -57,6 +58,7 @@ namespace osuCrypto
         NcoOtExtReceiver& otRecv,
         NcoOtExtSender& otSend,
         block seed,
+        double binScaler,
         u64 inputBitSize)
     {
 
@@ -124,7 +126,7 @@ namespace osuCrypto
 
         // this SimpleHasher class knows how to hash things into bins. But first we need 
         // to compute how many bins we need, the max size of bins, etc.
-        mBins.init(n, inputBitSize, mHashingSeed, statSecParam);
+        mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
 
         gTimer.setTimePoint("Init.recv.baseStart");
         // since we are doing mmlicious PSI, we need OTs going in both directions. 
@@ -207,7 +209,7 @@ namespace osuCrypto
 
         mOtRecvs.resize(chls.size());
         mOtSends.resize(chls.size());
-        std::vector<PRNG> prngs(chls.size() -1 );
+        std::vector<PRNG> prngs(chls.size() - 1);
 
         // now make the threads that will to the extension
         for (u64 i = 0; i < numThreads; ++i)
@@ -292,15 +294,18 @@ namespace osuCrypto
         // done inserting items into the bins, the future will be fulfilled 
         // and all threads will advance to performing the base OtPsi's
         std::atomic<u32>
-            insertRemaining((u32)thrds.size());
+            insertRemaining(u32(thrds.size())),
+            commonRemaining(u32(thrds.size()));
 
         std::promise<void> insertProm, maskMergeProm;
         std::shared_future<void>
             insertFuture(insertProm.get_future()),
             maskMergeFuture(maskMergeProm.get_future());
 
-        std::promise<MatrixView<u8>> maskProm;
-        std::shared_future<MatrixView<u8>> maskFuture(maskProm.get_future());
+
+
+        std::promise<void> maskProm;
+        std::shared_future<void> maskFuture(maskProm.get_future());
         ByteStream maskBuffer;
 
 
@@ -379,7 +384,7 @@ namespace osuCrypto
                         // At the byte level. This is good enough for use. Since we just 
                         // need things to be smaller than 76 bits for OOS16.
 
-                        
+
                         item = shiftRight(item, phaseShift);
                         //switch (phaseShift)
                         //{
@@ -583,60 +588,86 @@ namespace osuCrypto
                 std::vector<u64> localIntersection;
                 localIntersection.reserve(mBins.mMaxBinSize);
 
-                MatrixView<u8> maskView;
-                if (tIdx == 0)
-                {
 
-                    u64 numMasks = mN * mBins.mMaxBinSize;
-
-                    // make a buffer for the pseudo-code we need to send
-                    chl.recv(maskBuffer);
-                    maskView = maskBuffer.getMatrixView<u8>(maskSize);
-
-                    if (maskView.size()[0] != numMasks)
-                        throw std::runtime_error("size not expedted");
-
-                    maskProm.set_value(maskView);
-                }
+                if (--commonRemaining)
+                    maskFuture.get();
                 else
+                    maskProm.set_value();
+
+                //MatrixView<u8> maskView;
+                //if (tIdx == 0)
+                //{
+
+                //    static const u64 chunkSize = 1 << 20;
+
+                //    u64 numMasks = mN * mBins.mMaxBinSize;
+
+                //    // make a buffer for the pseudo-code we need to send
+                //    maskBuffer.res
+                //    
+                //    chl.recv(maskBuffer);
+                //    maskView = maskBuffer.getMatrixView<u8>(maskSize);
+
+                //    //if (maskView.size()[0] != numMasks)
+                //    //    throw std::runtime_error("size not expedted");
+
+                //    maskProm.set_value(maskView);
+                //}
+                //else
+                //{
+                //    maskView = maskFuture.get();
+                //}
+
+                u64 numMasks = mN * mBins.mMaxBinSize;
+                u64 chunkSize = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
+                u64 numChunks = numMasks / chunkSize;
+
+                
+                Buff buff(chunkSize * maskSize);
+
+                for (u64 kk = tIdx; kk < numChunks; kk += chls.size())
                 {
-                    maskView = maskFuture.get();
-                }
+                    auto curSize = std::min(chunkSize, numMasks - kk * chunkSize) * maskSize;
 
-                auto maskStart = tIdx     * maskView.size()[0] / thrds.size();
-                auto maskEnd = (tIdx + 1) * maskView.size()[0] / thrds.size();
 
-                for (u64 i = maskStart; i < maskEnd; )
-                {
-                    u64 curStepSize = std::min(tempMaskBuff.size(), maskEnd - i);
 
-                    for (u64 j = 0; j < curStepSize; ++j, ++i)
+                    chl.recv(buff.data(), curSize);
+
+                    auto maskView = buff.getMatrixView<u8>(maskSize);
+
+                    for (u64 i = 0; i < maskView.size()[0]; )
                     {
-                        auto mask = maskView[i];
-                        tempMaskBuff[j] = ZeroBlock;
-                        memcpy(&tempMaskBuff[j], mask.data(), maskSize);
+                        u64 curStepSize = std::min(tempMaskBuff.size(), maskView.size()[0] - i);
 
-
-                        //std::cout << tempMaskBuff[j] << "    " << (i) << std::endl;
-                    }
-
-                    mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), curStepSize, tempMaskBuff.data());
-
-                    MatrixView<u64> hashes((u64*)tempMaskBuff.data(), curStepSize, 2, false);
-                    maskMap.findBatch(hashes, tempIdxBuff, w);
-
-                    for (u64 j = 0; j < curStepSize; ++j)
-                    {
-                        //u64 idx = maskMap.find(ArrayView<u64>((u64*)&tempMaskBuff[j], 2));
-                        if (tempIdxBuff[j] != u64(-1))
+                        for (u64 j = 0; j < curStepSize; ++j, ++i)
                         {
-                            auto idx = tempIdxBuff[j] / mBins.mMaxBinSize;
-                            //auto offset = tempIdxBuff[j] % mBins.mMaxBinSize;
-                            //std::cout << IoStream::lock << "match on " << idx << " " << offset << "  " << hashes[j][0] << std::endl << IoStream::unlock;
+                            auto mask = maskView[i];
+                            tempMaskBuff[j] = ZeroBlock;
+                            memcpy(&tempMaskBuff[j], mask.data(), maskSize);
 
-                            localIntersection.push_back(idx);
+
+                            //std::cout << tempMaskBuff[j] << "    " <<kk <<"  "<< (i) << std::endl;
+                        }
+
+                        mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), curStepSize, tempMaskBuff.data());
+
+                        MatrixView<u64> hashes((u64*)tempMaskBuff.data(), curStepSize, 2, false);
+                        maskMap.findBatch(hashes, tempIdxBuff, w);
+
+                        for (u64 j = 0; j < curStepSize; ++j)
+                        {
+                            //u64 idx = maskMap.find(ArrayView<u64>((u64*)&tempMaskBuff[j], 2));
+                            if (tempIdxBuff[j] != u64(-1))
+                            {
+                                auto idx = tempIdxBuff[j] / mBins.mMaxBinSize;
+                                //auto offset = tempIdxBuff[j] % mBins.mMaxBinSize;
+                                //std::cout << IoStream::lock << "match on " << idx << " " << offset << "  " << hashes[j][0] << std::endl << IoStream::unlock;
+
+                                localIntersection.push_back(idx);
+                            }
                         }
                     }
+
                 }
 
                 if (localIntersection.size())

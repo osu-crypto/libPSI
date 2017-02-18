@@ -31,11 +31,11 @@ namespace osuCrypto
             for (u64 j = 0; j < mBins[i].size(); ++j)
             {
                 std::cout
-                    << "    " << mBins[i][j]  
-                    /*<< "  " << mBins[i][j].second */<< std::endl;
+                    << "    " << mBins[i][j]
+                    /*<< "  " << mBins[i][j].second */ << std::endl;
             }
 
-            std::cout << std::endl; 
+            std::cout << std::endl;
         }
 
         std::cout << std::endl;// << IoStream::unlock;
@@ -46,7 +46,19 @@ namespace osuCrypto
         return std::log(bins * std::pow(balls * exp(1) / (bins * k), k)) / std::log(2);
     }
 
-    void SimpleHasher::init(u64 n, u64 numBits, block hashSeed, u64 secParam)
+    double binomial(double n, double k)
+    {
+        double sum = 0;
+        for (u64 i = 1; i <= k; ++i)
+        {
+            sum += (n + 1 - i) / i;
+        }
+
+        return sum;
+    }
+
+
+    void SimpleHasher::init(u64 n, u64 numBits, block hashSeed, u64 secParam, double binScaler)
     {
 #ifdef OLD_SIMPLE_HASH_PARAM
         mHashSeed = hashSeed;
@@ -104,20 +116,437 @@ namespace osuCrypto
         mBins.resize(mBinCount);
         mRepSize = mInputBitSize - (u32)std::log2(mBinCount);
 #else
-        mBinCount = n;
+        //u64 scale = 2;
+        mBinCount = n / binScaler;
         mN = n;
         mMtx.reset(new std::mutex[mBinCount]);
         mBins.resize(mBinCount);
 
-        double k = 1;
-        mMaxBinSize = 10;
-        while (k > std::pow(2, -double(secParam)))
+        if (secParam != 40)
+            throw std::runtime_error(LOCATION);
+
+        if (binScaler == 1.0)
         {
-            ++mMaxBinSize;
-            // cite: Scalable Private Set Intersection Based on OT Extension - Pinkas, et. al
-            k = double(mBinCount) * std::pow(mN * 2.6 / mBinCount / mMaxBinSize, mMaxBinSize);
+            // bins = items
+            switch (n)
+            {
+            case (8):
+            case (16):
+                mMaxBinSize = 16;
+                break;
+            case (1 << 8):
+                mMaxBinSize = 16;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 17;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 18;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 19;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 20;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+
         }
-        --mMaxBinSize;
+        else if (binScaler == 2.0)
+        {
+
+            // bins = items/2
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 20;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 22;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 23;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 24;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 25;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+
+        }
+        else if (binScaler == 3.0)
+        {
+
+            // bins = items/2
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 24;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 25;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 26;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 28;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 29;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+
+        }
+        else if (binScaler == 4.0)
+        {
+            // bins = items / 4
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 26;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 28;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 30;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 31;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 32;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 5.0)
+        {
+            // bins = items / 4
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 29;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 31;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 33;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 34;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 36;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 6.0)
+        {
+            // bins = items / 4
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 32;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 34;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 35;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 37;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 38;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 8.0)
+        {
+            // bins = items / 8
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 36;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 39;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 41;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 42;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 44;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 10.0)
+        {
+            // bins = items / 8
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 40;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 43;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 45;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 47;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 49;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 12.0)
+        {
+            // bins = items / 12
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 44;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 48;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 50;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 52;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 53;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 16.0)
+        {
+            // bins = items / 12
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 51;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 56;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 58;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 60;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 62;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 20.0)
+        {
+            // bins = items / 20
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 58;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 63;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 66;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 68;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 70;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 24.0)
+        {
+            // bins = items / 24
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 64;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 70;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 73;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 76;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 78;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 32.0)
+        {
+            // bins = items / 24
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 76;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 84;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 87;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 90;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 92;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 48.0)
+        {
+            // bins = items / 24
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 98;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 109;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 113;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 116;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 119;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else if (binScaler == 64.0)
+        {
+            // bins = items / 24
+            switch (n)
+            {
+            case (1 << 8):
+                mMaxBinSize = 117;
+                break;
+            case (1 << 12):
+                mMaxBinSize = 133;
+                break;
+            case (1 << 16):
+                mMaxBinSize = 137;
+                break;
+            case (1 << 20):
+                mMaxBinSize = 141;
+                break;
+            case (1 << 24):
+                mMaxBinSize = 144;
+                break;
+            default:
+                throw std::runtime_error(LOCATION);
+                break;
+            }
+        }
+        else
+        {
+            throw std::runtime_error(LOCATION);
+        }
+
+
+
+
+
+
+        //std::cout << IoStream::lock;
+        //double k = 1;
+        //mMaxBinSize = 10;
+        //while (k > -double(secParam))
+        //{
+        //    ++mMaxBinSize;
+        //    double sum = 0, sum2 = 1;
+
+        //    u64 i = mMaxBinSize;
+        //    while (sum != sum2 && i < mN)
+        //    {
+        //        sum2 = sum;
+
+        //        sum += mBinCount * binomial(mN, i) * std::pow(1.0 / mBinCount, i) * std::pow(1 - 1.0 / mBinCount, mN - i);
+
+
+        //        ++i;
+        //        std::cout << "sec = " << std::log2(sum) << std::endl;
+        //    }
+        //    // cite: Scalable Private Set Intersection Based on OT Extension - Pinkas, et. al
+        //    //k = double(mBinCount) * std::pow(mN * 2.6 / mBinCount / mMaxBinSize, mMaxBinSize);
+
+
+        //    k = std::log2(sum);
+        //}
+        ////--mMaxBinSize;
+        //std::cout << IoStream::unlock;
+
 #endif
     }
 

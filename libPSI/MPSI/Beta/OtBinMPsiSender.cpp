@@ -9,6 +9,8 @@
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
 #include "OtBinMPsiDefines.h"
+#include <atomic>
+
 namespace osuCrypto
 {
 
@@ -35,9 +37,10 @@ namespace osuCrypto
         NcoOtExtSender&  ots,
         NcoOtExtReceiver& otRecv,
         block seed,
+        double binScaler,
         u64 inputBitSize)
     {
-        init(n, statSec, { &chl0 }, ots, otRecv, seed);
+        init(n, statSec, { &chl0 }, ots, otRecv, seed, binScaler, inputBitSize);
     }
 
     void OtBinMPsiSender::init(u64 n, u64 statSecParam,
@@ -45,6 +48,7 @@ namespace osuCrypto
         NcoOtExtSender& otSend,
         NcoOtExtReceiver& otRecv,
         block seed,
+        double binScaler,
         u64 inputBitSize)
     {
         mStatSecParam = statSecParam;
@@ -104,7 +108,7 @@ namespace osuCrypto
         gTimer.setTimePoint("init.send.hashSeed");
 
 
-        mBins.init(n, inputBitSize, mHashingSeed, statSecParam);
+        mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
 
         //mPsis.resize(mBins.mBinCount);
 
@@ -299,11 +303,18 @@ namespace osuCrypto
         });
 
         std::atomic<u64> maskIdx(0);// , inserts(0);
-        uPtr<Buff> sendMaskBuff(new Buff);
-        sendMaskBuff->resize(maskPerm.size() * mBins.mMaxBinSize * maskSize);
+        //std::shared_ptr<Buff> sendMaskBuff(new Buff);
+        Buff* sendMaskBuff(new Buff);
+        auto numMasks = maskPerm.size() * mBins.mMaxBinSize;
+        sendMaskBuff->resize(numMasks * maskSize);
         auto maskView = sendMaskBuff->getMatrixView<u8>(maskSize);
 
-        gTimer.setTimePoint("online.send.spaw");
+        u64 masksPer = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
+        u64 numChunks = numMasks / masksPer;
+        std::atomic<u32> sendMaskBuffFreeCounter(numChunks);
+
+
+        auto startTime = gTimer.setTimePoint("online.send.spaw");
 
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
         {
@@ -555,8 +566,12 @@ namespace osuCrypto
                     //if (tIdx == 0) std::cout << "\r" << std::setw(8) << bIdx << " / " << binEnd << " c" << std::flush;
 
                 }
-                if (tIdx == 0) gTimer.setTimePoint("online.send.sendMask");
+                if (tIdx == 0)
+                {
+                    auto midTime = gTimer.setTimePoint("online.send.sendMask");
+                    std::cout << " start->mid  " << std::chrono::duration_cast<std::chrono::milliseconds>(midTime - startTime).count() << std::endl;
 
+                }
                 //std::cout << IoStream::unlock;
 
                 otRecv.check(chl, prng.get<block>());
@@ -572,12 +587,28 @@ namespace osuCrypto
                     maskProm.set_value();
                 }
 
-                if (tIdx == 0)
-                    chl.asyncSend(std::move(sendMaskBuff));
+                //if (tIdx == 0)
+                {
+
+
+                    for (u64 i = tIdx; i < numChunks; i += chls.size())
+                    {
+                        auto curSize = std::min(masksPer, numMasks - i * masksPer) * maskSize;
+
+                        chl.asyncSend(sendMaskBuff->data() + i * masksPer * maskSize, curSize, [&]()
+                        {
+                            // no op, just make sure it lives this long.
+                            //sendMaskBuff.get();
+                            if (--sendMaskBuffFreeCounter == 0)
+                            {
+                                delete sendMaskBuff;
+                            }
+                        });
+                    }
+
+                }
 
                 if (tIdx == 0) gTimer.setTimePoint("online.send.finalMask");
-
-
 
             });
         }
