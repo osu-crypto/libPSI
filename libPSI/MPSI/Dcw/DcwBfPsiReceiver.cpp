@@ -25,7 +25,9 @@ namespace osuCrypto
     }
 
 
-    block DcwBfPsiReceiver::interpolate(block prime, std::vector<block>& msgs, std::vector<u8>& choices)
+    block DcwBfPsiReceiver::interpolate(block prime,
+		std::vector<block>& msgs, 
+		std::vector<u8>& choices)
     {
 
         //ss.reconstruct()
@@ -67,13 +69,13 @@ namespace osuCrypto
 
     void DcwBfPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, Channel & chl, block seed)
     {
-        std::vector<Channel*> cc{ &chl };
+        std::vector<Channel> cc{ chl };
 
         init(n, statSecParam, otExt, cc, seed);
     }
 
 
-    void DcwBfPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, std::vector<Channel*> & chls, block seed)
+    void DcwBfPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, ArrayView<Channel> chls, block seed)
     {
 
         //Timer timer;
@@ -90,7 +92,7 @@ namespace osuCrypto
         auto myHashSeed = prng.get<block>();
 
 
-        auto & chl = *chls[0];
+        auto & chl = chls[0];
         Commit comm(myHashSeed), theirComm;
         chl.asyncSend(comm.data(), comm.size());
         auto theirCommFutre = chl.asyncRecv(theirComm.data(), theirComm.size());
@@ -182,7 +184,7 @@ namespace osuCrypto
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
                 //std::cout<< IoStream::lock << "r recvOt " <<i << "  "<< (**chlIter).getName() << std::endl << IoStream::unlock;
-                recvOtRountine(i + 1, numRecvThreads + 1, *recvOts[i].get(), seed, **chlIter);
+                recvOtRountine(i + 1, numRecvThreads + 1, *recvOts[i].get(), seed, *chlIter);
             });
 
             ++chlIter;
@@ -214,12 +216,12 @@ namespace osuCrypto
 
     void DcwBfPsiReceiver::sendInput(std::vector<block>& inputs, Channel & chl)
     {
-        std::vector<Channel*> cc{ &chl };
+        std::vector<Channel> cc{ chl };
 
         sendInput(inputs, cc);
     }
 
-    void DcwBfPsiReceiver::sendInput(std::vector<block>& inputs, std::vector<Channel*>& chls)
+    void DcwBfPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
         if (inputs.size() != mMyInputSize)
             throw std::runtime_error(LOCATION);
@@ -255,7 +257,7 @@ namespace osuCrypto
 
         auto routine = [&](u64 t)
         {
-            auto & chl = *chls[t];
+            auto & chl = chls[t];
             auto start = inputs.size() * t / chls.size();
             auto end = inputs.size() * (t + 1) / chls.size();
 

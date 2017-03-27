@@ -28,7 +28,7 @@ namespace osuCrypto
 
     void DktMPsiReceiver::sendInput(
         ArrayView<block> inputs,
-        std::vector<Channel*>& chls)
+		ArrayView<Channel> chls)
     {
         std::vector<PRNG> thrdPrng(chls.size());
         for (u64 i = 0; i < thrdPrng.size(); i++)
@@ -87,7 +87,7 @@ namespace osuCrypto
             u64 theirInputStartIdx = theirInputSize * t / chls.size();
             u64 theirInputEndIdx = theirInputSize * (t + 1) / chls.size();
 
-            auto& chl = *chls[t];
+            auto& chl = chls[t];
             auto& prng = thrdPrng[t];
 
             u8 hashOut[SHA1::HashSize];

@@ -1,7 +1,7 @@
 #include "BinOtPsi_Tests.h"
 
 #include "Common.h"
-#include "cryptoTools/Network/BtEndpoint.h"
+#include "cryptoTools/Network/Endpoint.h"
 #include "cryptoTools/Common/Defines.h"
 #include "MPSI/Beta/OtBinMPsiReceiver.h"
 #include "MPSI/Beta/OtBinMPsiSender.h"
@@ -37,7 +37,7 @@ void OtBinPsi_CuckooHasher_Test_Impl()
     MatrixView<u64> hashes(_hashes.begin(), _hashes.end(), h);
     PRNG prng(ZeroBlock);
 
-    for (u64 i = 0; i < hashes.size()[0]; ++i)
+    for (u64 i = 0; i < hashes.bounds()[0]; ++i)
     {
         for (u64 j = 0; j < h; ++j)
         {
@@ -60,7 +60,7 @@ void OtBinPsi_CuckooHasher_Test_Impl()
         hashMap0.insert(i, hashes[i]);
 
         std::vector<u64> tt{ i };
-        MatrixView<u64> mm(hashes[i].data(), 1, 2, false);
+        MatrixView<u64> mm(hashes[i].data(), 1, 2);
         hashMap1.insertBatch(tt, mm, w);
 
 
@@ -94,7 +94,7 @@ void OtBinPsi_CuckooHasher_parallel_Test_Impl()
 
     hashMap.init(setSize, 40, true);
 
-    MatrixView<u64> hashes(setSize, h);
+    Matrix<u64> hashes(setSize, h);
     PRNG prng(ZeroBlock);
     prng.get(hashes.data(), setSize * h);
     std::vector<std::thread> thrds(numThreads);
@@ -115,7 +115,7 @@ void OtBinPsi_CuckooHasher_parallel_Test_Impl()
                 u64 ss = std::min(step, setSize - i);
                 std::vector<u64> idx(ss);
 
-                MatrixView<u64> range(hashes[i].data(), ss, h, false);
+                MatrixView<u64> range(hashes[i].data(), ss, h);
 
                 for (u64 j = 0; j < ss; ++j)
                     idx[j] = j + i;
@@ -183,13 +183,14 @@ void OtBinPsi_Kkrt_EmptrySet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> recvChl{ &ep1.addChannel(name, name) };
-    std::vector<Channel*> sendChl{ &ep0.addChannel(name, name) };
+    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
+    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
 
     KkrtNcoOtReceiver otRecv0, otRecv1;
     KkrtNcoOtSender otSend0, otSend1;
@@ -235,8 +236,8 @@ void OtBinPsi_Kkrt_EmptrySet_Test_Impl()
 
     thrd.join();
 
-    sendChl[0]->close();
-    recvChl[0]->close();
+    sendChl[0].close();
+    recvChl[0].close();
 
     ep0.stop();
     ep1.stop();
@@ -266,16 +267,16 @@ void OtBinPsi_Kkrt_FullSet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> sendChls(numThreads), recvChls(numThreads);
+    std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i] = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
 
@@ -298,8 +299,8 @@ void OtBinPsi_Kkrt_FullSet_Test_Impl()
 
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i]->close();
-        recvChls[i]->close();
+        sendChls[i].close();
+        recvChls[i].close();
     }
 
     ep0.stop();
@@ -329,9 +330,9 @@ void OtBinPsi_Kkrt_SingltonSet_Test_Impl()
     sendSet[0] = recvSet[0];
 
     std::string name("psi");
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     Channel& recvChl = ep1.addChannel(name, name);
@@ -418,13 +419,13 @@ void OtBinPsi_Oos_EmptrySet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> recvChl{ &ep1.addChannel(name, name) };
-    std::vector<Channel*> sendChl{ &ep0.addChannel(name, name) };
+    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
+    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
     std::string solution(SOLUTION_DIR);
     LinearCode code;
     code.loadBinFile(solution + "/../libOTe/libOTe/Tools/bch511.bin");
@@ -473,8 +474,8 @@ void OtBinPsi_Oos_EmptrySet_Test_Impl()
 
     thrd.join();
 
-    sendChl[0]->close();
-    recvChl[0]->close();
+    sendChl[0].close();
+    recvChl[0].close();
 
     ep0.stop();
     ep1.stop();
@@ -503,16 +504,16 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> sendChls(numThreads), recvChls(numThreads);
+    std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i] = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
     LinearCode code;
@@ -537,8 +538,8 @@ void OtBinPsi_Oos_FullSet_Test_Impl()
 
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i]->close();
-        recvChls[i]->close();
+        sendChls[i].close();
+        recvChls[i].close();
     }
 
     ep0.stop();
@@ -580,16 +581,16 @@ void OtBinPsi_Oos_parallel_FullSet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> sendChls(numThreads), recvChls(numThreads);
+    std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i] = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
     LinearCode code;
@@ -614,8 +615,8 @@ void OtBinPsi_Oos_parallel_FullSet_Test_Impl()
 
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i]->close();
-        recvChls[i]->close();
+        sendChls[i].close();
+        recvChls[i].close();
     }
 
     ep0.stop();
@@ -643,9 +644,10 @@ void OtBinPsi_Oos_SingltonSet_Test_Impl()
     sendSet[setSize / 2] = recvSet[0];
 
     std::string name("psi");
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     Channel& recvChl = ep1.addChannel(name, name);
@@ -731,13 +733,13 @@ void OtBinPsi_Rr17_EmptrySet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> recvChl{ &ep1.addChannel(name, name) };
-    std::vector<Channel*> sendChl{ &ep0.addChannel(name, name) };
+    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
+    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
     std::string solution(SOLUTION_DIR);
 
     Rr17NcoOtReceiver otRecv0, otRecv1;
@@ -758,8 +760,8 @@ void OtBinPsi_Rr17_EmptrySet_Test_Impl()
 
     thrd.join();
 
-    sendChl[0]->close();
-    recvChl[0]->close();
+    sendChl[0].close();
+    recvChl[0].close();
 
     ep0.stop();
     ep1.stop();
@@ -788,16 +790,16 @@ void OtBinPsi_Rr17_FullSet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> sendChls(numThreads), recvChls(numThreads);
+    std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i] = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
 
@@ -820,8 +822,8 @@ void OtBinPsi_Rr17_FullSet_Test_Impl()
 
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i]->close();
-        recvChls[i]->close();
+        sendChls[i].close();
+        recvChls[i].close();
     }
 
     ep0.stop();
@@ -867,16 +869,16 @@ void OtBinPsi_Rr17_parallel_FullSet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> sendChls(numThreads), recvChls(numThreads);
+    std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i] = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
 
@@ -899,8 +901,8 @@ void OtBinPsi_Rr17_parallel_FullSet_Test_Impl()
 
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i]->close();
-        recvChls[i]->close();
+        sendChls[i].close();
+        recvChls[i].close();
     }
 
     ep0.stop();
@@ -928,13 +930,13 @@ void OtBinPsi_Rr17_SingltonSet_Test_Impl()
     sendSet[0] = recvSet[0];
 
     std::string name("psi");
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    Channel& recvChl = ep1.addChannel(name, name);
-    Channel& sendChl = ep0.addChannel(name, name);
+    Channel recvChl = ep1.addChannel(name, name);
+    Channel sendChl = ep0.addChannel(name, name);
 
 
     Rr17NcoOtReceiver otRecv0, otRecv1;

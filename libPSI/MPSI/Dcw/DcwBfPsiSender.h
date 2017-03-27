@@ -28,11 +28,11 @@ namespace osuCrypto {
         std::vector<block>mShares;
         block mSharesPrime;
         void init(u64 n, u64 statSecParam, OtExtSender& otExt, Channel& chl, block seed);
-        void init(u64 n, u64 statSecParam, OtExtSender& otExt, std::vector<Channel*>& chl, block seed);
+        void init(u64 n, u64 statSecParam, OtExtSender& otExt, ArrayView<Channel> chl, block seed);
 
 
         void sendInput(std::vector<block>& inputs, Channel& chl);
-        void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl);
+        void sendInput(std::vector<block>& inputs, ArrayView<Channel>chl);
     };
 
 }

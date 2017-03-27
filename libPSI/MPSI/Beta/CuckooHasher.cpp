@@ -174,12 +174,12 @@ namespace osuCrypto
         Workspace& w)
     {
 
-        u64 width = mHashesView.size()[1];
+        u64 width = mHashesView.bounds()[1];
         u64 remaining = inputIdxs.size();
         u64 tryCount = 0;
 
 #ifndef  NDEBUG
-        if (hashs.size()[1] != width)
+        if (hashs.bounds()[1] != width)
             throw std::runtime_error("" LOCATION);
 #endif // ! NDEBUG
 
@@ -489,7 +489,7 @@ namespace osuCrypto
         {
             std::array<u64, 2>  addr;
 
-            for (u64 i = 0; i < hashes.size()[0]; ++i)
+            for (u64 i = 0; i < hashes.bounds()[0]; ++i)
             {
                 idxs[i] = -1;
 
@@ -505,7 +505,7 @@ namespace osuCrypto
 #endif
             }
 
-            for (u64 i = 0; i < hashes.size()[0]; ++i)
+            for (u64 i = 0; i < hashes.bounds()[0]; ++i)
             {
                 if (w.findVal[i][0] != u64(-1))
                 {
@@ -544,7 +544,7 @@ namespace osuCrypto
                 {
                     u64 itemIdx = val & (u64(-1) >> 8);
 
-                    for (u64 j = 0; j < hashes.size()[0]; ++j)
+                    for (u64 j = 0; j < hashes.bounds()[0]; ++j)
                     {
 
                         bool match =

@@ -18,10 +18,10 @@ namespace osuCrypto {
     }
     void AknBfMPsiSender::init(u64 n, u64 statSecParam, OtExtSender & otExt, Channel & chl, block seed)
     {
-        std::vector<Channel*> chls{ &chl };
+        std::vector<Channel> chls{ chl };
         init(n, statSecParam, otExt,chls , seed);
     }
-    void AknBfMPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, std::vector<Channel*>& chls, block seed)
+    void AknBfMPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, ArrayView<Channel> chls, block seed)
     {
         gTimer.setTimePoint("sender.init.start");
         mN = n;
@@ -33,7 +33,7 @@ namespace osuCrypto {
 
         Commit comm(myHashSeed), theirComm;
 
-        auto& chl0 = *chls[0];
+        auto& chl0 = chls[0];
         chl0.asyncSend(comm.data(), comm.size());
         auto theirCommFutre = chl0.asyncRecv(theirComm.data(), theirComm.size());
 
@@ -72,12 +72,12 @@ namespace osuCrypto {
 
     void AknBfMPsiSender::sendInput(std::vector<block>& inputs, Channel & chl)
     {
-        std::vector<Channel*> cc{ &chl };
+        std::vector<Channel> cc{ chl };
 
         sendInput(inputs, cc);
     }
 
-    void AknBfMPsiSender::sendInput(std::vector<block>& inputs, std::vector<Channel*> & chls)
+    void AknBfMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
 
         if (inputs.size() != mN)
@@ -88,7 +88,7 @@ namespace osuCrypto {
         //TODO("real seed");
         PRNG prng(mSeed);
 
-        auto& chl0 = *chls[0];
+        auto& chl0 = chls[0];
 
         //std::cout << "mBfBitCount " << mBfBitCount << std::endl;
 
@@ -104,7 +104,7 @@ namespace osuCrypto {
 
 
         //std::vector<u8> hashBuff(roundUpTo(mNumHashFunctions * sizeof(u64), sizeof(block)));
-        ArrayView<block>bv((mNumHashFunctions + 1) / 2);
+        std::vector<block>bv((mNumHashFunctions + 1) / 2);
 
         ByteStream piBuff;
         piBuff.resize(mBfBitCount * sizeof(LogOtCount_t));
@@ -132,7 +132,7 @@ namespace osuCrypto {
 
         auto routine = [&](u64 t)
         {
-            auto & chl = *chls[t];
+            auto & chl = chls[t];
             auto start = inputs.size() * t / chls.size();
             auto end = inputs.size() * (t + 1) / chls.size();
             std::set<u64> idxs;

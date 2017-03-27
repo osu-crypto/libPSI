@@ -3,7 +3,7 @@
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/BitVector.h"
 #include "cryptoTools/Common/ArrayView.h"
-#include "cryptoTools/Common/MatrixView.h"
+#include "cryptoTools/Common/Matrix.h"
 //#include <mutex>
 #include <atomic>
 #include "MPSI/Beta/CuckooHasher.h"
@@ -52,7 +52,7 @@ namespace osuCrypto
                 curHashIdxs,
                 oldVals;    
 
-            MatrixView<u64>   findVal;
+            Matrix<u64>   findVal;
         };
 
 

@@ -1,6 +1,6 @@
 #include <iostream>
-#include "cryptoTools/Network/BtChannel.h"
-#include "cryptoTools/Network/BtEndpoint.h"
+#include "cryptoTools/Network/Channel.h"
+#include "cryptoTools/Network/Endpoint.h"
 
 using namespace std;
 #include "UnitTests.h" 
@@ -81,16 +81,17 @@ void run(
 
     if (cmd.isSet(tag))
     {
-        BtIOService ios(0);
+        IOService ios(0);
 
 
         if (cmd.hasValue(roleTag))
         {
-            BtEndpoint ep(ios, "localhost", 1213, cmd.get<u32>(roleTag), "none");
+			auto mode = cmd.get<u32>(roleTag) ? EpMode::Server : EpMode::Client;
+            Endpoint ep(ios, "localhost", 1213, mode, "none");
             params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
             for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i] = &ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+                params.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
 
             if (cmd.get<bool>(roleTag))
             {
@@ -104,7 +105,7 @@ void run(
             }
 
             for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i]->close();
+                params.mChls[i].close();
 
             ep.stop();
         }
@@ -115,32 +116,32 @@ void run(
 
             auto thrd = std::thread([&]() 
             {
-                BtEndpoint ep(ios, "localhost", 1213, 0, "none");
+                Endpoint ep(ios, "localhost", 1213, EpMode::Client, "none");
                 params2.mChls.resize(*std::max_element(params2.mNumThreads.begin(), params2.mNumThreads.end()));
 
                 for (u64 i = 0; i < params2.mChls.size(); ++i)
-                    params2.mChls[i] = &ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+                    params2.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
 
                 recvProtol(params2); 
 
 
                 for (u64 i = 0; i < params.mChls.size(); ++i)
-                    params2.mChls[i]->close();
+                    params2.mChls[i].close();
                 ep.stop();
 
             });
             
-            BtEndpoint ep(ios, "localhost", 1213, 1, "none");
+            Endpoint ep(ios, "localhost", 1213, EpMode::Server, "none");
             params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
             for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i] = &ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+                params.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
 
             sendProtol(params);
             
 
             for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i]->close();
+                params.mChls[i].close();
 
             thrd.join();
 
@@ -155,13 +156,13 @@ void run(
 void pingTest(CLP& cmd)
 {
 
-    BtIOService ios(0);
+    IOService ios(0);
 
     if (cmd.hasValue(roleTag))
     {
         if (cmd.get<bool>(roleTag))
         {
-            BtEndpoint sendEP(ios, cmd.get<std::string>(hostNameTag), true, "pringTest");
+            Endpoint sendEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Server, "pringTest");
             auto& chl = sendEP.addChannel("test");
             senderGetLatency(chl);
             chl.close();
@@ -169,7 +170,7 @@ void pingTest(CLP& cmd)
         }
         else
         {
-            BtEndpoint recvEP(ios, cmd.get<std::string>(hostNameTag), false, "pringTest");
+            Endpoint recvEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Client, "pringTest");
             auto& chl = recvEP.addChannel("test");
             recverGetLatency(chl);
             chl.close();
@@ -180,14 +181,14 @@ void pingTest(CLP& cmd)
     {
         auto thrd = std::thread([&]()
         {
-            BtEndpoint sendEP(ios, cmd.get<std::string>(hostNameTag), true, "pringTest");
+            Endpoint sendEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Server, "pringTest");
             auto& chl = sendEP.addChannel("test");
             senderGetLatency(chl);
             chl.close();
             sendEP.stop();
         });
 
-        BtEndpoint recvEP(ios, cmd.get<std::string>(hostNameTag), false, "pringTest");
+        Endpoint recvEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Client, "pringTest");
         auto& chl = recvEP.addChannel("test");
         recverGetLatency(chl);
         chl.close();

@@ -1,5 +1,5 @@
 #pragma once
-#include "cryptoTools/Network/BtChannel.h"
+#include "cryptoTools/Network/Channel.h"
 
 using namespace osuCrypto;
 
@@ -23,13 +23,13 @@ struct LaunchParams
     {
     }
 
-    std::vector<Channel*> getChannels(u64 n)
+    std::vector<Channel> getChannels(u64 n)
     {
-        return  std::vector<Channel*>( mChls.begin(), mChls.begin() + n);
+        return  std::vector<Channel>( mChls.begin(), mChls.begin() + n);
     }
 
     std::string mHostName;
-    std::vector<Channel*> mChls;
+    std::vector<Channel> mChls;
     std::vector<u64> mNumItems;
     std::vector<u64> mNumThreads;
     std::vector<u64> mBinScaler;
@@ -51,7 +51,7 @@ void recverGetLatency(osuCrypto::Channel& chl);
 
 void printTimings(
     std::string tag,
-    std::vector<osuCrypto::Channel *> &chls,
+    std::vector<osuCrypto::Channel> chls,
     long long offlineTime, long long onlineTime,
     LaunchParams & params,
     const osuCrypto::u64 &setSize,

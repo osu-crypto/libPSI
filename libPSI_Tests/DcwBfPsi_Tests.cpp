@@ -1,7 +1,7 @@
 #include "DcwBfPsi_Tests.h"
 
 #include "Common.h"
-#include "cryptoTools/Network/BtEndpoint.h"
+#include "cryptoTools/Network/Endpoint.h"
 #include "cryptoTools/Common/Defines.h"
 #include "MPSI/Dcw/DcwBfPsiReceiver.h"
 #include "MPSI/Dcw/DcwBfPsiSender.h"
@@ -35,13 +35,13 @@ void DcwBfPsi_EmptrySet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> recvChl{ &ep1.addChannel(name, name) };
-    std::vector<Channel*> sendChl{ &ep0.addChannel(name, name) };
+    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
+    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
 
 
     OTOracleReceiver otRecv(ZeroBlock);
@@ -61,7 +61,7 @@ void DcwBfPsi_EmptrySet_Test_Impl()
 
     for (u64 j = 0; j < repeatCount; ++j)
     {
-        recvPSIs[j].init(setSize, psiSecParam, otRecv, *recvChl[0], ZeroBlock);
+        recvPSIs[j].init(setSize, psiSecParam, otRecv, recvChl[0], ZeroBlock);
     }
 
     thrd.join();
@@ -72,7 +72,7 @@ void DcwBfPsi_EmptrySet_Test_Impl()
         {
             DcwBfPsiSender& sender = sendPSIs[j];
 
-            sender.sendInput(sendSet, *sendChl[0]);
+            sender.sendInput(sendSet, sendChl[0]);
         }
     });
 
@@ -81,7 +81,7 @@ void DcwBfPsi_EmptrySet_Test_Impl()
         {
             DcwBfPsiReceiver& recv = recvPSIs[j];
 
-            recv.sendInput(recvSet, *recvChl[0]);
+            recv.sendInput(recvSet, recvChl[0]);
 
             if (recv.mIntersection.size())
                 throw UnitTestFail();
@@ -91,8 +91,8 @@ void DcwBfPsi_EmptrySet_Test_Impl()
     recvThrd.join();
 
 
-    sendChl[0]->close();
-    recvChl[0]->close();
+    sendChl[0].close();
+    recvChl[0].close();
 
     ep0.stop();
     ep1.stop();
@@ -118,16 +118,17 @@ void DcwBfPsi_FullSet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> sendChls(numThreads), recvChls(numThreads);
+    std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i] = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
     OTOracleReceiver otRecv(ZeroBlock);
     OTOracleSender otSend(ZeroBlock);
@@ -149,8 +150,8 @@ void DcwBfPsi_FullSet_Test_Impl()
 
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i]->close();// = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i]->close();// = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i].close();// = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i].close();// = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
     ep0.stop();
@@ -181,9 +182,9 @@ void DcwBfPsi_SingltonSet_Test_Impl()
     sendSet[0] = recvSet[0];
 
     std::string name("psi");
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     Channel& recvChl = ep1.addChannel(name, name);
@@ -198,7 +199,7 @@ void DcwBfPsi_SingltonSet_Test_Impl()
     DcwBfPsiSender sendPSI;
     DcwBfPsiReceiver recvPSI;
     std::thread thrd([&]() {
-        std::vector<Channel*> cc{ &sendChl };
+        std::vector<Channel> cc{ sendChl };
         sendPSI.init(setSize, psiSecParam, otSend, cc, prng.get<block>());
         sendPSI.sendInput(sendSet, sendChl);
     });
@@ -241,13 +242,13 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> recvChl{ &ep1.addChannel(name, name) };
-    std::vector<Channel*> sendChl{ &ep0.addChannel(name, name) };
+    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
+    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
 
 
     OTOracleReceiver otRecv(ZeroBlock);
@@ -267,7 +268,7 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
 
     for (u64 j = 0; j < repeatCount; ++j)
     {
-        recvPSIs[j].init(setSize, psiSecParam, otRecv, *recvChl[0], ZeroBlock);
+        recvPSIs[j].init(setSize, psiSecParam, otRecv, recvChl[0], ZeroBlock);
     }
 
     thrd.join();
@@ -278,7 +279,7 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
         {
             DcwRBfPsiSender& sender = sendPSIs[j];
 
-            sender.sendInput(sendSet, *sendChl[0]);
+            sender.sendInput(sendSet, sendChl[0]);
         }
     });
 
@@ -287,7 +288,7 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
         {
             DcwRBfPsiReceiver& recv = recvPSIs[j];
 
-            recv.sendInput(recvSet, *recvChl[0]);
+            recv.sendInput(recvSet, recvChl[0]);
 
             if (recv.mIntersection.size())
                 throw UnitTestFail();
@@ -297,8 +298,8 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
     recvThrd.join();
 
 
-    sendChl[0]->close();
-    recvChl[0]->close();
+    sendChl[0].close();
+    recvChl[0].close();
 
     ep0.stop();
     ep1.stop();
@@ -325,16 +326,16 @@ void DcwRBfPsi_FullSet_Test_Impl()
 
     std::string name("psi");
 
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    std::vector<Channel*> sendChls(numThreads), recvChls(numThreads);
+    std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i] = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i] = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
     OTOracleReceiver otRecv(ZeroBlock);
     OTOracleSender otSend(ZeroBlock);
@@ -371,8 +372,8 @@ void DcwRBfPsi_FullSet_Test_Impl()
 
     for (u64 i = 0; i < numThreads; ++i)
     {
-        sendChls[i]->close();// = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-        recvChls[i]->close();// = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        sendChls[i].close();// = &ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+        recvChls[i].close();// = &ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
     ep0.stop();
@@ -400,13 +401,13 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
     sendSet[0] = recvSet[0];
 
     std::string name("psi");
-    BtIOService ios(0);
-    BtEndpoint ep0(ios, "localhost", 1212, true, name);
-    BtEndpoint ep1(ios, "localhost", 1212, false, name);
+    IOService ios(0);
+	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    Channel& recvChl = ep1.addChannel(name, name);
-    Channel& sendChl = ep0.addChannel(name, name);
+    Channel recvChl = ep1.addChannel(name, name);
+    Channel sendChl = ep0.addChannel(name, name);
 
 
     OTOracleReceiver otRecv(ZeroBlock);
@@ -421,7 +422,7 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
         for (u64 j = 0; j < repeatCount; ++j)
         {
 
-            std::vector<Channel*> cc{ &sendChl };
+            std::vector<Channel> cc{ sendChl };
             sendPSIs[j].init(setSize, psiSecParam, otSend, cc, prng.get<block>());
         }
     });

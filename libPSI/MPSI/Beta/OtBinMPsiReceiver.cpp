@@ -48,13 +48,14 @@ namespace osuCrypto
         double binScaler,
         u64 inputBitSize)
     {
-        init(n, statSecParam, { &chl0 }, ots, otSend, seed, binScaler, inputBitSize);
+		std::vector<Channel> c{ chl0 };
+        init(n, statSecParam, c, ots, otSend, seed, binScaler, inputBitSize);
     }
 
     void OtBinMPsiReceiver::init(
         u64 n,
         u64 statSecParam,
-        const std::vector<Channel*>& chls,
+        ArrayView<Channel> chls,
         NcoOtExtReceiver& otRecv,
         NcoOtExtSender& otSend,
         block seed,
@@ -105,7 +106,7 @@ namespace osuCrypto
 
         auto myHashSeed = prng.get<block>();
 
-        auto& chl0 = *chls[0];
+        auto& chl0 = chls[0];
 
         // we need a random hash function, so we will both commit to a seed and then later decommit. 
         //This is the commitments phase
@@ -222,8 +223,8 @@ namespace osuCrypto
             // spawn the thread and call the routine.
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                recvOtRoutine(i, chls.size(), *mOtRecvs[i], **chlIter, prngs[i]);
-                sendOtRoutine(i, chls.size(), *mOtSends[i], **chlIter, prngs[i]);
+                recvOtRoutine(i, chls.size(), *mOtRecvs[i], *chlIter, prngs[i]);
+                sendOtRoutine(i, chls.size(), *mOtSends[i], *chlIter, prngs[i]);
             });
 
             ++chlIter;
@@ -265,10 +266,11 @@ namespace osuCrypto
 
     void OtBinMPsiReceiver::sendInput(std::vector<block>& inputs, Channel & chl)
     {
-        sendInput(inputs, { &chl });
+		std::vector<Channel> c{ chl };
+		sendInput(inputs, c);
     }
 
-    void OtBinMPsiReceiver::sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls)
+    void OtBinMPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
         // this is the online phase.
         gTimer.setTimePoint("online.recv.start");
@@ -337,7 +339,7 @@ namespace osuCrypto
                 auto& otSend = *mOtSends[tIdx];
 
 
-                auto& chl = *chls[tIdx];
+                auto& chl = chls[tIdx];
 
                 auto startIdx = tIdx     * mN / thrds.size();
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
@@ -549,7 +551,7 @@ namespace osuCrypto
 
                                     // use aes as a hash function. A weak invertable one. but security doesnt matter here.
                                     mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
-                                    MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2, false);
+                                    MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2);
 
                                     maskMap.insertBatch(tempIdxBuff, hashes, w);
 
@@ -574,7 +576,7 @@ namespace osuCrypto
                 // use aes as a hash function. A weak invertable one. but security doesnt matter here.
                 mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
                 std::vector<u64> idxs(tempIdxBuff.begin(), tempIdxBuff.begin() + tempMaskIdx);
-                MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2, false);
+                MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2);
                 maskMap.insertBatch(idxs, hashes, w);
 
 
@@ -635,9 +637,9 @@ namespace osuCrypto
 
                     auto maskView = buff.getMatrixView<u8>(maskSize);
 
-                    for (u64 i = 0; i < maskView.size()[0]; )
+                    for (u64 i = 0; i < maskView.bounds()[0]; )
                     {
-                        u64 curStepSize = std::min(tempMaskBuff.size(), maskView.size()[0] - i);
+                        u64 curStepSize = std::min(tempMaskBuff.size(), maskView.bounds()[0] - i);
 
                         for (u64 j = 0; j < curStepSize; ++j, ++i)
                         {
@@ -651,7 +653,7 @@ namespace osuCrypto
 
                         mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), curStepSize, tempMaskBuff.data());
 
-                        MatrixView<u64> hashes((u64*)tempMaskBuff.data(), curStepSize, 2, false);
+                        MatrixView<u64> hashes((u64*)tempMaskBuff.data(), curStepSize, 2);
                         maskMap.findBatch(hashes, tempIdxBuff, w);
 
                         for (u64 j = 0; j < curStepSize; ++j)

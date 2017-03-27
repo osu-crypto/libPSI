@@ -24,7 +24,7 @@ namespace osuCrypto
     }
 
 
-    void DktMPsiSender::sendInput(std::vector<block>& inputs, std::vector<Channel*> & chls)
+    void DktMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
 
         auto curveParam = Curve25519;
@@ -68,7 +68,7 @@ namespace osuCrypto
             u64 theirInputStartIdx = theirInputSize * t / chls.size();
             u64 theirInputEndIdx = theirInputSize * (t + 1) / chls.size();
 
-            auto& chl = *chls[t];
+            auto& chl = chls[t];
             auto& prng = thrdPrng[t];
             u8 hashOut[SHA1::HashSize];
 

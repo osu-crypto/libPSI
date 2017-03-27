@@ -24,13 +24,13 @@ namespace osuCrypto
 
     void AknBfMPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, Channel & chl, block seed)
     {
-        std::vector<Channel*> cc{ &chl };
+        std::vector<Channel> cc{ chl };
 
         init(n, statSecParam, otExt, cc, seed);
     }
 
 
-    void AknBfMPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, std::vector<Channel*> & chls, block seed)
+    void AknBfMPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, ArrayView<Channel>  chls, block seed)
     {
 
         //Timer timer;
@@ -47,7 +47,7 @@ namespace osuCrypto
         auto myHashSeed = prng.get<block>();
 
 
-        auto & chl = *chls[0];
+        auto & chl = chls[0];
         Commit comm(myHashSeed), theirComm;
         chl.asyncSend(comm.data(), comm.size());
         auto theirCommFutre = chl.asyncRecv(theirComm.data(), theirComm.size());
@@ -87,12 +87,12 @@ namespace osuCrypto
 
     void AknBfMPsiReceiver::sendInput(std::vector<block>& inputs, Channel & chl)
     {
-        std::vector<Channel*> cc{ &chl };
+        std::vector<Channel> cc{ chl };
 
         sendInput(inputs, cc);
     }
 
-    void AknBfMPsiReceiver::sendInput(std::vector<block>& inputs, std::vector<Channel*>& chls)
+    void AknBfMPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
         if (inputs.size() != mMyInputSize)
             throw std::runtime_error(LOCATION);
@@ -131,10 +131,10 @@ namespace osuCrypto
         ByteStream permuteBuff(mBfBitCount * permByteSize);
         //std::cout << "size  " << permuteBuff.size() << " = " <<mBfBitCount << " * " << permByteSize  << std::endl;
 
-        ArrayView<block>bv((mNumHashFunctions + 1) / 2);
+        std::vector<block>bv((mNumHashFunctions + 1) / 2);
         auto routine = [&](u64 t)
         {
-            auto & chl = *chls[t];
+            auto & chl = chls[t];
             auto start = inputs.size() * t / chls.size();
             auto end = inputs.size() * (t + 1) / chls.size();
             SHA1 hash; 

@@ -1,17 +1,12 @@
 #include "cryptoTools/Common/Log.h"
 #include <functional>
 
-#include "AES_Tests.h"
 #include "AknBfPsi_Tests.h"
-#include "AknOt_Tests.h"
-#include "BtChannel_Tests.h"
 //#include "nkOt_Tests.h"
 //#include "BaseOT_Tests.h"
 //#include "OT_Tests.h"
 //#include "NcoOT_Tests.h"
-#include "AknOt_Tests.h"
 #include "AknBfPsi_Tests.h"
-#include "Ecc_Tests.h"
 #include "BinOtPsi_Tests.h"
 
 #include "ShamirSSScheme_Tests.h"
@@ -43,17 +38,17 @@ void run(std::string name, std::function<void(void)> func)
 
 }
 
-
-void NetWork_all()
-{
-    std::cout << std::endl;
-    run("BtNetwork_Connect1_Boost_Test        ", BtNetwork_Connect1_Boost_Test);
-    run("BtNetwork_OneMegabyteSend_Boost_Test ", BtNetwork_OneMegabyteSend_Boost_Test);
-    run("BtNetwork_ConnectMany_Boost_Test     ", BtNetwork_ConnectMany_Boost_Test);
-    run("BtNetwork_CrossConnect_Test          ", BtNetwork_CrossConnect_Test);
-    run("BtNetwork_ManyEndpoints_Test         ", BtNetwork_ManyEndpoints_Test);
-
-}
+//
+//void NetWork_all()
+//{
+//    std::cout << std::endl;
+//    run("BtNetwork_Connect1_Boost_Test        ", BtNetwork_Connect1_Boost_Test);
+//    run("BtNetwork_OneMegabyteSend_Boost_Test ", BtNetwork_OneMegabyteSend_Boost_Test);
+//    run("BtNetwork_ConnectMany_Boost_Test     ", BtNetwork_ConnectMany_Boost_Test);
+//    run("BtNetwork_CrossConnect_Test          ", BtNetwork_CrossConnect_Test);
+//    run("BtNetwork_ManyEndpoints_Test         ", BtNetwork_ManyEndpoints_Test);
+//
+//}
 
 //void bitVec_all()
 //{
@@ -78,19 +73,19 @@ void NetWork_all()
 //    run("LinearCode_Test_Impl                       ", LinearCode_Test_Impl);
 //    run("NaorPinkasOt_Test                       ", NaorPinkasOt_Test_Impl);
 //}
+////
 //
-
-void Ecc_all()
-{
-    std::cout << std::endl;
-
-    run("Ecc2mNumber_Test                        ", Ecc2mNumber_Test);
-    run("Ecc2mPoint_Test                         ", Ecc2mPoint_Test);
-    run("EccpNumber_Test                         ", EccpNumber_Test);
-    run("EccpPoint_Test                          ", EccpPoint_Test);
-
-}
-
+//void Ecc_all()
+//{
+//    std::cout << std::endl;
+//
+//    run("Ecc2mNumber_Test                        ", Ecc2mNumber_Test);
+//    run("Ecc2mPoint_Test                         ", Ecc2mPoint_Test);
+//    run("EccpNumber_Test                         ", EccpNumber_Test);
+//    run("EccpPoint_Test                          ", EccpPoint_Test);
+//
+//}
+//
 
 
 

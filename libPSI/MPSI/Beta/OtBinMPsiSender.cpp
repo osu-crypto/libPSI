@@ -40,11 +40,12 @@ namespace osuCrypto
         double binScaler,
         u64 inputBitSize)
     {
-        init(n, statSec, { &chl0 }, ots, otRecv, seed, binScaler, inputBitSize);
+		std::vector<Channel> c{ chl0 };
+        init(n, statSec, c, ots, otRecv, seed, binScaler, inputBitSize);
     }
 
     void OtBinMPsiSender::init(u64 n, u64 statSecParam,
-        const std::vector<Channel*>& chls,
+        ArrayView<Channel> chls,
         NcoOtExtSender& otSend,
         NcoOtExtReceiver& otRecv,
         block seed,
@@ -91,7 +92,7 @@ namespace osuCrypto
 
         mPrng.SetSeed(seed);
         auto myHashSeed = mPrng.get<block>();
-        auto& chl0 = *chls[0];
+        auto& chl0 = chls[0];
 
 
         Commit comm(myHashSeed), theirComm;
@@ -214,8 +215,8 @@ namespace osuCrypto
 
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
-                sendOtRoutine(i, chls.size(), *mOtSends[i], **chlIter, prngs[i]);
-                recvOtRoutine(i, chls.size(), *mOtRecvs[i], **chlIter, prngs[i]);
+                sendOtRoutine(i, chls.size(), *mOtSends[i], *chlIter, prngs[i]);
+                recvOtRoutine(i, chls.size(), *mOtRecvs[i], *chlIter, prngs[i]);
             });
             ++chlIter;
         }
@@ -236,10 +237,11 @@ namespace osuCrypto
 
     void OtBinMPsiSender::sendInput(std::vector<block>& inputs, Channel & chl)
     {
-        sendInput(inputs, { &chl });
+		std::vector<Channel> c{ chl };
+		sendInput(inputs, c);
     }
 
-    void OtBinMPsiSender::sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls)
+    void OtBinMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
@@ -311,8 +313,8 @@ namespace osuCrypto
 
         u64 masksPer = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
         u64 numChunks = numMasks / masksPer;
-        std::atomic<u32> sendMaskBuffFreeCounter(numChunks);
-
+        auto sendMaskBuffFreeCounter = new std::atomic<u32>;
+		*sendMaskBuffFreeCounter = numChunks;
 
         auto startTime = gTimer.setTimePoint("online.send.spaw");
 
@@ -328,7 +330,7 @@ namespace osuCrypto
                 auto& otRecv = *mOtRecvs[tIdx];
                 auto& otSend = *mOtSends[tIdx];
 
-                auto& chl = *chls[tIdx];
+                auto& chl = chls[tIdx];
                 auto startIdx = tIdx       * mN / thrds.size();
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
 
@@ -595,13 +597,14 @@ namespace osuCrypto
                     {
                         auto curSize = std::min(masksPer, numMasks - i * masksPer) * maskSize;
 
-                        chl.asyncSend(sendMaskBuff->data() + i * masksPer * maskSize, curSize, [&]()
+                        chl.asyncSend(sendMaskBuff->data() + i * masksPer * maskSize, curSize, [=]()
                         {
                             // no op, just make sure it lives this long.
                             //sendMaskBuff.get();
-                            if (--sendMaskBuffFreeCounter == 0)
+                            if (--*sendMaskBuffFreeCounter == 0)
                             {
                                 delete sendMaskBuff;
+								delete sendMaskBuffFreeCounter;
                             }
                         });
                     }

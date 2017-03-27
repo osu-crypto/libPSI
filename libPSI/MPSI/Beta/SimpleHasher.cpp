@@ -130,8 +130,10 @@ namespace osuCrypto
             // bins = items
             switch (n)
             {
-            case (8):
-            case (16):
+			case (4):
+			case (8):
+			case (16):
+			case (128):
                 mMaxBinSize = 16;
                 break;
             case (1 << 8):

@@ -1,6 +1,6 @@
 #include "dcwMain.h"
 
-#include "cryptoTools/Network/BtEndpoint.h" 
+#include "cryptoTools/Network/Endpoint.h" 
 
 #include "MPSI/DKT/DktMPsiReceiver.h"
 #include "MPSI/DKT/DktMPsiSender.h"
@@ -40,7 +40,7 @@ void DktSend(LaunchParams& params)
                 Timer timer;
 
                 sendPSIs.init(setSize, params.mStatSecParam, prng.get<block>());
-                sendChls[0]->asyncSend(dummy, 1);
+                sendChls[0].asyncSend(dummy, 1);
 
                 sendPSIs.sendInput(set, sendChls);
             }
@@ -74,7 +74,7 @@ void DktRecv(LaunchParams& params)
                 auto start = timer.setTimePoint("start");
                 recvPSIs.init(setSize, params.mStatSecParam, ZeroBlock);
 
-                chls[0]->recv(dummy, 1);
+                chls[0].recv(dummy, 1);
                 auto mid = timer.setTimePoint("init");
 
                 recvPSIs.sendInput(set, chls);

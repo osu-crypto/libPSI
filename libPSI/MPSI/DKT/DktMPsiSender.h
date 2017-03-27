@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/ArrayView.h"
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Crypto/PRNG.h"
 
@@ -20,7 +21,7 @@ namespace osuCrypto
         //void init(u64 n, u64 statSecParam);
 
 
-        void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl);
+        void sendInput(std::vector<block>& inputs, ArrayView<Channel> chl);
         //void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl);
     };
 

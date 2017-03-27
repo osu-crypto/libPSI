@@ -1,6 +1,6 @@
 #include "dcwMain.h"
 
-#include "cryptoTools/Network/BtEndpoint.h" 
+#include "cryptoTools/Network/Endpoint.h" 
 
 
 #include "MPSI/Dcw/DcwBfPsiReceiver.h"
@@ -55,7 +55,7 @@ void DcwSend(
                 gTimer.reset();
 
                 sendPSIs.init(setSize, params.mStatSecParam, otSend, chls, prng.get<block>());
-                chls[0]->asyncSend(dummy, 1);
+                chls[0].asyncSend(dummy, 1);
                 sendPSIs.sendInput(sendSet, chls);
             }
         }
@@ -96,7 +96,7 @@ void DcwRecv(
 
                 recvPSIs.init(setSize, params.mStatSecParam, otRecv, chls, ZeroBlock);
 
-                chls[0]->recv(dummy, 1);
+                chls[0].recv(dummy, 1);
                 auto mid = timer.setTimePoint("init");
 
 
@@ -150,7 +150,7 @@ void DcwRSend(
 
                 gTimer.reset();
                 sendPSIs.init(setSize, params.mStatSecParam, otSend, chls, prng.get<block>());
-                chls[0]->asyncSend(dummy, 1);
+                chls[0].asyncSend(dummy, 1);
                 sendPSIs.sendInput(set, chls);
             }
         }
@@ -192,7 +192,7 @@ void DcwRRecv(
 
                 recvPSIs.init(setSize, params.mStatSecParam, otRecv, chls, ZeroBlock);
 
-                chls[0]->recv(dummy, 1);
+                chls[0].recv(dummy, 1);
                 auto mid = timer.setTimePoint("init");
 
 

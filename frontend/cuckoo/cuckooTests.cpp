@@ -16,7 +16,7 @@ void tt()
     MatrixView<u64> hashes(_hashes.begin(), _hashes.end(), h);
     PRNG prng(ZeroBlock);
 
-    for (u64 i = 0; i < hashes.size()[0]; ++i)
+    for (u64 i = 0; i < hashes.bounds()[0]; ++i)
     {
         idx[i] = i;
         for (u64 j = 0; j < h; ++j)
@@ -41,7 +41,7 @@ void tt()
 
 
     hashMap1.findBatch(hashes, idxret, w);
-    for (u64 i = 0; i < hashes.size()[0]; ++i)
+    for (u64 i = 0; i < hashes.bounds()[0]; ++i)
     {
         if (idxret[i] != i)
         {
@@ -153,7 +153,7 @@ void simpleTest_find_e(int argc, char** argv)
                 c.init(n, 40, false);
 
 
-                MatrixView<u64> hashsView((u64*)hashs.data(), n, h, false);
+                MatrixView<u64> hashsView((u64*)hashs.data(), n, h);
 
                 c.insertBatch(idxs, hashsView, ws);
 
@@ -404,7 +404,7 @@ void simpleTest(int argc, char** argv)
                 c.init(n, 40, false);
 
 
-                MatrixView<u64> hashsView((u64*)hashs.data(), n, h, false);
+                MatrixView<u64> hashsView((u64*)hashs.data(), n, h);
 
                 c.insertBatch(idxs, hashsView, ws);
 
@@ -591,7 +591,7 @@ void simpleTest_var_h(int argc, char** argv)
                     c.init(n, 40, false);
 
 
-                    MatrixView<u64> hashsView((u64*)hashs.data(), n, h, false);
+                    MatrixView<u64> hashsView((u64*)hashs.data(), n, h);
 
                     c.insertBatch(idxs, hashsView, ws);
 

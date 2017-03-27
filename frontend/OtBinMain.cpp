@@ -1,5 +1,5 @@
 #include "bloomFilterMain.h"
-#include "cryptoTools/Network/BtEndpoint.h" 
+#include "cryptoTools/Network/Endpoint.h" 
 
 #include "MPSI/Beta/OtBinMPsiReceiver.h"
 #include "MPSI/Beta/OtBinMPsiSender.h"
@@ -41,7 +41,7 @@ void otBinSend(
     {
         for (auto cc : params.mNumThreads)
         {
-            std::vector<Channel*> sendChls = params.getChannels(cc);
+            std::vector<Channel> sendChls = params.getChannels(cc);
 
             for (auto ss : params.mBinScaler)
             {
@@ -59,24 +59,24 @@ void otBinSend(
 #endif
                     OtBinMPsiSender sendPSIs;
 
-                    sendChls[0]->asyncSend(dummy, 1);
-                    sendChls[0]->recv(dummy, 1);
+                    sendChls[0].asyncSend(dummy, 1);
+                    sendChls[0].recv(dummy, 1);
 
                     sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), ss);
 
-                    sendChls[0]->asyncSend(dummy, 1);
-                    sendChls[0]->recv(dummy, 1);
+                    sendChls[0].asyncSend(dummy, 1);
+                    sendChls[0].recv(dummy, 1);
 
                     sendPSIs.sendInput(set, sendChls);
 
                     u64 dataSent = 0;
                     for (u64 g = 0; g < sendChls.size(); ++g)
                     {
-                        dataSent += sendChls[g]->getTotalDataSent();
+                        dataSent += sendChls[g].getTotalDataSent();
                     }
 
                     for (u64 g = 0; g < sendChls.size(); ++g)
-                        sendChls[g]->resetStats();
+                        sendChls[g].resetStats();
                 }
             }
         }
@@ -127,9 +127,9 @@ void otBinRecv(
                     OtBinMPsiReceiver recvPSIs;
 
 
-                    chls[0]->recv(dummy, 1);
+                    chls[0].recv(dummy, 1);
                     gTimer.reset();
-                    chls[0]->asyncSend(dummy, 1);
+                    chls[0].asyncSend(dummy, 1);
 
 
 
@@ -139,8 +139,8 @@ void otBinRecv(
 
                     recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), ss);
 
-                    chls[0]->asyncSend(dummy, 1);
-                    chls[0]->recv(dummy, 1);
+                    chls[0].asyncSend(dummy, 1);
+                    chls[0].recv(dummy, 1);
                     auto mid = timer.setTimePoint("init");
 
 
@@ -175,7 +175,7 @@ void otBinSend_StandardModel(
     {
         for (auto cc : params.mNumThreads)
         {
-            std::vector<Channel*> sendChls = params.getChannels(cc);
+            std::vector<Channel> sendChls = params.getChannels(cc);
 
             for (auto ss : params.mBinScaler)
             {
@@ -189,24 +189,24 @@ void otBinSend_StandardModel(
 
                     OtBinMPsiSender sendPSIs;
 
-                    sendChls[0]->asyncSend(dummy, 1);
-                    sendChls[0]->recv(dummy, 1);
+                    sendChls[0].asyncSend(dummy, 1);
+                    sendChls[0].recv(dummy, 1);
 
                     sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), ss, params.mBitSize);
 
-                    sendChls[0]->asyncSend(dummy, 1);
-                    sendChls[0]->recv(dummy, 1);
+                    sendChls[0].asyncSend(dummy, 1);
+                    sendChls[0].recv(dummy, 1);
 
                     sendPSIs.sendInput(set, sendChls);
 
                     u64 dataSent = 0;
                     for (u64 g = 0; g < sendChls.size(); ++g)
                     {
-                        dataSent += sendChls[g]->getTotalDataSent();
+                        dataSent += sendChls[g].getTotalDataSent();
                     }
 
                     for (u64 g = 0; g < sendChls.size(); ++g)
-                        sendChls[g]->resetStats();
+                        sendChls[g].resetStats();
                 }
             }
         }
@@ -250,9 +250,9 @@ void otBinRecv_StandardModel(
                     OtBinMPsiReceiver recvPSIs;
 
 
-                    chls[0]->recv(dummy, 1);
+                    chls[0].recv(dummy, 1);
                     gTimer.reset();
-                    chls[0]->asyncSend(dummy, 1);
+                    chls[0].asyncSend(dummy, 1);
 
 
 
@@ -262,8 +262,8 @@ void otBinRecv_StandardModel(
 
                     recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), ss, params.mBitSize);
 
-                    chls[0]->asyncSend(dummy, 1);
-                    chls[0]->recv(dummy, 1);
+                    chls[0].asyncSend(dummy, 1);
+                    chls[0].recv(dummy, 1);
                     auto mid = timer.setTimePoint("init");
 
 

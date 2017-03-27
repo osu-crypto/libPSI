@@ -241,7 +241,7 @@ void recverGetLatency(Channel& chl)
 
 void printTimings(
     std::string tag,
-    std::vector<osuCrypto::Channel *> &chls,
+    std::vector<osuCrypto::Channel> chls,
     long long offlineTime, long long onlineTime,
     LaunchParams & params,
     const osuCrypto::u64 &setSize,
@@ -251,9 +251,9 @@ void printTimings(
     u64 dataSent = 0, dataRecv(0);
     for (u64 g = 0; g < chls.size(); ++g)
     {
-        dataSent += chls[g]->getTotalDataSent();
-        dataRecv += chls[g]->getTotalDataRecv();
-        chls[g]->resetStats();
+        dataSent += chls[g].getTotalDataSent();
+        dataRecv += chls[g].getTotalDataRecv();
+        chls[g].resetStats();
     }
 
     // mico seconds

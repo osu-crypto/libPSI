@@ -26,12 +26,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AES_TestsVS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AknOT_TestsVS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AknBfPsi_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -41,13 +35,7 @@
     <ClCompile Include="ShamirSSScheme_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BtChannel_TestsVS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DtkMPsi_TestsVS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Ecc_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BinOtPsi_TestsVS.cpp">

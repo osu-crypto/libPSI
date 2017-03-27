@@ -41,7 +41,7 @@ namespace osuCrypto {
 
     }
 
-    void DcwRBfPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, std::vector<Channel*>& chls, block seed)
+    void DcwRBfPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, ArrayView<Channel> chls, block seed)
     {
 
         gTimer.setTimePoint("init.start");
@@ -54,7 +54,7 @@ namespace osuCrypto {
 
         Commit comm(myHashSeed), theirComm;
 
-        auto& chl0 = *chls[0];
+        auto& chl0 = chls[0];
         chl0.asyncSend(comm.data(), comm.size());
         auto theirCommFutre = chl0.asyncRecv(theirComm.data(), theirComm.size());
 
@@ -150,7 +150,7 @@ namespace osuCrypto {
             *thrdIter++ = std::thread([&, i, chlIter]()
             {
                 //std::cout << IoStream::lock << "r sendOt " << i << "  " << (**chlIter).getName() << std::endl << IoStream::unlock;
-                sendOtRountine(i + 1, numSendThreads + 1, *sendOts[i].get(), seed, **chlIter);
+                sendOtRountine(i + 1, numSendThreads + 1, *sendOts[i].get(), seed, *chlIter);
             });
 
             ++chlIter;
@@ -191,12 +191,12 @@ namespace osuCrypto {
 
     void DcwRBfPsiSender::sendInput(std::vector<block>& inputs, Channel & chl)
     {
-        std::vector<Channel*> cc{ &chl };
+        std::vector<Channel> cc{ chl };
 
         sendInput(inputs, cc);
     }
 
-    void DcwRBfPsiSender::sendInput(std::vector<block>& inputs, std::vector<Channel*> & chls)
+    void DcwRBfPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
 
         if (inputs.size() != mN)
@@ -205,7 +205,7 @@ namespace osuCrypto {
         gTimer.setTimePoint("online.start");
         PRNG prng(mSeed);
         auto t = 0;
-        auto & chl = *chls[t];
+        auto & chl = chls[t];
 
         BitVector otCorrection(mBfBitCount);
         chl.recv(otCorrection);

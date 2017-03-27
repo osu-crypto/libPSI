@@ -139,13 +139,13 @@ namespace osuCrypto
         Workspace& w)
     {
 
-        u64 width = mHashesView.size()[1];
+        u64 width = mHashesView.bounds()[1];
         u64 remaining = inputIdxs.size();
         u64 tryCount = 0;
         //u64 evists = 0;
 
 #ifndef  NDEBUG
-        if (hashs.size()[1] != width)
+        if (hashs.bounds()[1] != width)
             throw std::runtime_error("" LOCATION);
 #endif // ! NDEBUG
 
@@ -280,7 +280,7 @@ namespace osuCrypto
         {
             std::array<u64, 2>  addr;
 
-            for (u64 i = 0; i < hashes.size()[0]; ++i)
+            for (u64 i = 0; i < hashes.bounds()[0]; ++i)
             {
                 idxs[i] = u64(-1);
 
@@ -296,7 +296,7 @@ namespace osuCrypto
 #endif
             }
 
-            for (u64 i = 0; i < hashes.size()[0]; ++i)
+            for (u64 i = 0; i < hashes.bounds()[0]; ++i)
             {
                 if (w.findVal[i][0] != u64(-1))
                 {
@@ -357,17 +357,17 @@ namespace osuCrypto
         }
         else
         {
-            std::vector<u64> addr(hashes.size()[1]);
+            std::vector<u64> addr(hashes.bounds()[1]);
 
-            for (u64 i = 0; i < hashes.size()[0]; ++i)
+            for (u64 i = 0; i < hashes.bounds()[0]; ++i)
             {
                 idxs[i] = u64(-1);
 
-                for(u64 j =0; j < hashes.size()[1]; ++j)
+                for(u64 j =0; j < hashes.bounds()[1]; ++j)
                     addr[j] = hashes[i][j] % mBins.size();
 
 #ifdef THREAD_SAFE_CUCKOO
-                for (u64 j = 0; j < hashes.size()[1]; ++j)
+                for (u64 j = 0; j < hashes.bounds()[1]; ++j)
                     w.findVal[i][j] = mBins[addr[j]].mVal.load(std::memory_order::memory_order_relaxed);
 #else
                 for (u64 j = 0; j < hashes.size()[1]; ++j)
@@ -375,9 +375,9 @@ namespace osuCrypto
 #endif
             }
 
-            for (u64 i = 0; i < hashes.size()[0]; ++i)
+            for (u64 i = 0; i < hashes.bounds()[0]; ++i)
             {
-                for (u64 j = 0; j < hashes.size()[1] && idxs[i] == u64(-1); ++j)
+                for (u64 j = 0; j < hashes.bounds()[1] && idxs[i] == u64(-1); ++j)
                 {
 
                     if (w.findVal[i][j] != u64(-1))
@@ -386,7 +386,7 @@ namespace osuCrypto
 
                         bool match = true;
 
-                        for (u64 k = 0; k < hashes.size()[1]; ++k)
+                        for (u64 k = 0; k < hashes.bounds()[1]; ++k)
                         {
                             match &= (mHashesView[itemIdx][k] == hashes[i][k]);
                         }
@@ -411,7 +411,7 @@ namespace osuCrypto
                             u64 itemIdx = val & (u64(-1) >> 8);
                             bool match = true;
 
-                            for (u64 k = 0; k < hashes.size()[1]; ++k)
+                            for (u64 k = 0; k < hashes.bounds()[1]; ++k)
                             {
                                 match &= (mHashesView[itemIdx][k] == hashes[i][k]);
                             }

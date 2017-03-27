@@ -1,5 +1,5 @@
 #include "bloomFilterMain.h"
-#include "cryptoTools/Network/BtEndpoint.h" 
+#include "cryptoTools/Network/Endpoint.h" 
 
 #include "MPSI/Rr16/AknBfMPsiReceiver.h"
 #include "MPSI/Rr16/AknBfMPsiSender.h"
@@ -53,8 +53,8 @@ void bfSend(LaunchParams& params)
                 sendPSIs.init(setSize, params.mStatSecParam, otSend, chls, prng.get<block>());
 
 
-                chls[0]->asyncSend(dummy, 1);
-                chls[0]->recv(dummy, 1);
+                chls[0].asyncSend(dummy, 1);
+                chls[0].recv(dummy, 1);
 
                 sendPSIs.sendInput(set, chls);
             }
@@ -66,7 +66,7 @@ void bfSend(LaunchParams& params)
 void bfRecv(LaunchParams& params)
 {
     for (u64 g = 0; g < params.mChls.size(); ++g)
-        params.mChls[g]->resetStats();
+        params.mChls[g].resetStats();
 
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -102,8 +102,8 @@ void bfRecv(LaunchParams& params)
 
 
 
-                chls[0]->asyncSend(dummy, 1);
-                chls[0]->recv(dummy, 1);
+                chls[0].asyncSend(dummy, 1);
+                chls[0].recv(dummy, 1);
                 auto mid = timer.setTimePoint("init");
 
                  
