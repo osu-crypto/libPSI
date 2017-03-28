@@ -187,8 +187,8 @@ void DcwBfPsi_SingltonSet_Test_Impl()
 	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    Channel& recvChl = ep1.addChannel(name, name);
-    Channel& sendChl = ep0.addChannel(name, name);
+    Channel recvChl = ep1.addChannel(name, name);
+    Channel sendChl = ep0.addChannel(name, name);
 
 
     OTOracleReceiver otRecv(ZeroBlock);

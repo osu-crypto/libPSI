@@ -335,8 +335,8 @@ void OtBinPsi_Kkrt_SingltonSet_Test_Impl()
 	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    Channel& recvChl = ep1.addChannel(name, name);
-    Channel& sendChl = ep0.addChannel(name, name);
+    Channel recvChl = ep1.addChannel(name, name);
+    Channel sendChl = ep0.addChannel(name, name);
 
     KkrtNcoOtReceiver otRecv0, otRecv1;
     KkrtNcoOtSender otSend0, otSend1;
@@ -650,8 +650,8 @@ void OtBinPsi_Oos_SingltonSet_Test_Impl()
 	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
-    Channel& recvChl = ep1.addChannel(name, name);
-    Channel& sendChl = ep0.addChannel(name, name);
+    Channel recvChl = ep1.addChannel(name, name);
+    Channel sendChl = ep0.addChannel(name, name);
 
     LinearCode code;
     code.loadBinFile(std::string(SOLUTION_DIR) + "/../libOTe/libOTe/Tools/bch511.bin");

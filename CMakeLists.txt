@@ -50,27 +50,18 @@ SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g -ggdb -rdynamic")
 # default location for libOTe
 set(libOTe_Dirs "${CMAKE_SOURCE_DIR}/../libOTe/")
 include_directories("${libOTe_Dirs}/") 
-#link_directories("${libOTe_Dirs}/lib/")
+include_directories("${libOTe_Dirs}/cryptoTools") 
 
 # default location for miracl
-set(Miracl_Dirs "${libOTe_Dirs}/thirdparty/linux/miracl/")
+set(Miracl_Dirs "${libOTe_Dirs}/cryptoTools/thirdparty/linux/miracl/")
 include_directories("${Miracl_Dirs}") 
-#link_directories("${Miracl_Dirs}/miracl/source/")
 
 # default location for NTL
 set(NTL_Dirs "${CMAKE_SOURCE_DIR}/thirdparty/linux/ntl/")
 include_directories("${NTL_Dirs}/include/")
-#link_directories("${NTL_Dirs}/src/") 
 
 # default location for Boost
-set(BOOST_ROOT "${libOTe_Dirs}/thirdparty/linux/boost/")
-
-
-
-#############################################
-#            Build cryptoTools              #
-#############################################
-#add_subdirectory(${libOTe_Dirs}/ ${CMAKE_CURRENT_BINARY_DIR}/)
+set(BOOST_ROOT "${libOTe_Dirs}/cryptoTools/thirdparty/linux/boost/")
 
 
 #############################################
