@@ -1,8 +1,10 @@
 #include "bloomFilterMain.h"
 #include "cryptoTools/Network/Endpoint.h" 
 
-#include "MPSI/Beta/OtBinMPsiReceiver.h"
-#include "MPSI/Beta/OtBinMPsiSender.h"
+#include "MPSI/Rr17/Rr17a/Rr17aMPsiReceiver.h"
+#include "MPSI/Rr17/Rr17a/Rr17aMPsiSender.h"
+#include "MPSI/Rr17/Rr17b/Rr17bMPsiReceiver.h"
+#include "MPSI/Rr17/Rr17b/Rr17bMPsiSender.h"
 
 #include <fstream>
 using namespace osuCrypto;
@@ -25,7 +27,7 @@ u8 dummy[1];
 
 #define OOS
 
-void otBinSend(
+void rr17aSend(
     LaunchParams& params)
 {
     setThreadName("CP_Test_Thread");
@@ -57,7 +59,7 @@ void otBinSend(
                     KkrtNcoOtReceiver otRecv;
                     KkrtNcoOtSender otSend;
 #endif
-                    OtBinMPsiSender sendPSIs;
+                    Rr17aMPsiSender sendPSIs;
 
                     sendChls[0].asyncSend(dummy, 1);
                     sendChls[0].recv(dummy, 1);
@@ -83,7 +85,7 @@ void otBinSend(
     }
 }
 
-void otBinRecv(
+void rr17aRecv(
     LaunchParams& params)
 {
     setThreadName("CP_Test_Thread");
@@ -108,7 +110,7 @@ void otBinRecv(
             {
                 for (u64 jj = 0; jj < params.mTrials; jj++)
                 {
-                    std::string tag("RR17");
+                    std::string tag("RR17a");
 
                     std::vector<block> sendSet(setSize), recvSet(setSize);
                     for (u64 i = 0; i < setSize; ++i)
@@ -124,7 +126,7 @@ void otBinRecv(
                     KkrtNcoOtReceiver otRecv;
                     KkrtNcoOtSender otSend;
 #endif
-                    OtBinMPsiReceiver recvPSIs;
+                    Rr17aMPsiReceiver recvPSIs;
 
 
                     chls[0].recv(dummy, 1);
@@ -162,7 +164,7 @@ void otBinRecv(
 }
 
 
-void otBinSend_StandardModel(
+void rr17aSend_StandardModel(
     LaunchParams& params)
 {
     setThreadName("CP_Test_Thread");
@@ -187,7 +189,7 @@ void otBinSend_StandardModel(
                     Rr17NcoOtReceiver otRecv;
                     Rr17NcoOtSender otSend;
 
-                    OtBinMPsiSender sendPSIs;
+                    Rr17aMPsiSender sendPSIs;
 
                     sendChls[0].asyncSend(dummy, 1);
                     sendChls[0].recv(dummy, 1);
@@ -213,7 +215,7 @@ void otBinSend_StandardModel(
     }
 }
 
-void otBinRecv_StandardModel(
+void rr17aRecv_StandardModel(
     LaunchParams& params)
 {
     setThreadName("CP_Test_Thread");
@@ -235,7 +237,7 @@ void otBinRecv_StandardModel(
             {
                 for (u64 jj = 0; jj < params.mTrials; jj++)
                 {
-                    std::string tag("RR17");
+                    std::string tag("RR17a-sm");
 
                     std::vector<block> sendSet(setSize), recvSet(setSize);
                     for (u64 i = 0; i < setSize; ++i)
@@ -247,7 +249,7 @@ void otBinRecv_StandardModel(
                     Rr17NcoOtReceiver otRecv;
                     Rr17NcoOtSender otSend;
 
-                    OtBinMPsiReceiver recvPSIs;
+                    Rr17aMPsiReceiver recvPSIs;
 
 
                     chls[0].recv(dummy, 1);
@@ -278,6 +280,134 @@ void otBinRecv_StandardModel(
                     //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
 
                     printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
+                }
+            }
+        }
+    }
+}
+
+
+
+
+void rr17bSend(
+    LaunchParams& params)
+{
+    setThreadName("CP_Test_Thread");
+
+
+    LinearCode code;
+    code.loadBinFile(SOLUTION_DIR "/../libOTe/libOTe/Tools/bch511.bin");
+
+    PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+
+
+    for (auto setSize : params.mNumItems)
+    {
+        for (auto cc : params.mNumThreads)
+        {
+            std::vector<Channel> sendChls = params.getChannels(cc);
+
+            for (auto ss : params.mBinScaler)
+            {
+                for (u64 jj = 0; jj < params.mTrials; jj++)
+                {
+                    std::vector<block> set(setSize);
+                    prng.get(set.data(), set.size());
+
+                    OosNcoOtSender otSend(code, 40);
+
+                    Rr17bMPsiSender sendPSIs;
+
+                    sendChls[0].asyncSend(dummy, 1);
+                    sendChls[0].recv(dummy, 1);
+
+                    sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, prng.get<block>(), ss);
+
+                    sendChls[0].asyncSend(dummy, 1);
+                    sendChls[0].recv(dummy, 1);
+
+                    sendPSIs.sendInput(set, sendChls);
+
+                    u64 dataSent = 0;
+                    for (u64 g = 0; g < sendChls.size(); ++g)
+                    {
+                        dataSent += sendChls[g].getTotalDataSent();
+                    }
+
+                    for (u64 g = 0; g < sendChls.size(); ++g)
+                        sendChls[g].resetStats();
+                }
+            }
+        }
+    }
+}
+
+void rr17bRecv(
+    LaunchParams& params)
+{
+    setThreadName("CP_Test_Thread");
+
+    LinearCode code;
+    code.loadBinFile(SOLUTION_DIR "/../libOTe/libOTe/Tools/bch511.bin");
+
+
+    PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+
+
+    if (params.mVerbose) std::cout << "\n";
+
+    for (auto setSize : params.mNumItems)
+    {
+        for (auto numThreads : params.mNumThreads)
+        {
+            auto chls = params.getChannels(numThreads);
+
+
+            for (auto ss : params.mBinScaler)
+            {
+                for (u64 jj = 0; jj < params.mTrials; jj++)
+                {
+                    std::string tag("RR17b");
+
+                    std::vector<block> sendSet(setSize), recvSet(setSize);
+                    for (u64 i = 0; i < setSize; ++i)
+                    {
+                        sendSet[i] = recvSet[i] = prng.get<block>();
+                    }
+
+
+                    OosNcoOtReceiver otRecv(code, 40);
+                    Rr17bMPsiReceiver recvPSIs;
+
+
+                    chls[0].recv(dummy, 1);
+                    gTimer.reset();
+                    chls[0].asyncSend(dummy, 1);
+
+
+
+                    Timer timer;
+
+                    auto start = timer.setTimePoint("start");
+
+                    recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, prng.get<block>(), ss);
+
+                    chls[0].asyncSend(dummy, 1);
+                    chls[0].recv(dummy, 1);
+                    auto mid = timer.setTimePoint("init");
+
+
+                    recvPSIs.sendInput(recvSet, chls);
+
+
+                    auto end = timer.setTimePoint("done");
+
+                    auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+                    auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+
+                    //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
+
+                    printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads, ss);
                 }
             }
         }

@@ -11,84 +11,109 @@ namespace WeGarbleTests
     {
     public:
 
-        TEST_METHOD(OtBinPsi_CuckooHasher_Test)
+        TEST_METHOD(CuckooHasher_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_CuckooHasher_Test_Impl();
+            CuckooHasher_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_CuckooHasher_parallel_Test)
+        TEST_METHOD(CuckooHasher_parallel_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_CuckooHasher_parallel_Test_Impl();
+            CuckooHasher_parallel_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Kkrt_EmptrySet_Test)
+        TEST_METHOD(Rr17a_Kkrt_EmptrySet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Kkrt_EmptrySet_Test_Impl();
+            Rr17a_Kkrt_EmptrySet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Kkrt_FullSet_Test)
+        TEST_METHOD(Rr17a_Kkrt_FullSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Kkrt_FullSet_Test_Impl();
+            Rr17a_Kkrt_FullSet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Kkrt_SingltonSet_Test)
+        TEST_METHOD(Rr17a_Kkrt_SingltonSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Kkrt_SingltonSet_Test_Impl();
+            Rr17a_Kkrt_SingltonSet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Oos_EmptrySet_Test)
+        TEST_METHOD(Rr17a_Oos_EmptrySet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Oos_EmptrySet_Test_Impl();
+            Rr17a_Oos_EmptrySet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Oos_FullSet_Test)
+        TEST_METHOD(Rr17a_Oos_FullSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Oos_FullSet_Test_Impl();
+            Rr17a_Oos_FullSet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Oos_parallel_FullSet_Test)
+        TEST_METHOD(Rr17a_Oos_parallel_FullSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Oos_parallel_FullSet_Test_Impl();
+            Rr17a_Oos_parallel_FullSet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Oos_SingltonSet_Test)
+        TEST_METHOD(Rr17a_Oos_SingltonSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Oos_SingltonSet_Test_Impl();
+            Rr17a_Oos_SingltonSet_Test_Impl();
         }
 
 
-        TEST_METHOD(OtBinPsi_Rr17_EmptrySet_Test)
+        TEST_METHOD(Rr17a_SM_EmptrySet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Rr17_EmptrySet_Test_Impl();
+            Rr17a_SM_EmptrySet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Rr17_FullSet_Test)
+        TEST_METHOD(Rr17a_SM_FullSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Rr17_FullSet_Test_Impl();
+            Rr17a_SM_FullSet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Rr17_parallel_FullSet_Test)
+        TEST_METHOD(Rr17a_SM_parallel_FullSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Rr17_parallel_FullSet_Test_Impl();
+            Rr17a_SM_parallel_FullSet_Test_Impl();
         }
 
-        TEST_METHOD(OtBinPsi_Rr17_SingltonSet_Test)
+        TEST_METHOD(Rr17b_Oos_SingltonSet_Test)
         {
             InitDebugPrinting();
-            OtBinPsi_Rr17_SingltonSet_Test_Impl();
+            Rr17b_Oos_SingltonSet_Test_Impl();
         }
+
+        TEST_METHOD(Rr17b_Oos_FullSet_Test)
+        {
+            InitDebugPrinting();
+            Rr17b_Oos_FullSet_Test_Impl();
+        }
+
+        TEST_METHOD(Rr17b_Oos_parallel_FullSet_Test)
+        {
+            InitDebugPrinting();
+            Rr17b_Oos_parallel_FullSet_Test_Impl();
+        }
+
+        TEST_METHOD(Rr17b_Oos_EmptrySet_Test)
+        {
+            InitDebugPrinting();
+            Rr17b_Oos_EmptrySet_Test_Impl();
+        }
+
+
+        //TEST_METHOD(Rr17b_Oos_SingltonSet_Test)
+        //{
+        //    InitDebugPrinting();
+        //    Rr17b_Oos_SingltonSet_Test_Impl();
+        //}
 
 
         //TEST_METHOD(OtBinPsi_SingltonSet_serial_Test)

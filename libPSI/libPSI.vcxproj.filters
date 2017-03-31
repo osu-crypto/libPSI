@@ -87,25 +87,31 @@
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MPSI\Beta\OtBinMPsiReceiver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MPSI\Beta\OtBinMPsiSender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MPSI\Beta\SimpleHasher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MPSI\Beta\CuckooHasher.cpp">
+    <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp">
+    <ClCompile Include="MPSI\Rr17\CuckooHasher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr17\SimpleHasher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,28 +134,34 @@
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MPSI\Beta\OtBinMPsiReceiver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPSI\Beta\OtBinMPsiSender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPSI\Beta\SimpleHasher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MPSI\Rr16\AknBfMPsiReceiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MPSI\Beta\CuckooHasher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MPSI\Dcw\ShamirSSScheme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MPSI\Beta\OtBinMPsiDefines.h">
+    <ClInclude Include="MPSI\Rr17\CuckooHasher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\SimpleHasher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

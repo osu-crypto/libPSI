@@ -2,7 +2,7 @@
 #include "cryptoTools/Common/Defines.h"
 using namespace osuCrypto;
 
-#include "MPSI/Beta/CuckooHasher.h"
+#include "MPSI/Rr17/CuckooHasher.h"
 
 
 void test()

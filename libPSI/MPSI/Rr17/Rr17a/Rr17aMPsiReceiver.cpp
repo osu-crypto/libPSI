@@ -1,10 +1,10 @@
-#include "OtBinMPsiReceiver.h"
+#include "Rr17aMPsiReceiver.h"
 #include <future>
 
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
 
-#include "MPSI/Beta/SimpleHasher.h"
+#include "MPSI/Rr17/SimpleHasher.h"
 #include "cryptoTools/Common/Log.h"
 #include "libOTe/Base/naor-pinkas.h"
 #include <unordered_map>
@@ -15,8 +15,8 @@
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
 
-#include "OtBinMPsiDefines.h"
-#include "CuckooHasher.h"
+#include "MPSI/Rr17/Rr17MPsiDefines.h"
+#include "MPSI/Rr17/CuckooHasher.h"
 
 namespace osuCrypto
 {
@@ -30,15 +30,15 @@ namespace osuCrypto
         return _mm_or_si128(v1, v2);
     }
 
-    OtBinMPsiReceiver::OtBinMPsiReceiver()
+    Rr17aMPsiReceiver::Rr17aMPsiReceiver()
     {
     }
 
-    OtBinMPsiReceiver::~OtBinMPsiReceiver()
+    Rr17aMPsiReceiver::~Rr17aMPsiReceiver()
     {
     }
 
-    void OtBinMPsiReceiver::init(
+    void Rr17aMPsiReceiver::init(
         u64 n,
         u64 statSecParam,
         Channel & chl0,
@@ -52,7 +52,7 @@ namespace osuCrypto
         init(n, statSecParam, c, ots, otSend, seed, binScaler, inputBitSize);
     }
 
-    void OtBinMPsiReceiver::init(
+    void Rr17aMPsiReceiver::init(
         u64 n,
         u64 statSecParam,
         ArrayView<Channel> chls,
@@ -264,13 +264,13 @@ namespace osuCrypto
     }
 
 
-    void OtBinMPsiReceiver::sendInput(std::vector<block>& inputs, Channel & chl)
+    void Rr17aMPsiReceiver::sendInput(std::vector<block>& inputs, Channel & chl)
     {
 		std::vector<Channel> c{ chl };
 		sendInput(inputs, c);
     }
 
-    void OtBinMPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void Rr17aMPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
         // this is the online phase.
         gTimer.setTimePoint("online.recv.start");

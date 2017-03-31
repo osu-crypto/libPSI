@@ -1,22 +1,28 @@
 #pragma once
-void OtBinPsi_CuckooHasher_Test_Impl();
-void OtBinPsi_CuckooHasher_parallel_Test_Impl();
+void CuckooHasher_Test_Impl();
+void CuckooHasher_parallel_Test_Impl();
 
-void OtBinPsi_Kkrt_EmptrySet_Test_Impl  ();
-void OtBinPsi_Kkrt_FullSet_Test_Impl    ();
-void OtBinPsi_Kkrt_SingltonSet_Test_Impl();
+void Rr17a_Kkrt_EmptrySet_Test_Impl  ();
+void Rr17a_Kkrt_FullSet_Test_Impl    ();
+void Rr17a_Kkrt_SingltonSet_Test_Impl();
 
 
 
-void OtBinPsi_Oos_EmptrySet_Test_Impl();
-void OtBinPsi_Oos_FullSet_Test_Impl();
-void OtBinPsi_Oos_parallel_FullSet_Test_Impl();
-void OtBinPsi_Oos_SingltonSet_Test_Impl();
+void Rr17a_Oos_EmptrySet_Test_Impl();
+void Rr17a_Oos_FullSet_Test_Impl();
+void Rr17a_Oos_parallel_FullSet_Test_Impl();
+void Rr17a_Oos_SingltonSet_Test_Impl();
 //void OtBinPsi_SingltonSet_serial_Test_Impl();
 
 
 
-void OtBinPsi_Rr17_EmptrySet_Test_Impl();
-void OtBinPsi_Rr17_FullSet_Test_Impl();
-void OtBinPsi_Rr17_parallel_FullSet_Test_Impl();
-void OtBinPsi_Rr17_SingltonSet_Test_Impl();
+void Rr17a_SM_EmptrySet_Test_Impl();
+void Rr17a_SM_FullSet_Test_Impl();
+void Rr17a_SM_parallel_FullSet_Test_Impl();
+void Rr17a_SM_SingltonSet_Test_Impl();
+
+
+void Rr17b_Oos_EmptrySet_Test_Impl();
+void Rr17b_Oos_FullSet_Test_Impl();
+void Rr17b_Oos_parallel_FullSet_Test_Impl();
+void Rr17b_Oos_SingltonSet_Test_Impl();

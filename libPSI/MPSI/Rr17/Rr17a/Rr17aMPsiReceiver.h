@@ -3,16 +3,16 @@
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Network/Channel.h"
 #include "libOTe/NChooseOne/NcoOtExt.h"
-#include "MPSI/Beta/SimpleHasher.h"
+#include "MPSI/Rr17/SimpleHasher.h"
 
 namespace osuCrypto
 {
 
-    class OtBinMPsiReceiver
+    class Rr17aMPsiReceiver
     {
     public:
-        OtBinMPsiReceiver();
-        ~OtBinMPsiReceiver();
+        Rr17aMPsiReceiver();
+        ~Rr17aMPsiReceiver();
         
         //static const u64 CodeWordSize = 7;
         //static const u64 hasherStepSize;

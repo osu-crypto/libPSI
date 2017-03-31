@@ -73,13 +73,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MPSI\Beta\CuckooHasher.cpp" />
+    <ClCompile Include="MPSI\Rr17\CuckooHasher.cpp" />
     <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp" />
-    <ClCompile Include="MPSI\Beta\OtBinMPsiReceiver.cpp" />
-    <ClCompile Include="MPSI\Beta\OtBinMPsiSender.cpp" />
-    <ClCompile Include="MPSI\Beta\SimpleHasher.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp" />
+    <ClCompile Include="MPSI\Rr17\SimpleHasher.cpp" />
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwBfPsiReceiver.cpp" />
@@ -88,14 +90,16 @@
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiSender.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MPSI\Beta\CuckooHasher.h" />
-    <ClInclude Include="MPSI\Beta\OtBinMPsiDefines.h" />
+    <ClInclude Include="MPSI\Rr17\CuckooHasher.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h" />
     <ClInclude Include="MPSI\Dcw\ShamirSSScheme.h" />
     <ClInclude Include="MPSI\Rr16\AknBfMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h" />
-    <ClInclude Include="MPSI\Beta\OtBinMPsiReceiver.h" />
-    <ClInclude Include="MPSI\Beta\OtBinMPsiSender.h" />
-    <ClInclude Include="MPSI\Beta\SimpleHasher.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h" />
+    <ClInclude Include="MPSI\Rr17\SimpleHasher.h" />
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h" />
     <ClInclude Include="MPSI\DKT\DktMPsiSender.h" />
     <ClInclude Include="MPSI\Dcw\DcwBfPsiReceiver.h" />

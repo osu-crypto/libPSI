@@ -1,4 +1,4 @@
-#include "OtBinMPsiSender.h"
+#include "Rr17aMPsiSender.h"
 
 #include "cryptoTools/Crypto/Commit.h"
 #include "cryptoTools/Common/Log.h"
@@ -8,7 +8,7 @@
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
-#include "OtBinMPsiDefines.h"
+#include  "MPSI/Rr17/Rr17MPsiDefines.h"
 #include <atomic>
 
 namespace osuCrypto
@@ -22,17 +22,17 @@ namespace osuCrypto
         return _mm_or_si128(v1, v2);
     }
 
-    OtBinMPsiSender::OtBinMPsiSender()
+    Rr17aMPsiSender::Rr17aMPsiSender()
     {
     }
-    //const u64 OtBinMPsiSender::hasherStepSize(128);
+    //const u64 Rr17aMPsiSender::hasherStepSize(128);
 
 
-    OtBinMPsiSender::~OtBinMPsiSender()
+    Rr17aMPsiSender::~Rr17aMPsiSender()
     {
     }
 
-    void OtBinMPsiSender::init(u64 n, u64 statSec,
+    void Rr17aMPsiSender::init(u64 n, u64 statSec,
         Channel & chl0,
         NcoOtExtSender&  ots,
         NcoOtExtReceiver& otRecv,
@@ -44,7 +44,7 @@ namespace osuCrypto
         init(n, statSec, c, ots, otRecv, seed, binScaler, inputBitSize);
     }
 
-    void OtBinMPsiSender::init(u64 n, u64 statSecParam,
+    void Rr17aMPsiSender::init(u64 n, u64 statSecParam,
         ArrayView<Channel> chls,
         NcoOtExtSender& otSend,
         NcoOtExtReceiver& otRecv,
@@ -235,13 +235,13 @@ namespace osuCrypto
     }
 
 
-    void OtBinMPsiSender::sendInput(std::vector<block>& inputs, Channel & chl)
+    void Rr17aMPsiSender::sendInput(std::vector<block>& inputs, Channel & chl)
     {
 		std::vector<Channel> c{ chl };
 		sendInput(inputs, c);
     }
 
-    void OtBinMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void Rr17aMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
     {
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);

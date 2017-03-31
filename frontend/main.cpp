@@ -32,8 +32,8 @@ DcwTags{ "dcw" },
 DcwrTags{ "dcwr" },
 rr16Tags{ "rr16" },
 rr17Tags{ "rr17" },
-rr17bTags{ "rr17b" },
-rr17cTags{ "rr17c" },
+rr17aSMTags{ "rr17b" },
+rr17bTags{ "rr17c" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -200,64 +200,66 @@ void pingTest(CLP& cmd)
 	ios.stop();
 }
 
-//void com()
-//{
-//	std::vector<int> COMMS{ 3616, 		 33792,
-//	 6328 ,		 16896 	 ,
-//	 12656,   8448 		 ,
-//	 3164 ,		 16896 	 ,
-//	 4068 ,	 8448 		 ,
-//	 6780 ,	 4224 		 ,
-//	 1808 ,		 16896 	 ,
-//	 3616 ,	 8448 		 ,
-//	 7232 ,	 4224 		 ,
-//	 1134 ,	 8448 		 ,
-//	 1890 ,	 4224 		 ,
-//	 3402 ,	 2178 		 ,
-//	 2268 ,	 2112 		 ,
-//	 3024 ,	     1056 	 ,
-//	 6048 ,	     528 	 ,
-//	 756 ,	 2112 		 ,
-//	 1512 ,		 1056 	 ,
-//	 3024 ,		 528 };
-//
-//	std::vector<char> data(40 * 1000 * 1000);
-//
-//	IOService ios;
-//	Endpoint ep0(ios, "localhost", EpMode::Client, "s");
-//	Endpoint ep1(ios, "localhost", EpMode::Server, "s");
-//
-//	auto c0 = ep0.addChannel("c");
-//	auto c1 = ep1.addChannel("c");
-//	c0.waitForConnection();
-//	c1.waitForConnection();
-//
-//	Timer t;
-//	for (u64 i = 0; i < COMMS.size(); i += 2)
-//	{
-//		auto s = t.setTimePoint("s");
-//
-//		c0.asyncSend(data.data(), COMMS[i] * 1000);
-//		c1.recv(data.data(), COMMS[i] * 1000);
-//		auto m = t.setTimePoint("m");
-//		c1.asyncSend(data.data(), COMMS[i + 1] * 1000);
-//		c0.recv(data.data(), COMMS[i + 1] * 1000);
-//
-//		auto e = t.setTimePoint("e");
-//
-//		auto total = std::chrono::duration_cast<std::chrono::milliseconds>(e - s).count();
-//		std::cout << total
-//			//<< " = "
-//			//<< std::chrono::duration_cast<std::chrono::milliseconds>(m - s).count() 
-//			//<< " + " << std::chrono::duration_cast<std::chrono::milliseconds>(e - m).count() 
-//			//<< "        " << int((c0.getTotalDataSent() + c1.getTotalDataSent() ) / (total / 1000.0)  * 8)<< " bps   "
-//			//<< "   " << c0.getTotalDataSent()<<" + "<<c1.getTotalDataSent()  << " bytes "
-//			<< std::endl;
-//
-//		c0.resetStats();
-//		c1.resetStats();
-//	}
-//}
+void com()
+{
+	std::vector<int> COMMS{ 
+        3616, 		 33792,
+	     6328 ,		 16896 	 ,
+	     12656,   8448 		 ,
+	     3164 ,		 16896 	 ,
+	     4068 ,	 8448 		 ,
+	     6780 ,	 4224 		 ,
+	     1808 ,		 16896 	 ,
+	     3616 ,	 8448 		 ,
+	     7232 ,	 4224 		 ,
+	     1134 ,	 8448 		 ,
+	     1890 ,	 4224 		 ,
+	     3402 ,	 2178 		 ,
+	     2268 ,	 2112 		 ,
+	     3024 ,	     1056 	 ,
+	     6048 ,	     528 	 ,
+	     756 ,	 2112 		 ,
+	     1512 ,		 1056 	 ,
+	     3024 ,		 528 
+    };
+
+	std::vector<char> data(40 * 1000 * 1000);
+
+	IOService ios;
+	Endpoint ep0(ios, "localhost", EpMode::Client, "s");
+	Endpoint ep1(ios, "localhost", EpMode::Server, "s");
+
+	auto c0 = ep0.addChannel("c");
+	auto c1 = ep1.addChannel("c");
+	c0.waitForConnection();
+	c1.waitForConnection();
+
+	Timer t;
+	for (u64 i = 0; i < COMMS.size(); i += 2)
+	{
+		auto s = t.setTimePoint("s");
+
+		c0.asyncSend(data.data(), COMMS[i] * 1000);
+		c1.recv(data.data(), COMMS[i] * 1000);
+		auto m = t.setTimePoint("m");
+		c1.asyncSend(data.data(), COMMS[i + 1] * 1000);
+		c0.recv(data.data(), COMMS[i + 1] * 1000);
+
+		auto e = t.setTimePoint("e");
+
+		auto total = std::chrono::duration_cast<std::chrono::milliseconds>(e - s).count();
+		std::cout << COMMS[i] * 1000 << " " << COMMS[i+1] * 1000 << " " << total
+			//<< " = "
+			//<< std::chrono::duration_cast<std::chrono::milliseconds>(m - s).count() 
+			//<< " + " << std::chrono::duration_cast<std::chrono::milliseconds>(e - m).count() 
+			//<< "        " << int((c0.getTotalDataSent() + c1.getTotalDataSent() ) / (total / 1000.0)  * 8)<< " bps   "
+			//<< "   " << c0.getTotalDataSent()<<" + "<<c1.getTotalDataSent()  << " bytes "
+			<< std::endl;
+
+		c0.resetStats();
+		c1.resetStats();
+	}
+}
 
 int main(int argc, char** argv)
 {
@@ -300,9 +302,9 @@ int main(int argc, char** argv)
 	run(DcwRecv, DcwSend, DcwTags, cmd);
 	run(DcwRRecv, DcwRSend, DcwrTags, cmd);
 	run(bfRecv, bfSend, rr16Tags, cmd);
-	run(otBinRecv, otBinSend, rr17Tags, cmd);
-	run(otBinRecv_StandardModel, otBinSend_StandardModel, rr17bTags, cmd);
-	//run(otBinRecv_StandardModel, otBinSend_StandardModel, rr17cTags, cmd);
+	run(rr17aRecv, rr17aSend, rr17Tags, cmd);
+	run(rr17aRecv_StandardModel, rr17aSend_StandardModel, rr17aSMTags, cmd);
+	run(rr17bRecv, rr17bSend, rr17bTags, cmd);
 	run(DktRecv, DktSend, dktTags, cmd);
 
 
@@ -311,8 +313,8 @@ int main(int argc, char** argv)
 		cmd.isSet(DcwrTags) == false &&
 		cmd.isSet(rr16Tags) == false &&
 		cmd.isSet(rr17Tags) == false &&
+		cmd.isSet(rr17aSMTags) == false &&
 		cmd.isSet(rr17bTags) == false &&
-		cmd.isSet(rr17cTags) == false &&
 		cmd.isSet(dktTags) == false &&
 		cmd.isSet(pingTag) == false) ||
 		cmd.isSet(helpTags))
@@ -326,13 +328,13 @@ int main(int argc, char** argv)
 			<< "#######################################################\n" << std::endl;
 
 		std::cout << "Protocols:\n"
-			<< "   -" << DcwTags[0] << "  : DCW13 - Garbled Bloom Filter (semi-honest*)\n"
-			<< "   -" << DcwrTags[0] << " : PSZ14 - Random Garbled Bloom Filter (semi-honest*)\n"
-			<< "   -" << rr16Tags[0] << " : RR16  - Random Garbled Bloom Filter (malicious secure)\n"
-			<< "   -" << rr17Tags[0] << " : RR17  - Hash to bins & compare style (malicious secure)\n"
-			<< "   -" << rr17bTags[0] << ": RR17b - Hash to bins & compare style (standard model malicious secure)\n"
-			<< "   -" << rr17cTags[0] << ": RR17c - Hash to bins & commit compare style (malicious secure)\n"
-			<< "   -" << dktTags[0] << "  : DKT12 - Public key style (malicious secure)\n" << std::endl;
+			<< "   -" << DcwTags[0] <<  "  : DCW13  - Garbled Bloom Filter (semi-honest*)\n"
+			<< "   -" << DcwrTags[0] <<  " : PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
+			<< "   -" << rr16Tags[0] <<  " : RR16   - Random Garbled Bloom Filter (malicious secure)\n"
+			<< "   -" << rr17Tags[0] <<  " : RR17   - Hash to bins & compare style (malicious secure)\n"
+			<< "   -" << rr17aSMTags[0] << ": RR17sm - Hash to bins & compare style (standard model malicious secure)\n"
+			<< "   -" << rr17bTags[0] <<  ": RR17b  - Hash to bins & commit compare style (malicious secure)\n"
+			<< "   -" << dktTags[0] <<  "  : DKT12  - Public key style (malicious secure)\n" << std::endl;
 
 		std::cout << "Parameters:\n"
 			<< "   -" << roleTag[0]

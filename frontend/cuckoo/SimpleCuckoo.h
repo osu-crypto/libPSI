@@ -6,7 +6,7 @@
 #include "cryptoTools/Common/Matrix.h"
 //#include <mutex>
 #include <atomic>
-#include "MPSI/Beta/CuckooHasher.h"
+#include "MPSI/Rr17/CuckooHasher.h"
 //#define THREAD_SAFE_CUCKOO
 
 namespace osuCrypto

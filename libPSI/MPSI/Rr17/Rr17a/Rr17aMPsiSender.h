@@ -2,13 +2,13 @@
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Network/Channel.h"
 #include "libOTe/NChooseOne/NcoOtExt.h"
-#include "MPSI/Beta/SimpleHasher.h"
+#include "MPSI/Rr17/SimpleHasher.h"
 
 namespace osuCrypto
 {
 
 
-    class OtBinMPsiSender
+    class Rr17aMPsiSender
     {
     public:
 
@@ -16,8 +16,8 @@ namespace osuCrypto
         //static const u64 CodeWordSize = 7;
         //static const u64 hasherStepSize;
 
-        OtBinMPsiSender();
-        ~OtBinMPsiSender();
+        Rr17aMPsiSender();
+        ~Rr17aMPsiSender();
 
         bool mHashToSmallerDomain;
         u64 mN, mStatSecParam, mNcoInputBlkSize,  mOtMsgBlkSize;

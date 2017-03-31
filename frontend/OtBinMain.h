@@ -8,16 +8,22 @@
 
 
 //void otBin();
-void otBinRecv(
+void rr17aRecv(
     LaunchParams& params);
 
-void otBinSend(
+void rr17aSend(
     LaunchParams& params);
+
 
 //void otBin();
-void otBinRecv_StandardModel(
+void rr17aRecv_StandardModel(
     LaunchParams& params);
 
-void otBinSend_StandardModel(
+void rr17aSend_StandardModel(
     LaunchParams& params);
 
+void rr17bRecv(
+    LaunchParams& params);
+
+void rr17bSend(
+    LaunchParams& params);

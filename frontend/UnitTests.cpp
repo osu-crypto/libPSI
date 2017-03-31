@@ -116,15 +116,21 @@ void AknBfPsi_all()
 void OtBinPsi_all()
 {
     std::cout << std::endl;
-    run("OtBinPsi_CuckooHasher_Test_Impl          ", OtBinPsi_CuckooHasher_Test_Impl);
-    run("OtBinPsi_Kkrt_EmptrySet_Test_Impl        ", OtBinPsi_Kkrt_EmptrySet_Test_Impl);
-    run("OtBinPsi_Kkrt_FullSet_Test_Impl          ", OtBinPsi_Kkrt_FullSet_Test_Impl);
-    run("OtBinPsi_Kkrt_SingltonSet_Test_Impl      ", OtBinPsi_Kkrt_SingltonSet_Test_Impl);
+    //run("CuckooHasher_Test_Impl          ", CuckooHasher_Test_Impl);
+    //run("Rr17a_Kkrt_EmptrySet_Test_Impl        ", Rr17a_Kkrt_EmptrySet_Test_Impl);
+    //run("Rr17a_Kkrt_FullSet_Test_Impl          ", Rr17a_Kkrt_FullSet_Test_Impl);
+    //run("Rr17a_Kkrt_SingltonSet_Test_Impl      ", Rr17a_Kkrt_SingltonSet_Test_Impl);
 
-    run("OtBinPsi_Oos_EmptrySet_Test_Impl         ", OtBinPsi_Oos_EmptrySet_Test_Impl);
-    run("OtBinPsi_Oos_FullSet_Test_Impl           ", OtBinPsi_Oos_FullSet_Test_Impl);
-    run("OtBinPsi_Oos_SingltonSet_Test_Impl       ", OtBinPsi_Oos_SingltonSet_Test_Impl);
+    //run("Rr17a_Oos_EmptrySet_Test_Impl         ", Rr17a_Oos_EmptrySet_Test_Impl);
+    //run("Rr17a_Oos_FullSet_Test_Impl           ", Rr17a_Oos_FullSet_Test_Impl);
+    //run("Rr17a_Oos_SingltonSet_Test_Impl       ", Rr17a_Oos_SingltonSet_Test_Impl);
+
+    run("Rr17b_Oos_EmptrySet_Test_Impl         ", Rr17b_Oos_EmptrySet_Test_Impl);
+    run("Rr17b_Oos_FullSet_Test_Impl           ", Rr17b_Oos_FullSet_Test_Impl);
+    run("Rr17b_Oos_SingltonSet_Test_Impl       ", Rr17b_Oos_SingltonSet_Test_Impl);
+
 }
+
 void ShamirSSScheme_all()
 {
     std::cout << std::endl;
@@ -136,15 +142,15 @@ void run_all()
     //LinearCode_Test_Impl();
     //run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
     //run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
-    //run("OtBinPsi_Oos_SingltonSet_Test_Impl       ", OtBinPsi_Oos_SingltonSet_Test_Impl);
+    //run("Rr17a_Oos_SingltonSet_Test_Impl       ", Rr17a_Oos_SingltonSet_Test_Impl);
 
-    //run("OtBinPsi_Kkrt_SingltonSet_Test_Impl      ", OtBinPsi_Kkrt_SingltonSet_Test_Impl);
+    //run("Rr17a_Kkrt_SingltonSet_Test_Impl      ", Rr17a_Kkrt_SingltonSet_Test_Impl);
     //NetWork_all();
     //bitVec_all();
     //Ecc_all();
     //OT_all();
-    AknBfPsi_all();
+    //AknBfPsi_all();
     OtBinPsi_all();
-    DcwPsi_all();
-    DktPsi_all();
+    //DcwPsi_all();
+    //DktPsi_all();
 }

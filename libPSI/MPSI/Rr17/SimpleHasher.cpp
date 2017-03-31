@@ -130,7 +130,9 @@ namespace osuCrypto
             // bins = items
             switch (n)
             {
-			case (4):
+            case (1):
+            case (2):
+            case (4):
 			case (8):
 			case (16):
 			case (128):
