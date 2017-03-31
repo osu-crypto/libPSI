@@ -571,7 +571,7 @@ namespace osuCrypto
                 if (tIdx == 0)
                 {
                     auto midTime = gTimer.setTimePoint("online.send.sendMask");
-                    std::cout << " start->mid  " << std::chrono::duration_cast<std::chrono::milliseconds>(midTime - startTime).count() << std::endl;
+                    //std::cout << " start->mid  " << std::chrono::duration_cast<std::chrono::milliseconds>(midTime - startTime).count() << std::endl;
 
                 }
                 //std::cout << IoStream::unlock;

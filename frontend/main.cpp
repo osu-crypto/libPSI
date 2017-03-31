@@ -31,9 +31,9 @@ unitTestTags{ "u", "unitTest" },
 DcwTags{ "dcw" },
 DcwrTags{ "dcwr" },
 rr16Tags{ "rr16" },
-rr17Tags{ "rr17" },
-rr17aSMTags{ "rr17b" },
-rr17bTags{ "rr17c" },
+rr17aTags{ "rr17a" },
+rr17aSMTags{ "rr17a-sm" },
+rr17bTags{ "rr17b" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -302,7 +302,7 @@ int main(int argc, char** argv)
 	run(DcwRecv, DcwSend, DcwTags, cmd);
 	run(DcwRRecv, DcwRSend, DcwrTags, cmd);
 	run(bfRecv, bfSend, rr16Tags, cmd);
-	run(rr17aRecv, rr17aSend, rr17Tags, cmd);
+	run(rr17aRecv, rr17aSend, rr17aTags, cmd);
 	run(rr17aRecv_StandardModel, rr17aSend_StandardModel, rr17aSMTags, cmd);
 	run(rr17bRecv, rr17bSend, rr17bTags, cmd);
 	run(DktRecv, DktSend, dktTags, cmd);
@@ -312,7 +312,7 @@ int main(int argc, char** argv)
 		cmd.isSet(DcwTags) == false &&
 		cmd.isSet(DcwrTags) == false &&
 		cmd.isSet(rr16Tags) == false &&
-		cmd.isSet(rr17Tags) == false &&
+		cmd.isSet(rr17aTags) == false &&
 		cmd.isSet(rr17aSMTags) == false &&
 		cmd.isSet(rr17bTags) == false &&
 		cmd.isSet(dktTags) == false &&
@@ -331,7 +331,7 @@ int main(int argc, char** argv)
 			<< "   -" << DcwTags[0] <<  "  : DCW13  - Garbled Bloom Filter (semi-honest*)\n"
 			<< "   -" << DcwrTags[0] <<  " : PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
 			<< "   -" << rr16Tags[0] <<  " : RR16   - Random Garbled Bloom Filter (malicious secure)\n"
-			<< "   -" << rr17Tags[0] <<  " : RR17   - Hash to bins & compare style (malicious secure)\n"
+			<< "   -" << rr17aTags[0] <<  " : RR17   - Hash to bins & compare style (malicious secure)\n"
 			<< "   -" << rr17aSMTags[0] << ": RR17sm - Hash to bins & compare style (standard model malicious secure)\n"
 			<< "   -" << rr17bTags[0] <<  ": RR17b  - Hash to bins & commit compare style (malicious secure)\n"
 			<< "   -" << dktTags[0] <<  "  : DKT12  - Public key style (malicious secure)\n" << std::endl;
