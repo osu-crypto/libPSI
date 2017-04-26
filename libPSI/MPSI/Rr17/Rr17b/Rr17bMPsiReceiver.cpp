@@ -73,11 +73,13 @@ namespace osuCrypto
         // hash to smaller domain size?
         if (inputBitSize == -1)
         {
+            //std::cout << " inputBitSize = 128*" << std::endl;
             inputBitSize = statSecParam + log2ceil(n) - 1;
             mHashToSmallerDomain = true;
         }
         else
         {
+            //std::cout << " inputBitSize = " << inputBitSize << std::endl;
             inputBitSize -= log2ceil(n);
             mHashToSmallerDomain = false;
         }
@@ -333,7 +335,7 @@ namespace osuCrypto
                 }
 
                 // block until all items have been inserted. the last to finish will set the promise...
-                itemsInsertedBarrier.decremenetWait();
+                itemsInsertedBarrier.decrementWait();
 
                 if (tIdx == 0) gTimer.setTimePoint("online.recv.insertDone");
 
@@ -407,6 +409,9 @@ namespace osuCrypto
 
 
                 otRecv.check(chl, prng.get<block>());
+
+
+                if (tIdx == 0) gTimer.setTimePoint("online.recv.checkdone");
 
 
                 // this is the intersection that will be computed by this thread,

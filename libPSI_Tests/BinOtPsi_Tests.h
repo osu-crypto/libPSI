@@ -26,3 +26,11 @@ void Rr17b_Oos_EmptrySet_Test_Impl();
 void Rr17b_Oos_FullSet_Test_Impl();
 void Rr17b_Oos_parallel_FullSet_Test_Impl();
 void Rr17b_Oos_SingltonSet_Test_Impl();
+
+
+
+
+void Rr17b_SM_EmptrySet_Test_Impl();
+void Rr17b_SM_FullSet_Test_Impl();
+void Rr17b_SM_parallel_FullSet_Test_Impl();
+void Rr17b_SM_SingltonSet_Test_Impl();

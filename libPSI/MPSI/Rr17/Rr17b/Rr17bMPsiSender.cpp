@@ -332,7 +332,7 @@ namespace osuCrypto
                 }
 
                 // block until all items have been inserted. the last to finish will set the promise...
-                itemsInsertedBarrier.decremenetWait();
+                itemsInsertedBarrier.decrementWait();
 
 
                 if (tIdx == 0) gTimer.setTimePoint("online.send.insert");
@@ -447,8 +447,13 @@ namespace osuCrypto
 
                 otSend.check(chl, prng.get<block>());
 
+                if (tIdx == 0)
+                {
+                    auto midTime = gTimer.setTimePoint("online.send.check");
+                }
+
                 // block until all masks are computed. the last to finish will set the promise...
-                encodingsComputedBarrier.decremenetWait();
+                encodingsComputedBarrier.decrementWait();
 
                 
                 auto itemsPerThread = (mN + thrds.size() - 1) / thrds.size();

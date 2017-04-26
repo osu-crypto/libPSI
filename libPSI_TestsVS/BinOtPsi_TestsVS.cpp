@@ -83,7 +83,7 @@ namespace WeGarbleTests
             InitDebugPrinting();
             Rr17a_SM_parallel_FullSet_Test_Impl();
         }
-
+        
         TEST_METHOD(Rr17b_Oos_SingltonSet_Test)
         {
             InitDebugPrinting();
@@ -108,18 +108,29 @@ namespace WeGarbleTests
             Rr17b_Oos_EmptrySet_Test_Impl();
         }
 
+        TEST_METHOD(Rr17b_SM_SingltonSet_Test)
+        {
+            InitDebugPrinting();
+            Rr17b_SM_SingltonSet_Test_Impl();
+        }
 
-        //TEST_METHOD(Rr17b_Oos_SingltonSet_Test)
-        //{
-        //    InitDebugPrinting();
-        //    Rr17b_Oos_SingltonSet_Test_Impl();
-        //}
+        TEST_METHOD(Rr17b_SM_FullSet_Test)
+        {
+            InitDebugPrinting();
+            Rr17b_SM_FullSet_Test_Impl();
+        }
 
+        TEST_METHOD(Rr17b_SM_parallel_FullSet_Test)
+        {
+            InitDebugPrinting();
+            Rr17b_SM_parallel_FullSet_Test_Impl();
+        }
 
-        //TEST_METHOD(OtBinPsi_SingltonSet_serial_Test)
-        //{
-        //    InitDebugPrinting();
-        //    OtBinPsi_SingltonSet_serial_Test_Impl();
-        //}
+        TEST_METHOD(Rr17b_SM_EmptrySet_Test)
+        {
+            InitDebugPrinting();
+            Rr17b_SM_EmptrySet_Test_Impl();
+        }
+
     };
 }

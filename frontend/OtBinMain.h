@@ -27,3 +27,9 @@ void rr17bRecv(
 
 void rr17bSend(
     LaunchParams& params);
+
+void rr17bRecv_StandardModel(
+    LaunchParams& params);
+
+void rr17bSend_StandardModel(
+    LaunchParams& params);
