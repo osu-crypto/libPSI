@@ -149,8 +149,8 @@ void run_all()
     //bitVec_all();
     //Ecc_all();
     //OT_all();
-    //AknBfPsi_all();
+    AknBfPsi_all();
     OtBinPsi_all();
-    //DcwPsi_all();
-    //DktPsi_all();
+    DcwPsi_all();
+    DktPsi_all();
 }
