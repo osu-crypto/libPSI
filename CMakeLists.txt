@@ -40,12 +40,14 @@ endif()
 # Select flags.
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -ggdb -rdynamic")
-SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g -ggdb -rdynamic")
+SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g3 -ggdb -rdynamic")
 
 
 #############################################
 #       Library/includes locations          #
 #############################################
+
+include_directories("${CMAKE_SOURCE_DIR}")
 
 # default location for libOTe
 set(libOTe_Dirs "${CMAKE_SOURCE_DIR}/../libOTe/")

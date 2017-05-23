@@ -3,7 +3,7 @@
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Network/Channel.h"
 #include "libOTe/NChooseOne/NcoOtExt.h"
-#include "libPSI/tools/SimpleHasher.h"
+#include "libPSI/Tools/SimpleHasher.h"
 
 namespace osuCrypto
 {

@@ -9,10 +9,10 @@ set(NTL_Lib_Dirs "${NTL_Dirs}/src/")
 set(NTL_Include_Dirs "${NTL_Dirs}/include/")
 
 # default location for NTL
-set(NTL_LIB "${NTL_Lib_Dirs}libntl.a")
+#set(NTL_LIB "${NTL_Lib_Dirs}nnnnlibntl.a")
 
 
-if(NOT EXISTS "${NTL_LIB}")
+#if(NOT EXISTS "${NTL_LIB}")
   # we failed to find it, try using find_library
   find_library(
     NTL_LIB 
@@ -24,12 +24,12 @@ if(NOT EXISTS "${NTL_LIB}")
     Message(${NTL_LIB})
     message(FATAL_ERROR "Failed to find NTL at ${NTL_Lib_Dirs} or at system locations." )
   endif()
-else()
-  include_directories(${NTL_Include_Dirs})
-  #message(" ----  NTL -----  ${NTL_Include_Dirs}")
-endif()
+#endif()
 
 
+message(STATUS "NTL  ${NTL_LIB}")
+message(STATUS "NTL  ${NTL_Include_Dirs}")
+message(STATUS "NTL  ${NTL_Lib_Dirs}")
 #############################################
 #                 Link Boost                #
 #############################################
