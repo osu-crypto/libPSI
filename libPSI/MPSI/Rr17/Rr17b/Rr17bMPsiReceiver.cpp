@@ -251,7 +251,7 @@ namespace osuCrypto
 
         // This maps tags -> (input position, OT-encoding). 
         std::unordered_multimap<u32, std::pair<u64, block>> tagMap(mN);
-
+        std::mutex tagMapMtx;
 
         // this mutex is used to guard inserting things into the intersection vector.
         std::mutex mInsertMtx;
@@ -387,6 +387,8 @@ namespace osuCrypto
                             //std::cout << "tag[" << inputs[inputIdx] << "] " << (otIdx + perm[i]) << "  " << tag << std::endl;
                             //std::cout << "val[" << inputs[inputIdx] << "] " << (otIdx + perm[i]) << "  " << key << std::endl;
 
+
+                            std::lock_guard<std::mutex> lock(tagMapMtx);
                             tagMap.insert(std::make_pair(tag, std::make_pair(inputIdx, key)));
                         }
 
@@ -453,7 +455,8 @@ namespace osuCrypto
                             auto tag = *(u32*)iter; iter += sizeof(u32);
                             auto enc = toBlock(iter); iter += sizeof(block);
 
-
+                            if (iter > buff.data() + buff.size())
+                                throw std::runtime_error(LOCATION);
 
                             auto tagIter = tagMap.find(tag);
 
