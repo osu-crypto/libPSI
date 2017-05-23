@@ -96,12 +96,6 @@
     <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MPSI\Rr17\CuckooHasher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MPSI\Rr17\SimpleHasher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,6 +106,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PIR\BgiPirClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PIR\BgiPirServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\CuckooHasher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\SimpleHasher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -143,12 +149,6 @@
     <ClInclude Include="MPSI\Dcw\ShamirSSScheme.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MPSI\Rr17\CuckooHasher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPSI\Rr17\SimpleHasher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -162,6 +162,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PIR\BgiPirServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PIR\BgiPirClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\CuckooHasher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\SimpleHasher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

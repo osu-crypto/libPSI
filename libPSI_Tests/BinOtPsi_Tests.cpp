@@ -3,10 +3,10 @@
 #include "Common.h"
 #include "cryptoTools/Network/Endpoint.h"
 #include "cryptoTools/Common/Defines.h"
-#include "MPSI/Rr17/Rr17a/Rr17aMPsiReceiver.h"
-#include "MPSI/Rr17/Rr17a/Rr17aMPsiSender.h"
-#include "MPSI/Rr17/Rr17b/Rr17bMPsiReceiver.h"
-#include "MPSI/Rr17/Rr17b/Rr17bMPsiSender.h"
+#include "libPSI/MPSI/Rr17/Rr17a/Rr17aMPsiReceiver.h"
+#include "libPSI/MPSI/Rr17/Rr17a/Rr17aMPsiSender.h"
+#include "libPSI/MPSI/Rr17/Rr17b/Rr17bMPsiReceiver.h"
+#include "libPSI/MPSI/Rr17/Rr17b/Rr17bMPsiSender.h"
 #include "cryptoTools/Common/Log.h"
 
 #include "libOTe/NChooseOne/KkrtNcoOtReceiver.h"
@@ -21,7 +21,7 @@
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
 
 
-#include "MPSI/Rr17/CuckooHasher.h"
+#include "libPSI/Tools/CuckooHasher.h"
 
 #include <array>
 

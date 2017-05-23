@@ -1,9 +1,9 @@
 #pragma once
 
-#include "cryptoTools/Common/Defines.h"
-#include "cryptoTools/Network/Channel.h"
-#include "libOTe/NChooseOne/NcoOtExt.h"
-#include "MPSI/Rr17/SimpleHasher.h"
+#include <cryptoTools/Common/Defines.h>
+#include <cryptoTools/Network/Channel.h>
+#include <libOTe/NChooseOne/NcoOtExt.h>
+#include <libPSI/Tools/SimpleHasher.h>
 
 namespace osuCrypto
 {

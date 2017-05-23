@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)thirdparty/win/boost;$(SolutionDir)thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include;$(libOTeDir);$(libOTeDir)/cryptoTools;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(SolutionDir)thirdparty/win/boost;$(SolutionDir)thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include;$(libOTeDir);$(libOTeDir)/cryptoTools;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -63,7 +63,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)thirdparty/win/boost;$(SolutionDir)thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include;$(libOTeDir);$(libOTeDir)/cryptoTools;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(SolutionDir)thirdparty/win/boost;$(SolutionDir)thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include;$(libOTeDir);$(libOTeDir)/cryptoTools;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501;NDEBUG</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -73,7 +73,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MPSI\Rr17\CuckooHasher.cpp" />
+    <ClCompile Include="Tools\CuckooHasher.cpp" />
     <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp" />
@@ -81,16 +81,18 @@
     <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp" />
     <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp" />
-    <ClCompile Include="MPSI\Rr17\SimpleHasher.cpp" />
+    <ClCompile Include="Tools\SimpleHasher.cpp" />
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwBfPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwBfPsiSender.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiSender.cpp" />
+    <ClCompile Include="PIR\BgiPirClient.cpp" />
+    <ClCompile Include="PIR\BgiPirServer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MPSI\Rr17\CuckooHasher.h" />
+    <ClInclude Include="Tools\CuckooHasher.h" />
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
     <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h" />
@@ -99,13 +101,15 @@
     <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h" />
     <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h" />
-    <ClInclude Include="MPSI\Rr17\SimpleHasher.h" />
+    <ClInclude Include="Tools\SimpleHasher.h" />
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h" />
     <ClInclude Include="MPSI\DKT\DktMPsiSender.h" />
     <ClInclude Include="MPSI\Dcw\DcwBfPsiReceiver.h" />
     <ClInclude Include="MPSI\Dcw\DcwBfPsiSender.h" />
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiReceiver.h" />
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiSender.h" />
+    <ClInclude Include="PIR\BgiPirClient.h" />
+    <ClInclude Include="PIR\BgiPirServer.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

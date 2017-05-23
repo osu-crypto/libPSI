@@ -6,7 +6,7 @@
 
 #include "Common.h"
 #include "cryptoTools/Common/Defines.h"
-#include "MPSI/Dcw/ShamirSSScheme.h" 
+#include "libPSI/MPSI/Dcw/ShamirSSScheme.h" 
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Crypto/PRNG.h"
 using namespace osuCrypto;

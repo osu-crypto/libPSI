@@ -1,10 +1,10 @@
 #include "bloomFilterMain.h"
 #include "cryptoTools/Network/Endpoint.h" 
 
-#include "MPSI/Rr17/Rr17a/Rr17aMPsiReceiver.h"
-#include "MPSI/Rr17/Rr17a/Rr17aMPsiSender.h"
-#include "MPSI/Rr17/Rr17b/Rr17bMPsiReceiver.h"
-#include "MPSI/Rr17/Rr17b/Rr17bMPsiSender.h"
+#include "libPSI/MPSI/Rr17/Rr17a/Rr17aMPsiReceiver.h"
+#include "libPSI/MPSI/Rr17/Rr17a/Rr17aMPsiSender.h"
+#include "libPSI/MPSI/Rr17/Rr17b/Rr17bMPsiReceiver.h"
+#include "libPSI/MPSI/Rr17/Rr17b/Rr17bMPsiSender.h"
 
 #include <fstream>
 using namespace osuCrypto;

@@ -9,7 +9,7 @@
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
-#include "MPSI/Rr17/Rr17MPsiDefines.h"
+#include "libPSI/MPSI/Rr17/Rr17MPsiDefines.h"
 #include <atomic>
 #include "cryptoTools/Common/ThreadBarrier.h"
 

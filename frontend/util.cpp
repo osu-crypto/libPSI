@@ -81,7 +81,7 @@ void senderGetLatency(Channel& chl)
         auto uspGb = std::chrono::duration_cast<std::chrono::nanoseconds>(recvEnd - recvStart - rrt / 2).count();
 
         // nanoseconds per second
-        double usps = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(1)).count();
+        double usps = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(1)).count());
 
         // MegaBits per second
         auto Mbps = usps / uspGb *  trials;
@@ -110,7 +110,7 @@ void senderGetLatency(Channel& chl)
         auto uspGb = std::chrono::duration_cast<std::chrono::nanoseconds>(recvEnd - recvStart - rrt / 2).count();
 
         // nanoseconds per second
-        double usps = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(1)).count();
+        double usps = 1.0 * std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(1)).count();
 
         // MegaBits per second
         auto Mbps = usps / uspGb *  trials;
@@ -178,7 +178,7 @@ void recverGetLatency(Channel& chl)
         auto uspGb = std::chrono::duration_cast<std::chrono::nanoseconds>(recvEnd - recvStart - rrt / 2).count();
 
         // nanoseconds per second
-        double usps = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(1)).count();
+        double usps = 1.0 * std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(1)).count();
 
         // MegaBits per second
         auto Mbps = usps / uspGb *  trials;
@@ -226,7 +226,7 @@ void recverGetLatency(Channel& chl)
         auto uspGb = std::chrono::duration_cast<std::chrono::nanoseconds>(recvEnd - recvStart - rrt / 2).count();
 
         // nanoseconds per second
-        double usps = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(1)).count();
+        double usps = 1.0 * std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(1)).count();
 
         // MegaBits per second
         auto Mbps = usps / uspGb *  trials;
@@ -257,7 +257,7 @@ void printTimings(
     }
 
     // mico seconds
-    double time = offlineTime + onlineTime;
+    double time = 1.0 * offlineTime + onlineTime;
 
     // milliseconds
     time /= 1000;

@@ -28,6 +28,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionF
 		ExternalDependancies.props = ExternalDependancies.props
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libOTe", "..\libOTe\libOTe\libOTe.vcxproj.vcxproj", "{D159E2F9-226C-4B19-905E-CC1EA0EB013F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cryptoTools", "..\libOTe\cryptoTools\cryptoTools\cryptoTools.vcxproj", "{B707F703-490A-447F-9737-C6A70B8D7A61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -50,6 +54,14 @@ Global
 		{65381340-EC08-45B1-928E-74A4C5D46985}.Debug|x64.Build.0 = Debug|x64
 		{65381340-EC08-45B1-928E-74A4C5D46985}.Release|x64.ActiveCfg = Release|x64
 		{65381340-EC08-45B1-928E-74A4C5D46985}.Release|x64.Build.0 = Release|x64
+		{D159E2F9-226C-4B19-905E-CC1EA0EB013F}.Debug|x64.ActiveCfg = Debug|x64
+		{D159E2F9-226C-4B19-905E-CC1EA0EB013F}.Debug|x64.Build.0 = Debug|x64
+		{D159E2F9-226C-4B19-905E-CC1EA0EB013F}.Release|x64.ActiveCfg = Release|x64
+		{D159E2F9-226C-4B19-905E-CC1EA0EB013F}.Release|x64.Build.0 = Release|x64
+		{B707F703-490A-447F-9737-C6A70B8D7A61}.Debug|x64.ActiveCfg = Debug|x64
+		{B707F703-490A-447F-9737-C6A70B8D7A61}.Debug|x64.Build.0 = Debug|x64
+		{B707F703-490A-447F-9737-C6A70B8D7A61}.Release|x64.ActiveCfg = Release|x64
+		{B707F703-490A-447F-9737-C6A70B8D7A61}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,6 @@
-#include "BgiPsiTests.h"
-#include "apollo/PIR/BgiPirClient.h"
-#include "apollo/PIR/BgiPirServer.h"
+#include "BgiPirTests.h"
+#include "libPSI/PIR/BgiPirClient.h"
+#include "libPSI/PIR/BgiPirServer.h"
 #include <cryptoTools/Network/IOService.h>
 #include <cryptoTools/Crypto/PRNG.h>
 

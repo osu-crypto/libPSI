@@ -1,4 +1,4 @@
-#include "MPSI/Rr17/CuckooHasher.h"
+#include "CuckooHasher.h"
 #include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include <random>

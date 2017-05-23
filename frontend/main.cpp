@@ -64,7 +64,7 @@ void run(
     params.mTrials = cmd.get<u64>(trialsTags);
     params.mHostName = cmd.get<std::string>(hostNameTag);
     params.mBitSize = cmd.get<u64>(bitSizeTag);
-    params.mBinScaler = cmd.getMany<u64>(binScalerTag);
+    params.mBinScaler = cmd.getMany<double>(binScalerTag);
 
 
     if (cmd.isSet(powNumItems))

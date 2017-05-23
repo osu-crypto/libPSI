@@ -3,10 +3,10 @@
 #include "cryptoTools/Network/Endpoint.h" 
 
 
-#include "MPSI/Dcw/DcwBfPsiReceiver.h"
-#include "MPSI/Dcw/DcwBfPsiSender.h"
-#include "MPSI/Dcw/DcwRBfPsiReceiver.h"
-#include "MPSI/Dcw/DcwRBfPsiSender.h"
+#include "libPSI/MPSI/Dcw/DcwBfPsiReceiver.h"
+#include "libPSI/MPSI/Dcw/DcwBfPsiSender.h"
+#include "libPSI/MPSI/Dcw/DcwRBfPsiReceiver.h"
+#include "libPSI/MPSI/Dcw/DcwRBfPsiSender.h"
 
 
 

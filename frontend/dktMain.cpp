@@ -2,8 +2,8 @@
 
 #include "cryptoTools/Network/Endpoint.h" 
 
-#include "MPSI/DKT/DktMPsiReceiver.h"
-#include "MPSI/DKT/DktMPsiSender.h"
+#include "libPSI/MPSI/DKT/DktMPsiReceiver.h"
+#include "libPSI/MPSI/DKT/DktMPsiSender.h"
 
 
 

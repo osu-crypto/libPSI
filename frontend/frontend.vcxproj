@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -51,13 +51,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(libOTeDir);$(libOTeDir)/cryptoTools;$(ProjectDir)../libPSI_Tests;$(ProjectDir)../libPSI;$(ProjectDir)../cryptoTools\thirdparty\win\boost\;$(ProjectDir)../cryptoTools/thirdparty\win\;$(ProjectDir)../cryptoTools/thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(ProjectDir);$(libOTeDir);$(libOTeDir)/cryptoTools;$(ProjectDir)../libPSI_Tests;$(ProjectDir)../libPSI;$(ProjectDir)../cryptoTools\thirdparty\win\boost\;$(ProjectDir)../cryptoTools/thirdparty\win\;$(ProjectDir)../cryptoTools/thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories);$(SolutionDir)\thirdparty\win\boost\stage\lib;C:/libs/boost\stage\lib;$(OutDir);$(SolutionDir)thirdparty\win\;C:/libs/;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win64;$(libOTeDir)\x64\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(SolutionDir)\thirdparty\win\boost\stage\lib;C:/libs/boost\stage\lib;$(OutDir);$(SolutionDir)thirdparty\win\;C:/libs/;$(libOTeDir)\x64\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libOTe.lib;libPSI.lib;libPSI_Tests.lib;cryptoTools.lib;Miracl\x64\$(Configuration)\miracl.lib;NTL\x64\$(Configuration)\NTL.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -68,7 +68,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(libOTeDir);$(libOTeDir)/cryptoTools;$(ProjectDir)../libPSI_Tests;$(ProjectDir)../libPSI;$(ProjectDir)../cryptoTools\thirdparty\win\boost\;$(ProjectDir)../cryptoTools/thirdparty\win\;$(ProjectDir)../cryptoTools/thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(ProjectDir);$(libOTeDir);$(libOTeDir)/cryptoTools;$(ProjectDir)../libPSI_Tests;$(ProjectDir)../libPSI;$(ProjectDir)../cryptoTools\thirdparty\win\boost\;$(ProjectDir)../cryptoTools/thirdparty\win\;$(ProjectDir)../cryptoTools/thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_WIN32_WINNT=0x0501;DEBUG;_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>

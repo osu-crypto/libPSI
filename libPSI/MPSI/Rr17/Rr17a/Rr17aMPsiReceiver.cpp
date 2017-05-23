@@ -1,12 +1,12 @@
 #include "Rr17aMPsiReceiver.h"
 #include <future>
 
-#include "cryptoTools/Crypto/PRNG.h"
-#include "cryptoTools/Crypto/Commit.h"
+#include <cryptoTools/Crypto/PRNG.h>
+#include <cryptoTools/Crypto/Commit.h>
 
-#include "MPSI/Rr17/SimpleHasher.h"
-#include "cryptoTools/Common/Log.h"
-#include "libOTe/Base/naor-pinkas.h"
+#include <libPSI/Tools/SimpleHasher.h>
+#include <cryptoTools/Common/Log.h>
+#include <libOTe/Base/naor-pinkas.h>
 #include <unordered_map>
 
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
@@ -15,8 +15,8 @@
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
 
-#include "MPSI/Rr17/Rr17MPsiDefines.h"
-#include "MPSI/Rr17/CuckooHasher.h"
+#include <libPSI/MPSI/Rr17/Rr17MPsiDefines.h>
+#include <libPSI/Tools/CuckooHasher.h>
 
 namespace osuCrypto
 {

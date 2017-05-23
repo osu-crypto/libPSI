@@ -32,7 +32,7 @@ struct LaunchParams
     std::vector<Channel> mChls;
     std::vector<u64> mNumItems;
     std::vector<u64> mNumThreads;
-    std::vector<u64> mBinScaler;
+    std::vector<double> mBinScaler;
 
     u64 mBitSize;
     u64 mVerbose;
