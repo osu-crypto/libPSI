@@ -220,3 +220,5 @@ CMakeCache.txt
 *.cmake
 
 *.a
+
+*.json
