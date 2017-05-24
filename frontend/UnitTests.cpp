@@ -13,6 +13,8 @@
 #include "DcwBfPsi_Tests.h"
 #include "DktMPsi_Tests.h"
 
+#include "BgiPirTests.h"
+
 using namespace osuCrypto;
 
 void run(std::string name, std::function<void(void)> func)
@@ -137,6 +139,14 @@ void ShamirSSScheme_all()
     run("ShamirSSScheme_GF2X_Test                 ", ShamirSSScheme_Test);
 }
 
+
+void BGI_PIR_all()
+{
+    std::cout << std::endl;
+    run("BGI_keyGen_Test                 ", BgiPir_keyGen_test);
+    run("BGI_PIR_Test           ", BgiPir_PIR_test);
+}
+
 void run_all()
 {
     //LinearCode_Test_Impl();
@@ -153,4 +163,5 @@ void run_all()
     OtBinPsi_all();
     DcwPsi_all();
     DktPsi_all();
+    BGI_PIR_all();
 }
