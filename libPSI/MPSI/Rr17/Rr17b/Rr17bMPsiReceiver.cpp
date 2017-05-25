@@ -4,7 +4,7 @@
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
 
-#include "libPSI/tools/SimpleHasher.h"
+#include "libPSI/Tools/SimpleHasher.h"
 #include "cryptoTools/Common/Log.h"
 #include "libOTe/Base/naor-pinkas.h"
 #include <unordered_map>

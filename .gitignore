@@ -207,3 +207,18 @@ mpsi.VC*
 testout.txt
 online.txt
 offline.txt
+
+#VS Code
+build/
+
+
+#CMAKE Stuff
+*/CMakeFiles/
+CMakeFiles/*
+Makefile
+CMakeCache.txt
+*.cmake
+
+*.a
+
+*.json
