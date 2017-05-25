@@ -85,14 +85,9 @@ namespace osuCrypto
         }
 
 
-        // must be a multiple of 128...
-        u64 baseOtCount;// = 128 * CodeWordSize;
-        u64 compSecParam = 128;
 
-        otRecv.getParams(
-            true,
-            compSecParam, statSecParam, inputBitSize, mN, //  input
-            mNcoInputBlkSize, baseOtCount); // output
+        otRecv.configure( true, statSecParam, inputBitSize); 
+        u64 baseOtCount = otRecv.getBaseOTCount();
 
         //mOtMsgBlkSize = (baseOtCount + 127) / 128;
 

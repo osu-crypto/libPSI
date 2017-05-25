@@ -11,8 +11,8 @@ using namespace osuCrypto;
 #include "util.h"
 
 #include "cryptoTools/Common/Defines.h"
-#include "libOTe/NChooseOne/KkrtNcoOtReceiver.h"
-#include "libOTe/NChooseOne/KkrtNcoOtSender.h"
+#include "libOTe/NChooseOne/Kkrt/KkrtNcoOtReceiver.h"
+#include "libOTe/NChooseOne/Kkrt/KkrtNcoOtSender.h"
 
 #include "libOTe/NChooseOne/Oos/OosNcoOtReceiver.h"
 #include "libOTe/NChooseOne/Oos/OosNcoOtSender.h"
@@ -33,9 +33,6 @@ void rr17aSend(
     setThreadName("CP_Test_Thread");
 
 
-    LinearCode code;
-    code.loadBinFile(SOLUTION_DIR "/../libOTe/libOTe/Tools/bch511.bin");
-
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
@@ -53,8 +50,8 @@ void rr17aSend(
                     prng.get(set.data(), set.size());
 
 #ifdef OOS
-                    OosNcoOtReceiver otRecv(code, 40);
-                    OosNcoOtSender otSend(code, 40);
+                    OosNcoOtReceiver otRecv;
+                    OosNcoOtSender   otSend;
 #else
                     KkrtNcoOtReceiver otRecv;
                     KkrtNcoOtSender otSend;
@@ -90,9 +87,6 @@ void rr17aRecv(
 {
     setThreadName("CP_Test_Thread");
 
-    LinearCode code;
-    code.loadBinFile(SOLUTION_DIR "/../libOTe/libOTe/Tools/bch511.bin");
-
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -120,8 +114,8 @@ void rr17aRecv(
 
 
 #ifdef OOS
-                    OosNcoOtReceiver otRecv(code, 40);
-                    OosNcoOtSender otSend(code, 40);
+                    OosNcoOtReceiver otRecv;
+                    OosNcoOtSender   otSend;
 #else
                     KkrtNcoOtReceiver otRecv;
                     KkrtNcoOtSender otSend;
@@ -295,9 +289,6 @@ void rr17bSend(
     setThreadName("CP_Test_Thread");
 
 
-    LinearCode code;
-    code.loadBinFile(SOLUTION_DIR "/../libOTe/libOTe/Tools/bch511.bin");
-
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
@@ -314,7 +305,7 @@ void rr17bSend(
                     std::vector<block> set(setSize);
                     prng.get(set.data(), set.size());
 
-                    OosNcoOtSender otSend(code, 40);
+                    OosNcoOtSender   otSend;
 
                     Rr17bMPsiSender sendPSIs;
 
@@ -380,7 +371,7 @@ void rr17bRecv(
                     }
 
 
-                    OosNcoOtReceiver otRecv(code, 40);
+                    OosNcoOtReceiver otRecv;// (code, 40);
                     Rr17bMPsiReceiver recvPSIs;
 
 

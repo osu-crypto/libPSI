@@ -23,23 +23,23 @@ namespace WeGarbleTests
             CuckooHasher_parallel_Test_Impl();
         }
 
-        TEST_METHOD(Rr17a_Kkrt_EmptrySet_Test)
-        {
-            InitDebugPrinting();
-            Rr17a_Kkrt_EmptrySet_Test_Impl();
-        }
+        //TEST_METHOD(Rr17a_Kkrt_EmptrySet_Test)
+        //{
+        //    InitDebugPrinting();
+        //    Rr17a_Kkrt_EmptrySet_Test_Impl();
+        //}
 
-        TEST_METHOD(Rr17a_Kkrt_FullSet_Test)
-        {
-            InitDebugPrinting();
-            Rr17a_Kkrt_FullSet_Test_Impl();
-        }
+        //TEST_METHOD(Rr17a_Kkrt_FullSet_Test)
+        //{
+        //    InitDebugPrinting();
+        //    Rr17a_Kkrt_FullSet_Test_Impl();
+        //}
 
-        TEST_METHOD(Rr17a_Kkrt_SingltonSet_Test)
-        {
-            InitDebugPrinting();
-            Rr17a_Kkrt_SingltonSet_Test_Impl();
-        }
+        //TEST_METHOD(Rr17a_Kkrt_SingltonSet_Test)
+        //{
+        //    InitDebugPrinting();
+        //    Rr17a_Kkrt_SingltonSet_Test_Impl();
+        //}
 
         TEST_METHOD(Rr17a_Oos_EmptrySet_Test)
         {

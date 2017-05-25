@@ -82,20 +82,9 @@ namespace osuCrypto
             mHashToSmallerDomain = false;
         }
 
-
-        // must be a multiple of 128...
-        u64 baseOtCount;// = 128 * CodeWordSize;
-        u64 compSecParam = 128;
-
-        otSend.getParams(
-            true,
-            compSecParam, statSecParam, inputBitSize, mN, //  input
-            mNcoInputBlkSize, baseOtCount); // output
-
-        otRecv.getParams(
-            true,
-            compSecParam, statSecParam, inputBitSize, mN, //  input
-            mNcoInputBlkSize, baseOtCount); // output
+        otSend.configure(true, statSecParam, inputBitSize);
+        otRecv.configure(true, statSecParam, inputBitSize); 
+        u64 baseOtCount = otSend.getBaseOTCount();
 
         //mOtMsgBlkSize = (baseOtCount + 127) / 128;
 
@@ -318,11 +307,8 @@ namespace osuCrypto
         // this mutex is used to guard inserting things into the intersection vector.
         std::mutex mInsertMtx;
 
-        std::vector<std::vector<block>> ncoInputBuff(mNcoInputBlkSize);
-
-
-        for (u64 hashIdx = 0; hashIdx < ncoInputBuff.size(); ++hashIdx)
-            ncoInputBuff[hashIdx].resize(inputs.size());
+        std::vector<block> hashToSmallerDomainBuff( mHashToSmallerDomain ? mN : 0);
+        span<block> ncoInputBuff(mHashToSmallerDomain ? hashToSmallerDomainBuff : inputs);
 
         //std::cout << ncoInputBuff.data() << "  " << ncoInputBuff[0].data() << std::endl;
 
@@ -345,9 +331,7 @@ namespace osuCrypto
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
 
 
-                std::vector<AES> ncoInputHasher(mNcoInputBlkSize);
-                for (u64 i = 0; i < ncoInputHasher.size(); ++i)
-                    ncoInputHasher[i].setKey(_mm_set1_epi64x(i) ^ mHashingSeed);
+                AES ncoInputHasher(mHashingSeed);
 
                 u64 phaseShift = log2ceil(mN);
                 //if (phaseShift > 3)
@@ -361,25 +345,22 @@ namespace osuCrypto
                     if (mHashToSmallerDomain)
                     {
 
-                        for (u64 hashIdx = 0; hashIdx < ncoInputHasher.size(); ++hashIdx)
-                        {
-                            ncoInputHasher[hashIdx].ecbEncBlocks(
+                            ncoInputHasher.ecbEncBlocks(
                                 inputs.data() + i,
                                 currentStepSize,
-                                ncoInputBuff[hashIdx].data() + i);
-                        }
+                                ncoInputBuff.data() + i);
 
                     }
                     else
                     {
                         // simple hack to skip hashing to smaller domain.
-                        memcpy(ncoInputBuff[0].data() + i, inputs.data() + i, currentStepSize * sizeof(block));
+                        //memcpy(ncoInputBuff[0].data() + i, inputs.data() + i, currentStepSize * sizeof(block));
                     }
                     // since we are using random codes, lets just use the first part of the code 
                     // as where each item should be hashed.
                     for (u64 j = 0; j < currentStepSize; ++j)
                     {
-                        block& item = ncoInputBuff[0][i + j];
+                        block& item = ncoInputBuff[i + j];
                         u64 addr = *(u64*)&item % mBins.mBinCount;
 
                         // implements phasing. Note that we are doing very course phasing. 
@@ -433,7 +414,6 @@ namespace osuCrypto
 
                 u64 otIdx = 0;
 
-                std::vector<block> ncoInput(mNcoInputBlkSize);
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
@@ -451,15 +431,12 @@ namespace osuCrypto
                             std::swap(perm[i], perm[swapIdx]);
 
 
-                            for (u64 j = 0; j < ncoInput.size(); ++j)
-                                ncoInput[j] = ncoInputBuff[j][inputIdx];
-
-
-
                             otRecv.encode(
-                                otIdx + perm[i],      // input
-                                ncoInput,             // input
-                                recvMasks[inputIdx]); // output
+                                otIdx + perm[i],         // input
+                                &ncoInputBuff[inputIdx], // input
+                                &recvMasks[inputIdx]);   // output
+
+                            //std::cout << "input[" << inputIdx << "] = " << ncoInputBuff[inputIdx] << " -> " << recvMasks[inputIdx] << " r" << (otIdx + perm[i]) << std::endl;
                         }
 
                         for (u64 i = bin.size(); i < mBins.mMaxBinSize; ++i)
@@ -492,6 +469,7 @@ namespace osuCrypto
 
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
 
+                    //std::cout << "recver recv " << (currentStepSize * mBins.mMaxBinSize) << std::endl;
 
                     otSend.recvCorrection(chl, currentStepSize * mBins.mMaxBinSize);
 
@@ -511,10 +489,6 @@ namespace osuCrypto
                             //std::cout << IoStream::lock << bIdx <<" "<< inputIdx << std::endl << IoStream::unlock;
 
                             u64 innerOtIdx = otIdx;
-                            for (u64 j = 0; j < ncoInput.size(); ++j)
-                            {
-                                ncoInput[j] = ncoInputBuff[j][inputIdx];
-                            }
 
 
                             for (u64 l = 0; l < mBins.mMaxBinSize; ++l)
@@ -523,8 +497,8 @@ namespace osuCrypto
 
                                 otSend.encode(
                                     innerOtIdx,
-                                    ncoInput,
-                                    sendMask);
+                                    &ncoInputBuff[inputIdx],
+                                    &sendMask);
 
                                 //if (inputIdx == 11 )
                                 //{

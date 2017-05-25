@@ -15,7 +15,7 @@ namespace osuCrypto
         ~Rr17bMPsiReceiver();
         
         bool mHashToSmallerDomain;
-        u64 mN, mStatSecParam, mNcoInputBlkSize;
+        u64 mN, mStatSecParam;
         block mHashingSeed;
         std::vector<u64> mIntersection;
 

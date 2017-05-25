@@ -1,27 +1,28 @@
-#include "BopPsiSender.h"
-#include "Crypto/Commit.h"
-#include "Common/Log.h"
-#include "Common/Timer.h"
-#include "OT/Base/naor-pinkas.h"
+#include "KkrtPsiSender.h"
+#include "cryptoTools/Crypto/Commit.h"
+#include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
+#include "libOTe/Base/naor-pinkas.h"
 
-namespace bOPRF
+namespace osuCrypto
 {
 
-	BopPsiSender::BopPsiSender()
+	KkrtPsiSender::KkrtPsiSender()
 	{
 	}
 
-	BopPsiSender::~BopPsiSender()
+	KkrtPsiSender::~KkrtPsiSender()
 	{
 	}
-	extern std::string hexString(u8* data, u64 length);
+	//extern std::string hexString(u8* data, u64 length);
 
-	void BopPsiSender::init(u64 senderSize, u64 recverSize, u64 statSec, Channel & chl0, SSOtExtSender& ots, block seed)
+	void KkrtPsiSender::init(u64 senderSize, u64 recverSize, u64 statSec, Channel & chl0, NcoOtExtSender& ots, block seed)
 	{
-		init(senderSize, recverSize, statSec, { &chl0 }, ots, seed);
+        std::array<Channel, 1> c{ chl0 };
+		init(senderSize, recverSize, statSec, c, ots, seed);
 	}
 
-	void BopPsiSender::init(u64 senderSize, u64 recverSize, u64 statSec, const std::vector<Channel*>& chls, SSOtExtSender& otSend, block seed)
+	void KkrtPsiSender::init(u64 senderSize, u64 recverSize, u64 statSec, ArrayView<Channel> chls, NcoOtExtSender& otSend, block seed)
 	{
 		mStatSecParam = statSec;
 		mSenderSize = senderSize;
@@ -64,12 +65,12 @@ namespace bOPRF
 	}
 
 
-	void BopPsiSender::sendInput(std::vector<block>& inputs, Channel & chl)
+	void KkrtPsiSender::sendInput(std::vector<block>& inputs, Channel & chl)
 	{
 		sendInput(inputs, { &chl });
 	}
 
-	void BopPsiSender::sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls)
+	void KkrtPsiSender::sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls)
 	{
 		if (inputs.size() != mSenderSize)
 			throw std::runtime_error("rt error at " LOCATION);

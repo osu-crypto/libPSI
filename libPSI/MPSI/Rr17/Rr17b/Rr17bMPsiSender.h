@@ -20,7 +20,7 @@ namespace osuCrypto
         ~Rr17bMPsiSender();
 
         bool mHashToSmallerDomain;
-        u64 mN, mStatSecParam, mNcoInputBlkSize,  mOtMsgBlkSize;
+        u64 mN, mStatSecParam;
         block mHashingSeed;
         SimpleHasher mBins;
         PRNG mPrng;

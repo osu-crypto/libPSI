@@ -58,7 +58,7 @@ namespace osuCrypto
         gTimer.setTimePoint("init.send.start");
 
         // must be a multiple of 128...
-        u64 baseOtCount;// = 128 * CodeWordSize;
+        ;// = 128 * CodeWordSize;
         //u64 plaintextBlkSize;
 
         u64 compSecParam = 128;
@@ -78,17 +78,10 @@ namespace osuCrypto
         }
 
 
-        otSend.getParams(
+        otSend.configure(
             true, // input, is malicious
-            compSecParam, statSecParam, inputBitSize, mN, //  input
-            mNcoInputBlkSize, baseOtCount); // output
-
-        if (mNcoInputBlkSize != 1)
-        {
-            throw std::runtime_error("Expected Nco OT to nnly require an input block count of 1. i.e. not compatable with KKRT16");
-        }
-
-        mOtMsgBlkSize = (baseOtCount + 127) / 128;
+            statSecParam, inputBitSize); 
+        u64 baseOtCount = otSend.getBaseOTCount();
 
 
         mPrng.SetSeed(seed);

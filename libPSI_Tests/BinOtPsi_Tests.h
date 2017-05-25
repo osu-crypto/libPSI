@@ -1,11 +1,11 @@
 #pragma once
 void CuckooHasher_Test_Impl();
 void CuckooHasher_parallel_Test_Impl();
-
-void Rr17a_Kkrt_EmptrySet_Test_Impl  ();
-void Rr17a_Kkrt_FullSet_Test_Impl    ();
-void Rr17a_Kkrt_SingltonSet_Test_Impl();
-
+//
+//void Rr17a_Kkrt_EmptrySet_Test_Impl  ();
+//void Rr17a_Kkrt_FullSet_Test_Impl    ();
+//void Rr17a_Kkrt_SingltonSet_Test_Impl();
+//
 
 
 void Rr17a_Oos_EmptrySet_Test_Impl();
