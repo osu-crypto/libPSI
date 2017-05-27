@@ -17,10 +17,10 @@ public:
     bool hasBaseOts() const override { return true; }
 
     void setBaseOts(
-        ArrayView<std::array<block, 2>> baseSendOts) override {};
+        span<std::array<block, 2>> baseSendOts) override {};
     void receive(
         const BitVector& choices,
-        ArrayView<block> messages,
+        span<block> messages,
         PRNG& prng,
         Channel& chl) override;
 

@@ -21,8 +21,8 @@ namespace osuCrypto
         NTL::GF2X initGF2X(u64 n, u64 k);
         block init(u64 n, u64 k);
 
-        void computeShares(ArrayView<block> shares, u64 theadCount = 0);
-        void computeShares(ArrayView<NTL::GF2X> shares);
+        void computeShares(span<block> shares, u64 theadCount = 0);
+        void computeShares(span<NTL::GF2X> shares);
 
 
         block reconstruct(const std::vector<u32>& vPeople, const std::vector<block> &vPeopleSecrets);

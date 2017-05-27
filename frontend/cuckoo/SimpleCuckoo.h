@@ -69,10 +69,10 @@ namespace osuCrypto
         void print() const;
         void init(u64 n, u64 statSecParam, bool multiThreaded);
 
-        void insertBatch(ArrayView<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
+        void insertBatch(span<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
 
         u64 findBatch(MatrixView<u64> hashes, 
-            ArrayView<u64> idxs,
+            span<u64> idxs,
             Workspace& wordkspace);
 
 

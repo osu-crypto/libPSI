@@ -53,7 +53,7 @@ namespace osuCrypto
     }
 
 
-    void ShamirSSScheme::computeShares(ArrayView<block> shares, u64 threadCount)
+    void ShamirSSScheme::computeShares(span<block> shares, u64 threadCount)
     {
         if (shares.size() != m_nN)
             throw std::runtime_error(LOCATION);
@@ -130,7 +130,7 @@ namespace osuCrypto
         
     }
 
-    void ShamirSSScheme::computeShares(ArrayView<NTL::GF2X> shares)
+    void ShamirSSScheme::computeShares(span<NTL::GF2X> shares)
     {
         if (shares.size() != m_nN)
             throw std::runtime_error(LOCATION);

@@ -24,7 +24,7 @@ namespace osuCrypto
     }
 
 
-    void DktMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void DktMPsiSender::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
 
         auto curveParam = Curve25519;
@@ -369,7 +369,7 @@ namespace osuCrypto
             {
 
                 uPtr<Buff> sendBuff(new Buff(std::min(myInputEndIdx - i, u64(512)) * sizeof(block)));
-                auto view = sendBuff->getArrayView<block>();
+                auto view = sendBuff->getSpan<block>();
 
                 for (u64 j = 0; j < view.size(); ++i, ++j, ++ii)
                 {

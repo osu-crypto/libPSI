@@ -40,17 +40,15 @@ void run(std::string name, std::function<void(void)> func)
 
 }
 
-//
-//void NetWork_all()
-//{
-//    std::cout << std::endl;
-//    run("BtNetwork_Connect1_Boost_Test        ", BtNetwork_Connect1_Boost_Test);
-//    run("BtNetwork_OneMegabyteSend_Boost_Test ", BtNetwork_OneMegabyteSend_Boost_Test);
-//    run("BtNetwork_ConnectMany_Boost_Test     ", BtNetwork_ConnectMany_Boost_Test);
-//    run("BtNetwork_CrossConnect_Test          ", BtNetwork_CrossConnect_Test);
-//    run("BtNetwork_ManyEndpoints_Test         ", BtNetwork_ManyEndpoints_Test);
-//
-//}
+
+void kkrt_psi_all()
+{
+    std::cout << std::endl;
+    run("Psi_kkrt_EmptrySet_Test_Impl         ", Psi_kkrt_EmptrySet_Test_Impl);
+    run("Psi_kkrt_FullSet_Test_Impl           ", Psi_kkrt_FullSet_Test_Impl);
+    run("Psi_kkrt_SingltonSet_Test_Impl       ", Psi_kkrt_SingltonSet_Test_Impl);
+
+}
 
 //void bitVec_all()
 //{
@@ -159,6 +157,7 @@ void run_all()
     //bitVec_all();
     //Ecc_all();
     //OT_all();
+    kkrt_psi_all();
     AknBfPsi_all();
     OtBinPsi_all();
     DcwPsi_all();

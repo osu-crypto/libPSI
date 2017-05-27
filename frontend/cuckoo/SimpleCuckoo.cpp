@@ -134,7 +134,7 @@ namespace osuCrypto
 
 
     void SimpleCuckoo::insertBatch(
-        ArrayView<u64> inputIdxs,
+        span<u64> inputIdxs,
         MatrixView<u64> hashs,
         Workspace& w)
     {
@@ -272,7 +272,7 @@ namespace osuCrypto
 
     u64 SimpleCuckoo::findBatch(
         MatrixView<u64> hashes,
-        ArrayView<u64> idxs,
+        span<u64> idxs,
         Workspace& w)
     {
 

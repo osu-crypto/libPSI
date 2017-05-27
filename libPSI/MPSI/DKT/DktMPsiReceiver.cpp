@@ -27,8 +27,8 @@ namespace osuCrypto
 
 
     void DktMPsiReceiver::sendInput(
-        ArrayView<block> inputs,
-		ArrayView<Channel> chls)
+        span<block> inputs,
+        span<Channel> chls)
     {
         std::vector<PRNG> thrdPrng(chls.size());
         for (u64 i = 0; i < thrdPrng.size(); i++)
@@ -489,7 +489,7 @@ namespace osuCrypto
             for (u64 i = theirInputStartIdx; i < theirInputEndIdx; )
             {
                 chl.recv(buff);
-                auto view = buff.getArrayView<block>();
+                auto view = buff.getSpan<block>();
                 i += view.size();
 
                 for (auto& Tsj : view)

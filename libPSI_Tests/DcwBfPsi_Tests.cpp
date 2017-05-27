@@ -36,8 +36,8 @@ void DcwBfPsi_EmptrySet_Test_Impl()
     std::string name("psi");
 
     IOService ios(0);
-	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
-	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
+    Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+    Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
@@ -120,8 +120,8 @@ void DcwBfPsi_FullSet_Test_Impl()
 
     IOService ios(0);
 
-	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
-	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
+    Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+    Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
@@ -183,8 +183,8 @@ void DcwBfPsi_SingltonSet_Test_Impl()
 
     std::string name("psi");
     IOService ios(0);
-	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
-	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
+    Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+    Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     Channel recvChl = ep1.addChannel(name, name);
@@ -243,8 +243,8 @@ void DcwRBfPsi_EmptrySet_Test_Impl()
     std::string name("psi");
 
     IOService ios(0);
-	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
-	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
+    Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+    Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
@@ -327,8 +327,8 @@ void DcwRBfPsi_FullSet_Test_Impl()
     std::string name("psi");
 
     IOService ios(0);
-	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
-	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
+    Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+    Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
@@ -402,8 +402,8 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
 
     std::string name("psi");
     IOService ios(0);
-	Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
-	Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
+    Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
+    Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
 
     Channel recvChl = ep1.addChannel(name, name);

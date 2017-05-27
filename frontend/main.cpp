@@ -35,6 +35,7 @@ rr17aTags{ "rr17a" },
 rr17aSMTags{ "rr17a-sm" },
 rr17bTags{ "rr17b" },
 rr17bSMTags{ "rr17b-sm" },
+kkrtTag{"kkrt"},
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -204,24 +205,24 @@ void pingTest(CLP& cmd)
 //void com()
 //{
 //    std::vector<int> COMMS{
-//        3616, 		 33792,
-//         6328 ,		 16896 	 ,
-//         12656,   8448 		 ,
-//         3164 ,		 16896 	 ,
-//         4068 ,	 8448 		 ,
-//         6780 ,	 4224 		 ,
-//         1808 ,		 16896 	 ,
-//         3616 ,	 8448 		 ,
-//         7232 ,	 4224 		 ,
-//         1134 ,	 8448 		 ,
-//         1890 ,	 4224 		 ,
-//         3402 ,	 2178 		 ,
-//         2268 ,	 2112 		 ,
-//         3024 ,	     1056 	 ,
-//         6048 ,	     528 	 ,
-//         756 ,	 2112 		 ,
-//         1512 ,		 1056 	 ,
-//         3024 ,		 528
+//        3616,          33792,
+//         6328 ,         16896      ,
+//         12656,   8448          ,
+//         3164 ,         16896      ,
+//         4068 ,     8448          ,
+//         6780 ,     4224          ,
+//         1808 ,         16896      ,
+//         3616 ,     8448          ,
+//         7232 ,     4224          ,
+//         1134 ,     8448          ,
+//         1890 ,     4224          ,
+//         3402 ,     2178          ,
+//         2268 ,     2112          ,
+//         3024 ,         1056      ,
+//         6048 ,         528      ,
+//         756 ,     2112          ,
+//         1512 ,         1056      ,
+//         3024 ,         528
 //    };
 //
 //    std::vector<char> data(40 * 1000 * 1000);
@@ -344,7 +345,7 @@ int main(int argc, char** argv)
     //simpleTest(argc,argv);
 
     //if(argc == 1)
-    //	return 0;
+    //    return 0;
     //niave(1048576);
 
     backtraceHook();
@@ -385,6 +386,7 @@ int main(int argc, char** argv)
     run(rr17bRecv, rr17bSend, rr17bTags, cmd);
     run(rr17bRecv_StandardModel, rr17bSend_StandardModel, rr17bSMTags, cmd);
     run(DktRecv, DktSend, dktTags, cmd);
+    run(kkrtRecv, kkrtSend, kkrtTag, cmd);
 
 
     if ((cmd.isSet(unitTestTags) == false &&
@@ -395,6 +397,7 @@ int main(int argc, char** argv)
         cmd.isSet(rr17aSMTags) == false &&
         cmd.isSet(rr17bTags) == false &&
         cmd.isSet(rr17bSMTags) == false &&
+        cmd.isSet(kkrtTag) == false &&
         cmd.isSet(dktTags) == false &&
         cmd.isSet(pingTag) == false) ||
         cmd.isSet(helpTags))
@@ -414,7 +417,8 @@ int main(int argc, char** argv)
             << "   -" << rr17aTags[0] << " : RR17   - Hash to bins & compare style (malicious secure)\n"
             << "   -" << rr17aSMTags[0] << ": RR17sm - Hash to bins & compare style (standard model malicious secure)\n"
             << "   -" << rr17bTags[0] << ": RR17b  - Hash to bins & commit compare style (malicious secure)\n"
-            << "   -" << dktTags[0] << "  : DKT12  - Public key style (malicious secure)\n" << std::endl;
+            << "   -" << dktTags[0] << "  : DKT12  - Public key style (malicious secure)\n" 
+            << "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure)\n" << std::endl;
 
         std::cout << "Parameters:\n"
             << "   -" << roleTag[0]

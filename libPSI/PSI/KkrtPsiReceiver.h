@@ -9,27 +9,26 @@
 namespace osuCrypto
 {
 
-	class KkrtPsiReceiver
-	{
-	public:
-		KkrtPsiReceiver();
-		~KkrtPsiReceiver();
+    class KkrtPsiReceiver
+    {
+    public:
+        KkrtPsiReceiver();
+        ~KkrtPsiReceiver();
 
-		u64 mRecverSize,mSenderSize,mStatSecParam;
-		std::vector<u64> mIntersection;
-		CuckooIndex mIndex;
+        u64 mRecverSize,mSenderSize,mStatSecParam;
+        std::vector<u64> mIntersection;
+        CuckooIndex mIndex;
 
-		block mHashingSeed;
-		
+        NcoOtExtReceiver * mOtRecv;
 
-		u64 mNumStash;
+        block mHashingSeed;
+        
+        void init(u64 senderSize, u64 recverSize, u64 statSecParam, Channel chl0, NcoOtExtReceiver& otRecv,  block seed);
+        void init(u64 senderSize, u64 recverSize, u64 statSecParam, span<Channel> chls, NcoOtExtReceiver& otRecv,  block seed);
+        void sendInput(span<block> inputs, Channel& chl);
+        void sendInput(span<block> inputs, span<Channel> chls);
 
-		void init(u64 senderSize, u64 recverSize, u64 statSecParam, Channel chl0, NcoOtExtReceiver& otRecv,  block seed);
-		void init(u64 senderSize, u64 recverSize, u64 statSecParam, ArrayView<Channel> chls, NcoOtExtReceiver& otRecv,  block seed);
-		void sendInput(std::vector<block>& inputs, Channel& chl);
-		void sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls);
-
-	};
+    };
 
 
 

@@ -48,14 +48,14 @@ namespace osuCrypto
         double binScaler,
         u64 inputBitSize)
     {
-		std::vector<Channel> c{ chl0 };
+        std::vector<Channel> c{ chl0 };
         init(n, statSecParam, c, ots, otSend, seed, binScaler, inputBitSize);
     }
 
     void Rr17aMPsiReceiver::init(
         u64 n,
         u64 statSecParam,
-        ArrayView<Channel> chls,
+        span<Channel> chls,
         NcoOtExtReceiver& otRecv,
         NcoOtExtSender& otSend,
         block seed,
@@ -139,10 +139,10 @@ namespace osuCrypto
 
 
             // Divide these OT mssages between the Kco and Kos protocols
-            ArrayView<std::array<block, 2>> kcoRecvBase(
+            span<std::array<block, 2>> kcoRecvBase(
                 sendBaseMsg.begin(),
                 sendBaseMsg.begin() + baseOtCount);
-            ArrayView<std::array<block, 2>> kosRecvBase(
+            span<std::array<block, 2>> kosRecvBase(
                 sendBaseMsg.begin() + baseOtCount,
                 sendBaseMsg.end());
 
@@ -255,11 +255,11 @@ namespace osuCrypto
 
     void Rr17aMPsiReceiver::sendInput(std::vector<block>& inputs, Channel & chl)
     {
-		std::vector<Channel> c{ chl };
-		sendInput(inputs, c);
+        std::vector<Channel> c{ chl };
+        sendInput(inputs, c);
     }
 
-    void Rr17aMPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void Rr17aMPsiReceiver::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
         // this is the online phase.
         gTimer.setTimePoint("online.recv.start");
@@ -632,7 +632,7 @@ namespace osuCrypto
 
                         for (u64 j = 0; j < curStepSize; ++j)
                         {
-                            //u64 idx = maskMap.find(ArrayView<u64>((u64*)&tempMaskBuff[j], 2));
+                            //u64 idx = maskMap.find(span<u64>((u64*)&tempMaskBuff[j], 2));
                             if (tempIdxBuff[j] != u64(-1))
                             {
                                 auto idx = tempIdxBuff[j] / mBins.mMaxBinSize;

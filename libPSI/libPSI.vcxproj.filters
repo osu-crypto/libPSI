@@ -117,7 +117,16 @@
     <ClCompile Include="Tools\CuckooHasher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PSI\KkrtPsiReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PSI\KkrtPsiSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Tools\SimpleHasher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\SimpleIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,7 +182,16 @@
     <ClInclude Include="Tools\CuckooHasher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PSI\KkrtPsiReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PSI\KkrtPsiSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Tools\SimpleHasher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\SimpleIndex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -56,7 +56,7 @@ namespace osuCrypto
     void Rr17bMPsiReceiver::init(
         u64 n,
         u64 statSecParam,
-        ArrayView<Channel> chls,
+        span<Channel> chls,
         NcoOtExtReceiver& otRecv,
         block seed,
         double binScaler,
@@ -212,7 +212,7 @@ namespace osuCrypto
         sendInput(inputs, c);
     }
 
-    void Rr17bMPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void Rr17bMPsiReceiver::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
         // this is the online phase.
         gTimer.setTimePoint("online.recv.start");
@@ -257,7 +257,7 @@ namespace osuCrypto
         std::vector<block> hashedInputBuffer(mHashToSmallerDomain ? inputs.size() : 0);
 
         // Use this view to indicate which of the two buffers should be the OT-OT-encoding input values.
-        ArrayView<block> otInputs(mHashToSmallerDomain ? hashedInputBuffer : inputs);
+        span<block> otInputs(mHashToSmallerDomain ? hashedInputBuffer : inputs);
 
 
 
@@ -371,7 +371,7 @@ namespace osuCrypto
                                 otIdx + perm[i],      // input
                                 &otInputs[inputIdx],         // input
                                 buff.data(),
-                                buff.size());			  // output
+                                buff.size());              // output
 
 
                             u32& tag = *(u32*)buff.data();
@@ -438,7 +438,7 @@ namespace osuCrypto
                         auto& comm = *(std::array<u8, SHA1::HashSize>*)iter;
                         iter += SHA1::HashSize;
 
-                        //ArrayView<std::pair<u32, block>> decomms((std::pair<u32, block>*) iter, mBins.mMaxBinSize);
+                        //span<std::pair<u32, block>> decomms((std::pair<u32, block>*) iter, mBins.mMaxBinSize);
                         //iter += SHA1::HashSize * mBins.mMaxBinSize;
 
 

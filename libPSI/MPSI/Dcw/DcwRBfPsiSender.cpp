@@ -20,7 +20,7 @@ namespace osuCrypto {
     }
 
 
-    block DcwRBfPsiSender::computeSecureSharing(ArrayView<block> shares)
+    block DcwRBfPsiSender::computeSecureSharing(span<block> shares)
     {
 
         //std::cout << "# shares = " << shares.size() << "   (" << shares.size() * shares.size() / 2 << ")" << std::endl;
@@ -41,7 +41,7 @@ namespace osuCrypto {
 
     }
 
-    void DcwRBfPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, ArrayView<Channel> chls, block seed)
+    void DcwRBfPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, span<Channel> chls, block seed)
     {
 
         gTimer.setTimePoint("init.start");
@@ -112,7 +112,7 @@ namespace osuCrypto {
             {
 
                 // get a view of where the messages should be stored.
-                ArrayView<std::array<block, 2>> range(
+                span<std::array<block, 2>> range(
                     mSendOtMessages.begin() + start,
                     mSendOtMessages.begin() + end);
                 PRNG prng(seed);
@@ -196,7 +196,7 @@ namespace osuCrypto {
         sendInput(inputs, cc);
     }
 
-    void DcwRBfPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void DcwRBfPsiSender::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
 
         if (inputs.size() != mN)
@@ -223,7 +223,7 @@ namespace osuCrypto {
 
         std::unique_ptr<ByteStream> myMasksBuff(new ByteStream((mBfBitCount)* sizeof(block)));
         myMasksBuff->setp(myMasksBuff->capacity());
-        auto zeroMessages = myMasksBuff->getArrayView<block>();
+        auto zeroMessages = myMasksBuff->getSpan<block>();
         u8 hashOut[SHA1::HashSize];
         //std::cout << IoStream::lock;
 
@@ -245,7 +245,7 @@ namespace osuCrypto {
 
         myMasksBuff.reset(new ByteStream(inputs.size()* sizeof(block)));
         myMasksBuff->setp(myMasksBuff->capacity());
-        auto myMasks = myMasksBuff->getArrayView<block>();
+        auto myMasks = myMasksBuff->getSpan<block>();
 
         const u64 stepSize = 128;
         std::vector<block> encBuff(stepSize);

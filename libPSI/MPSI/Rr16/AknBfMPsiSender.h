@@ -26,11 +26,11 @@ namespace osuCrypto {
         //std::vector<SHA1> mHashs;
 
         void init(u64 n, u64 statSecParam, OtExtSender& otExt, Channel& chl, block seed);
-        void init(u64 n, u64 statSecParam, OtExtSender& otExt, ArrayView<Channel>chl, block seed);
+        void init(u64 n, u64 statSecParam, OtExtSender& otExt, span<Channel>chl, block seed);
 
 
         void sendInput(std::vector<block>& inputs, Channel& chl);
-        void sendInput(std::vector<block>& inputs, ArrayView<Channel> chl);
+        void sendInput(std::vector<block>& inputs, span<Channel> chl);
     };
 
 }

@@ -21,7 +21,7 @@ namespace osuCrypto {
         std::vector<Channel> chls{ chl };
         init(n, statSecParam, otExt,chls , seed);
     }
-    void AknBfMPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, ArrayView<Channel> chls, block seed)
+    void AknBfMPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, span<Channel> chls, block seed)
     {
         gTimer.setTimePoint("sender.init.start");
         mN = n;
@@ -77,7 +77,7 @@ namespace osuCrypto {
         sendInput(inputs, cc);
     }
 
-    void AknBfMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void AknBfMPsiSender::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
 
         if (inputs.size() != mN)
@@ -125,7 +125,7 @@ namespace osuCrypto {
         //TODO("make perm item size smaller");
 
 
-        auto permutes = piBuff.getArrayView<LogOtCount_t>();
+        auto permutes = piBuff.getSpan<LogOtCount_t>();
 
         if (permutes.size() != mBfBitCount)
             throw std::runtime_error(LOCATION);
@@ -139,7 +139,7 @@ namespace osuCrypto {
 
             std::unique_ptr<ByteStream> myMasksBuff(new ByteStream((end - start) * sizeof(block)));
             myMasksBuff->setp(myMasksBuff->capacity());
-            auto myMasks = myMasksBuff->getArrayView<block>();
+            auto myMasks = myMasksBuff->getSpan<block>();
             SHA1 hash;
             u8 hashOut[SHA1::HashSize];
 
@@ -165,7 +165,7 @@ namespace osuCrypto {
                 AES hasher(toBlock(hashOut));
 
                 hasher.ecbEncCounterMode(0, bv.size(), bv.data());
-                ArrayView<u64>iv((u64*)bv.data(), mNumHashFunctions);
+                span<u64>iv((u64*)bv.data(), mNumHashFunctions);
 
                 //std::cout << "S inputs[" << i << "] " << inputs[i]  << " h -> " 
                 //    << toBlock(hashOut) << " = H("<< mHashingSeed <<" || "<< inputs[i]<<")"<< std::endl;

@@ -2,10 +2,11 @@
 #include <cryptoTools/Common/Defines.h>
 #include <cryptoTools/Network/Channel.h>
 #include <libOTe/NChooseOne/NcoOtExt.h>
-#include "libPSI/Tools/SimpleHasher.h"
+//#include "libPSI/Tools/SimpleIndex.h"
 //#include "OT/SSOTReceiver.h"
 //#include "OT/SSOTSender.h"
-
+#include "cryptoTools/Crypto/PRNG.h"
+#include <cryptoTools/Common/CuckooIndex.h>
 
 namespace osuCrypto
 {
@@ -18,25 +19,19 @@ namespace osuCrypto
 		~KkrtPsiSender();
 
 		u64 mSenderSize, mRecverSize, mStatSecParam;
-		
-		//std::vector<SSOtPsiSender> mPsis;
+        PRNG mPrng;
 
-		//std::vector<blockBop> mPsiRecvSSOtMessages;
-
-
-
-		SimpleHasher mBins;
-		BitVector mSSOtChoice;
-
+		//SimpleIndex mIndex;
+        CuckooParam mCuckooParams;
 		block mHashingSeed;
 
-		u64 mNumStash;
+        NcoOtExtSender* mOtSender;
 
-		void init(u64 senderSize, u64 recverSize, u64 statSecParam, ArrayView<Channel> chls, NcoOtExtSender& otSender, block seed);
+		void init(u64 senderSize, u64 recverSize, u64 statSecParam, span<Channel> chls, NcoOtExtSender& otSender, block seed);
 		void init(u64 senderSize, u64 recverSize, u64 statSecParam, Channel & chl0, NcoOtExtSender& otSender, block seed);
 
-		void sendInput(std::vector<block>& inputs, Channel& chl);
-		void sendInput(std::vector<block>& inputs, const std::vector<Channel*>& chls);
+		void sendInput(span<block> inputs, Channel& chl);
+		void sendInput(span<block> inputs, span<Channel> chls);
 
 
 	};

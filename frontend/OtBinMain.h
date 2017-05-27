@@ -33,3 +33,10 @@ void rr17bRecv_StandardModel(
 
 void rr17bSend_StandardModel(
     LaunchParams& params);
+
+
+void kkrtRecv(
+    LaunchParams& params);
+
+void kkrtSend(
+    LaunchParams& params);

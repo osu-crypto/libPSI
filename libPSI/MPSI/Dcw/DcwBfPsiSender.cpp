@@ -19,7 +19,7 @@ namespace osuCrypto {
     }
 
 
-    block DcwBfPsiSender::computeSecureSharing(ArrayView<block> shares)
+    block DcwBfPsiSender::computeSecureSharing(span<block> shares)
     {
 
             ShamirSSScheme ss;
@@ -37,7 +37,7 @@ namespace osuCrypto {
 
     }
 
-    void DcwBfPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, ArrayView<Channel> chls, block seed)
+    void DcwBfPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, span<Channel> chls, block seed)
     {
 
         gTimer.setTimePoint("init.start");
@@ -108,7 +108,7 @@ namespace osuCrypto {
             {
 
                 // get a view of where the messages should be stored.
-                ArrayView<std::array<block, 2>> range(
+                span<std::array<block, 2>> range(
                     mSendOtMessages.begin() + start,
                     mSendOtMessages.begin() + end);
                 PRNG prng(seed);
@@ -193,7 +193,7 @@ namespace osuCrypto {
         sendInput(inputs, cc);
     }
 
-    void DcwBfPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void DcwBfPsiSender::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
 
         if (inputs.size() != mN)
@@ -221,7 +221,7 @@ namespace osuCrypto {
 
         std::unique_ptr<ByteStream> myMasksBuff(new ByteStream((mBfBitCount)* sizeof(block)));
         myMasksBuff->setp(myMasksBuff->capacity());
-        auto zeroMessages = myMasksBuff->getArrayView<block>();
+        auto zeroMessages = myMasksBuff->getSpan<block>();
         u8 hashOut[SHA1::HashSize];
         //std::cout << IoStream::lock;
 
@@ -243,7 +243,7 @@ namespace osuCrypto {
 
         myMasksBuff.reset(new ByteStream((mBfBitCount)* sizeof(block)));
         myMasksBuff->setp(myMasksBuff->capacity());
-        auto garbledBF = myMasksBuff->getArrayView<block>();
+        auto garbledBF = myMasksBuff->getSpan<block>();
 
         std::set<u64> idxs;
         

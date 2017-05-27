@@ -22,7 +22,7 @@ namespace osuCrypto
         void init(u64 n, u64 secParam, block seed);
 
 
-        void sendInput(ArrayView<block> inputs, ArrayView<Channel> chl0);
+        void sendInput(span<block> inputs, span<Channel> chl0);
 
     };
 

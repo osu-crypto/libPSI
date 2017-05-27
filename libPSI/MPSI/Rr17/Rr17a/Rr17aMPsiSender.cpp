@@ -40,12 +40,12 @@ namespace osuCrypto
         double binScaler,
         u64 inputBitSize)
     {
-		std::vector<Channel> c{ chl0 };
+        std::vector<Channel> c{ chl0 };
         init(n, statSec, c, ots, otRecv, seed, binScaler, inputBitSize);
     }
 
     void Rr17aMPsiSender::init(u64 n, u64 statSecParam,
-        ArrayView<Channel> chls,
+        span<Channel> chls,
         NcoOtExtSender& otSend,
         NcoOtExtReceiver& otRecv,
         block seed,
@@ -130,7 +130,7 @@ namespace osuCrypto
             // we now have a bunch of recv OTs, lets seed the NcoOtExtSender
             BitVector kcoSendBaseChoice;
             kcoSendBaseChoice.copy(recvChoice, 0, baseOtCount);
-            ArrayView<block> kcoSendBase(
+            span<block> kcoSendBase(
                 recvBaseMsg.begin(),
                 recvBaseMsg.begin() + baseOtCount);
 
@@ -140,7 +140,7 @@ namespace osuCrypto
             // now lets extend these recv OTs in the other direction
             BitVector kosSendBaseChoice;
             kosSendBaseChoice.copy(recvChoice, baseOtCount, gOtExtBaseOtCount);
-            ArrayView<block> kosSendBase(
+            span<block> kosSendBase(
                 recvBaseMsg.begin() + baseOtCount,
                 recvBaseMsg.end());
             KosOtExtSender kos;
@@ -232,11 +232,11 @@ namespace osuCrypto
 
     void Rr17aMPsiSender::sendInput(std::vector<block>& inputs, Channel & chl)
     {
-		std::vector<Channel> c{ chl };
-		sendInput(inputs, c);
+        std::vector<Channel> c{ chl };
+        sendInput(inputs, c);
     }
 
-    void Rr17aMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void Rr17aMPsiSender::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
@@ -310,7 +310,7 @@ namespace osuCrypto
         u64 masksPer = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
         u64 numChunks = numMasks / masksPer;
         auto sendMaskBuffFreeCounter = new std::atomic<u32>;
-		*sendMaskBuffFreeCounter = numChunks;
+        *sendMaskBuffFreeCounter = numChunks;
 
         auto startTime = gTimer.setTimePoint("online.send.spaw");
 
@@ -331,7 +331,7 @@ namespace osuCrypto
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
 
                 // compute the region of inputs this thread should insert.
-                //ArrayView<block> itemRange(
+                //span<block> itemRange(
                 //    inputs.begin() + startIdx,
                 //    inputs.begin() + endIdx);
 
@@ -581,7 +581,7 @@ namespace osuCrypto
                             if (--*sendMaskBuffFreeCounter == 0)
                             {
                                 delete sendMaskBuff;
-								delete sendMaskBuffFreeCounter;
+                                delete sendMaskBuffFreeCounter;
                             }
                         });
                     }

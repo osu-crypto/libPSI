@@ -7,28 +7,28 @@
 
 namespace osuCrypto
 {
+     
+    //// parameters for k=2 hash functions, 2^n items, and statistical security 40
+    //CuckooParam k2n32s40CuckooParam
+    //{ 4, 2.4, 2, u64(1) << 32 };
+    //CuckooParam k2n30s40CuckooParam
+    //{ 4, 2.4, 2, u64(1) << 30 };
+    //CuckooParam k2n28s40CuckooParam
+    //{ 2, 2.4, 2, u64(1) << 28 };
+    //CuckooParam k2n24s40CuckooParam
+    //{ 2, 2.4, 2, u64(1) << 24 };
+    //CuckooParam k2n20s40CuckooParam
+    //{ 2, 2.4, 2, u64(1) << 20 };
+    //CuckooParam k2n16s40CuckooParam
+    //{ 3, 2.4, 2, u64(1) << 16 };
+    //CuckooParam k2n12s40CuckooParam
+    //{ 5, 2.4, 2, u64(1) << 12 };
+    //CuckooParam k2n08s40CuckooParam
+    //{ 8, 2.4, 2, u64(1) << 8 };
 
-    // parameters for k=2 hash functions, 2^n items, and statistical security 40
-    CuckooParam k2n32s40CuckooParam
-    { 4, 2.4, 2, u64(1) << 32 };
-    CuckooParam k2n30s40CuckooParam
-    { 4, 2.4, 2, u64(1) << 30 };
-    CuckooParam k2n28s40CuckooParam
-    { 2, 2.4, 2, u64(1) << 28 };
-    CuckooParam k2n24s40CuckooParam
-    { 2, 2.4, 2, u64(1) << 24 };
-    CuckooParam k2n20s40CuckooParam
-    { 2, 2.4, 2, u64(1) << 20 };
-    CuckooParam k2n16s40CuckooParam
-    { 3, 2.4, 2, u64(1) << 16 };
-    CuckooParam k2n12s40CuckooParam
-    { 5, 2.4, 2, u64(1) << 12 };
-    CuckooParam k2n08s40CuckooParam
-    { 8, 2.4, 2, u64(1) << 8 };
-
-    // not sure if this needs a stash of 40, but should be safe enough.
-    CuckooParam k2n07s40CuckooParam
-    { 40, 2.4, 2, 1 << 7 };
+    //// not sure if this needs a stash of 40, but should be safe enough.
+    //CuckooParam k2n07s40CuckooParam
+    //{ 40, 2.4, 2, 1 << 7 };
 
 
     CuckooHasher::CuckooHasher()
@@ -156,7 +156,7 @@ namespace osuCrypto
         mStash.resize(mParams.mStashSize);
     }
 
-    void CuckooHasher::insert(u64 inputIdx, ArrayView<u64> hashs)
+    void CuckooHasher::insert(u64 inputIdx, span<u64> hashs)
     {
         if (mHashesView[inputIdx][0] != u64(-1))
         {
@@ -169,7 +169,7 @@ namespace osuCrypto
     }
 
     void CuckooHasher::insertBatch(
-        ArrayView<u64> inputIdxs,
+        span<u64> inputIdxs,
         MatrixView<u64> hashs,
         Workspace& w)
     {
@@ -342,7 +342,7 @@ namespace osuCrypto
 
 
 
-    u64 CuckooHasher::find(ArrayView<u64> hashes)
+    u64 CuckooHasher::find(span<u64> hashes)
     {
         if (mParams.mNumHashes == 2)
         {
@@ -481,7 +481,7 @@ namespace osuCrypto
 
     u64 CuckooHasher::findBatch(
         MatrixView<u64> hashes,
-        ArrayView<u64> idxs,
+        span<u64> idxs,
         Workspace& w)
     {
 

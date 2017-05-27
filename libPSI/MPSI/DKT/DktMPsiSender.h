@@ -21,7 +21,7 @@ namespace osuCrypto
         //void init(u64 n, u64 statSecParam);
 
 
-        void sendInput(std::vector<block>& inputs, ArrayView<Channel> chl);
+        void sendInput(std::vector<block>& inputs, span<Channel> chl);
         //void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl);
     };
 

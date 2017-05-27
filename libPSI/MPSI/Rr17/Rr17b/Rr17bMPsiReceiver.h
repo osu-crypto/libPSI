@@ -27,11 +27,11 @@ namespace osuCrypto
 
         void init(u64 n, u64 statSecParam, Channel& chl0, NcoOtExtReceiver& otRecv, block seed,
             double binScaler = 1.0, u64 inputBitSize = -1);
-        void init(u64 n, u64 statSecParam, ArrayView<Channel> chls, NcoOtExtReceiver& ots, block seed,
+        void init(u64 n, u64 statSecParam, span<Channel> chls, NcoOtExtReceiver& ots, block seed,
             double binScaler = 1.0, u64 inputBitSize = -1);
 
         void sendInput(std::vector<block>& inputs, Channel& chl);
-        void sendInput(std::vector<block>& inputs, ArrayView<Channel> chls);
+        void sendInput(std::vector<block>& inputs, span<Channel> chls);
 
     };
 

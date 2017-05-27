@@ -22,17 +22,17 @@ namespace osuCrypto {
         std::vector<SHA1> mHashs;
 
         std::vector<std::array<block, 2>> mSendOtMessages;
-        block computeSecureSharing(ArrayView<block> shares);
+        block computeSecureSharing(span<block> shares);
         block mEncSeed, mSeed;
 
         std::vector<block>mShares;
         block mSharesPrime;
         void init(u64 n, u64 statSecParam, OtExtSender& otExt, Channel& chl, block seed);
-        void init(u64 n, u64 statSecParam, OtExtSender& otExt, ArrayView<Channel> chl, block seed);
+        void init(u64 n, u64 statSecParam, OtExtSender& otExt, span<Channel> chl, block seed);
 
 
         void sendInput(std::vector<block>& inputs, Channel& chl);
-        void sendInput(std::vector<block>& inputs, ArrayView<Channel>chl);
+        void sendInput(std::vector<block>& inputs, span<Channel>chl);
     };
 
 }

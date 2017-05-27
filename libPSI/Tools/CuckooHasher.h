@@ -7,16 +7,18 @@
 //#include <mutex>
 #include <atomic>
 
+#include <cryptoTools/Common/CuckooIndex.h>
+
 #define THREAD_SAFE_CUCKOO
 
 namespace osuCrypto
 {
-    struct CuckooParam
-    {
-        u64 mStashSize;
-        double mBinScaler;
-        u64 mNumHashes, mN;// , mSenderBinSize;
-    };
+    //struct CuckooParam
+    //{
+    //    u64 mStashSize;
+    //    double mBinScaler;
+    //    u64 mNumHashes, mN;// , mSenderBinSize;
+    //};
 
 
 
@@ -77,14 +79,14 @@ namespace osuCrypto
 
         void print() const;
         void init(u64 n, u64 statSecParam, bool multiThreaded);
-        void insert(u64 IdxItem, ArrayView<u64> hashes);
+        void insert(u64 IdxItem, span<u64> hashes);
         void insertHelper(u64 IdxItem, u64 hashIdx, u64 numTries);
 
-        void insertBatch(ArrayView<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
+        void insertBatch(span<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
 
-        u64 find(ArrayView<u64> hashes);
+        u64 find(span<u64> hashes);
         u64 findBatch(MatrixView<u64> hashes, 
-            ArrayView<u64> idxs,
+            span<u64> idxs,
             Workspace& wordkspace);
 
     private:

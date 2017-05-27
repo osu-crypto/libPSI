@@ -30,7 +30,7 @@ namespace osuCrypto
     }
 
 
-    void AknBfMPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, ArrayView<Channel>  chls, block seed)
+    void AknBfMPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, span<Channel>  chls, block seed)
     {
 
         //Timer timer;
@@ -92,7 +92,7 @@ namespace osuCrypto
         sendInput(inputs, cc);
     }
 
-    void AknBfMPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void AknBfMPsiReceiver::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
         if (inputs.size() != mMyInputSize)
             throw std::runtime_error(LOCATION);
@@ -161,7 +161,7 @@ namespace osuCrypto
                 AES hasher(key);
 
                 hasher.ecbEncCounterMode(0, bv.size(), bv.data());
-                ArrayView<u64>iv((u64*)bv.data(), mNumHashFunctions);
+                span<u64>iv((u64*)bv.data(), mNumHashFunctions);
 
 
                 //std::cout << "R inputs[" << i << "] " << inputs[i]  << " h -> " 
@@ -212,7 +212,7 @@ namespace osuCrypto
 
                 // if we are the main thread, then convert the bloom filter into a permutation
                 //TODO("make perm item size smaller");
-                auto vv = permuteBuff.getArrayView<LogOtCount_t>();
+                auto vv = permuteBuff.getSpan<LogOtCount_t>();
 
                 std::array<std::vector<u64>::iterator, 2> idxIters{ mAknOt.mZeros.begin(), mAknOt.mOnes.begin() };
 
@@ -272,7 +272,7 @@ namespace osuCrypto
             // store all masks in the local hash table. will be merged together in a bit.
             std::unordered_map<u64, std::pair<block, u64>> localMasks;
             localMasks.reserve(end - start);
-            auto permute = permuteBuff.getArrayView<LogOtCount_t>();
+            auto permute = permuteBuff.getSpan<LogOtCount_t>();
 
 
             //std::cout << IoStream::lock;
@@ -373,7 +373,7 @@ namespace osuCrypto
             if (t == 0)
                 gTimer.setTimePoint("online.recvMasked");
 
-            auto theirMasks = theirMasksBuff.getArrayView<block>();
+            auto theirMasks = theirMasksBuff.getSpan<block>();
 
             //u64 numMasks = theirMasksBuff.size() / maskSize;
             std::vector<u64> localIntersection;

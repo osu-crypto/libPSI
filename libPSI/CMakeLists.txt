@@ -5,7 +5,7 @@
 #############################################
 #                 Link NTL                  #
 #############################################
-set(NTL_Lib_Dirs "${NTL_Dirs}/src/")
+set(NTL_Lib_Dirs "${NTL_Dirs}src/")
 set(NTL_Include_Dirs "${NTL_Dirs}/include/")
 
 # default location for NTL
@@ -16,13 +16,17 @@ set(NTL_Include_Dirs "${NTL_Dirs}/include/")
   # we failed to find it, try using find_library
   find_library(
     NTL_LIB 
-    NAMES ntl  
-    HINTS NTL_Lib_Dirs)
+    NAMES ntl libntl.a  
+    PATHS "${NTL_Lib_Dirs}")
   
   # if we still cant fint it, throw an error
-  if(NOT NTL_LIB)
-    Message(${NTL_LIB})
-    message(FATAL_ERROR "Failed to find NTL at ${NTL_Lib_Dirs} or at system locations." )
+  if(NOT NTL_LIB) 
+	if(EXISTS "${NTL_Lib_Dirs}libntl.a")
+		set(NTL_LIB "${NTL_Lib_Dirs}libntl.a")
+	else()
+	   Message(${NTL_LIB})
+		message(FATAL_ERROR "Failed to find NTL at ${NTL_Lib_Dirs} or at system locations." )
+	endif()
   endif()
 #endif()
 
@@ -74,14 +78,14 @@ endif()
 
 
 find_library(
-	libOTe_LIB
-	NAMES libOTe
-	HINTS "${libOTe_Dirs}/lib/")
+    libOTe_LIB
+    NAMES libOTe
+    HINTS "${libOTe_Dirs}/lib/")
 
 find_library(
-	cryptoTools_LIB
-	NAMES cryptoTools
-	HINTS "${libOTe_Dirs}/lib/")
+    cryptoTools_LIB
+    NAMES cryptoTools
+    HINTS "${libOTe_Dirs}/lib/")
 
 
 #############################################

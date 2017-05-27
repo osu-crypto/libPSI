@@ -47,7 +47,7 @@ namespace osuCrypto
     }
 
     void Rr17bMPsiSender::init(u64 n, u64 statSecParam,
-        ArrayView<Channel> chls,
+        span<Channel> chls,
         NcoOtExtSender& otSend,
         block seed,
         double binScaler,
@@ -184,7 +184,7 @@ namespace osuCrypto
         sendInput(inputs, c);
     }
 
-    void Rr17bMPsiSender::sendInput(std::vector<block>& inputs, ArrayView<Channel> chls)
+    void Rr17bMPsiSender::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
@@ -210,7 +210,7 @@ namespace osuCrypto
         std::vector<block> hashedInputBuffer(mHashToSmallerDomain ? inputs.size() : 0);
 
         // Use this view to indicate which of the two buffers should be the OT-OT-encoding input values.
-        ArrayView<block> otInputs(mHashToSmallerDomain ? hashedInputBuffer : inputs);
+        span<block> otInputs(mHashToSmallerDomain ? hashedInputBuffer : inputs);
 
         // next we will create a random permutation that the sender will use when 
         // sending over their commitments/decommitments. This permutation is over

@@ -73,6 +73,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
+    <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
     <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp" />
@@ -90,8 +92,11 @@
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiSender.cpp" />
     <ClCompile Include="PIR\BgiPirClient.cpp" />
     <ClCompile Include="PIR\BgiPirServer.cpp" />
+    <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PSI\KkrtPsiReceiver.h" />
+    <ClInclude Include="PSI\KkrtPsiSender.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
@@ -110,6 +115,7 @@
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiSender.h" />
     <ClInclude Include="PIR\BgiPirClient.h" />
     <ClInclude Include="PIR\BgiPirServer.h" />
+    <ClInclude Include="Tools\SimpleIndex.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

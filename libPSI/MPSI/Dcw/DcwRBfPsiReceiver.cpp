@@ -74,7 +74,7 @@ namespace osuCrypto
     }
 
 
-    void DcwRBfPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, ArrayView<Channel> chls, block seed)
+    void DcwRBfPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, span<Channel> chls, block seed)
     {
 
         //Timer timer;
@@ -143,7 +143,7 @@ namespace osuCrypto
                 //TODO("avoid this copy. need BitView...");
 
                 // compute the region of the OTs im going to do
-                ArrayView<block> range(
+                span<block> range(
                     mMessages.begin() + start,
                     mMessages.begin() + end);
                 PRNG prng(seed);
@@ -220,7 +220,7 @@ namespace osuCrypto
         sendInput(inputs, cc);
     }
 
-    void DcwRBfPsiReceiver::sendInput(std::vector<block>& inputs, ArrayView<Channel>chls)
+    void DcwRBfPsiReceiver::sendInput(std::vector<block>& inputs, span<Channel>chls)
     {
         if (inputs.size() != mMyInputSize)
             throw std::runtime_error(LOCATION);

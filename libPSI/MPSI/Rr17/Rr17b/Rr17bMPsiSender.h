@@ -28,7 +28,7 @@ namespace osuCrypto
         std::vector<std::unique_ptr<NcoOtExtSender>> mOtSends;
 
         void init(u64 n, u64 statSecParam,
-			ArrayView<Channel> chls,
+            span<Channel> chls,
             NcoOtExtSender& ots, 
             block seed,
             double binScaler = 1.0,
@@ -42,7 +42,7 @@ namespace osuCrypto
             u64 inputBitSize = -1);
 
         void sendInput(std::vector<block>& inputs, Channel& chl);
-        void sendInput(std::vector<block>& inputs, ArrayView<Channel> chls);
+        void sendInput(std::vector<block>& inputs, span<Channel> chls);
 
     };
 
