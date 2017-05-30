@@ -75,7 +75,7 @@ namespace osuCrypto
         return std::max<double>(0, (double)-sec);
     }
 
-    u64 get_bin_size(u64 numBins, u64 numBalls, u64 statSecParam)
+    u64 SimpleIndex::get_bin_size(u64 numBins, u64 numBalls, u64 statSecParam)
     {
 
         auto B = std::max<u64>(1, numBalls / numBins);
@@ -117,6 +117,7 @@ namespace osuCrypto
         mMaxBinSize = get_bin_size(numBins, simpleSize * numHashFunction, statSecParam);
         mBins.resize(numBins, mMaxBinSize);
         mBinSizes.resize(numBins, 0);
+        mItemToBinMap.resize(simpleSize, numHashFunction);
     }
 
 
@@ -176,6 +177,15 @@ namespace osuCrypto
                 mBins(bIdx60, mBinSizes[bIdx60]++).set(itemIdx6, 0, false);
                 mBins(bIdx70, mBinSizes[bIdx70]++).set(itemIdx7, 0, false);
 
+                mItemToBinMap(itemIdx0, 0) = bIdx00;
+                mItemToBinMap(itemIdx1, 0) = bIdx10;
+                mItemToBinMap(itemIdx2, 0) = bIdx20;
+                mItemToBinMap(itemIdx3, 0) = bIdx30;
+                mItemToBinMap(itemIdx4, 0) = bIdx40;
+                mItemToBinMap(itemIdx5, 0) = bIdx50;
+                mItemToBinMap(itemIdx6, 0) = bIdx60;
+                mItemToBinMap(itemIdx7, 0) = bIdx70;
+
                 auto bIdx01 = CuckooIndex::getHash(hashs[0], 1, numBins);
                 auto bIdx11 = CuckooIndex::getHash(hashs[1], 1, numBins);
                 auto bIdx21 = CuckooIndex::getHash(hashs[2], 1, numBins);
@@ -185,23 +195,33 @@ namespace osuCrypto
                 auto bIdx61 = CuckooIndex::getHash(hashs[6], 1, numBins);
                 auto bIdx71 = CuckooIndex::getHash(hashs[7], 1, numBins);
 
-                bool collision01 = bIdx00 == bIdx01;
-                bool collision11 = bIdx10 == bIdx11;
-                bool collision21 = bIdx20 == bIdx21;
-                bool collision31 = bIdx30 == bIdx31;
-                bool collision41 = bIdx40 == bIdx41;
-                bool collision51 = bIdx50 == bIdx51;
-                bool collision61 = bIdx60 == bIdx61;
-                bool collision71 = bIdx70 == bIdx71;
+                bool c01 = bIdx00 == bIdx01;
+                bool c11 = bIdx10 == bIdx11;
+                bool c21 = bIdx20 == bIdx21;
+                bool c31 = bIdx30 == bIdx31;
+                bool c41 = bIdx40 == bIdx41;
+                bool c51 = bIdx50 == bIdx51;
+                bool c61 = bIdx60 == bIdx61;
+                bool c71 = bIdx70 == bIdx71;
 
-                mBins(bIdx01, mBinSizes[bIdx01]++).set(itemIdx0, 1, collision01);
-                mBins(bIdx11, mBinSizes[bIdx11]++).set(itemIdx1, 1, collision11);
-                mBins(bIdx21, mBinSizes[bIdx21]++).set(itemIdx2, 1, collision21);
-                mBins(bIdx31, mBinSizes[bIdx31]++).set(itemIdx3, 1, collision31);
-                mBins(bIdx41, mBinSizes[bIdx41]++).set(itemIdx4, 1, collision41);
-                mBins(bIdx51, mBinSizes[bIdx51]++).set(itemIdx5, 1, collision51);
-                mBins(bIdx61, mBinSizes[bIdx61]++).set(itemIdx6, 1, collision61);
-                mBins(bIdx71, mBinSizes[bIdx71]++).set(itemIdx7, 1, collision71);
+                mBins(bIdx01, mBinSizes[bIdx01]++).set(itemIdx0, 1, c01);
+                mBins(bIdx11, mBinSizes[bIdx11]++).set(itemIdx1, 1, c11);
+                mBins(bIdx21, mBinSizes[bIdx21]++).set(itemIdx2, 1, c21);
+                mBins(bIdx31, mBinSizes[bIdx31]++).set(itemIdx3, 1, c31);
+                mBins(bIdx41, mBinSizes[bIdx41]++).set(itemIdx4, 1, c41);
+                mBins(bIdx51, mBinSizes[bIdx51]++).set(itemIdx5, 1, c51);
+                mBins(bIdx61, mBinSizes[bIdx61]++).set(itemIdx6, 1, c61);
+                mBins(bIdx71, mBinSizes[bIdx71]++).set(itemIdx7, 1, c71);
+
+
+                mItemToBinMap(itemIdx0, 1) = bIdx01 | ((u8)c01 & 1) * u64(-1);
+                mItemToBinMap(itemIdx1, 1) = bIdx11 | ((u8)c11 & 1) * u64(-1);
+                mItemToBinMap(itemIdx2, 1) = bIdx21 | ((u8)c21 & 1) * u64(-1);
+                mItemToBinMap(itemIdx3, 1) = bIdx31 | ((u8)c31 & 1) * u64(-1);
+                mItemToBinMap(itemIdx4, 1) = bIdx41 | ((u8)c41 & 1) * u64(-1);
+                mItemToBinMap(itemIdx5, 1) = bIdx51 | ((u8)c51 & 1) * u64(-1);
+                mItemToBinMap(itemIdx6, 1) = bIdx61 | ((u8)c61 & 1) * u64(-1);
+                mItemToBinMap(itemIdx7, 1) = bIdx71 | ((u8)c71 & 1) * u64(-1);
 
 
                 auto bIdx02 = CuckooIndex::getHash(hashs[0], 2, numBins);
@@ -214,26 +234,33 @@ namespace osuCrypto
                 auto bIdx72 = CuckooIndex::getHash(hashs[7], 2, numBins);
 
 
-                bool collision02 = bIdx00 == bIdx02 || bIdx01 == bIdx02;
-                bool collision12 = bIdx10 == bIdx12 || bIdx11 == bIdx12;
-                bool collision22 = bIdx20 == bIdx22 || bIdx21 == bIdx22;
-                bool collision32 = bIdx30 == bIdx32 || bIdx31 == bIdx32;
-                bool collision42 = bIdx40 == bIdx42 || bIdx41 == bIdx42;
-                bool collision52 = bIdx50 == bIdx52 || bIdx51 == bIdx52;
-                bool collision62 = bIdx60 == bIdx62 || bIdx61 == bIdx62;
-                bool collision72 = bIdx70 == bIdx72 || bIdx71 == bIdx72;
+                bool c02 = bIdx00 == bIdx02 || bIdx01 == bIdx02;
+                bool c12 = bIdx10 == bIdx12 || bIdx11 == bIdx12;
+                bool c22 = bIdx20 == bIdx22 || bIdx21 == bIdx22;
+                bool c32 = bIdx30 == bIdx32 || bIdx31 == bIdx32;
+                bool c42 = bIdx40 == bIdx42 || bIdx41 == bIdx42;
+                bool c52 = bIdx50 == bIdx52 || bIdx51 == bIdx52;
+                bool c62 = bIdx60 == bIdx62 || bIdx61 == bIdx62;
+                bool c72 = bIdx70 == bIdx72 || bIdx71 == bIdx72;
 
 
-                mBins(bIdx02, mBinSizes[bIdx02]++).set(itemIdx0, 2, collision02);
-                mBins(bIdx12, mBinSizes[bIdx12]++).set(itemIdx1, 2, collision12);
-                mBins(bIdx22, mBinSizes[bIdx22]++).set(itemIdx2, 2, collision22);
-                mBins(bIdx32, mBinSizes[bIdx32]++).set(itemIdx3, 2, collision32);
-                mBins(bIdx42, mBinSizes[bIdx42]++).set(itemIdx4, 2, collision42);
-                mBins(bIdx52, mBinSizes[bIdx52]++).set(itemIdx5, 2, collision52);
-                mBins(bIdx62, mBinSizes[bIdx62]++).set(itemIdx6, 2, collision62);
-                mBins(bIdx72, mBinSizes[bIdx72]++).set(itemIdx7, 2, collision72);
+                mBins(bIdx02, mBinSizes[bIdx02]++).set(itemIdx0, 2, c02);
+                mBins(bIdx12, mBinSizes[bIdx12]++).set(itemIdx1, 2, c12);
+                mBins(bIdx22, mBinSizes[bIdx22]++).set(itemIdx2, 2, c22);
+                mBins(bIdx32, mBinSizes[bIdx32]++).set(itemIdx3, 2, c32);
+                mBins(bIdx42, mBinSizes[bIdx42]++).set(itemIdx4, 2, c42);
+                mBins(bIdx52, mBinSizes[bIdx52]++).set(itemIdx5, 2, c52);
+                mBins(bIdx62, mBinSizes[bIdx62]++).set(itemIdx6, 2, c62);
+                mBins(bIdx72, mBinSizes[bIdx72]++).set(itemIdx7, 2, c72);
 
-
+                mItemToBinMap(itemIdx0, 2) = bIdx02 | ((u8)c02 & 1) * u64(-1);
+                mItemToBinMap(itemIdx1, 2) = bIdx12 | ((u8)c12 & 1) * u64(-1);
+                mItemToBinMap(itemIdx2, 2) = bIdx22 | ((u8)c22 & 1) * u64(-1);
+                mItemToBinMap(itemIdx3, 2) = bIdx32 | ((u8)c32 & 1) * u64(-1);
+                mItemToBinMap(itemIdx4, 2) = bIdx42 | ((u8)c42 & 1) * u64(-1);
+                mItemToBinMap(itemIdx5, 2) = bIdx52 | ((u8)c52 & 1) * u64(-1);
+                mItemToBinMap(itemIdx6, 2) = bIdx62 | ((u8)c62 & 1) * u64(-1);
+                mItemToBinMap(itemIdx7, 2) = bIdx72 | ((u8)c72 & 1) * u64(-1);
             }
 
             hasher.ecbEncBlocks(items.data() + itemIdx, remSteps, hashs.data());
@@ -252,6 +279,7 @@ namespace osuCrypto
                         collision |= (bIdxs[hh] == bIdx);
 
                     mBins(bIdx, mBinSizes[bIdx]++).set(itemIdx, h, collision);
+                    mItemToBinMap(itemIdx + i, h) = bIdx | ((u8)collision & 1) * u64(-1);
                 }
             }
         }
@@ -278,7 +306,7 @@ namespace osuCrypto
                             collision |= (bIdxs[hh] == bIdx);
 
                         mBins(bIdx, mBinSizes[bIdx]++).set(itemIdx, h, collision);
-
+                        mItemToBinMap(itemIdx + i, h) = bIdx | ((u8)collision & 1) * u64(-1);
 
                     }
                 }

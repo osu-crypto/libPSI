@@ -45,8 +45,8 @@ void kkrt_psi_all()
 {
     std::cout << std::endl;
     run("Psi_kkrt_EmptrySet_Test_Impl         ", Psi_kkrt_EmptrySet_Test_Impl);
-    run("Psi_kkrt_FullSet_Test_Impl           ", Psi_kkrt_FullSet_Test_Impl);
-    run("Psi_kkrt_SingltonSet_Test_Impl       ", Psi_kkrt_SingltonSet_Test_Impl);
+    //run("Psi_kkrt_FullSet_Test_Impl           ", Psi_kkrt_FullSet_Test_Impl);
+    //run("Psi_kkrt_SingltonSet_Test_Impl       ", Psi_kkrt_SingltonSet_Test_Impl);
 
 }
 
@@ -158,9 +158,9 @@ void run_all()
     //Ecc_all();
     //OT_all();
     kkrt_psi_all();
-    AknBfPsi_all();
-    OtBinPsi_all();
-    DcwPsi_all();
-    DktPsi_all();
-    BGI_PIR_all();
+    //AknBfPsi_all();
+    //OtBinPsi_all();
+    //DcwPsi_all();
+    //DktPsi_all();
+    //BGI_PIR_all();
 }

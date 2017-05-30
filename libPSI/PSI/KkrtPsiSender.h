@@ -20,9 +20,10 @@ namespace osuCrypto
 
 		u64 mSenderSize, mRecverSize, mStatSecParam;
         PRNG mPrng;
+        std::vector<u64>mPermute;
 
 		//SimpleIndex mIndex;
-        CuckooParam mCuckooParams;
+        CuckooParam mParams;
 		block mHashingSeed;
 
         NcoOtExtSender* mOtSender;

@@ -569,8 +569,8 @@ void kkrtSend(
 
                 sendPSIs.init(setSize, setSize, params.mStatSecParam, sendChls, otSend, prng.get<block>());
 
-                sendChls[0].asyncSend(dummy, 1);
-                sendChls[0].recv(dummy, 1);
+                //sendChls[0].asyncSend(dummy, 1);
+                //sendChls[0].recv(dummy, 1);
 
                 sendPSIs.sendInput(set, sendChls);
 
@@ -635,8 +635,8 @@ void kkrtRecv(
 
                 recvPSIs.init(setSize, setSize, params.mStatSecParam, chls, otRecv, prng.get<block>());
 
-                chls[0].asyncSend(dummy, 1);
-                chls[0].recv(dummy, 1);
+                //chls[0].asyncSend(dummy, 1);
+                //chls[0].recv(dummy, 1);
                 auto mid = timer.setTimePoint("init");
 
 

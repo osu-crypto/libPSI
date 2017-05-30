@@ -1417,17 +1417,17 @@ void Psi_kkrt_EmptrySet_Test_Impl()
 void Psi_kkrt_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize =128, psiSecParam = 40, numThreads(1), bitSize = 128;
+    u64 setSize =1 << 4, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
     {
-        sendSet[i] = recvSet[i] = prng.get<block>();
+        sendSet[i] = recvSet[i] = toBlock(i);
     }
 
-    std::shuffle(sendSet.begin(), sendSet.end(), prng);
+    //std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
 
     std::string name("psi");
@@ -1512,8 +1512,8 @@ void Psi_kkrt_FullSet_Test_Impl()
 
 void Psi_kkrt_SingltonSet_Test_Impl()
 {
-    setThreadName("Sender");
-    u64 setSize = 129, psiSecParam = 40, bitSize = 128;
+    setThreadName("recver");
+    u64 setSize = 2, psiSecParam = 40, bitSize = 128;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -1562,6 +1562,7 @@ void Psi_kkrt_SingltonSet_Test_Impl()
 
 
     std::thread thrd([&]() {
+        setThreadName("Sender");
 
 
         send.init(setSize, setSize, psiSecParam, sendChl, otSend0, prng.get<block>());

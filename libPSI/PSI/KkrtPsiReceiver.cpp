@@ -171,7 +171,7 @@ namespace osuCrypto
 
                     mOtRecv->encode(bIdx, &item, &encoding, maskByteSize);
 
-                    //std::cout << "r input[" << idx << "] = " << inputs[idx] << " h = " << (int)hIdx << " bIdx = " << bIdx << " -> " << encoding << "  " << *(u64*)&encoding << std::endl;
+                    //std::cout << "r input[" << idx << "] = " << inputs[idx] << " h = " << (int)hIdx << " bIdx = " << bIdx << " -> " << *(u64*)&encoding << std::endl;
 
                     //store my mask into corresponding buff at the permuted position
                     localMasks[hIdx].emplace(*(u64*)&encoding, std::pair<block, u64>(encoding, idx));
@@ -193,13 +193,17 @@ namespace osuCrypto
         //u64 sendCount = (mSenderSize + stepSize - 1) / stepSize;
         auto idxSize = std::min<u64>(maskByteSize, sizeof(u64));
         std::array<u64, 3> idxs{ 0,0,0 };
-        stepSize = mSenderSize;
-        Matrix<u8> recvBuff(stepSize * 3, maskByteSize);
+
+
+        auto numRegions = (mSenderSize  + stepSize -1) / stepSize;
+        auto masksPerRegion = stepSize * 3;
+        //std::this_thread::sleep_for(std::chrono::seconds(1));
+        Matrix<u8> recvBuff(masksPerRegion, maskByteSize);
         //receive the sender's marks, we have 3 buffs that corresponding to the mask of elements used hash index 0,1,2
-        for (u64 i = 0; i < mSenderSize; )
+        for (u64 regionIdx = 0, i = 0; regionIdx < numRegions; ++regionIdx)
         {
-            u64 curStepSize = std::min<u64>(mSenderSize - i * stepSize, stepSize);
-            auto start = i * stepSize;
+            auto start = regionIdx * stepSize;
+            u64 curStepSize = std::min<u64>(mSenderSize - start, stepSize);
             auto end = start + curStepSize;
 
             chl.recv(recvBuff.data(), curStepSize * 3 * maskByteSize);
@@ -209,7 +213,7 @@ namespace osuCrypto
                 recvBuff.data() + 1 * maskByteSize,
                 recvBuff.data() + 2 * maskByteSize };
 
-            for (; i < end; ++i)
+            for (u64 i = start; i < end; ++i)
             {
 
                 memcpy(idxs.data() + 0, iters[0], idxSize);
@@ -234,77 +238,7 @@ namespace osuCrypto
         }
         gTimer.setTimePoint("R Online.Bucket done");
 
-        //======================STASH BIN==========================
-        //std::unique_ptr<ByteStream> stashBuff(new ByteStream());
-        //stashBuff->resize((sizeof(blockBop)*mBins.mStash.size()));
-        //auto myOt = stashBuff->getSpan<blockBop>();
-
-        //gTimer.setTimePoint("R Online.Stash start");
-        //// compute the encoding for each item in the stash.
-        //for (u64 i = 0, otIdx = mBins.mBinCount; i < mBins.mStash.size(); ++i, ++otIdx)
-        //{
-        //    auto& item = mBins.mStash[i];
-        //    block mask(ZeroBlock);
-
-        //    if (item.isEmpty() == false)
-        //    {
-        //        codeWord.elem[0] = aesHashBuffs[0][item.mIdx];
-        //        codeWord.elem[1] = aesHashBuffs[1][item.mIdx];
-        //        codeWord.elem[2] = aesHashBuffs[2][item.mIdx];
-        //        codeWord.elem[3] = aesHashBuffs[3][item.mIdx];
-
-        //        myOt[i] =
-        //            codeWord
-        //            ^ mSSOtMessages[i][0]
-        //            ^ mSSOtMessages[i][1];
-
-        //        sha1.Reset();
-        //        sha1.Update((u8*)&mSSOtMessages[otIdx][0], codeWordSize);
-        //        sha1.Final(hashBuff);
-        //        
-        //        memcpy(locaStashlMasks->data() + i * maskSize, hashBuff, maskSize);
-        //    }
-        //    else
-        //    {
-        //        myOt[i] = prng.get_block512(codeWordSize);
-        //    }
-        //}
-
-        //chl.asyncSend(std::move(stashBuff));
-        //gTimer.setTimePoint("R Online.sendStashMask done");
-
-        //receive masks from the stash
-        //for (u64 sBuffIdx = 0; sBuffIdx < mNumStash; sBuffIdx++)
-        //{
-        //    ByteStream recvBuff;
-        //    chl.recv(recvBuff);
-        //    if (mBins.mStash[sBuffIdx].isEmpty() == false)
-        //    {
-        //        // double check the size.
-        //        auto cntMask = mSenderSize;
-        //        gTimer.setTimePoint("Online.MaskReceived from STASH");
-        //        if (recvBuff.size() != cntMask* maskSize)
-        //        {
-        //            Log::out << "recvBuff.size() != expectedSize" << Log::endl;
-        //            throw std::runtime_error("rt error at " LOCATION);
-        //        }
-
-        //        auto theirMasks = recvBuff.data();
-        //        for (u64 i = 0; i < cntMask; ++i)
-        //        {
-        //            //check stash
-        //            if (memcmp(theirMasks, locaStashlMasks->data() + sBuffIdx*maskSize, maskSize) == 0)
-        //            {
-        //                mIntersection.push_back(mBins.mStash[sBuffIdx].mIdx);
-        //                //Log::out << "#id: " << match->second.second << Log::endl;
-        //            }
-
-        //            theirMasks += maskSize;
-        //        }
-        //    }
-        //}
-
-        //gTimer.setTimePoint("Online.Done");
-        //    Log::out << gTimer << Log::endl;
+        u8 dummy[1];
+        chl.recv(dummy, 1);
     }
 }

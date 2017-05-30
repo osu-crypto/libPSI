@@ -60,10 +60,12 @@ namespace osuCrypto
 
         u64 mMaxBinSize, mNumHashFunctions;
         Matrix<Item> mBins;
+        Matrix<u64> mItemToBinMap;
         std::vector<u64> mBinSizes;
         block mHashSeed;
         void print() ;
-
+        static  u64 get_bin_size(u64 numBins, u64 numBalls, u64 statSecParam);
+        
 
         void init(u64 numBins, u64 simpleSize, u64 statSecParam = 40, u64 numHashFunction = 3);
         void insertItems(span<block> items, block hashingSeed);
