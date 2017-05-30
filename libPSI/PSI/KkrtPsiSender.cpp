@@ -351,18 +351,12 @@ namespace osuCrypto
         // set of some inter thread communication objects that will
         // allow this thread to know when the OT correction values have 
         // been received.
-        std::vector<std::promise<void>> proms(numSteps);
-        std::vector<std::future<void>> futrs(numSteps);
-        for (u64 i = 0; i < numSteps; ++i) futrs[i] = proms[i].get_future();
         std::atomic<u64> recvedIdx(0);
 
 
         // spin off anothe thread that will schedule the corrections to be received.
         // This thread does not actually do any work and could be removed somehow.
         auto thrd = std::thread([&]() {
-
-            //for each batch
-            auto p = proms.begin();
 
             // while there are more corrections for be recieved
             while (recvedIdx < numBins)
@@ -376,7 +370,6 @@ namespace osuCrypto
 
 
                 // notify the other thread that the corrections have arrived
-                (p++)->set_value();
                 recvedIdx.fetch_add(currentStepSize, std::memory_order::memory_order_release);
             }
         });
@@ -393,7 +386,6 @@ namespace osuCrypto
         hashItems(inputs, binIdxs, mHashingSeed, numBins, mPrng, myMaskBuff, mPermute);
 
         gTimer.setTimePoint("S Online.computeBucketMask start");
-        auto f = futrs.begin();
 
         // Now we will look over the inputs and try to encode them. Not that not all
         // of the corrections have beed received. In the case that the current item 
@@ -445,7 +437,6 @@ namespace osuCrypto
         }
 
 
-        futrs.back().get();
         gTimer.setTimePoint("S Online.linear start");
         auto encoding = myMaskBuff.data();
 
