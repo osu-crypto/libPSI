@@ -8,40 +8,44 @@ using namespace osuCrypto;
 
 void BgiPir_keyGen_test()
 {
-    std::vector<block> vv{CCBlock, OneBlock, AllOneBlock, AllOneBlock};
+    std::vector<block> vv{ CCBlock, OneBlock, AllOneBlock, AllOneBlock };
 
-    u64 depth = 5;
-    for (u64 seed = 0; seed < 32; ++seed)
+    u64 depth = 4;
+    u64 groupSize = 16;
+    u64 domain = (1 << depth) *  groupSize * 8;
+    PRNG prng(ZeroBlock);
+    for (u64 seed = 0; seed < 4; ++seed)
     {
 
-        for (u64 i = 0; i < (u64)(1 << depth); ++i)
+        for (u64 ii = 0; ii < 10; ++ii)
         {
+            auto i = prng.get<u64>() % domain;
+            std::vector<block> k0(depth + 1), k1(depth + 1);
+            std::vector<u8> g0(groupSize), g1(groupSize);
 
-            std::vector<block> k0, k1;
+            BgiPirClient::keyGen(i, toBlock(seed), k0, g0, k1, g1);
 
-            BgiPirClient::keyGen(i, depth, toBlock(seed), k0, k1);
-
-            for (u64 j = 0; j < (u64)(1 << depth); ++j)
+            for (u64 j = 0; j <domain; ++j)
             {
 
-                auto b0 = BgiPirServer::evalOne(j, depth, k0);
-                auto b1 = BgiPirServer::evalOne(j, depth, k1);
+                auto b0 = BgiPirServer::evalOne(j, k0, g0);
+                auto b1 = BgiPirServer::evalOne(j, k1, g1);
 
                 //std::cout << i << (i == j ? "*" : " ") << " " << (b0 ^ b1) << std::endl;
 
                 if (i == j)
                 {
-                    if (neq(b0 ^ b1, OneBlock))
+                    if ((b0 ^ b1) != 1)
                     {
-                        std::cout << "\n\n ===========================================================\n\n\n";
+                        std::cout << "\n\n ======================= "<<i<< " " << j << " " << (int)b0 << " ^ " << (int)b1 << " = " << (b0 ^ b1) << " != 1 ====================================\n\n\n";
                         throw std::runtime_error(LOCATION);
                     }
                 }
                 else
                 {
-                    if (neq(b0 ^ b1, ZeroBlock))
+                    if ((b0 ^ b1) != 0)
                     {
-                        std::cout << "\n\n -----------------------------------------------------------\n\n\n";
+                        std::cout << "\n\n ======================= " << i << " " << j << " " << (int)b0 << " ^ " << (int)b1 << " = " << (b0 ^ b1) << " != 0 ====================================\n\n\n";
                         throw std::runtime_error(LOCATION);
                     }
                 }
@@ -64,9 +68,9 @@ void BgiPir_PIR_test()
         vv[i] = toBlock(i);
     }
 
-    client.init(depth);
-    s0.init(depth);
-    s1.init(depth);
+    client.init(depth, 16);
+    s0.init(depth, 16);
+    s1.init(depth, 16);
 
     IOService ios;
 
@@ -107,3 +111,55 @@ void BgiPir_PIR_test()
         }
     }
 }
+
+void BgiPir_FullDomain_test()
+{
+    u64 depth = 10, groupSize = 16;
+    u64 domain = (1 << depth) * groupSize * 8;
+
+    //std::cout << domain << std::endl;
+
+    std::vector<block> data(domain);
+    for (u64 i = 0; i < data.size(); ++i)
+        data[i] = toBlock(i);
+
+
+
+    std::vector<block> k0(depth + 1), k1(depth + 1);
+    std::vector<u8> g0(groupSize), g1(groupSize);
+
+
+    for (u64 i = 0; i < domain; ++i)
+    {
+        //i = 1024;
+        BgiPirClient::keyGen(i, toBlock(i), k0, g0, k1, g1);
+
+        //std::cout << "---------------------------------------------------" << std::endl;
+        //for (u64 j = 0; j < data.size(); ++j)
+        //{
+        //    std::cout << int(BgiPirServer::evalOne(j, k0, g0) & 1);
+        //}
+        //std::cout << std::endl;
+        //for (u64 j = 0; j < data.size(); ++j)
+        //{
+        //    std::cout << int(BgiPirServer::evalOne(j, k1, g1) & 1);
+        //}
+        //std::cout << std::endl;
+        //std::cout << "---------------------------------------------------" << std::endl;
+
+
+        auto b0 = BgiPirServer::fullDomain(data, k0, g0);
+        auto b1 = BgiPirServer::fullDomain(data, k1, g1);
+
+        if (neq(b0 ^ b1, data[i]))
+        {
+            std::cout << i << "  " << (b0^b1) <<" = "<<b0<<" ^ "<<b1 << std::endl;
+            throw std::runtime_error(LOCATION);
+        }
+
+
+        return;
+
+    }
+}
+

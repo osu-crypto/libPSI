@@ -22,5 +22,10 @@ namespace testsVS_apollo
             BgiPir_PIR_test();
         }
 
+        TEST_METHOD(BgiPir_FullDomain_testVS)
+        {
+            InitDebugPrinting();
+            BgiPir_FullDomain_test();
+        }
     };
 }

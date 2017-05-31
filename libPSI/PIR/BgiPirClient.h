@@ -8,12 +8,12 @@ namespace osuCrypto
     {
     public:
         u64 mDatasetSize;
-        u64 mDepth;
+        u64 mKDepth, mGroupSize;
 
-        void init(u64 dataSetSize);
+        void init(u64 dataSetSize, u64 groupByteSize);
         block query(u64 idx, Channel srv0, Channel Srv1, block seed);
 
-        static void keyGen(u64 idx, u64 depth, block seed, std::vector<block>& k0 , std::vector<block>& k1);
+        static void keyGen(u64 idx, block seed, span<block> k0, span<u8> g0, span<block> k1, span<u8> g1);
     };
 
 }

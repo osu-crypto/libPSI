@@ -20,7 +20,8 @@ using namespace osuCrypto;
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include <numeric>
 #include "cryptoTools/Common/Log.h"
-//int miraclTestMain();
+#include "libPSI/PIR/BgiPirClient.h"
+#include "libPSI/PIR/BgiPirServer.h"
 
 #include "cuckoo/cuckooTests.h"
 #include "CLP.h"
@@ -35,7 +36,7 @@ rr17aTags{ "rr17a" },
 rr17aSMTags{ "rr17a-sm" },
 rr17bTags{ "rr17b" },
 rr17bSMTags{ "rr17b-sm" },
-kkrtTag{"kkrt"},
+kkrtTag{ "kkrt" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -339,8 +340,62 @@ void pingTest(CLP& cmd)
 //}
 
 
+void pir()
+{
+
+    u64 depth = 18, groupSize = 16;
+    u64 domain = (1 << depth) * groupSize * 8;
+
+    std::cout << domain << std::endl;
+
+    std::vector<block> data(domain);
+    for (u64 i = 0; i < data.size(); ++i)
+        data[i] = toBlock(i);
+
+
+
+    std::vector<block> k0(depth + 1), k1(depth + 1);
+    std::vector<u8> g0(groupSize), g1(groupSize);
+
+
+
+    u64 i = 0;// 1024;
+    BgiPirClient::keyGen(i, toBlock(i), k0, g0, k1, g1);
+
+    //std::cout << "---------------------------------------------------" << std::endl;
+    //for (u64 j = 0; j < data.size(); ++j)
+    //{
+    //    std::cout << int(BgiPirServer::evalOne(j, k0, g0) & 1);
+    //}
+    //std::cout << std::endl;
+    //for (u64 j = 0; j < data.size(); ++j)
+    //{
+    //    std::cout << int(BgiPirServer::evalOne(j, k1, g1) & 1);
+    //}
+    //std::cout << std::endl;
+    //std::cout << "---------------------------------------------------" << std::endl;
+
+    Timer t;
+    t.setTimePoint("start");
+    auto b0 = BgiPirServer::fullDomain(data, k0, g0);
+    t.setTimePoint("mid");
+    auto b1 = BgiPirServer::fullDomain(data, k1, g1);
+    t.setTimePoint("end");
+
+    std::cout << t << std::endl;
+    if (neq(b0 ^ b1, data[i]))
+    {
+        std::cout << i << "  " << (b0^b1) << "(" << b0 << " ^ " << b1 << ")" << std::endl;
+        throw std::runtime_error(LOCATION);
+    }
+
+
+}
+
 int main(int argc, char** argv)
 {
+    pir();
+    return 0;
     //com();
     //simpleTest(argc,argv);
 
@@ -417,7 +472,7 @@ int main(int argc, char** argv)
             << "   -" << rr17aTags[0] << " : RR17   - Hash to bins & compare style (malicious secure)\n"
             << "   -" << rr17aSMTags[0] << ": RR17sm - Hash to bins & compare style (standard model malicious secure)\n"
             << "   -" << rr17bTags[0] << ": RR17b  - Hash to bins & commit compare style (malicious secure)\n"
-            << "   -" << dktTags[0] << "  : DKT12  - Public key style (malicious secure)\n" 
+            << "   -" << dktTags[0] << "  : DKT12  - Public key style (malicious secure)\n"
             << "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure)\n" << std::endl;
 
         std::cout << "Parameters:\n"
@@ -443,13 +498,13 @@ int main(int argc, char** argv)
             << ": The server's address (Default = " << cmd.get<std::string>(hostNameTag) << ")\n"
 
             << "   -" << pingTag[0]
-            << ": Perform a ping and bandwidth test (Default = " << cmd.isSet(pingTag) << ")\n" 
-            
+            << ": Perform a ping and bandwidth test (Default = " << cmd.isSet(pingTag) << ")\n"
+
             << "   -" << bitSizeTag[0]
             << ":  Bit size for protocols that depend on it.\n"
 
-            << "   -" <<  binScalerTag[0] 
-            << ":  Have the Hash to bin type protocols use n / " << binScalerTag[0]  << " number of bins (Default = 1)\n"  << std::endl;
+            << "   -" << binScalerTag[0]
+            << ":  Have the Hash to bin type protocols use n / " << binScalerTag[0] << " number of bins (Default = 1)\n" << std::endl;
 
 
         std::cout << "Unit Tests:\n"
