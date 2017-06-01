@@ -4,6 +4,7 @@
 
 namespace osuCrypto
 {
+    //BitVector BgiPirServer::BgiPirServer_bv;
     extern std::string ss(block b);
     extern std::string t1(block b);
     extern std::string t2(block b);
@@ -14,15 +15,10 @@ namespace osuCrypto
         return *(u8 *)&b & 1;
     }
 
-    void BgiPirServer::init(u64 depth, u64 groupByteSize)
+    void BgiPirServer::init(u64 depth, u64 groupBlkSize)
     {
-        auto logGroup = log2floor(groupByteSize * 8);
-        if (1 << logGroup != groupByteSize * 8)
-            throw std::runtime_error("group size should be a power of 2, e.g. 1,2,4,... ");
-
-
         mKDepth = depth;
-        mGroupSize = groupByteSize;
+        mGroupBlkSize = groupBlkSize;
     }
 
     void BgiPirServer::serve(Channel chan, span<block> data)
@@ -30,7 +26,7 @@ namespace osuCrypto
         static const std::array<block, 2> zeroAndAllOne{ ZeroBlock, AllOneBlock };
 
         std::vector<block> k(mKDepth + 2);
-        std::vector<u8> groupWord(mGroupSize);
+        std::vector<block> groupWord(mGroupBlkSize);
         chan.recv(k.data(), k.size() * sizeof(block));
 
         block sum = ZeroBlock;
@@ -51,12 +47,12 @@ namespace osuCrypto
     static const std::array<block, 2> zeroAndAllOne{ ZeroBlock, AllOneBlock };
     static const block notThreeBlock = (OneBlock ^ AllOneBlock) << 1;
 
-    u8 BgiPirServer::evalOne(u64 idx, span<block> k, span<u8> g, block* bb, block* ss, u8* tt)
+    u8 BgiPirServer::evalOne(u64 idx, span<block> k, span<block> g, block* bb, block* ss, u8* tt)
     {
         // static const std::array<block, 2> zeroOne{ZeroBlock, OneBlock};
         u64 kDepth = k.size() - 1;
-        u64 kIdx = idx / (g.size() * 8);
-        u64 gIdx = idx % (g.size() * 8);
+        u64 kIdx = idx / (g.size() * 128);
+        u64 gIdx = idx % (g.size() * 128);
         //std::cout << "s         " << stt(s) << std::endl;
 
         //std::vector<block> ret(kDepth);
@@ -65,33 +61,44 @@ namespace osuCrypto
         auto s = traversePath(kDepth, kIdx, k);
 
 
-        auto blkSize = (g.size() + 15) / 16;
-        //u64 byteIdx = remIdx / 8;
-        //u64 bitIdx = remIdx % 8;
-        u64 byteIdx = gIdx % 16;
-        u64 bitIdx = gIdx / 16;
-        if (blkSize != 1) throw std::runtime_error("fix^^^^^ " LOCATION);
+        u64 byteIdx = gIdx % 16 + 16 * (gIdx / 128);
+        u64 bitIdx = (gIdx % 128) / 16;
 
-        std::vector<block> convertS(blkSize);
-
+        std::vector<block> temp(g.size() * 2);
+        auto gs = temp.data();
+        auto l = temp.data() + g.size();
 
         block sss = s & notThreeBlock;
-        aes0.ecbEncBlock(sss, convertS[0]);
-        convertS[0] = convertS[0] ^ sss;
-        //AES(s & notThreeBlock).ecbEncCounterMode(0, blkSize, convertS.data());
-        //std::cout << "*s " << (s & notThreeBlock) << " -> " << convertS[0] << std::endl;
 
+        for (u64 i = 0; i < g.size(); ++i)
+        {
+            l[i] = sss ^ toBlock(i);
+        }
+
+
+        aes0.ecbEncBlocks(l, g.size(), gs);
+        for (u64 i = 0; i < g.size(); ++i)
+        {
+            gs[i] = gs[i] ^ l[i];
+        }
 
         u8 t = lsb(s);
+        //if (idx == 2306)
+        //{
+        //    std::cout << " byte " << byteIdx << " bit " << bitIdx << std::endl;
+        //    std::cout << idx << " " << gs[0] << " " << gs[1] << " = G(" << l[0] << " " << l[1] << ")" << std::endl;
+        //    std::cout << "gc + cw* t = " << (gs[0] ^ (zeroAndAllOne[t] & g[0])) <<" " << (gs[1] ^ (zeroAndAllOne[t] & g[1])) << " = " << gs[0] << "  " << gs[1] << " ^ (" << g[0] << " " << g[1] << " * " << int(t) << ")" << std::endl;;
 
+        //}
 
-        auto view = (u8*)convertS.data();
+        auto gBytes = (u8*)g.data();
+        auto view = (u8*)gs;
 
-        u8 word = (view[byteIdx] ^ (g[byteIdx] * t)) >> (bitIdx);
-        //std::cout << "word = " << (int)word << " = " << (int)view[byteIdx] << " ^ (" << (int)g[byteIdx] << " * " << (int)t_cw << ")" << std::endl;
+        u8 word = (view[byteIdx] ^ (gBytes[byteIdx] * t)) >> (bitIdx);
+        //std::cout << "word = " << (int)word << " = " << (int)view[byteIdx] << " ^ (" << int(gBytes[byteIdx]) << " * " << (int)t << ")  byte " << byteIdx << " bit " << bitIdx << " k " << kIdx << std::endl;
 
-        if (ss) *ss = (convertS[0]);
-        if (bb) *bb = (convertS[0] ^ (zeroAndAllOne[t] & *(block*)g.data()));
+        if (ss) *ss = (gs[(gIdx / 128)]);
+        if (bb) *bb = (gs[(gIdx / 128)] ^ (zeroAndAllOne[t] & g[(gIdx / 128)]));
         if (tt) *tt = t;
 
         return word & 1;
@@ -105,11 +112,7 @@ namespace osuCrypto
         for (u64 i = 0, shift = depth - 1; i < depth; ++i, --shift)
         {
             const u8 keep = (idx >> shift) & 1;
-            ////std::cout << "keep " << (int)keep << std::endl;
-
-            //AES(s & notThreeBlock).ecbEncTwoBlocks(zeroOne.data(), tau.data());
             s = traverseOne(s, k[i + 1], keep);
-            //std::cout << "s[" << (i + 1) << "]      " << stt(s) << std::endl << std::endl;
         }
         return s;
     }
@@ -126,17 +129,8 @@ namespace osuCrypto
         tau[1] = tau[1] ^ ss;
 
 
-        // TODO: we should probably do more than 1 block at once
-
-        //std::cout << "g[" << i << "][0]   " << stt(tau[0]) << std::endl;
-        //std::cout << "g[" << i << "][1]   " << stt(tau[1]) << std::endl;
-
-        //std::cout << "cw[" << i << "]     " << stt(cw) << std::endl;
-
         const auto scw = (cw & notThreeBlock);
         const auto mask = zeroAndAllOne[*(u8 *)&s & 1];
-
-        //std::cout << "scw[" << i << "]    " << stt(scw) << std::endl;
 
         auto d0 = ((cw >> 1) & OneBlock);
         auto d1 = (cw & OneBlock);
@@ -154,8 +148,7 @@ namespace osuCrypto
 
         return stcw[keep];
     }
-
-    block BgiPirServer::fullDomain(span<block> data, span<block> k, span<u8> g)
+    block BgiPirServer::fullDomain(span<block> data, span<block> k, span<block> g)
     {
         static const std::array<block, 2> zeroAndAllOne{ ZeroBlock, AllOneBlock };
         static const block notOneBlock = OneBlock ^ AllOneBlock;
@@ -166,7 +159,7 @@ namespace osuCrypto
         // since we don't want to do bit shifting, this larger array
         // will be used to hold each bit of challengeBuff as a whole
         // byte. See below for how we do this efficiently.
-        std::array<block, 64> expandedS;
+        std::vector<block> expandedS(64 * g.size());
 
         // This will be used to compute expandedS
         block mask = _mm_set_epi8(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -176,6 +169,7 @@ namespace osuCrypto
         aes[1].setKey(OneBlock);
 
         std::vector<std::array<block, 8>> ss(kDepth - 2);
+        std::vector<std::array<block, 8>> temp(g.size()), enc(g.size());
 
         // create 8 subtrees each with starting seed ss[0]
         ss[0][0] = traversePath(3, 0, k);
@@ -208,7 +202,7 @@ namespace osuCrypto
             t_cw[i][0] = (kk[i] >> 1) & OneBlock;
             t_cw[i][1] = kk[i] & OneBlock;
         }
-
+        //BgiPirServer_bv.resize(((1 << kDepth) + g.size()) * 128);
 
         while (idx != end)
         {
@@ -276,7 +270,6 @@ namespace osuCrypto
                 //auto s5 = traversePath(d + 4, (5 << (d+1)) + pIdx, k);
                 //auto s6 = traversePath(d + 4, (6 << (d+1)) + pIdx, k);
                 //auto s7 = traversePath(d + 4, (7 << (d+1)) + pIdx, k);
-
                 //if (neq(s0, ss[d + 1][0])) { std::cout << pIdx << " 0 " << stt(stcw[0]) << " ^ " << stt(tau[0]) << std::endl; throw std::runtime_error(LOCATION); }
                 //if (neq(s1, ss[d + 1][1])) { std::cout << pIdx << " 1 " << stt(stcw[1]) << " ^ " << stt(tau[1]) << std::endl; throw std::runtime_error(LOCATION); }
                 //if (neq(s2, ss[d + 1][2])) { std::cout << pIdx << " 2 " << stt(stcw[2]) << " ^ " << stt(tau[2]) << std::endl; throw std::runtime_error(LOCATION); }
@@ -292,9 +285,9 @@ namespace osuCrypto
 
 
 
-            auto blkSize = (g.size() + 15) / 16;
-            //std::vector<block> convertS(blkSize);
-            if (blkSize != 1) throw std::runtime_error(LOCATION);
+            //auto blkSize = (g.size() + 15) / 16;
+            ////std::vector<block> convertS(blkSize);
+            //if (blkSize != 1) throw std::runtime_error(LOCATION);
 
             std::array<u8, 8> t;
             t[0] = lsb(ss[d][0]);
@@ -306,62 +299,90 @@ namespace osuCrypto
             t[6] = lsb(ss[d][6]);
             t[7] = lsb(ss[d][7]);
 
-
-            s[0] = ss[d][0] & notThreeBlock;
-            s[1] = ss[d][1] & notThreeBlock;
-            s[2] = ss[d][2] & notThreeBlock;
-            s[3] = ss[d][3] & notThreeBlock;
-            s[4] = ss[d][4] & notThreeBlock;
-            s[5] = ss[d][5] & notThreeBlock;
-            s[6] = ss[d][6] & notThreeBlock;
-            s[7] = ss[d][7] & notThreeBlock;
-
-
-            // compute G(s) = AES_{x_i}(s) + s
-            aes[0].ecbEncBlocks(s.data(), 8, tau.data());
-            
-            s[0] = s[0] ^ tau[0];
-            s[1] = s[1] ^ tau[1];
-            s[2] = s[2] ^ tau[2];
-            s[3] = s[3] ^ tau[3];
-            s[4] = s[4] ^ tau[4];
-            s[5] = s[5] ^ tau[5];
-            s[6] = s[6] ^ tau[6];
-            s[7] = s[7] ^ tau[7];
-
-            tau[0] = s[0] ^ (*(block*)g.data() & zeroAndAllOne[t[0]]);
-            tau[1] = s[1] ^ (*(block*)g.data() & zeroAndAllOne[t[1]]);
-            tau[2] = s[2] ^ (*(block*)g.data() & zeroAndAllOne[t[2]]);
-            tau[3] = s[3] ^ (*(block*)g.data() & zeroAndAllOne[t[3]]);
-            tau[4] = s[4] ^ (*(block*)g.data() & zeroAndAllOne[t[4]]);
-            tau[5] = s[5] ^ (*(block*)g.data() & zeroAndAllOne[t[5]]);
-            tau[6] = s[6] ^ (*(block*)g.data() & zeroAndAllOne[t[6]]);
-            tau[7] = s[7] ^ (*(block*)g.data() & zeroAndAllOne[t[7]]);
-
-            for (u64 i = 0; i < 8; ++i)
+            for (u64 i = 0; i < g.size(); ++i)
             {
-                //block sss = ss.back()[i];
-                //block convert_;
-                //AES(sss & notThreeBlock).ecbEncCounterMode(0, blkSize, &convert_);
-
-                ////if()
-                //converts[i] = convert_ ^ (*(block*)g.data() & zeroAndAllOne[lsb(sss)]);
-
-
-                std::cout << idx << " s" << i << " " << stt(ss[d][i]) << " -> " << tau[i] << " = " << s[i] << " ^ (" << *(block*)g.data() << " * " << int(t[i]) << ")" << std::endl;
-
-
-                expandedS[i * 8 + 0] = mask & _mm_srai_epi16(tau[i], 0);
-                expandedS[i * 8 + 1] = mask & _mm_srai_epi16(tau[i], 1);
-                expandedS[i * 8 + 2] = mask & _mm_srai_epi16(tau[i], 2);
-                expandedS[i * 8 + 3] = mask & _mm_srai_epi16(tau[i], 3);
-                expandedS[i * 8 + 4] = mask & _mm_srai_epi16(tau[i], 4);
-                expandedS[i * 8 + 5] = mask & _mm_srai_epi16(tau[i], 5);
-                expandedS[i * 8 + 6] = mask & _mm_srai_epi16(tau[i], 6);
-                expandedS[i * 8 + 7] = mask & _mm_srai_epi16(tau[i], 7);
+                temp[i][0] = ss[d][0] & notThreeBlock ^ toBlock(i);
+                temp[i][1] = ss[d][1] & notThreeBlock ^ toBlock(i);
+                temp[i][2] = ss[d][2] & notThreeBlock ^ toBlock(i);
+                temp[i][3] = ss[d][3] & notThreeBlock ^ toBlock(i);
+                temp[i][4] = ss[d][4] & notThreeBlock ^ toBlock(i);
+                temp[i][5] = ss[d][5] & notThreeBlock ^ toBlock(i);
+                temp[i][6] = ss[d][6] & notThreeBlock ^ toBlock(i);
+                temp[i][7] = ss[d][7] & notThreeBlock ^ toBlock(i);
             }
 
-            u8* byteView = (u8*)expandedS.data();
+            // compute G(s) = AES_{x_i}(s) + s
+            aes[0].ecbEncBlocks(temp[0].data(), 8 * g.size(), enc[0].data());
+
+            for (u64 i = 0; i < g.size(); ++i)
+            {
+                block b = temp[i][0];
+
+                temp[i][0] = temp[i][0] ^ enc[i][0];
+                temp[i][1] = temp[i][1] ^ enc[i][1];
+                temp[i][2] = temp[i][2] ^ enc[i][2];
+                temp[i][3] = temp[i][3] ^ enc[i][3];
+                temp[i][4] = temp[i][4] ^ enc[i][4];
+                temp[i][5] = temp[i][5] ^ enc[i][5];
+                temp[i][6] = temp[i][6] ^ enc[i][6];
+                temp[i][7] = temp[i][7] ^ enc[i][7];
+
+                block bb = temp[i][0];
+
+                temp[i][0] = temp[i][0] ^ (g[i] & zeroAndAllOne[t[0]]);
+                temp[i][1] = temp[i][1] ^ (g[i] & zeroAndAllOne[t[1]]);
+                temp[i][2] = temp[i][2] ^ (g[i] & zeroAndAllOne[t[2]]);
+                temp[i][3] = temp[i][3] ^ (g[i] & zeroAndAllOne[t[3]]);
+                temp[i][4] = temp[i][4] ^ (g[i] & zeroAndAllOne[t[4]]);
+                temp[i][5] = temp[i][5] ^ (g[i] & zeroAndAllOne[t[5]]);
+                temp[i][6] = temp[i][6] ^ (g[i] & zeroAndAllOne[t[6]]);
+                temp[i][7] = temp[i][7] ^ (g[i] & zeroAndAllOne[t[7]]);
+
+                //std::cout << "  s[" << i << "][0]  = " << b << std::endl;
+                //std::cout << "G(s[" << i << "][0]) = " << bb  << std::endl;
+
+                //std::cout << "gs+cw*t = " << temp[i][0] << " = " << bb << " + " << g[i] << " * " << int(t[0]) << std::endl;;
+            }
+
+
+            auto dest = expandedS.data();
+
+            for (u64 j = 0; j < 8; ++j)
+            {
+                for (u64 i = 0; i < g.size(); ++i)
+                {
+                    //block sss = ss.back()[i];
+                    //block convert_;
+                    //AES(sss & notThreeBlock).ecbEncCounterMode(0, blkSize, &convert_);
+
+                    ////if()
+                    //converts[i] = convert_ ^ (*(block*)g.data() & zeroAndAllOne[lsb(sss)]);
+
+
+                    //std::cout << idx << " s" << i << " " << stt(ss[d][i]) << " -> " << tau[i] << " = " << s[i] << " ^ (" << *(block*)g.data() << " * " << int(t[i]) << ")" << std::endl;
+
+
+                    dest[0] = mask & _mm_srai_epi16(temp[i][j], 0);
+                    dest[1] = mask & _mm_srai_epi16(temp[i][j], 1);
+                    dest[2] = mask & _mm_srai_epi16(temp[i][j], 2);
+                    dest[3] = mask & _mm_srai_epi16(temp[i][j], 3);
+                    dest[4] = mask & _mm_srai_epi16(temp[i][j], 4);
+                    dest[5] = mask & _mm_srai_epi16(temp[i][j], 5);
+                    dest[6] = mask & _mm_srai_epi16(temp[i][j], 6);
+                    dest[7] = mask & _mm_srai_epi16(temp[i][j], 7);
+
+                    dest += 8;
+                }
+            }
+
+            u8* byteView0 = (u8*)expandedS.data() + g.size() * 128 * 0;
+            u8* byteView1 = (u8*)expandedS.data() + g.size() * 128 * 1;
+            u8* byteView2 = (u8*)expandedS.data() + g.size() * 128 * 2;
+            u8* byteView3 = (u8*)expandedS.data() + g.size() * 128 * 3;
+            u8* byteView4 = (u8*)expandedS.data() + g.size() * 128 * 4;
+            u8* byteView5 = (u8*)expandedS.data() + g.size() * 128 * 5;
+            u8* byteView6 = (u8*)expandedS.data() + g.size() * 128 * 6;
+            u8* byteView7 = (u8*)expandedS.data() + g.size() * 128 * 7;
             //std::cout << (u64)k.data() << std::endl;
             //for (u64 i = 0; i < 128; ++i)
             //{
@@ -369,62 +390,65 @@ namespace osuCrypto
             //}
             //std::cout << std::endl;
 
-            auto inputIter = data.data() + (idx << 3) * 128;
+            auto inputIter0 = data.data() + ((0 << d) + idx) * g.size() * 128;
+            auto inputIter1 = data.data() + ((1 << d) + idx) * g.size() * 128;
+            auto inputIter2 = data.data() + ((2 << d) + idx) * g.size() * 128;
+            auto inputIter3 = data.data() + ((3 << d) + idx) * g.size() * 128;
+            auto inputIter4 = data.data() + ((4 << d) + idx) * g.size() * 128;
+            auto inputIter5 = data.data() + ((5 << d) + idx) * g.size() * 128;
+            auto inputIter6 = data.data() + ((6 << d) + idx) * g.size() * 128;
+            auto inputIter7 = data.data() + ((7 << d) + idx) * g.size() * 128;
 
-            for (u64 i = 0; i < 128; ++i)
+            for (u64 i = 0; i < 128 * g.size(); ++i)
             {
-                //std::cout << ((idx << 3) + 128 * 0 + i) << " " << int(byteView[128 * 0 + i]) << std::endl;
-                //std::cout << ((idx << 3) + 128 * 1 + i) << " " << int(byteView[128 * 1 + i]) << std::endl;
-                //std::cout << ((idx << 3) + 128 * 2 + i) << " " << int(byteView[128 * 2 + i]) << std::endl;
-                //std::cout << ((idx << 3) + 128 * 3 + i) << " " << int(byteView[128 * 3 + i]) << std::endl;
-                //std::cout << ((idx << 3) + 128 * 4 + i) << " " << int(byteView[128 * 4 + i]) << std::endl;
-                //std::cout << ((idx << 3) + 128 * 5 + i) << " " << int(byteView[128 * 5 + i]) << std::endl;
-                //std::cout << ((idx << 3) + 128 * 6 + i) << " " << int(byteView[128 * 6 + i]) << std::endl;
-                //std::cout << ((idx << 3) + 128 * 7 + i) << " " << int(byteView[128 * 7 + i]) << std::endl;
-                //bv[(idx << 3) + 128 * 0 + i] = byteView[128 * 0 + i];
-                block bb, ss;
-                u8 tt;
-                u64 ii = idx * 128 + i;
-                u8 bit = evalOne(ii, k, g, &bb, &ss, &tt);
 
-                if (byteView[128 * 0 + i] != bit)
-                {
-                    std::cout << (ii) << " * " << tau[0] << " " << bb << " = " << ss << "( _____ * " << int(tt) << ")  " << int(byteView[128 * 0 + i]) << " != " << int(bit) << std::endl;
-                    throw std::runtime_error(LOCATION);
-                }
-                else
-                {
-                    //std::cout <<(ii) << " * "<< converts[0] << " " << bb << "  " << int(tt) << "  " << int(byteView[128 * 0 + i])<<" == " <<int(bit )<< std::endl;
+                //for (u64 j = 0; j < 8; ++j)
+                //{
 
-                }
-                //if (byteView[128 * 1 + i] != (bool)evalOne((idx << 3) + 128 * 1 + i, k, g)) throw std::runtime_error(LOCATION);
-                //if (byteView[128 * 2 + i] != (bool)evalOne((idx << 3) + 128 * 2 + i, k, g)) throw std::runtime_error(LOCATION);
-                //if (byteView[128 * 3 + i] != (bool)evalOne((idx << 3) + 128 * 3 + i, k, g)) throw std::runtime_error(LOCATION);
-                //if (byteView[128 * 4 + i] != (bool)evalOne((idx << 3) + 128 * 4 + i, k, g)) throw std::runtime_error(LOCATION);
-                //if (byteView[128 * 5 + i] != (bool)evalOne((idx << 3) + 128 * 5 + i, k, g)) throw std::runtime_error(LOCATION);
-                //if (byteView[128 * 6 + i] != (bool)evalOne((idx << 3) + 128 * 6 + i, k, g)) throw std::runtime_error(LOCATION);
-                //if (byteView[128 * 7 + i] != (bool)evalOne((idx << 3) + 128 * 7 + i, k, g)) throw std::runtime_error(LOCATION);
+                //    u64 ii = ((j << d) + idx) * g.size() * 128 + i;
+                //    BgiPirServer_bv[ii] = byteView0[g.size() * 128 * j + i];
 
-                sums[0] = sums[0] ^ (inputIter[128 * 0 + i] & zeroAndAllOne[byteView[128 * 0 + i]]);
-                sums[1] = sums[1] ^ (inputIter[128 * 1 + i] & zeroAndAllOne[byteView[128 * 1 + i]]);
-                sums[2] = sums[2] ^ (inputIter[128 * 2 + i] & zeroAndAllOne[byteView[128 * 2 + i]]);
-                sums[3] = sums[3] ^ (inputIter[128 * 3 + i] & zeroAndAllOne[byteView[128 * 3 + i]]);
-                sums[4] = sums[4] ^ (inputIter[128 * 4 + i] & zeroAndAllOne[byteView[128 * 4 + i]]);
-                sums[5] = sums[5] ^ (inputIter[128 * 5 + i] & zeroAndAllOne[byteView[128 * 5 + i]]);
-                sums[6] = sums[6] ^ (inputIter[128 * 6 + i] & zeroAndAllOne[byteView[128 * 6 + i]]);
-                sums[7] = sums[7] ^ (inputIter[128 * 7 + i] & zeroAndAllOne[byteView[128 * 7 + i]]);
+                //    //sums[0] = sums[0] ^ (data[((0 << d) + idx) * g.size() * 128 + i] & zeroAndAllOne[byteView0[g.size() * 128 * 0 + i]]);
+                //    //sums[0] = sums[0] ^ (data[ii] & zeroAndAllOne[byteView0[g.size() * 128 * j + i]]);
+                //    //    block bb, ss;
+                //    //    u8 tt;
+                //    //    u8 bit = evalOne(ii, k, g, &bb, &ss, &tt);
+
+                //    //    if (byteView[g.size() * 128 * j + i] != bit)
+                //    //    {
+                //    //        std::cout << (ii) << " "<< j <<"   " << temp[i / 128][j] << "    ";
+                //    //        std::cout << "       " << bb << " = " << ss << "( _____ * " << int(tt) << ")  " << int(byteView[g.size() * 128 * j + i]) << " != " << int(bit) << std::endl;
+                //    //        throw std::runtime_error(LOCATION);
+                //    //    }
+                //}
+
+                auto mask0 = zeroAndAllOne[byteView0[i]];
+                auto mask1 = zeroAndAllOne[byteView1[i]];
+                auto mask2 = zeroAndAllOne[byteView2[i]];
+                auto mask3 = zeroAndAllOne[byteView3[i]];
+                auto mask4 = zeroAndAllOne[byteView4[i]];
+                auto mask5 = zeroAndAllOne[byteView5[i]];
+                auto mask6 = zeroAndAllOne[byteView6[i]];
+                auto mask7 = zeroAndAllOne[byteView7[i]];
+
+                auto input0 = inputIter0[i] & mask0;
+                auto input1 = inputIter1[i] & mask1;
+                auto input2 = inputIter2[i] & mask2;
+                auto input3 = inputIter3[i] & mask3;
+                auto input4 = inputIter4[i] & mask4;
+                auto input5 = inputIter5[i] & mask5;
+                auto input6 = inputIter6[i] & mask6;
+                auto input7 = inputIter7[i] & mask7;
+
+                sums[0] = sums[0] ^ input0;
+                sums[1] = sums[1] ^ input1;
+                sums[2] = sums[2] ^ input2;
+                sums[3] = sums[3] ^ input3;
+                sums[4] = sums[4] ^ input4;
+                sums[5] = sums[5] ^ input5;
+                sums[6] = sums[6] ^ input6;
+                sums[7] = sums[7] ^ input7;
             }
-
-            //std::cout << "s(" << ((idx << 3) + 0) << ", " << d << ") = " << stt(ss.back()[0]) << std::endl;
-            //std::cout << "s(" << ((idx << 3) + 1) << ", " << d << ") = " << stt(ss.back()[1]) << std::endl;
-            //std::cout << "s(" << ((idx << 3) + 2) << ", " << d << ") = " << stt(ss.back()[2]) << std::endl;
-            //std::cout << "s(" << ((idx << 3) + 3) << ", " << d << ") = " << stt(ss.back()[3]) << std::endl;
-            //std::cout << "s(" << ((idx << 3) + 4) << ", " << d << ") = " << stt(ss.back()[4]) << std::endl;
-            //std::cout << "s(" << ((idx << 3) + 5) << ", " << d << ") = " << stt(ss.back()[5]) << std::endl;
-            //std::cout << "s(" << ((idx << 3) + 6) << ", " << d << ") = " << stt(ss.back()[6]) << std::endl;
-            //std::cout << "s(" << ((idx << 3) + 7) << ", " << d << ") = " << stt(ss.back()[7]) << std::endl;
-
-
 
             u64 shift = (idx + 1) ^ idx;
             d -= log2floor(shift) + 1;

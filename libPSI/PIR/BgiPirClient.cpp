@@ -28,18 +28,18 @@ namespace osuCrypto
         return ss(b) + " " + t2(b) + " " + t1(b);
     }
 
-    void BgiPirClient::init(u64 depth, u64 groupByteSize)
+    void BgiPirClient::init(u64 depth, u64 groupBlkSize)
     {
 
         mDatasetSize = 1 << depth;
         mKDepth = depth;
-        mGroupSize = groupByteSize;
+        mGroupBlkSize = groupBlkSize;
     }
 
     block BgiPirClient::query(u64 idx, Channel srv0, Channel srv1, block seed)
     {
         std::vector<block> k0(mKDepth + 1), k1(mKDepth + 1);
-        std::vector<u8> g0(mGroupSize), g1(mGroupSize);
+        std::vector<block> g0(mGroupBlkSize), g1(mGroupBlkSize);
 
         keyGen(idx, seed, k0, g0, k1, g1);
         srv0.asyncSend(std::move(k0));
@@ -55,7 +55,7 @@ namespace osuCrypto
         return blk0 ^ blk1;
     }
 
-    void BgiPirClient::keyGen(u64 idx, block seed, span<block> k0, span<u8> g0, span<block> k1, span<u8> g1)
+    void BgiPirClient::keyGen(u64 idx, block seed, span<block> k0, span<block> g0, span<block> k1, span<block> g1)
     {
 
         // static const std::array<block, 2> zeroOne{ZeroBlock, OneBlock};
@@ -64,8 +64,8 @@ namespace osuCrypto
         static const block notThreeBlock = notOneBlock << 1;
 
         u64 groupSize = g0.size();
-        u64 kIdx = idx / (groupSize * 8);
-        u64 gIdx = idx % (groupSize * 8);
+        u64 kIdx = idx / (groupSize * 128);
+        u64 gIdx = idx % (groupSize * 128);
 
         u64 kDepth = k0.size() - 1;
         std::array<std::array<block, 2>, 2> si;
@@ -82,7 +82,7 @@ namespace osuCrypto
         static AES aes0(ZeroBlock);
         static AES aes1(OneBlock);
 
-        for (u64 i = 0, shift = kDepth - 1; i < kDepth; ++i, -- shift)
+        for (u64 i = 0, shift = kDepth - 1; i < kDepth; ++i, --shift)
         {
             const u8 keep = (kIdx >> shift) & 1;
             auto a = toBlock(keep);
@@ -147,41 +147,42 @@ namespace osuCrypto
             //std::cout << "s1[" << i + 1 << "]     " << stt(s[1]) << std::endl;
         }
 
-        auto blkSize = (g0.size() + 15) / 16;
-        std::vector<block> convertS0(blkSize);
-        std::vector<block> convertS1(blkSize);
+        std::vector<block> temp(g0.size() * 4);
+        auto s0 = temp.data();
+        auto s1 = temp.data() + g0.size();
+        auto gs0 = temp.data() + g0.size() * 2;
+        auto gs1 = temp.data() + g0.size() * 3;
 
-        //AES(s[0] & notThreeBlock).ecbEncCounterMode(0, blkSize, convertS0.data());
-        //AES(s[1] & notThreeBlock).ecbEncCounterMode(0, blkSize, convertS1.data());
-
-        std::array<block, 2> ss{ s[0] & notThreeBlock, s[1] & notThreeBlock };
-            
-
-
-        aes0.ecbEncBlock(ss[0], convertS0[0]);
-        aes0.ecbEncBlock(ss[1], convertS1[0]);
-        convertS0[0] = convertS0[0] ^ ss[0];
-        convertS1[0] = convertS1[0] ^ ss[1];
-
-        //std::cout << "s0 " << stt(s[0] & notThreeBlock) << " -> " << convertS0[0] << std::endl;
-        //std::cout << "s1 " << stt(s[1] & notThreeBlock) << " -> " << convertS1[0] << std::endl;
-
-        for (u64 i = 0; i < blkSize; ++i)
+        for (u64 i = 0; i < g0.size(); ++i)
         {
-            convertS0[i] = convertS0[i] ^ convertS1[i];
+            s0[i] = s[0] & notThreeBlock ^ toBlock(i);
+            s1[i] = s[1] & notThreeBlock ^ toBlock(i);
+        }
+        aes0.ecbEncBlocks(s0, g0.size() * 2, gs0);
+        for (u64 i = 0; i < g0.size(); ++i)
+        {
+            gs0[i] = (gs0[i] ^ s0[i]);
+            gs1[i] = (gs1[i] ^ s1[i]);
+        //}
+        ////std::cout << "gs0 " << gs0[0] << " " << gs0[1] << " = G(" << s0[0] << " " << s0[1] << ")" << std::endl;
+        ////std::cout << "gs1 " << gs1[0] << " " << gs1[1] << " = G(" << s1[0] << " " << s1[1] << ")" << std::endl;
+        //for (u64 i = 0; i < g0.size(); ++i)
+        //{
+            gs0[i] = gs0[i] ^ gs1[i];
         }
 
-        u64 byteIdx = gIdx % 16;
-        u64 bitIdx = gIdx / 16;
-        if (blkSize != 1) throw std::runtime_error("fix^^^^^ " LOCATION);
+        u64 byteIdx = gIdx % 16 + 16 * (gIdx / 128);
+        u64 bitIdx = (gIdx % 128) / 16;
+        //std::cout << "cw " << gs0[0] << " " << gs0[1] << std::endl;
 
-        auto u8View = ((u8*)convertS0.data());
-
+        auto u8View = (u8*)gs0;
         u8View[byteIdx] = u8View[byteIdx] ^ (u8(1) << bitIdx);
 
-        //std::cout << "view[" << byteIdx << "] = " << (int)u8View[byteIdx] << " = " << (int)ss << " ^ (u8(1) << " << bitIdx << ")" << std::endl;
 
-        memcpy(g0.data(), u8View, g0.size());
-        memcpy(g1.data(), u8View, g1.size());
+        //std::cout << "cw' " << gs0[0] <<  " " << gs0[1] << std::endl;
+        //std::cout << "byte " << byteIdx << " bit " << bitIdx << std::endl;
+
+        memcpy(g0.data(), u8View, g0.size() * sizeof(block));
+        memcpy(g1.data(), u8View, g1.size() * sizeof(block));
     }
 }

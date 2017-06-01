@@ -343,53 +343,60 @@ void pingTest(CLP& cmd)
 void pir()
 {
 
-    u64 depth = 18, groupSize = 16;
-    u64 domain = (1 << depth) * groupSize * 8;
-
-    std::cout << domain << std::endl;
-
-    std::vector<block> data(domain);
-    for (u64 i = 0; i < data.size(); ++i)
-        data[i] = toBlock(i);
-
-
-
-    std::vector<block> k0(depth + 1), k1(depth + 1);
-    std::vector<u8> g0(groupSize), g1(groupSize);
-
-
-
-    u64 i = 0;// 1024;
-    BgiPirClient::keyGen(i, toBlock(i), k0, g0, k1, g1);
-
-    //std::cout << "---------------------------------------------------" << std::endl;
-    //for (u64 j = 0; j < data.size(); ++j)
-    //{
-    //    std::cout << int(BgiPirServer::evalOne(j, k0, g0) & 1);
-    //}
-    //std::cout << std::endl;
-    //for (u64 j = 0; j < data.size(); ++j)
-    //{
-    //    std::cout << int(BgiPirServer::evalOne(j, k1, g1) & 1);
-    //}
-    //std::cout << std::endl;
-    //std::cout << "---------------------------------------------------" << std::endl;
-
-    Timer t;
-    t.setTimePoint("start");
-    auto b0 = BgiPirServer::fullDomain(data, k0, g0);
-    t.setTimePoint("mid");
-    auto b1 = BgiPirServer::fullDomain(data, k1, g1);
-    t.setTimePoint("end");
-
-    std::cout << t << std::endl;
-    if (neq(b0 ^ b1, data[i]))
+    for (u64 j = 8; j <= 8; j *= 2)
     {
-        std::cout << i << "  " << (b0^b1) << "(" << b0 << " ^ " << b1 << ")" << std::endl;
-        throw std::runtime_error(LOCATION);
+
+        u64 depth = 19 - log2floor(j), groupBlkSize = j;
+        u64 domain = (1 << depth) * groupBlkSize * 128;
+
+        std::cout << j << " " << domain << std::endl;
+
+        std::vector<block> data(domain);
+        for (u64 i = 0; i < data.size(); ++i)
+            data[i] = toBlock(i);
+
+
+
+        std::vector<block> k0(depth + 1), k1(depth + 1);
+        std::vector<block> g0(groupBlkSize), g1(groupBlkSize);
+
+
+
+        u64 i = 0;// 1024;
+        BgiPirClient::keyGen(i, toBlock(i), k0, g0, k1, g1);
+
+        //std::cout << "---------------------------------------------------" << std::endl;
+        //for (u64 j = 0; j < data.size(); ++j)
+        //{
+        //    std::cout << int(BgiPirServer::evalOne(j, k0, g0) & 1);
+        //}
+        //std::cout << std::endl;
+        //for (u64 j = 0; j < data.size(); ++j)
+        //{
+        //    std::cout << int(BgiPirServer::evalOne(j, k1, g1) & 1);
+        //}
+        //std::cout << std::endl;
+        //std::cout << "---------------------------------------------------" << std::endl;
+        //for (u64 k = 0; k < 10; ++k)
+        //{
+
+            Timer t;
+            t.setTimePoint("start");
+            auto b0 = BgiPirServer::fullDomain(data, k0, g0);
+            t.setTimePoint("mid");
+            auto b1 = BgiPirServer::fullDomain(data, k1, g1);
+            t.setTimePoint("end");
+
+            std::cout << t << std::endl;
+        //}
+        //if (neq(b0 ^ b1, data[i]))
+        //{
+        //    std::cout << i << "  " << (b0^b1) << "(" << b0 << " ^ " << b1 << ")" << std::endl;
+        //    //throw std::runtime_error(LOCATION);
+        //}
+
+
     }
-
-
 }
 
 int main(int argc, char** argv)
