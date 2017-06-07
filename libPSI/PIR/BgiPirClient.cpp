@@ -59,9 +59,8 @@ namespace osuCrypto
     {
 
         // static const std::array<block, 2> zeroOne{ZeroBlock, OneBlock};
-        static const std::array<block, 2> zeroAndAllOne{ ZeroBlock, AllOneBlock };
-        static const block notOneBlock = OneBlock ^ AllOneBlock;
-        static const block notThreeBlock = notOneBlock << 1;
+        static const block notOneBlock = toBlock(~0, ~1);
+        static const block notThreeBlock = toBlock(~0, ~3);
 
         u64 groupSize = g0.size();
         u64 kIdx = idx / (groupSize * 128);

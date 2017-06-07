@@ -142,7 +142,8 @@ void BGI_PIR_all()
 {
     std::cout << std::endl;
     run("BGI_keyGen_Test                 ", BgiPir_keyGen_test);
-    run("BGI_PIR_Test           ", BgiPir_PIR_test);
+    run("BGI_PIR_Test                    ", BgiPir_PIR_test);
+    run("BgiPir_FullDomain_test          ", BgiPir_FullDomain_test);
 }
 
 void run_all()
@@ -157,10 +158,10 @@ void run_all()
     //bitVec_all();
     //Ecc_all();
     //OT_all();
-    kkrt_psi_all();
+    //kkrt_psi_all();
     //AknBfPsi_all();
     //OtBinPsi_all();
     //DcwPsi_all();
     //DktPsi_all();
-    //BGI_PIR_all();
+    BGI_PIR_all();
 }

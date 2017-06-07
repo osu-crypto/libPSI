@@ -4,6 +4,12 @@
 
 namespace osuCrypto
 {
+
+    static AES aes0(toBlock(u64(0)));
+    static AES aes1(toBlock(1));
+    static const block notThreeBlock = toBlock(~0, ~3);
+
+
     //BitVector BgiPirServer::BgiPirServer_bv;
     extern std::string ss(block b);
     extern std::string t1(block b);
@@ -12,7 +18,7 @@ namespace osuCrypto
 
     inline u8 lsb(const block& b)
     {
-        return *(u8 *)&b & 1;
+        return  _mm_cvtsi128_si64x(b) & 1;
     }
 
     void BgiPirServer::init(u64 depth, u64 groupBlkSize)
@@ -23,7 +29,6 @@ namespace osuCrypto
 
     void BgiPirServer::serve(Channel chan, span<block> data)
     {
-        static const std::array<block, 2> zeroAndAllOne{ ZeroBlock, AllOneBlock };
 
         std::vector<block> k(mKDepth + 1);
         std::vector<block> groupWord(mGroupBlkSize);
@@ -44,11 +49,6 @@ namespace osuCrypto
         chan.send(&sum, sizeof(block));
     }
 
-    static AES aes0(ZeroBlock);
-    static AES aes1(OneBlock);
-    static const std::array<block, 2> zeroAndAllOne{ ZeroBlock, AllOneBlock };
-    static const block notThreeBlock = (OneBlock ^ AllOneBlock) << 1;
-
     u8 BgiPirServer::evalOne(u64 idx, span<block> k, span<block> g, block* bb, block* ss, u8* tt)
     {
         // static const std::array<block, 2> zeroOne{ZeroBlock, OneBlock};
@@ -59,9 +59,14 @@ namespace osuCrypto
 
         //std::vector<block> ret(kDepth);
 
-
+        //assert(lsb(OneBlock) == 1);
         auto s = traversePath(kDepth, kIdx, k);
 
+        //if (idx > 255)
+        //{
+        //    std::cout << "s " << s << " " << kDepth << " " << kIdx << " " << gIdx << " " << int(lsb(s)) << std::endl;
+        //    std::cout << "  " << zeroAndAllOne[0] << " " << zeroAndAllOne[1] << " " << AllOneBlock << std::endl;
+        //}
 
         u64 byteIdx = gIdx % 16 + 16 * (gIdx / 128);
         u64 bitIdx = (gIdx % 128) / 16;
@@ -115,6 +120,8 @@ namespace osuCrypto
         {
             const u8 keep = (idx >> shift) & 1;
             s = traverseOne(s, k[i + 1], keep);
+
+            //if(idx == 2)std::cout << "i = " << i << " -> " << s << std::endl;
         }
         return s;
     }
@@ -123,7 +130,7 @@ namespace osuCrypto
     {
 
         std::array<block, 2> tau, stcw;
-
+        //std::cout << "notTHree" << notThreeBlock << std::endl;
         auto ss = s & notThreeBlock;
         aes0.ecbEncBlock(ss, tau[0]);
         aes1.ecbEncBlock(ss, tau[1]);
@@ -132,29 +139,30 @@ namespace osuCrypto
 
 
         const auto scw = (cw & notThreeBlock);
-        const auto mask = zeroAndAllOne[*(u8 *)&s & 1];
+        const auto mask = zeroAndAllOne[lsb(s)];
 
         auto d0 = ((cw >> 1) & OneBlock);
         auto d1 = (cw & OneBlock);
         auto c0 = ((scw ^ d0) & mask);
         auto c1 = ((scw ^ d1) & mask);
 
+        //std::cout << "s  " << s << std::endl;
+        //std::cout << "c0 " << c0 << std::endl;
+        //std::cout << "c1 " << c1 << std::endl;
+
         stcw[0] = c0 ^ tau[0];
         stcw[1] = c1 ^ tau[1];
 
-        if (print)
-        {
-            std::cout << "tau[0] " << stt(stcw[0]) << " = " << stt(c0) << " + " << stt(tau[0]) << " " << d0 << std::endl;
-            std::cout << "tau[1] " << stt(stcw[1]) << " = " << stt(c1) << " + " << stt(tau[1]) << " " << d1 << std::endl;
-        }
+        //if (print)
+        //{
+        //    std::cout << "tau[0] " << stt(stcw[0]) << " = " << stt(c0) << " + " << stt(tau[0]) << " " << d0 << std::endl;
+        //    std::cout << "tau[1] " << stt(stcw[1]) << " = " << stt(c1) << " + " << stt(tau[1]) << " " << d1 << std::endl;
+        //}
 
         return stcw[keep];
     }
     block BgiPirServer::fullDomain(span<block> data, span<block> k, span<block> g)
     {
-        static const std::array<block, 2> zeroAndAllOne{ ZeroBlock, AllOneBlock };
-        static const block notOneBlock = OneBlock ^ AllOneBlock;
-        static const block notThreeBlock = notOneBlock << 1;
         u64 kDepth = k.size() - 1;
 
 
@@ -184,7 +192,7 @@ namespace osuCrypto
         ss[0][7] = traversePath(3, 7, k);
 
 
-        //std::cout << "s(0, 3) " << stt(ss[0][0]) << std::endl;
+        //std::cout << "s(0, 0) " << stt(ss[0][0]) << std::endl;
 
         std::array<block, 8> tau, s, stcw, sums = { ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock ,ZeroBlock };
 
@@ -303,14 +311,14 @@ namespace osuCrypto
 
             for (u64 i = 0; i < g.size(); ++i)
             {
-                temp[i][0] = ss[d][0] & notThreeBlock ^ toBlock(i);
-                temp[i][1] = ss[d][1] & notThreeBlock ^ toBlock(i);
-                temp[i][2] = ss[d][2] & notThreeBlock ^ toBlock(i);
-                temp[i][3] = ss[d][3] & notThreeBlock ^ toBlock(i);
-                temp[i][4] = ss[d][4] & notThreeBlock ^ toBlock(i);
-                temp[i][5] = ss[d][5] & notThreeBlock ^ toBlock(i);
-                temp[i][6] = ss[d][6] & notThreeBlock ^ toBlock(i);
-                temp[i][7] = ss[d][7] & notThreeBlock ^ toBlock(i);
+                temp[i][0] = (ss[d][0] & notThreeBlock) ^ toBlock(i);
+                temp[i][1] = (ss[d][1] & notThreeBlock) ^ toBlock(i);
+                temp[i][2] = (ss[d][2] & notThreeBlock) ^ toBlock(i);
+                temp[i][3] = (ss[d][3] & notThreeBlock) ^ toBlock(i);
+                temp[i][4] = (ss[d][4] & notThreeBlock) ^ toBlock(i);
+                temp[i][5] = (ss[d][5] & notThreeBlock) ^ toBlock(i);
+                temp[i][6] = (ss[d][6] & notThreeBlock) ^ toBlock(i);
+                temp[i][7] = (ss[d][7] & notThreeBlock) ^ toBlock(i);
             }
 
             // compute G(s) = AES_{x_i}(s) + s

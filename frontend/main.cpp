@@ -401,8 +401,8 @@ void pir()
 
 int main(int argc, char** argv)
 {
-    pir();
-    return 0;
+    //pir();
+    //return 0;
     //com();
     //simpleTest(argc,argv);
 
