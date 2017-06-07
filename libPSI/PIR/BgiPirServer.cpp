@@ -25,19 +25,21 @@ namespace osuCrypto
     {
         static const std::array<block, 2> zeroAndAllOne{ ZeroBlock, AllOneBlock };
 
-        std::vector<block> k(mKDepth + 2);
+        std::vector<block> k(mKDepth + 1);
         std::vector<block> groupWord(mGroupBlkSize);
         chan.recv(k.data(), k.size() * sizeof(block));
+        chan.recv(groupWord.data(), groupWord.size() * sizeof(block));
 
-        block sum = ZeroBlock;
-        for (u32 idx = 0; idx < data.size(); ++idx)
-        {
-            auto b = evalOne(idx, k, groupWord);
-            auto add = (data[idx] & zeroAndAllOne[b & 1]);
-            //std::cout << "add " << idx << " " << add << " " << (*(u8*)&b & 1) << std::endl;
-            //chan.send(&b, 16);
-            sum = sum ^ add;
-        }
+        auto sum = fullDomain(data, k, groupWord);
+        //block sum = ZeroBlock;
+        //for (u32 idx = 0; idx < data.size(); ++idx)
+        //{
+        //    auto b = evalOne(idx, k, groupWord);
+        //    auto add = (data[idx] & zeroAndAllOne[b & 1]);
+        //    //std::cout << "add " << idx << " " << add << " " << (*(u8*)&b & 1) << std::endl;
+        //    //chan.send(&b, 16);
+        //    sum = sum ^ add;
+        //}
         //std::cout << std::endl;
         chan.send(&sum, sizeof(block));
     }

@@ -82,7 +82,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bloomFilterMain.cpp" />
-    <ClCompile Include="CLP.cpp" />
     <ClCompile Include="cuckooTest.cpp" />
     <ClCompile Include="cuckoo\SimpleCuckoo.cpp" />
     <ClCompile Include="cuckoo\cuckooTests.cpp" />
@@ -96,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bloomFilterMain.h" />
-    <ClInclude Include="CLP.h" />
     <ClInclude Include="cuckoo\cuckooTests.h" />
     <ClInclude Include="cuckoo\SimpleCuckoo.h" />
     <ClInclude Include="dcwMain.h" />

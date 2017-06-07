@@ -129,6 +129,9 @@
     <ClCompile Include="Tools\SimpleIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PSI\DrrnPsiServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MPSI\Dcw\DcwBfPsiReceiver.h">
@@ -192,6 +195,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tools\SimpleIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PSI\DrrnPsiServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

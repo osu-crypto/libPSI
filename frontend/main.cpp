@@ -24,7 +24,7 @@ using namespace osuCrypto;
 #include "libPSI/PIR/BgiPirServer.h"
 
 #include "cuckoo/cuckooTests.h"
-#include "CLP.h"
+#include "cryptoTools/Common/CLP.h"
 
 
 std::vector<std::string>

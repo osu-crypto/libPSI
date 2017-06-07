@@ -1,7 +1,7 @@
 
 #include "SimpleCuckoo.h"
 using namespace osuCrypto;
-#include "CLP.h"
+#include "cryptoTools/Common/CLP.h"
 #include <fstream>
 
 
