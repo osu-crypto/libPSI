@@ -2,7 +2,7 @@
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Network/Endpoint.h"
 
-using namespace std;
+//using namespace std;
 #include "UnitTests.h" 
 #include "cryptoTools/Common/Defines.h"
 using namespace osuCrypto;
