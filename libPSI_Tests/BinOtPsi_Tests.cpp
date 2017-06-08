@@ -12,10 +12,8 @@
 #include "libOTe/NChooseOne/Kkrt/KkrtNcoOtReceiver.h"
 #include "libOTe/NChooseOne/Kkrt/KkrtNcoOtSender.h"
 
-
 #include "libOTe/NChooseOne/Oos/OosNcoOtReceiver.h"
 #include "libOTe/NChooseOne/Oos/OosNcoOtSender.h"
-
 
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
@@ -23,14 +21,14 @@
 #include "libPSI/PSI/KkrtPsiSender.h"
 #include "libPSI/PSI/KkrtPsiReceiver.h"
 
+#include "libPSI/PSI/DrrnPsiClient.h"
+#include "libPSI/PSI/DrrnPsiServer.h"
+
 #include "libPSI/Tools/CuckooHasher.h"
 
 #include <array>
 
 using namespace osuCrypto;
-
-
-
 
 void CuckooHasher_Test_Impl()
 {
@@ -56,17 +54,15 @@ void CuckooHasher_Test_Impl()
     hashMap0.init(setSize, 40, true);
     hashMap1.init(setSize, 40, true);
 
-
     for (u64 i = 0; i < setSize; ++i)
     {
         //if (i == 6) hashMap0.print();
 
         hashMap0.insert(i, hashes[i]);
 
-        std::vector<u64> tt{ i };
+        std::vector<u64> tt{i};
         MatrixView<u64> mm(hashes[i].data(), 1, 2);
         hashMap1.insertBatch(tt, mm, w);
-
 
         //if (i == 6) hashMap0.print();
         //if (i == 6) hashMap1.print();
@@ -77,7 +73,6 @@ void CuckooHasher_Test_Impl()
 
         //    throw UnitTestFail();
         //}
-
     }
 
     if (hashMap0 != hashMap1)
@@ -106,8 +101,7 @@ void CuckooHasher_parallel_Test_Impl()
     for (u64 t = 0; t < numThreads; ++t)
     {
 
-        thrds[t] = std::thread([&, t]() 
-        {
+        thrds[t] = std::thread([&, t]() {
 
             CuckooHasher::Workspace ws(step);
 
@@ -139,11 +133,7 @@ void CuckooHasher_parallel_Test_Impl()
     }
 
 #endif
-
 }
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,14 +157,6 @@ void CuckooHasher_parallel_Test_Impl()
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
 void Rr17a_Oos_EmptrySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40, bitSize = 128;
@@ -193,13 +175,11 @@ void Rr17a_Oos_EmptrySet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
-
-    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
-    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
+    std::vector<Channel> recvChl{ep1.addChannel(name, name)};
+    std::vector<Channel> sendChl{ep0.addChannel(name, name)};
 
     OosNcoOtReceiver otRecv0, otRecv1;
-    OosNcoOtSender   otSend0, otSend1;
-
+    OosNcoOtSender otSend0, otSend1;
 
     //u64 baseCount = 128 * 7;
     //std::vector<std::array<block, 2>> sendBlks(baseCount);
@@ -252,13 +232,11 @@ void Rr17a_Oos_EmptrySet_Test_Impl()
         throw UnitTestFail();
 }
 
-
 void Rr17a_Oos_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
     u64 setSize = 8, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -268,13 +246,11 @@ void Rr17a_Oos_FullSet_Test_Impl()
 
     //std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -284,7 +260,7 @@ void Rr17a_Oos_FullSet_Test_Impl()
     }
 
     OosNcoOtReceiver otRecv0, otRecv1;
-    OosNcoOtSender   otSend0, otSend1;
+    OosNcoOtSender otSend0, otSend1;
 
     Rr17aMPsiSender send;
     Rr17aMPsiReceiver recv;
@@ -297,7 +273,6 @@ void Rr17a_Oos_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, recvChls, otRecv1, otSend1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -309,7 +284,6 @@ void Rr17a_Oos_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
-
 
     if (recv.mIntersection.size() != setSize)
     {
@@ -321,12 +295,10 @@ void Rr17a_Oos_FullSet_Test_Impl()
             {
                 std::cout << i << "  ";
             }
-
         }
         std::cout << std::endl;
         throw UnitTestFail();
     }
-
 }
 
 void Rr17a_Oos_parallel_FullSet_Test_Impl()
@@ -334,7 +306,6 @@ void Rr17a_Oos_parallel_FullSet_Test_Impl()
     setThreadName("CP_Test_Thread");
     u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -344,13 +315,11 @@ void Rr17a_Oos_parallel_FullSet_Test_Impl()
 
     std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -360,7 +329,7 @@ void Rr17a_Oos_parallel_FullSet_Test_Impl()
     }
 
     OosNcoOtReceiver otRecv0, otRecv1;
-    OosNcoOtSender   otSend0, otSend1;
+    OosNcoOtSender otSend0, otSend1;
 
     Rr17aMPsiSender send;
     Rr17aMPsiReceiver recv;
@@ -373,7 +342,6 @@ void Rr17a_Oos_parallel_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, recvChls, otRecv1, otSend1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -385,7 +353,6 @@ void Rr17a_Oos_parallel_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
-
 
     if (recv.mIntersection.size() != setSize)
         throw UnitTestFail();
@@ -412,17 +379,15 @@ void Rr17a_Oos_SingltonSet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
-
     Channel recvChl = ep1.addChannel(name, name);
     Channel sendChl = ep0.addChannel(name, name);
 
     OosNcoOtReceiver otRecv0, otRecv1;
-    OosNcoOtSender   otSend0, otSend1;
+    OosNcoOtSender otSend0, otSend1;
 
     Rr17aMPsiSender send;
     Rr17aMPsiReceiver recv;
     std::thread thrd([&]() {
-
 
         send.init(setSize, psiSecParam, sendChl, otSend0, otRecv0, prng.get<block>());
         send.sendInput(sendSet, sendChl);
@@ -432,7 +397,6 @@ void Rr17a_Oos_SingltonSet_Test_Impl()
     recv.sendInput(recvSet, recvChl);
 
     thrd.join();
-
 
     //std::cout << gTimer << std::endl;
 
@@ -446,13 +410,7 @@ void Rr17a_Oos_SingltonSet_Test_Impl()
     if (recv.mIntersection.size() != 1 ||
         recv.mIntersection[0] != 0)
         throw UnitTestFail();
-
 }
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -476,9 +434,6 @@ void Rr17a_Oos_SingltonSet_Test_Impl()
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
 void Rr17a_SM_EmptrySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40, bitSize = 128;
@@ -497,14 +452,12 @@ void Rr17a_SM_EmptrySet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
-
-    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
-    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
+    std::vector<Channel> recvChl{ep1.addChannel(name, name)};
+    std::vector<Channel> sendChl{ep0.addChannel(name, name)};
     std::string solution(SOLUTION_DIR);
 
     Rr17NcoOtReceiver otRecv0, otRecv1;
     Rr17NcoOtSender otSend0, otSend1;
-
 
     Rr17aMPsiReceiver recv;
     std::thread thrd([&]() {
@@ -531,13 +484,11 @@ void Rr17a_SM_EmptrySet_Test_Impl()
         throw UnitTestFail();
 }
 
-
 void Rr17a_SM_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
     u64 setSize = 8, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -547,13 +498,11 @@ void Rr17a_SM_FullSet_Test_Impl()
 
     std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -561,7 +510,6 @@ void Rr17a_SM_FullSet_Test_Impl()
         sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
         recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
-
 
     Rr17NcoOtReceiver otRecv0, otRecv1;
     Rr17NcoOtSender otSend0, otSend1;
@@ -577,7 +525,6 @@ void Rr17a_SM_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, recvChls, otRecv1, otSend1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -590,7 +537,6 @@ void Rr17a_SM_FullSet_Test_Impl()
     ep1.stop();
     ios.stop();
 
-
     if (recv.mIntersection.size() != setSize)
     {
         for (u64 i = 0; i < setSize; ++i)
@@ -599,12 +545,10 @@ void Rr17a_SM_FullSet_Test_Impl()
             {
                 std::cout << i << "  ";
             }
-
         }
         std::cout << std::endl;
         throw UnitTestFail();
     }
-
 }
 
 void Rr17a_SM_parallel_FullSet_Test_Impl()
@@ -612,7 +556,6 @@ void Rr17a_SM_parallel_FullSet_Test_Impl()
     setThreadName("CP_Test_Thread");
     u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -626,13 +569,11 @@ void Rr17a_SM_parallel_FullSet_Test_Impl()
         std::cout << i << " " << sendSet[i] << "  " << recvSet[i] << std::endl;
     }
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -640,7 +581,6 @@ void Rr17a_SM_parallel_FullSet_Test_Impl()
         sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
         recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
-
 
     Rr17NcoOtReceiver otRecv0, otRecv1;
     Rr17NcoOtSender otSend0, otSend1;
@@ -656,7 +596,6 @@ void Rr17a_SM_parallel_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, recvChls, otRecv1, otSend1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -668,7 +607,6 @@ void Rr17a_SM_parallel_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
-
 
     if (recv.mIntersection.size() != setSize)
         throw UnitTestFail();
@@ -694,10 +632,8 @@ void Rr17a_SM_SingltonSet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
-
     Channel recvChl = ep1.addChannel(name, name);
     Channel sendChl = ep0.addChannel(name, name);
-
 
     Rr17NcoOtReceiver otRecv0, otRecv1;
     Rr17NcoOtSender otSend0, otSend1;
@@ -705,7 +641,6 @@ void Rr17a_SM_SingltonSet_Test_Impl()
     Rr17aMPsiSender send;
     Rr17aMPsiReceiver recv;
     std::thread thrd([&]() {
-
 
         send.init(setSize, psiSecParam, sendChl, otSend0, otRecv0, prng.get<block>());
         send.sendInput(sendSet, sendChl);
@@ -715,7 +650,6 @@ void Rr17a_SM_SingltonSet_Test_Impl()
     recv.sendInput(recvSet, recvChl);
 
     thrd.join();
-
 
     //std::cout << gTimer << std::endl;
 
@@ -729,18 +663,7 @@ void Rr17a_SM_SingltonSet_Test_Impl()
     if (recv.mIntersection.size() != 1 ||
         recv.mIntersection[0] != 0)
         throw UnitTestFail();
-
 }
-
-
-
-
-
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -764,14 +687,6 @@ void Rr17a_SM_SingltonSet_Test_Impl()
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
 void Rr17b_Oos_EmptrySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40, bitSize = 128;
@@ -790,14 +705,11 @@ void Rr17b_Oos_EmptrySet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
+    std::vector<Channel> recvChl{ep1.addChannel(name, name)};
+    std::vector<Channel> sendChl{ep0.addChannel(name, name)};
 
-    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
-    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
-
-    OosNcoOtReceiver  otRecv1;
-    OosNcoOtSender    otSend0;
-
-
+    OosNcoOtReceiver otRecv1;
+    OosNcoOtSender otSend0;
 
     Rr17bMPsiReceiver recv;
     std::thread thrd([&]() {
@@ -824,13 +736,11 @@ void Rr17b_Oos_EmptrySet_Test_Impl()
         throw UnitTestFail();
 }
 
-
 void Rr17b_Oos_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
     u64 setSize = 128, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -840,13 +750,11 @@ void Rr17b_Oos_FullSet_Test_Impl()
 
     //std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -855,8 +763,8 @@ void Rr17b_Oos_FullSet_Test_Impl()
         recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
-    OosNcoOtReceiver  otRecv1;
-    OosNcoOtSender    otSend0;
+    OosNcoOtReceiver otRecv1;
+    OosNcoOtSender otSend0;
 
     Rr17bMPsiSender send;
     Rr17bMPsiReceiver recv;
@@ -869,7 +777,6 @@ void Rr17b_Oos_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, recvChls, otRecv1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -881,7 +788,6 @@ void Rr17b_Oos_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
-
 
     if (recv.mIntersection.size() != setSize)
     {
@@ -892,12 +798,10 @@ void Rr17b_Oos_FullSet_Test_Impl()
             {
                 std::cout << i << "  ";
             }
-
         }
         std::cout << std::endl;
         throw UnitTestFail();
     }
-
 }
 
 void Rr17b_Oos_parallel_FullSet_Test_Impl()
@@ -905,7 +809,6 @@ void Rr17b_Oos_parallel_FullSet_Test_Impl()
     setThreadName("CP_Test_Thread");
     u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -915,13 +818,11 @@ void Rr17b_Oos_parallel_FullSet_Test_Impl()
 
     std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -930,8 +831,8 @@ void Rr17b_Oos_parallel_FullSet_Test_Impl()
         recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
-    OosNcoOtReceiver  otRecv1;
-    OosNcoOtSender    otSend0;
+    OosNcoOtReceiver otRecv1;
+    OosNcoOtSender otSend0;
 
     Rr17bMPsiSender send;
     Rr17bMPsiReceiver recv;
@@ -944,7 +845,6 @@ void Rr17b_Oos_parallel_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, recvChls, otRecv1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -956,7 +856,6 @@ void Rr17b_Oos_parallel_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
-
 
     if (recv.mIntersection.size() != setSize)
         throw UnitTestFail();
@@ -983,17 +882,15 @@ void Rr17b_Oos_SingltonSet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
-
     Channel recvChl = ep1.addChannel(name, name);
     Channel sendChl = ep0.addChannel(name, name);
 
-    OosNcoOtReceiver  otRecv1;
-    OosNcoOtSender    otSend0;
+    OosNcoOtReceiver otRecv1;
+    OosNcoOtSender otSend0;
 
     Rr17bMPsiSender send;
     Rr17bMPsiReceiver recv;
     std::thread thrd([&]() {
-
 
         send.init(setSize, psiSecParam, sendChl, otSend0, prng.get<block>());
         send.sendInput(sendSet, sendChl);
@@ -1003,7 +900,6 @@ void Rr17b_Oos_SingltonSet_Test_Impl()
     recv.sendInput(recvSet, recvChl);
 
     thrd.join();
-
 
     //std::cout << gTimer << std::endl;
 
@@ -1017,13 +913,7 @@ void Rr17b_Oos_SingltonSet_Test_Impl()
     if (recv.mIntersection.size() != 1 ||
         recv.mIntersection[0] != 0)
         throw UnitTestFail();
-
 }
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1047,14 +937,6 @@ void Rr17b_Oos_SingltonSet_Test_Impl()
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
 void Rr17b_SM_EmptrySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40, bitSize = 128;
@@ -1073,14 +955,11 @@ void Rr17b_SM_EmptrySet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
-
-    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
-    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
-
+    std::vector<Channel> recvChl{ep1.addChannel(name, name)};
+    std::vector<Channel> sendChl{ep0.addChannel(name, name)};
 
     Rr17NcoOtReceiver otRecv1;
     Rr17NcoOtSender otSend0;
-
 
     Rr17bMPsiReceiver recv;
     std::thread thrd([&]() {
@@ -1107,13 +986,11 @@ void Rr17b_SM_EmptrySet_Test_Impl()
         throw UnitTestFail();
 }
 
-
 void Rr17b_SM_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
     u64 setSize = 128, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -1123,13 +1000,11 @@ void Rr17b_SM_FullSet_Test_Impl()
 
     //std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -1138,10 +1013,8 @@ void Rr17b_SM_FullSet_Test_Impl()
         recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
-
     Rr17NcoOtReceiver otRecv1;
     Rr17NcoOtSender otSend0;
-
 
     Rr17bMPsiSender send;
     Rr17bMPsiReceiver recv;
@@ -1154,7 +1027,6 @@ void Rr17b_SM_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, recvChls, otRecv1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -1166,7 +1038,6 @@ void Rr17b_SM_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
-
 
     if (recv.mIntersection.size() != setSize)
     {
@@ -1177,12 +1048,10 @@ void Rr17b_SM_FullSet_Test_Impl()
             {
                 std::cout << i << "  ";
             }
-
         }
         std::cout << std::endl;
         throw UnitTestFail();
     }
-
 }
 
 void Rr17b_SM_parallel_FullSet_Test_Impl()
@@ -1190,7 +1059,6 @@ void Rr17b_SM_parallel_FullSet_Test_Impl()
     setThreadName("CP_Test_Thread");
     u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -1200,13 +1068,11 @@ void Rr17b_SM_parallel_FullSet_Test_Impl()
 
     std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -1215,10 +1081,8 @@ void Rr17b_SM_parallel_FullSet_Test_Impl()
         recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
 
-
     Rr17NcoOtReceiver otRecv1;
     Rr17NcoOtSender otSend0;
-
 
     Rr17bMPsiSender send;
     Rr17bMPsiReceiver recv;
@@ -1231,7 +1095,6 @@ void Rr17b_SM_parallel_FullSet_Test_Impl()
     recv.init(setSize, psiSecParam, recvChls, otRecv1, ZeroBlock);
     recv.sendInput(recvSet, recvChls);
 
-
     thrd.join();
 
     for (u64 i = 0; i < numThreads; ++i)
@@ -1243,7 +1106,6 @@ void Rr17b_SM_parallel_FullSet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
-
 
     if (recv.mIntersection.size() != setSize)
         throw UnitTestFail();
@@ -1270,10 +1132,8 @@ void Rr17b_SM_SingltonSet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
-
     Channel recvChl = ep1.addChannel(name, name);
     Channel sendChl = ep0.addChannel(name, name);
-
 
     Rr17NcoOtReceiver otRecv1;
     Rr17NcoOtSender otSend0;
@@ -1281,7 +1141,6 @@ void Rr17b_SM_SingltonSet_Test_Impl()
     Rr17bMPsiSender send;
     Rr17bMPsiReceiver recv;
     std::thread thrd([&]() {
-
 
         send.init(setSize, psiSecParam, sendChl, otSend0, prng.get<block>());
         send.sendInput(sendSet, sendChl);
@@ -1291,7 +1150,6 @@ void Rr17b_SM_SingltonSet_Test_Impl()
     recv.sendInput(recvSet, recvChl);
 
     thrd.join();
-
 
     //std::cout << gTimer << std::endl;
 
@@ -1305,13 +1163,7 @@ void Rr17b_SM_SingltonSet_Test_Impl()
     if (recv.mIntersection.size() != 1 ||
         recv.mIntersection[0] != 0)
         throw UnitTestFail();
-
 }
-
-
-
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1334,13 +1186,7 @@ void Rr17b_SM_SingltonSet_Test_Impl()
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-void Psi_kkrt_EmptrySet_Test_Impl()
+void Psi_kkrt_EmptySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40, bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -1359,9 +1205,8 @@ void Psi_kkrt_EmptrySet_Test_Impl()
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
-
-    std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
-    std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
+    std::vector<Channel> recvChl{ep1.addChannel(name, name)};
+    std::vector<Channel> sendChl{ep0.addChannel(name, name)};
 
     KkrtNcoOtReceiver otRecv0;
     KkrtNcoOtSender otSend0;
@@ -1388,9 +1233,7 @@ void Psi_kkrt_EmptrySet_Test_Impl()
     KkrtPsiReceiver recv;
     KkrtPsiSender send;
 
-
     std::thread thrd([&]() {
-
 
         send.init(setSize, setSize, psiSecParam, sendChl, otSend0, prng.get<block>());
         send.sendInput(sendSet, sendChl);
@@ -1408,18 +1251,15 @@ void Psi_kkrt_EmptrySet_Test_Impl()
     ep1.stop();
     ios.stop();
 
-
     if (recv.mIntersection.size())
         throw UnitTestFail();
 }
 
-
 void Psi_kkrt_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize =1 << 4, psiSecParam = 40, numThreads(1), bitSize = 128;
+    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(1), bitSize = 128;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
-
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
     for (u64 i = 0; i < setSize; ++i)
@@ -1429,13 +1269,11 @@ void Psi_kkrt_FullSet_Test_Impl()
 
     //std::shuffle(sendSet.begin(), sendSet.end(), prng);
 
-
     std::string name("psi");
 
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     std::vector<Channel> sendChls(numThreads), recvChls(numThreads);
     for (u64 i = 0; i < numThreads; ++i)
@@ -1469,9 +1307,7 @@ void Psi_kkrt_FullSet_Test_Impl()
     KkrtPsiReceiver recv;
     KkrtPsiSender send;
 
-
     std::thread thrd([&]() {
-
 
         send.init(setSize, setSize, psiSecParam, sendChls, otSend0, prng.get<block>());
         send.sendInput(sendSet, sendChls);
@@ -1492,7 +1328,6 @@ void Psi_kkrt_FullSet_Test_Impl()
     ep1.stop();
     ios.stop();
 
-
     if (recv.mIntersection.size() != setSize)
     {
 
@@ -1501,16 +1336,15 @@ void Psi_kkrt_FullSet_Test_Impl()
             bool b = std::find(recv.mIntersection.begin(), recv.mIntersection.end(), i) == recv.mIntersection.end();
             if (b)
             {
-                std::cout << "missing "<< i << std::endl;
+                std::cout << "missing " << i << std::endl;
             }
         }
 
         throw UnitTestFail();
     }
-
 }
 
-void Psi_kkrt_SingltonSet_Test_Impl()
+void Psi_kkrt_SingletonSet_Test_Impl()
 {
     setThreadName("recver");
     u64 setSize = 2, psiSecParam = 40, bitSize = 128;
@@ -1530,7 +1364,6 @@ void Psi_kkrt_SingltonSet_Test_Impl()
     IOService ios(0);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
-
 
     Channel recvChl = ep1.addChannel(name, name);
     Channel sendChl = ep0.addChannel(name, name);
@@ -1560,10 +1393,8 @@ void Psi_kkrt_SingltonSet_Test_Impl()
     KkrtPsiReceiver recv;
     KkrtPsiSender send;
 
-
     std::thread thrd([&]() {
         setThreadName("Sender");
-
 
         send.init(setSize, setSize, psiSecParam, sendChl, otSend0, prng.get<block>());
         send.sendInput(sendSet, sendChl);
@@ -1587,7 +1418,92 @@ void Psi_kkrt_SingltonSet_Test_Impl()
 }
 
 
+void Psi_drrn_SingletonSet_Test_Impl()
+{
+    setThreadName("client");
+    u64 psiSecParam = 40, bitSize = 128;
+    u64 clientSetSize = 1<<8;
+    u64 srvSetSize = 1<<14;
+    
+    PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
+
+    std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
+    for (u64 i = 0; i < clientSetSize; ++i)
+    {
+        clientSet[i] = prng.get<block>();
+    }
+
+    for (u64 i = 0; i < clientSetSize; ++i)
+    {
+        srvSet[i] = prng.get<block>();
+    }
+
+    clientSet[0] = srvSet[0];
+
+    
+    IOService ios(0);
+    Endpoint epcs0(ios, "localhost", EpMode::Server, "cs0");
+    Endpoint epcs1(ios, "localhost", EpMode::Server, "cs1");
+    Endpoint eps0s(ios, "localhost", EpMode::Server, "ss");
+    Endpoint eps0c(ios, "localhost", EpMode::Client, "cs0");
+    Endpoint eps1c(ios, "localhost", EpMode::Client, "cs1");
+    Endpoint eps1s(ios, "localhost", EpMode::Client, "ss");
+
+    Channel cs0Chl = epcs0.addChannel("c", "s0");
+    Channel cs1Chl = epcs1.addChannel("c", "s1");
+    Channel s0cChl = eps0c.addChannel("s0", "c");
+    Channel s1cChl = eps1c.addChannel("s1", "c");
+    Channel s1sChl = eps1s.addChannel("s1", "s0");
+    Channel s0sChl = eps0s.addChannel("s0", "s1");
+
+    DrrnPsiClient client;
+    DrrnPsiServer s0, s1;
 
 
+    s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>());
+    s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>());
 
+	auto s0thrd = std::thread([&]() {
+		s0.send(s0cChl, s0sChl, srvSet);
+	});
 
+	auto s1thrd = std::thread([&]() {
+		s1.send(s1cChl, s1sChl, srvSet);
+	});
+
+	client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
+	client.recv(cs0Chl, cs1Chl, clientSet);
+
+    // std::thread thrd([&]() {
+    //     setThreadName("Sender");
+
+    //     send.init(setSize, setSize, psiSecParam, sendChl, otSend0, prng.get<block>());
+    //     send.sendInput(sendSet, sendChl);
+    // });
+
+    // client.init(setSize, setSize, psiSecParam, recvChl, otRecv0, ZeroBlock);
+    // client.sendInput(recvSet, recvChl);
+
+    // // TODO s1, s2
+
+    // thrd.join();
+
+    cs0Chl.close();
+    cs1Chl.close();
+    s0cChl.close();
+    s1cChl.close();
+    s0sChl.close();
+    s1sChl.close();
+
+    epcs0.stop();
+    epcs1.stop();
+    eps0c.stop();
+    eps1c.stop();
+    eps0s.stop();
+    eps1s.stop();
+
+    ios.stop();
+
+    if (false)
+        throw UnitTestFail();
+}

@@ -130,6 +130,7 @@ void BgiPir_PIR_test()
         }
     }
 }
+
 void BgiPir_FullDomain_test()
 {
     u64 depth =10, groupBlkSize = 1;

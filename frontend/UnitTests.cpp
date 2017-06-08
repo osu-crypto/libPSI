@@ -44,9 +44,9 @@ void run(std::string name, std::function<void(void)> func)
 void kkrt_psi_all()
 {
     std::cout << std::endl;
-    run("Psi_kkrt_EmptrySet_Test_Impl         ", Psi_kkrt_EmptrySet_Test_Impl);
+    run("Psi_kkrt_EmptySet_Test_Impl         ", Psi_kkrt_EmptySet_Test_Impl);
     //run("Psi_kkrt_FullSet_Test_Impl           ", Psi_kkrt_FullSet_Test_Impl);
-    //run("Psi_kkrt_SingltonSet_Test_Impl       ", Psi_kkrt_SingltonSet_Test_Impl);
+    //run("Psi_kkrt_SingletonSet_Test_Impl       ", Psi_kkrt_SingletonSet_Test_Impl);
 
 }
 
@@ -146,6 +146,16 @@ void BGI_PIR_all()
     run("BgiPir_FullDomain_test          ", BgiPir_FullDomain_test);
 }
 
+void drrn_psi_all()
+{
+    std::cout << std::endl;
+    // run("Psi_drrn_EmptySet_Test_Impl         ", Psi_drrn_EmptySet_Test_Impl);
+    // run("Psi_drrn_FullSet_Test_Impl           ", Psi_drrn_FullSet_Test_Impl);
+    run("Psi_drrn_SingletonSet_Test_Impl       ", Psi_drrn_SingletonSet_Test_Impl);
+
+}
+
+
 void run_all()
 {
     //LinearCode_Test_Impl();
@@ -163,5 +173,6 @@ void run_all()
     //OtBinPsi_all();
     //DcwPsi_all();
     //DktPsi_all();
-    BGI_PIR_all();
+    //BGI_PIR_all();
+    drrn_psi_all();
 }

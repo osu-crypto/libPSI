@@ -37,7 +37,7 @@ void DrrnPsiClient::recv(Channel s0, Channel s1, span<block> inputs)
     {
         auto min = std::min<u64>(inputs.size() - i, 8);
 
-        hasher.ecbEncBlocks(inputs.data() + i, min, 8);
+        hasher.ecbEncBlocks(inputs.data() + i, min, hashs.data());
 
         for (u64 j = 0, jj = i; j < min; ++j, ++jj)
         {
@@ -95,6 +95,6 @@ void DrrnPsiClient::recv(Channel s0, Channel s1, span<block> inputs)
     mPsi.sendInput(shares, s1);
 
     // indices into the shares array; needs to be diviced by numHashFunctions
-    mPSi.mIntersection;
+    std::cout << mPsi.mIntersection[0] << std::endl;
 }
 }
