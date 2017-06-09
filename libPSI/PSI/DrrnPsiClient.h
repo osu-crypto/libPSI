@@ -2,6 +2,7 @@
 #include <cryptoTools/Common/Defines.h>
 #include <cryptoTools/Common/CuckooIndex.h>
 #include <cryptoTools/Network/Channel.h>
+#include <libOTe/NChooseOne/Kkrt/KkrtNcoOtReceiver.h>
 #include <libPSI/PSI/KkrtPsiReceiver.h>
 namespace osuCrypto
 {
@@ -20,6 +21,7 @@ namespace osuCrypto
         KkrtPsiReceiver mPsi;
 
         u64 mClientSetSize, mServerSetSize;
+        KkrtNcoOtReceiver otRecv;
         block mHashingSeed;
     };
 

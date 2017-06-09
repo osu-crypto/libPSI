@@ -165,6 +165,8 @@ namespace osuCrypto
     {
         u64 kDepth = k.size() - 1;
 
+        if (data.size() != (1 << (k.size() - 1)) * g.size() * 128)
+            throw std::runtime_error(LOCATION);
 
         // since we don't want to do bit shifting, this larger array
         // will be used to hold each bit of challengeBuff as a whole

@@ -159,7 +159,7 @@ void CuckooHasher_parallel_Test_Impl()
 
 void Rr17a_Oos_EmptrySet_Test_Impl()
 {
-    u64 setSize = 8, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -235,7 +235,7 @@ void Rr17a_Oos_EmptrySet_Test_Impl()
 void Rr17a_Oos_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 8, psiSecParam = 40, numThreads(1), bitSize = 128;
+    u64 setSize = 8, psiSecParam = 40, numThreads(1);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -304,7 +304,7 @@ void Rr17a_Oos_FullSet_Test_Impl()
 void Rr17a_Oos_parallel_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
+    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -360,7 +360,7 @@ void Rr17a_Oos_parallel_FullSet_Test_Impl()
 void Rr17a_Oos_SingltonSet_Test_Impl()
 {
     setThreadName("Sender");
-    u64 setSize = 1, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 1, psiSecParam = 40;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -436,7 +436,7 @@ void Rr17a_Oos_SingltonSet_Test_Impl()
 
 void Rr17a_SM_EmptrySet_Test_Impl()
 {
-    u64 setSize = 8, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -487,7 +487,7 @@ void Rr17a_SM_EmptrySet_Test_Impl()
 void Rr17a_SM_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 8, psiSecParam = 40, numThreads(1), bitSize = 128;
+    u64 setSize = 8, psiSecParam = 40, numThreads(1);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -554,7 +554,7 @@ void Rr17a_SM_FullSet_Test_Impl()
 void Rr17a_SM_parallel_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
+    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -614,7 +614,7 @@ void Rr17a_SM_parallel_FullSet_Test_Impl()
 void Rr17a_SM_SingltonSet_Test_Impl()
 {
     setThreadName("Sender");
-    u64 setSize = 128, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 128, psiSecParam = 40;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -689,7 +689,7 @@ void Rr17a_SM_SingltonSet_Test_Impl()
 
 void Rr17b_Oos_EmptrySet_Test_Impl()
 {
-    u64 setSize = 8, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -739,7 +739,7 @@ void Rr17b_Oos_EmptrySet_Test_Impl()
 void Rr17b_Oos_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 128, psiSecParam = 40, numThreads(1), bitSize = 128;
+    u64 setSize = 128, psiSecParam = 40, numThreads(1);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -807,7 +807,7 @@ void Rr17b_Oos_FullSet_Test_Impl()
 void Rr17b_Oos_parallel_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
+    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -863,7 +863,7 @@ void Rr17b_Oos_parallel_FullSet_Test_Impl()
 void Rr17b_Oos_SingltonSet_Test_Impl()
 {
     setThreadName("Sender");
-    u64 setSize = 128, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 128, psiSecParam = 40;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -939,7 +939,7 @@ void Rr17b_Oos_SingltonSet_Test_Impl()
 
 void Rr17b_SM_EmptrySet_Test_Impl()
 {
-    u64 setSize = 8, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -989,7 +989,7 @@ void Rr17b_SM_EmptrySet_Test_Impl()
 void Rr17b_SM_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 128, psiSecParam = 40, numThreads(1), bitSize = 128;
+    u64 setSize = 128, psiSecParam = 40, numThreads(1);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -1057,7 +1057,7 @@ void Rr17b_SM_FullSet_Test_Impl()
 void Rr17b_SM_parallel_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2), bitSize = 128;
+    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(2);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -1113,7 +1113,7 @@ void Rr17b_SM_parallel_FullSet_Test_Impl()
 void Rr17b_SM_SingltonSet_Test_Impl()
 {
     setThreadName("Sender");
-    u64 setSize = 128, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 128, psiSecParam = 40;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -1188,7 +1188,7 @@ void Rr17b_SM_SingltonSet_Test_Impl()
 
 void Psi_kkrt_EmptySet_Test_Impl()
 {
-    u64 setSize = 8, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -1258,7 +1258,7 @@ void Psi_kkrt_EmptySet_Test_Impl()
 void Psi_kkrt_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(1), bitSize = 128;
+    u64 setSize = 1 << 4, psiSecParam = 40, numThreads(1);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -1347,7 +1347,7 @@ void Psi_kkrt_FullSet_Test_Impl()
 void Psi_kkrt_SingletonSet_Test_Impl()
 {
     setThreadName("recver");
-    u64 setSize = 2, psiSecParam = 40, bitSize = 128;
+    u64 setSize = 2, psiSecParam = 40;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
@@ -1421,11 +1421,12 @@ void Psi_kkrt_SingletonSet_Test_Impl()
 void Psi_drrn_SingletonSet_Test_Impl()
 {
     setThreadName("client");
-    u64 psiSecParam = 40, bitSize = 128;
-    u64 clientSetSize = 1<<8;
-    u64 srvSetSize = 1<<14;
+    u64 psiSecParam = 40;
+    u64 clientSetSize = 9;
+    u64 srvSetSize = 1<<16;
     
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
+    PRNG prng1(_mm_set_epi32(4253465, 34354565, 0, 23987045));
 
     std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
     for (u64 i = 0; i < clientSetSize; ++i)
@@ -1433,9 +1434,9 @@ void Psi_drrn_SingletonSet_Test_Impl()
         clientSet[i] = prng.get<block>();
     }
 
-    for (u64 i = 0; i < clientSetSize; ++i)
+    for (u64 i = 0; i < srvSet.size(); ++i)
     {
-        srvSet[i] = prng.get<block>();
+        srvSet[i] = prng1.get<block>();
     }
 
     clientSet[0] = srvSet[0];
@@ -1449,61 +1450,32 @@ void Psi_drrn_SingletonSet_Test_Impl()
     Endpoint eps1c(ios, "localhost", EpMode::Client, "cs1");
     Endpoint eps1s(ios, "localhost", EpMode::Client, "ss");
 
-    Channel cs0Chl = epcs0.addChannel("c", "s0");
-    Channel cs1Chl = epcs1.addChannel("c", "s1");
-    Channel s0cChl = eps0c.addChannel("s0", "c");
-    Channel s1cChl = eps1c.addChannel("s1", "c");
-    Channel s1sChl = eps1s.addChannel("s1", "s0");
-    Channel s0sChl = eps0s.addChannel("s0", "s1");
+    Channel cs0Chl = epcs0.addChannel("c");
+    Channel cs1Chl = epcs1.addChannel("c");
+    Channel s0cChl = eps0c.addChannel("c");
+    Channel s1cChl = eps1c.addChannel("c");
+    Channel s1sChl = eps1s.addChannel("c");
+    Channel s0sChl = eps0s.addChannel("c");
 
     DrrnPsiClient client;
     DrrnPsiServer s0, s1;
 
 
-    s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>());
-    s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>());
 
-	auto s0thrd = std::thread([&]() {
-		s0.send(s0cChl, s0sChl, srvSet);
-	});
-
-	auto s1thrd = std::thread([&]() {
-		s1.send(s1cChl, s1sChl, srvSet);
-	});
-
+	auto s0thrd = std::thread([&]() { s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s1thrd = std::thread([&]() { s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
 	client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
+
+    s0thrd.join();
+    s1thrd.join();
+
+    s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
+    s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
 	client.recv(cs0Chl, cs1Chl, clientSet);
 
-    // std::thread thrd([&]() {
-    //     setThreadName("Sender");
+    s0thrd.join();
+    s1thrd.join();
 
-    //     send.init(setSize, setSize, psiSecParam, sendChl, otSend0, prng.get<block>());
-    //     send.sendInput(sendSet, sendChl);
-    // });
 
-    // client.init(setSize, setSize, psiSecParam, recvChl, otRecv0, ZeroBlock);
-    // client.sendInput(recvSet, recvChl);
-
-    // // TODO s1, s2
-
-    // thrd.join();
-
-    cs0Chl.close();
-    cs1Chl.close();
-    s0cChl.close();
-    s1cChl.close();
-    s0sChl.close();
-    s1sChl.close();
-
-    epcs0.stop();
-    epcs1.stop();
-    eps0c.stop();
-    eps1c.stop();
-    eps0s.stop();
-    eps1s.stop();
-
-    ios.stop();
-
-    if (false)
-        throw UnitTestFail();
+    //if (false)        throw UnitTestFail();
 }

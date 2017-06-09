@@ -3,6 +3,7 @@
 #include <cryptoTools/Common/CuckooIndex.h>
 #include <cryptoTools/Network/Channel.h>
 #include <libPSI/PSI/KkrtPsiSender.h>
+#include <libOTe/NChooseOne/Kkrt/KkrtNcoOtSender.h>
 
 namespace osuCrypto
 {
@@ -16,6 +17,7 @@ namespace osuCrypto
         void send(Channel clientChl, Channel srvChl, span<block> inputs);
 
         CuckooIndex mIndex;
+        KkrtNcoOtSender otSend;
         PRNG mPrng;
         KkrtPsiSender mPsi;
 

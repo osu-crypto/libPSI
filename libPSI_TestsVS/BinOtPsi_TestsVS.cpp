@@ -26,7 +26,7 @@ namespace WeGarbleTests
         TEST_METHOD(Psi_kkrt_EmptrySet_Test)
         {
             InitDebugPrinting();
-            Psi_kkrt_EmptrySet_Test_Impl();
+            Psi_kkrt_EmptySet_Test_Impl();
         }
 
         TEST_METHOD(Psi_kkrt_FullSet_Test)
@@ -38,7 +38,7 @@ namespace WeGarbleTests
         TEST_METHOD(Psi_kkrt_SingltonSet_Test)
         {
             InitDebugPrinting();
-            Psi_kkrt_SingltonSet_Test_Impl();
+            Psi_kkrt_SingletonSet_Test_Impl();
         }
 
         TEST_METHOD(Rr17a_Oos_EmptrySet_Test)
@@ -130,6 +130,14 @@ namespace WeGarbleTests
         {
             InitDebugPrinting();
             Rr17b_SM_EmptrySet_Test_Impl();
+        }
+
+
+        TEST_METHOD(Psi_drrn_SingletonSet_Test)
+        {
+            InitDebugPrinting();
+            Psi_drrn_SingletonSet_Test_Impl();
+
         }
 
     };
