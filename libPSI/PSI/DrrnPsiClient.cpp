@@ -4,9 +4,9 @@
 
 namespace osuCrypto
 {
-    void DrrnPsiClient::init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed)
+    void DrrnPsiClient::init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed, double binScaler)
     {
-
+        mNumBins = (clientSetSize / std::log2(clientSetSize)) * binScaler;
         mPrng.SetSeed(seed);
         mServerSetSize = serverSetSize;
         mClientSetSize = clientSetSize;
