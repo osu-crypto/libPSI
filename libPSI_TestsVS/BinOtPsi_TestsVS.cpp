@@ -140,5 +140,13 @@ namespace WeGarbleTests
 
         }
 
+
+        TEST_METHOD(Psi_drrn_FullSet_Test)
+        {
+            InitDebugPrinting();
+            Psi_drrn_FullSet_Test_Impl();
+
+        }
+
     };
 }

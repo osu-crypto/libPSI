@@ -42,3 +42,4 @@ void Psi_kkrt_FullSet_Test_Impl();
 void Psi_kkrt_SingletonSet_Test_Impl();
 
 void Psi_drrn_SingletonSet_Test_Impl();
+void Psi_drrn_FullSet_Test_Impl();

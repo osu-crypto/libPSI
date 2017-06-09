@@ -41,10 +41,10 @@ namespace osuCrypto
             if (mIndex.mBins[i].isEmpty() == false)
             {
                 pirData[i] = inputs[mIndex.mBins[i].idx()];
-                if (mIndex.mBins[i].idx() < 1)
-                {
-                    std::cout << IoStream::lock << "pirData[" << i << "] = inputs[" << mIndex.mBins[i].idx() << "] = " << pirData[i] << " h=" << mIndex.mBins[i].hashIdx() << std::endl << IoStream::unlock;
-                }
+                //if (mIndex.mBins[i].idx() < 1)
+                //{
+                //    std::cout << IoStream::lock << "pirData[" << i << "] = inputs[" << mIndex.mBins[i].idx() << "] = " << pirData[i] << " h=" << mIndex.mBins[i].hashIdx() << std::endl << IoStream::unlock;
+                //}
             }
         }
 
@@ -63,28 +63,28 @@ namespace osuCrypto
             span<block> g(k.data() + kDepth + 1, groupSize);
             shares[i] = pir.fullDomain(pirData, kk, g);
 
-            if (mServerId)
-            {
+            //if (mServerId)
+            //{
 
-                u64 idx;
-                clientChl.recv(&idx, sizeof(u64));
-                block share;
-                srvChl.recv(&share, sizeof(block));
+            //    u64 idx;
+            //    clientChl.recv(&idx, sizeof(u64));
+            //    block share;
+            //    srvChl.recv(&share, sizeof(block));
 
-                if (neq(share ^ shares[i], pirData[idx]))
-                {
-                    std::cout << "failed at  " << i << "  " << idx << " " << (share ^ shares[i]) << " " << pirData[idx]<< std::endl;
-                }
-                else
-                {
-                    std::cout << "passed at  " << i << "  " << idx << " " << share<<" ^ "<<shares[i] << " -> " << pirData[idx] << std::endl;
+            //    if (neq(share ^ shares[i], pirData[idx]))
+            //    {
+            //        std::cout << "failed at  " << i << "  " << idx << " " << (share ^ shares[i]) << " " << pirData[idx]<< std::endl;
+            //    }
+            //    else
+            //    {
+            //        std::cout << "passed at  " << i << "  " << idx << " " << share<<" ^ "<<shares[i] << " -> " << pirData[idx] << std::endl;
 
-                }
-            }
-            else
-            {
-                srvChl.send(&shares[i], sizeof(block));
-            }
+            //    }
+            //}
+            //else
+            //{
+            //    srvChl.send(&shares[i], sizeof(block));
+            //}
 
 
         }
@@ -138,10 +138,10 @@ namespace osuCrypto
                 ++j;
             }
 
-            for (u64 i = 0; i < shares.size(); ++i)
-            {
-                std::cout << "sshare[" << i << "] = " << shares[i] << std::endl;
-            }
+            //for (u64 i = 0; i < shares.size(); ++i)
+            //{
+            //    std::cout << "sshare[" << i << "] = " << shares[i] << std::endl;
+            //}
             mPsi.sendInput(shares, clientChl);
         }
     }

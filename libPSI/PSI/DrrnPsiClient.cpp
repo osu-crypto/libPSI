@@ -30,17 +30,23 @@ namespace osuCrypto
         // Simple hashing with a PRP
         std::vector<block> hashs(inputs.size());
         AES hasher(mHashingSeed);
+        u64 numBins = mCuckooParams.numBins();
 
         for (u64 i = 0; i < inputs.size();)
         {
             auto min = std::min<u64>(inputs.size() - i, 8);
             auto end = i + min;
 
-            hasher.ecbEncBlocks(inputs.data() + i, min, hashs.data());
+            hasher.ecbEncBlocks(inputs.data() + i, min, hashs.data() + i);
 
-            for (;i < end; ++i)
+            for (; i < end; ++i)
             {
                 hashs[i] = hashs[i] ^ inputs[i];
+                //std::cout << IoStream::lock << "cinput[" << i << "] = " << inputs[i] << " -> " << hashs[i] << " ("
+                //    << CuckooIndex::getHash(hashs[i], 0, numBins) << ", "
+                //    << CuckooIndex::getHash(hashs[i], 1, numBins) << ", "
+                //    << CuckooIndex::getHash(hashs[i], 2, numBins) << ")"
+                //    << std::endl << IoStream::unlock;
             }
         }
 
@@ -48,7 +54,6 @@ namespace osuCrypto
 
 
 
-        u64 numBins = mCuckooParams.numBins();
         // power of 2
         u64 numLeafBlocks = (mCuckooParams.numBins() + 127) / 128;
         u64 gDepth = 2;
@@ -83,27 +88,33 @@ namespace osuCrypto
                 // derive cuckoo index from encrypted block
                 u64 idx = CuckooIndex::getHash(hashs[i], j, numBins);
 
+                //if (i == 0)
+                //{
+                //    std::cout << "hashs[" << i << "][" << j << "] = " << hashs[i]  << " -> "<< idx << std::endl;
+                //}
+
+
                 pir.keyGen(idx, mPrng.get<block>(), kk0, g0, kk1, g1);
 
                 s0.asyncSend(std::move(k0));
                 s1.asyncSend(std::move(k1));
 
                 // add input to masks
-                *shareIter = /**shareIter ^*/ inputs[i];
+                *shareIter = /*shareIter ^*/ inputs[i];
 
                 if (j) *shareIter = mPrng.get<block>();
 
                 shareIter++;
 
 
-                s1.send(&idx, sizeof(u64));
+                //s1.send(&idx, sizeof(u64));
             }
         }
 
-        for (u64 i = 0; i < shares.size(); ++i)
-        {
-            std::cout << "cshare[" << i << "] = " << shares[i] << std::endl;
-        }
+        //for (u64 i = 0; i < shares.size(); ++i)
+        //{
+        //    std::cout << "cshare[" << i << "] = " << shares[i] << std::endl;
+        //}
 
         s1.asyncSend(&rSeed, sizeof(block));
 
