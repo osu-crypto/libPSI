@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #ifdef  _MSC_VER
+#ifdef ENABLE_DCW
+
 #include "CppUnitTest.h"
 
 #include "ShamirSSScheme_Tests.h"
@@ -25,4 +27,5 @@ namespace osuCrypto_tests
 
     };
 }
+#endif
 #endif

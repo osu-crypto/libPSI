@@ -1,3 +1,4 @@
+#ifdef ENABLE_DCW
 #include "DcwRBfPsiReceiver.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
@@ -460,3 +461,4 @@ namespace osuCrypto
         //std::cout << timer;
     }
 }
+#endif

@@ -1,3 +1,4 @@
+#ifdef ENABLE_DCW
 #pragma once
 //#include "NTL/ZZ_pEX.h"
 #include <vector> 
@@ -41,3 +42,4 @@ namespace osuCrypto
     };
 
 }
+#endif

@@ -1,3 +1,4 @@
+#ifdef ENABLE_DCW
 #include "ShamirSSScheme.h"   
 
 #include <iostream>   
@@ -315,3 +316,5 @@ namespace osuCrypto
 
 
 }
+
+#endif

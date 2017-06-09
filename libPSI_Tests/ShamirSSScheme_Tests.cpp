@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-
+#ifdef ENABLE_DCW
 #include <thread>
 #include <vector>
 #include <memory>
@@ -64,3 +64,4 @@ void ShamirSSScheme_Test()
 
     }
 }
+#endif

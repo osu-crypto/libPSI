@@ -1,3 +1,5 @@
+#ifdef ENABLE_DCW
+
 #pragma once
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Network/Channel.h"
@@ -36,3 +38,6 @@ namespace osuCrypto
     };
 
 }
+
+
+#endif

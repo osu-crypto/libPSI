@@ -87,7 +87,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories);$(SolutionDir)\thirdparty\win\boost\stage\lib;C:/libs/boost\stage\lib;$(OutDir);$(SolutionDir)thirdparty\win\;C:/libs/;$(libOTeDir)\x64\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libOTe.lib;libPSI.lib;libPSI_Tests.lib;cryptoTools.lib;Miracl\x64\$(Configuration)\miracl.lib;NTL\x64\$(Configuration)\NTL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libOTe.lib;libPSI.lib;libPSI_Tests.lib;cryptoTools.lib;Miracl\x64\$(Configuration)\miracl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

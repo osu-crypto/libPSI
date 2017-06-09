@@ -1,4 +1,6 @@
 #include "stdafx.h"
+
+#ifdef ENABLE_DCW
 #include "CppUnitTest.h"
 #include "DcwBfPsi_Tests.h"
 #include "Common.h"
@@ -10,6 +12,7 @@ namespace WeGarbleTests
     TEST_CLASS(DcwBfPsi_Tests)
     {
     public:
+
 
         TEST_METHOD(DcwBfPsi_EmptrySet_Test)
         {
@@ -48,3 +51,4 @@ namespace WeGarbleTests
 
     };
 }
+#endif

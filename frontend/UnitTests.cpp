@@ -97,7 +97,7 @@ void DktPsi_all()
     run("DktPsi_SingltonSet_Test_Imp             ", DktMPsi_SingltonSet_Test_Impl);
 }
 
-
+#ifdef ENABLE_DCW
 void DcwPsi_all()
 {
     std::cout << std::endl;
@@ -105,7 +105,12 @@ void DcwPsi_all()
     run("DcwPsi_FullSet_Test_Impl                ", DcwBfPsi_FullSet_Test_Impl);
     run("DcwPsi_SingltonSet_Test_Imp             ", DcwBfPsi_SingltonSet_Test_Impl);
 }
-
+void ShamirSSScheme_all()
+{
+    std::cout << std::endl;
+    run("ShamirSSScheme_GF2X_Test                 ", ShamirSSScheme_Test);
+}
+#endif
 void AknBfPsi_all()
 {
     std::cout << std::endl;
@@ -131,11 +136,6 @@ void OtBinPsi_all()
 
 }
 
-void ShamirSSScheme_all()
-{
-    std::cout << std::endl;
-    run("ShamirSSScheme_GF2X_Test                 ", ShamirSSScheme_Test);
-}
 
 
 void BGI_PIR_all()

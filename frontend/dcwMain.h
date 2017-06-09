@@ -2,6 +2,7 @@
 
 
 
+#ifdef ENABLE_DCW
 
 
 #include "util.h"
@@ -17,3 +18,6 @@ void DcwRecv(LaunchParams&);
 
 void DcwRSend(LaunchParams&);
 void DcwRRecv(LaunchParams&);
+
+
+#endif

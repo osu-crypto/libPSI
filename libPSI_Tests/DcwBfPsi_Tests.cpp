@@ -1,3 +1,4 @@
+#ifdef ENABLE_DCW
 #include "DcwBfPsi_Tests.h"
 
 #include "Common.h"
@@ -465,3 +466,4 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
     ep1.stop();
     ios.stop();
 }
+#endif 

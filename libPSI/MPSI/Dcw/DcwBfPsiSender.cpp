@@ -1,3 +1,4 @@
+#ifdef ENABLE_DCW
 #include "DcwBfPsiSender.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include "cryptoTools/Crypto/PRNG.h"
@@ -409,3 +410,4 @@ namespace osuCrypto {
         //}
     }
 }
+#endif

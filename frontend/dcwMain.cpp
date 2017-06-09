@@ -1,3 +1,6 @@
+
+#ifdef ENABLE_DCW
+
 #include "dcwMain.h"
 
 #include "cryptoTools/Network/Endpoint.h" 
@@ -215,3 +218,4 @@ void DcwRRecv(
     }
 }
 
+#endif
