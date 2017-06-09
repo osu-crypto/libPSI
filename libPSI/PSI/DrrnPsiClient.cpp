@@ -50,10 +50,6 @@ namespace osuCrypto
             }
         }
 
-
-
-
-
         // power of 2
         u64 numLeafBlocks = (mCuckooParams.numBins() + 127) / 128;
         u64 gDepth = 2;
@@ -120,9 +116,18 @@ namespace osuCrypto
 
         mPsi.sendInput(shares, s0);
 
-        // indices into the shares array; needs to be diviced by numHashFunctions
-        if (mPsi.mIntersection.size())
-            std::cout << mPsi.mIntersection[0] << std::endl;
-        else std::cout << " no intersection" << std::endl;
+      /* 	if (mPsi.mIntersection.size())
+			std::cout << "intersection." << std::endl;
+		else 
+			std::cout << "no intersection." << std::endl;*/
+
+		for (u64 i = 0; i < mPsi.mIntersection.size(); ++i) {
+			//std::cout << mPsi.mIntersection[i] / mCuckooParams.mNumHashes << std::endl;
+			// divide index by #hashes			
+			mPsi.mIntersection[i] /= mCuckooParams.mNumHashes; 
+		}
+		        
+		mIntersection = mPsi.mIntersection;
+
     }
 }

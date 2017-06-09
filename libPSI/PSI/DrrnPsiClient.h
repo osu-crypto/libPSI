@@ -21,6 +21,7 @@ namespace osuCrypto
         KkrtPsiReceiver mPsi;
 
         u64 mClientSetSize, mServerSetSize, mNumBins;
+		std::vector<u64> mIntersection;
         KkrtNcoOtReceiver otRecv;
         block mHashingSeed;
     };

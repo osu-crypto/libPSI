@@ -1421,7 +1421,7 @@ void Psi_drrn_EmptySet_Test_Impl()
 {
 	setThreadName("client");
 	u64 psiSecParam = 40;
-	u64 clientSetSize = 100;
+	u64 clientSetSize = 128;
 	u64 srvSetSize = 1 << 12;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
@@ -1472,15 +1472,16 @@ void Psi_drrn_EmptySet_Test_Impl()
 	s0thrd.join();
 	s1thrd.join();
 
-	std::cout << "empty set" << std::endl;
-	//if (false)        throw UnitTestFail();
+	if (client.mIntersection.size() > 0) {
+		throw UnitTestFail();
+	}
 }
 
 void Psi_drrn_SingletonSet_Test_Impl()
 {
 	setThreadName("client");
 	u64 psiSecParam = 40;
-	u64 clientSetSize = 100;
+	u64 clientSetSize = 128;
 	u64 srvSetSize = 1 << 12;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
@@ -1497,7 +1498,7 @@ void Psi_drrn_SingletonSet_Test_Impl()
 		srvSet[i] = prng1.get<block>();
 	}
 
-	clientSet[23] = srvSet[5];
+	clientSet[5] = srvSet[23];
 
 	IOService ios(0);
 	Endpoint epcs0(ios, "localhost", EpMode::Server, "cs0");
@@ -1530,8 +1531,10 @@ void Psi_drrn_SingletonSet_Test_Impl()
 
 	s0thrd.join();
 	s1thrd.join();
-
-	//if (false)        throw UnitTestFail();
+	
+	if (client.mIntersection.size() != 1 || client.mIntersection[0] != 5) {
+		throw UnitTestFail();
+	}
 }
 
 
@@ -1539,7 +1542,7 @@ void Psi_drrn_FullSet_Test_Impl()
 {
 	setThreadName("client");
 	u64 psiSecParam = 40;
-	u64 clientSetSize = 100;
+	u64 clientSetSize = 128;
 	u64 srvSetSize = 1 << 12;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
@@ -1588,6 +1591,19 @@ void Psi_drrn_FullSet_Test_Impl()
 	s0thrd.join();
 	s1thrd.join();
 
+	if (client.mIntersection.size() != clientSetSize) {
+		std::cout << "wrong size " << client.mIntersection.size() << std::endl;
+		throw UnitTestFail();
+	}
 
-	//if (false)        throw UnitTestFail();
+	for (u64 i = 0; i < clientSetSize; ++i)
+	{
+		bool b = std::find(client.mIntersection.begin(), client.mIntersection.end(), i) == client.mIntersection.end();
+		if (b)
+		{
+			std::cout << "missing " << i << std::endl;
+			throw UnitTestFail();
+		}
+	}
+	
 }
