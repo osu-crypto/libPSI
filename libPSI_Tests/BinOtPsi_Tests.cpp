@@ -1417,129 +1417,177 @@ void Psi_kkrt_SingletonSet_Test_Impl()
         throw UnitTestFail();
 }
 
-
-void Psi_drrn_SingletonSet_Test_Impl()
+void Psi_drrn_EmptySet_Test_Impl()
 {
-    setThreadName("client");
-    u64 psiSecParam = 40;
-    u64 clientSetSize = 100;
-    u64 srvSetSize = 1<<12;
-    
-    PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
-    PRNG prng1(_mm_set_epi32(4253465, 34354565, 0, 23987045));
+	setThreadName("client");
+	u64 psiSecParam = 40;
+	u64 clientSetSize = 100;
+	u64 srvSetSize = 1 << 12;
 
-    std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
-    for (u64 i = 0; i < clientSetSize; ++i)
-    {
-        clientSet[i] = prng.get<block>();
-    }
+	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
+	PRNG prng1(_mm_set_epi32(4253465, 34354565, 1, 23987045));
 
-    for (u64 i = 0; i < srvSet.size(); ++i)
-    {
-        srvSet[i] = prng1.get<block>();
-    }
+	std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
+	for (u64 i = 0; i < clientSetSize; ++i)
+	{
+		clientSet[i] = prng.get<block>();
+	}
 
-    clientSet[0] = srvSet[0];
+	for (u64 i = 0; i < srvSet.size(); ++i)
+	{
+		srvSet[i] = prng1.get<block>();
+	}
 
-    
-    IOService ios(0);
-    Endpoint epcs0(ios, "localhost", EpMode::Server, "cs0");
-    Endpoint epcs1(ios, "localhost", EpMode::Server, "cs1");
-    Endpoint eps0s(ios, "localhost", EpMode::Server, "ss");
-    Endpoint eps0c(ios, "localhost", EpMode::Client, "cs0");
-    Endpoint eps1c(ios, "localhost", EpMode::Client, "cs1");
-    Endpoint eps1s(ios, "localhost", EpMode::Client, "ss");
+	// whp no match
 
-    Channel cs0Chl = epcs0.addChannel("c");
-    Channel cs1Chl = epcs1.addChannel("c");
-    Channel s0cChl = eps0c.addChannel("c");
-    Channel s1cChl = eps1c.addChannel("c");
-    Channel s1sChl = eps1s.addChannel("c");
-    Channel s0sChl = eps0s.addChannel("c");
+	IOService ios(0);
+	Endpoint epcs0(ios, "localhost", EpMode::Server, "cs0");
+	Endpoint epcs1(ios, "localhost", EpMode::Server, "cs1");
+	Endpoint eps0s(ios, "localhost", EpMode::Server, "ss");
+	Endpoint eps0c(ios, "localhost", EpMode::Client, "cs0");
+	Endpoint eps1c(ios, "localhost", EpMode::Client, "cs1");
+	Endpoint eps1s(ios, "localhost", EpMode::Client, "ss");
 
-    DrrnPsiClient client;
-    DrrnPsiServer s0, s1;
+	Channel cs0Chl = epcs0.addChannel("c");
+	Channel cs1Chl = epcs1.addChannel("c");
+	Channel s0cChl = eps0c.addChannel("c");
+	Channel s1cChl = eps1c.addChannel("c");
+	Channel s1sChl = eps1s.addChannel("c");
+	Channel s0sChl = eps0s.addChannel("c");
 
-
+	DrrnPsiClient client;
+	DrrnPsiServer s0, s1;
 
 	auto s0thrd = std::thread([&]() { s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
 	auto s1thrd = std::thread([&]() { s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
 	client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
 
-    s0thrd.join();
-    s1thrd.join();
+	s0thrd.join();
+	s1thrd.join();
 
-    s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
-    s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
+	s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
+	s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
 	client.recv(cs0Chl, cs1Chl, clientSet);
 
-    s0thrd.join();
-    s1thrd.join();
+	s0thrd.join();
+	s1thrd.join();
 
-
-    //if (false)        throw UnitTestFail();
+	std::cout << "empty set" << std::endl;
+	//if (false)        throw UnitTestFail();
 }
 
+void Psi_drrn_SingletonSet_Test_Impl()
+{
+	setThreadName("client");
+	u64 psiSecParam = 40;
+	u64 clientSetSize = 100;
+	u64 srvSetSize = 1 << 12;
 
+	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
+	PRNG prng1(_mm_set_epi32(4253465, 34354565, 1, 23987045));
+
+	std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
+	for (u64 i = 0; i < clientSetSize; ++i)
+	{
+		clientSet[i] = prng.get<block>();
+	}
+
+	for (u64 i = 0; i < srvSet.size(); ++i)
+	{
+		srvSet[i] = prng1.get<block>();
+	}
+
+	clientSet[23] = srvSet[5];
+
+	IOService ios(0);
+	Endpoint epcs0(ios, "localhost", EpMode::Server, "cs0");
+	Endpoint epcs1(ios, "localhost", EpMode::Server, "cs1");
+	Endpoint eps0s(ios, "localhost", EpMode::Server, "ss");
+	Endpoint eps0c(ios, "localhost", EpMode::Client, "cs0");
+	Endpoint eps1c(ios, "localhost", EpMode::Client, "cs1");
+	Endpoint eps1s(ios, "localhost", EpMode::Client, "ss");
+
+	Channel cs0Chl = epcs0.addChannel("c");
+	Channel cs1Chl = epcs1.addChannel("c");
+	Channel s0cChl = eps0c.addChannel("c");
+	Channel s1cChl = eps1c.addChannel("c");
+	Channel s1sChl = eps1s.addChannel("c");
+	Channel s0sChl = eps0s.addChannel("c");
+
+	DrrnPsiClient client;
+	DrrnPsiServer s0, s1;
+
+	auto s0thrd = std::thread([&]() { s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s1thrd = std::thread([&]() { s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
+
+	s0thrd.join();
+	s1thrd.join();
+
+	s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
+	s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
+	client.recv(cs0Chl, cs1Chl, clientSet);
+
+	s0thrd.join();
+	s1thrd.join();
+
+	//if (false)        throw UnitTestFail();
+}
 
 
 void Psi_drrn_FullSet_Test_Impl()
 {
-    setThreadName("client");
-    u64 psiSecParam = 40;
-    u64 clientSetSize = 100;
-    u64 srvSetSize = 1 << 12;
+	setThreadName("client");
+	u64 psiSecParam = 40;
+	u64 clientSetSize = 100;
+	u64 srvSetSize = 1 << 12;
 
-    PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
-    PRNG prng1(_mm_set_epi32(4253465, 34354565, 0, 23987045));
+	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
+	PRNG prng1(_mm_set_epi32(4253465, 34354565, 0, 23987045));
 
-    std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
+	std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
 
-    for (u64 i = 0; i < srvSet.size(); ++i)
-    {
-        srvSet[i] = prng1.get<block>();
-    }
-    for (u64 i = 0; i < clientSetSize; ++i)
-    {
-        clientSet[i] = srvSet[i];
-    }
+	for (u64 i = 0; i < srvSet.size(); ++i)
+	{
+		srvSet[i] = prng1.get<block>();
+	}
+	for (u64 i = 0; i < clientSetSize; ++i)
+	{
+		clientSet[i] = srvSet[i];
+	}
 
+	IOService ios(0);
+	Endpoint epcs0(ios, "localhost", EpMode::Server, "cs0");
+	Endpoint epcs1(ios, "localhost", EpMode::Server, "cs1");
+	Endpoint eps0s(ios, "localhost", EpMode::Server, "ss");
+	Endpoint eps0c(ios, "localhost", EpMode::Client, "cs0");
+	Endpoint eps1c(ios, "localhost", EpMode::Client, "cs1");
+	Endpoint eps1s(ios, "localhost", EpMode::Client, "ss");
 
+	Channel cs0Chl = epcs0.addChannel("c");
+	Channel cs1Chl = epcs1.addChannel("c");
+	Channel s0cChl = eps0c.addChannel("c");
+	Channel s1cChl = eps1c.addChannel("c");
+	Channel s1sChl = eps1s.addChannel("c");
+	Channel s0sChl = eps0s.addChannel("c");
 
-    IOService ios(0);
-    Endpoint epcs0(ios, "localhost", EpMode::Server, "cs0");
-    Endpoint epcs1(ios, "localhost", EpMode::Server, "cs1");
-    Endpoint eps0s(ios, "localhost", EpMode::Server, "ss");
-    Endpoint eps0c(ios, "localhost", EpMode::Client, "cs0");
-    Endpoint eps1c(ios, "localhost", EpMode::Client, "cs1");
-    Endpoint eps1s(ios, "localhost", EpMode::Client, "ss");
+	DrrnPsiClient client;
+	DrrnPsiServer s0, s1;
 
-    Channel cs0Chl = epcs0.addChannel("c");
-    Channel cs1Chl = epcs1.addChannel("c");
-    Channel s0cChl = eps0c.addChannel("c");
-    Channel s1cChl = eps1c.addChannel("c");
-    Channel s1sChl = eps1s.addChannel("c");
-    Channel s0sChl = eps0s.addChannel("c");
+	auto s0thrd = std::thread([&]() { s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s1thrd = std::thread([&]() { s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
 
-    DrrnPsiClient client;
-    DrrnPsiServer s0, s1;
+	s0thrd.join();
+	s1thrd.join();
 
+	s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
+	s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
+	client.recv(cs0Chl, cs1Chl, clientSet);
 
-
-    auto s0thrd = std::thread([&]() { s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
-    auto s1thrd = std::thread([&]() { s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
-    client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
-
-    s0thrd.join();
-    s1thrd.join();
-
-    s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
-    s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
-    client.recv(cs0Chl, cs1Chl, clientSet);
-
-    s0thrd.join();
-    s1thrd.join();
+	s0thrd.join();
+	s1thrd.join();
 
 
-    //if (false)        throw UnitTestFail();
+	//if (false)        throw UnitTestFail();
 }
