@@ -154,19 +154,19 @@ namespace osuCrypto
 
         for (u64 i = 0; i < g0.size(); ++i)
         {
-            s0[i] = s[0] & notThreeBlock ^ toBlock(i);
-            s1[i] = s[1] & notThreeBlock ^ toBlock(i);
+            s0[i] = (s[0] & notThreeBlock) ^ toBlock(i);
+            s1[i] = (s[1] & notThreeBlock) ^ toBlock(i);
         }
         aes0.ecbEncBlocks(s0, g0.size() * 2, gs0);
         for (u64 i = 0; i < g0.size(); ++i)
         {
             gs0[i] = (gs0[i] ^ s0[i]);
             gs1[i] = (gs1[i] ^ s1[i]);
-        //}
-        ////std::cout << "gs0 " << gs0[0] << " " << gs0[1] << " = G(" << s0[0] << " " << s0[1] << ")" << std::endl;
-        ////std::cout << "gs1 " << gs1[0] << " " << gs1[1] << " = G(" << s1[0] << " " << s1[1] << ")" << std::endl;
-        //for (u64 i = 0; i < g0.size(); ++i)
-        //{
+        }
+        std::cout << "gs0 " << gs0[0] /*<< " " << gs0[1]*/ << " = G(" << s0[0] /*<< " " << s0[1]*/ << ")" << std::endl;
+        std::cout << "gs1 " << gs1[0] /*<< " " << gs1[1]*/ << " = G(" << s1[0] /*<< " " << s1[1]*/ << ")" << std::endl;
+        for (u64 i = 0; i < g0.size(); ++i)
+        {
             gs0[i] = gs0[i] ^ gs1[i];
         }
 

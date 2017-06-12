@@ -138,7 +138,7 @@ void Psi_drrn_FullSet_Test_Impl()
 	setThreadName("client");
 	u64 psiSecParam = 40;
 	u64 clientSetSize = 64;
-	u64 srvSetSize = 1 << 14;
+	u64 srvSetSize = 1 << 12;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 	PRNG prng1(_mm_set_epi32(4253465, 34354565, 0, 23987045));

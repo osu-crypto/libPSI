@@ -37,7 +37,7 @@ void BgiPir_keyGen_test()
             for (u64 j = 0; j < domain; ++j)
             {
 
-                
+
 
                 auto b0 = BgiPirServer::evalOne(j, k0, g0);
                 auto b1 = BgiPirServer::evalOne(j, k1, g1);
@@ -133,65 +133,50 @@ void BgiPir_PIR_test()
 
 void BgiPir_FullDomain_test()
 {
-    u64 depth =10, groupBlkSize = 1;
-    u64 domain = (1 << depth) * groupBlkSize * 128;
-    u64 trials = 100;
-    //std::cout << domain << std::endl;
+    std::vector<std::array<u64, 2>> params{ {2,1}, {2, 6}, {5, 1}, {5, 5 } };
 
-    std::vector<block> data(domain);
-    for (u64 i = 0; i < data.size(); ++i)
-        data[i] = toBlock(i);
-
-
-
-    std::vector<block> k0(depth + 1), k1(depth + 1);
-    std::vector<block> g0(groupBlkSize), g1(groupBlkSize);
-
-    PRNG prng(ZeroBlock);
-    for (u64 i = 0; i < trials; ++i)
+    for (auto param : params)
     {
-        //i = 1024;
 
-        for (u64 j = 0; j < 2; ++j)
+        u64 depth = param[0], groupBlkSize = param[1];
+        u64 domain = (1 << depth) * groupBlkSize * 128;
+        u64 trials = 10;
+
+        std::vector<block> data(domain);
+        for (u64 i = 0; i < data.size(); ++i)
+            data[i] = toBlock(i);
+
+
+
+        std::vector<block> k0(depth + 1), k1(depth + 1);
+        std::vector<block> g0(groupBlkSize), g1(groupBlkSize);
+
+        PRNG prng(ZeroBlock);
+        for (u64 i = 0; i < trials; ++i)
         {
-            auto idx = (i + j * prng.get<int>()) % domain;
-            BgiPirClient::keyGen(idx, toBlock(idx), k0, g0, k1, g1);
+            //i = 1024;
 
-            //std::cout << "---------------------------------------------------" << std::endl;
-            //for (u64 j = 0; j < data.size(); ++j)
-            //{
-            //    std::cout << int(BgiPirServer::evalOne(j, k0, g0) & 1);
-            //}
-            //std::cout << std::endl;
-            //for (u64 j = 0; j < data.size(); ++j)
-            //{
-            //    std::cout << int(BgiPirServer::evalOne(j, k1, g1) & 1);
-            //}
-            //std::cout << std::endl;
-            //std::cout << "---------------------------------------------------" << std::endl;
-
-
-            auto b0 = BgiPirServer::fullDomain(data, k0, g0);
-
-            //BitVector bv0 = BgiPirServer::BgiPirServer_bv;
-            auto b1 = BgiPirServer::fullDomain(data, k1, g1);
-            //BitVector bv1 = BgiPirServer::BgiPirServer_bv;
-
-            if (neq(b0 ^ b1, data[idx]))
+            for (u64 j = 0; j < 2; ++j)
             {
-                //auto vv = bv0 ^ bv1;
-                std::cout << "target " << data[idx] << " " << idx <<
-                    "\n  " << (b0^b1) << "\n = " << b0 << " ^ " << b1 <<
-                    //"\n   weight " << vv.hammingWeight() <<
-                    //"\n vv[target] = " << vv[idx] << 
-                    std::endl;
-                throw std::runtime_error(LOCATION);
+                auto idx = (i + j * prng.get<int>()) % domain;
+                BgiPirClient::keyGen(idx, toBlock(idx), k0, g0, k1, g1);
+
+                auto b0 = BgiPirServer::fullDomain(data, k0, g0);
+                auto b1 = BgiPirServer::fullDomain(data, k1, g1);
+
+                if (neq(b0 ^ b1, data[idx]))
+                {
+                    //auto vv = bv0 ^ bv1;
+                    std::cout << "target " << data[idx] << " " << idx <<
+                        "\n  " << (b0^b1) << "\n = " << b0 << " ^ " << b1 <<
+                        //"\n   weight " << vv.hammingWeight() <<
+                        //"\n vv[target] = " << vv[idx] << 
+                        std::endl;
+                    throw std::runtime_error(LOCATION);
+                }
+
             }
-
         }
-
-        //return;
-
     }
 }
 
