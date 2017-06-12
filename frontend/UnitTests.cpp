@@ -149,8 +149,8 @@ void BGI_PIR_all()
 void drrn_psi_all()
 {
     std::cout << std::endl;
-    // run("Psi_drrn_EmptySet_Test_Impl         ", Psi_drrn_EmptySet_Test_Impl);
-    // run("Psi_drrn_FullSet_Test_Impl           ", Psi_drrn_FullSet_Test_Impl);
+    run("Psi_drrn_EmptySet_Test_Impl         ", Psi_drrn_EmptySet_Test_Impl);
+    run("Psi_drrn_FullSet_Test_Impl           ", Psi_drrn_FullSet_Test_Impl);
     run("Psi_drrn_SingletonSet_Test_Impl       ", Psi_drrn_SingletonSet_Test_Impl);
 
 }
