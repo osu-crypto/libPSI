@@ -96,21 +96,26 @@ namespace osuCrypto
             AES rGen(rSeed);
 
 
-            //if(numQueries % 8 != 0) throw std::runtime_error(LOCATION); // TODO: fixme later
-            //for (u64 i = 0, j = 0; i < numQueries / 8; ++i, j += 8)
-            //{
-            //    std::array<block, 8> buff;
-            //    rGen.ecbEncCounterMode(j, 8, buff.data());
+            std::array<block, 8> buff;
+            u64 j = 0, end = numQueries - 7;
+            for (; j < end; j += 8)
+            {
+                rGen.ecbEncCounterMode(j, 8, buff.data());
 
-            //    shares[j + 0] = shares[j + 0] ^ buff[0];
-            //    shares[j + 1] = shares[j + 1] ^ buff[1];
-            //    shares[j + 2] = shares[j + 2] ^ buff[2];
-            //    shares[j + 3] = shares[j + 3] ^ buff[3];
-            //    shares[j + 4] = shares[j + 4] ^ buff[4];
-            //    shares[j + 5] = shares[j + 5] ^ buff[5];
-            //    shares[j + 6] = shares[j + 6] ^ buff[6];
-            //    shares[j + 7] = shares[j + 7] ^ buff[7];
-            //}
+                shares[j + 0] = shares[j + 0] ^ buff[0];
+                shares[j + 1] = shares[j + 1] ^ buff[1];
+                shares[j + 2] = shares[j + 2] ^ buff[2];
+                shares[j + 3] = shares[j + 3] ^ buff[3];
+                shares[j + 4] = shares[j + 4] ^ buff[4];
+                shares[j + 5] = shares[j + 5] ^ buff[5];
+                shares[j + 6] = shares[j + 6] ^ buff[6];
+                shares[j + 7] = shares[j + 7] ^ buff[7];
+            }
+            rGen.ecbEncCounterMode(j, numQueries - j, buff.data());
+            for (u64 i =0; j < numQueries; ++j, ++i)
+            {
+                shares[j] = shares[j] ^ buff[i];
+            }
 
             srvChl.asyncSend(std::move(shares));
         }
@@ -120,22 +125,21 @@ namespace osuCrypto
             std::vector<block> otherShare(numQueries);
             srvChl.recv(otherShare.data(), otherShare.size() * sizeof(block));
 
-            u64  j = 0;
-            //for (u64 i = 0; i < numQueries / 8; ++i, j += 8)
-            //{
-            //    shares[j + 0] = shares[j + 0] ^ otherShare[j + 0];
-            //    shares[j + 1] = shares[j + 1] ^ otherShare[j + 1];
-            //    shares[j + 2] = shares[j + 2] ^ otherShare[j + 2];
-            //    shares[j + 3] = shares[j + 3] ^ otherShare[j + 3];
-            //    shares[j + 4] = shares[j + 4] ^ otherShare[j + 4];
-            //    shares[j + 5] = shares[j + 5] ^ otherShare[j + 5];
-            //    shares[j + 6] = shares[j + 6] ^ otherShare[j + 6];
-            //    shares[j + 7] = shares[j + 7] ^ otherShare[j + 7];
-            //}
-            while (j < numQueries)
+            u64  j = 0, end = numQueries - 7;
+            for (;j < end;j += 8)
+            {
+                shares[j + 0] = shares[j + 0] ^ otherShare[j + 0];
+                shares[j + 1] = shares[j + 1] ^ otherShare[j + 1];
+                shares[j + 2] = shares[j + 2] ^ otherShare[j + 2];
+                shares[j + 3] = shares[j + 3] ^ otherShare[j + 3];
+                shares[j + 4] = shares[j + 4] ^ otherShare[j + 4];
+                shares[j + 5] = shares[j + 5] ^ otherShare[j + 5];
+                shares[j + 6] = shares[j + 6] ^ otherShare[j + 6];
+                shares[j + 7] = shares[j + 7] ^ otherShare[j + 7];
+            }
+            for (;j < numQueries; ++j)
             {
                 shares[j] = shares[j] ^ otherShare[j];
-                ++j;
             }
 
             //for (u64 i = 0; i < shares.size(); ++i)

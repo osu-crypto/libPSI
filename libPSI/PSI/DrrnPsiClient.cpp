@@ -96,9 +96,9 @@ namespace osuCrypto
                 s1.asyncSend(std::move(k1));
 
                 // add input to masks
-                *shareIter = /*shareIter ^*/ inputs[i];
+                *shareIter = *shareIter ^ inputs[i];
 
-                if (j) *shareIter = mPrng.get<block>();
+                //if (j) *shareIter = mPrng.get<block>();
 
                 shareIter++;
 

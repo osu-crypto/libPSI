@@ -165,6 +165,9 @@ namespace osuCrypto
     {
         u64 kDepth = k.size() - 1;
 
+        if (kDepth < 3)
+            throw std::runtime_error("such small DPF sizes not supported " LOCATION);
+
         if (data.size() != (1 << (k.size() - 1)) * g.size() * 128)
             throw std::runtime_error(LOCATION);
 

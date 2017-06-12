@@ -132,25 +132,5 @@ namespace WeGarbleTests
             Rr17b_SM_EmptrySet_Test_Impl();
         }
 
-
-        TEST_METHOD(Psi_drrn_SingletonSet_Test)
-        {
-            InitDebugPrinting();
-            Psi_drrn_SingletonSet_Test_Impl();
-        }
-
-
-        TEST_METHOD(Psi_drrn_FullSet_Test)
-        {
-            InitDebugPrinting();
-            Psi_drrn_FullSet_Test_Impl();
-        }
-
-		TEST_METHOD(Psi_drrn_EmptySet_Test)
-		{
-			InitDebugPrinting();
-			Psi_drrn_EmptySet_Test_Impl();
-		}
-
     };
 }

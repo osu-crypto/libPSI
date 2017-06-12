@@ -8,6 +8,7 @@
 //#include "NcoOT_Tests.h"
 #include "AknBfPsi_Tests.h"
 #include "BinOtPsi_Tests.h"
+#include "DrrnPsi_Tests.h"
 
 #include "ShamirSSScheme_Tests.h"
 #include "DcwBfPsi_Tests.h"

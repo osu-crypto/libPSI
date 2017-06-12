@@ -44,5 +44,8 @@
     <ClCompile Include="BgiPirTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DrrnPsi_TestsVS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -102,6 +102,7 @@
     <ClCompile Include="BgiPirTests.cpp" />
     <ClCompile Include="BinOtPsi_TestsVS.cpp" />
     <ClCompile Include="DcwBfPsi_TestsVS.cpp" />
+    <ClCompile Include="DrrnPsi_TestsVS.cpp" />
     <ClCompile Include="DtkMPsi_TestsVS.cpp" />
     <ClCompile Include="ShamirSSScheme_TestsVS.cpp" />
     <ClCompile Include="stdafx.cpp">
