@@ -28,6 +28,18 @@ namespace osuCrypto
         return ss(b) + " " + t2(b) + " " + t1(b);
     }
 
+    BgiPirClient::uint128_t BgiPirClient::bytesToUint128_t(const span<u8>& data)
+    {
+        using boost::multiprecision::cpp_int;
+        uint128_t idx(0);
+        BitIterator bit(data.data(), 0);
+        for (i64 i = 0; i < data.size() * 8; ++i)
+        {
+            if (*bit++) bit_set(idx, i);
+        }
+        return idx;
+    }
+
     void BgiPirClient::init(u64 depth, u64 groupBlkSize)
     {
 
@@ -36,7 +48,14 @@ namespace osuCrypto
         mGroupBlkSize = groupBlkSize;
     }
 
-    block BgiPirClient::query(u64 idx, Channel srv0, Channel srv1, block seed)
+    block BgiPirClient::query(span<u8> idx, Channel srv0, Channel srv1, block seed)
+    {
+
+        return query(bytesToUint128_t(idx), srv0, srv1, seed);
+    }
+
+
+    block BgiPirClient::query(uint128_t idx, Channel srv0, Channel srv1, block seed)
     {
         std::vector<block> k0(mKDepth + 1), k1(mKDepth + 1);
         std::vector<block> g0(mGroupBlkSize), g1(mGroupBlkSize);
@@ -55,7 +74,13 @@ namespace osuCrypto
         return blk0 ^ blk1;
     }
 
-    void BgiPirClient::keyGen(u64 idx, block seed, span<block> k0, span<block> g0, span<block> k1, span<block> g1)
+    void BgiPirClient::keyGen(span<u8> idx, block seed, span<block> k0, span<block> g0, span<block> k1, span<block> g1)
+    {
+
+        keyGen(bytesToUint128_t(idx), seed, k0, g0, k1, g1);
+    }
+
+    void BgiPirClient::keyGen(uint128_t idx, block seed, span<block> k0, span<block> g0, span<block> k1, span<block> g1)
     {
 
         // static const std::array<block, 2> zeroOne{ZeroBlock, OneBlock};
@@ -63,8 +88,8 @@ namespace osuCrypto
         static const block notThreeBlock = toBlock(~0, ~3);
 
         u64 groupSize = g0.size();
-        u64 kIdx = idx / (groupSize * 128);
-        u64 gIdx = idx % (groupSize * 128);
+        auto kIdx = idx / (groupSize * 128);
+        u64 gIdx = static_cast<u64>(idx % (groupSize * 128));
 
         u64 kDepth = k0.size() - 1;
         std::array<std::array<block, 2>, 2> si;
@@ -83,7 +108,7 @@ namespace osuCrypto
 
         for (u64 i = 0, shift = kDepth - 1; i < kDepth; ++i, --shift)
         {
-            const u8 keep = (kIdx >> shift) & 1;
+            const u8 keep = static_cast<u8>(kIdx >> shift) & 1;
             auto a = toBlock(keep);
 
             //std::cout << "keep[" << i << "]   " << (int)keep << std::endl;
@@ -163,8 +188,8 @@ namespace osuCrypto
             gs0[i] = (gs0[i] ^ s0[i]);
             gs1[i] = (gs1[i] ^ s1[i]);
         }
-        std::cout << "gs0 " << gs0[0] /*<< " " << gs0[1]*/ << " = G(" << s0[0] /*<< " " << s0[1]*/ << ")" << std::endl;
-        std::cout << "gs1 " << gs1[0] /*<< " " << gs1[1]*/ << " = G(" << s1[0] /*<< " " << s1[1]*/ << ")" << std::endl;
+        //std::cout << "gs0 " << gs0[0] /*<< " " << gs0[1]*/ << " = G(" << s0[0] /*<< " " << s0[1]*/ << ")" << std::endl;
+        //std::cout << "gs1 " << gs1[0] /*<< " " << gs1[1]*/ << " = G(" << s1[0] /*<< " " << s1[1]*/ << ")" << std::endl;
         for (u64 i = 0; i < g0.size(); ++i)
         {
             gs0[i] = gs0[i] ^ gs1[i];

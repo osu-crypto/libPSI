@@ -24,7 +24,9 @@ void BgiPir_keyGen_test()
             std::vector<block> k0(depth + 1), k1(depth + 1);
             std::vector<block> g0(groupBlkSize), g1(groupBlkSize);
 
-            BgiPirClient::keyGen(i, toBlock(seed), k0, g0, k1, g1);
+            span<u8> ib((u8*)&i, sizeof(u64));
+
+            BgiPirClient::keyGen(ib, toBlock(seed), k0, g0, k1, g1);
 
             //for (u64 i = 0; i < k0.size(); ++i) std::cout << k0[i] << std::endl;
             //for (u64 i = 0; i < g0.size(); ++i) std::cout << g0[i] << std::endl;
@@ -37,10 +39,11 @@ void BgiPir_keyGen_test()
             for (u64 j = 0; j < domain; ++j)
             {
 
+                span<u8> jb((u8*)&j, sizeof(u64));
 
 
-                auto b0 = BgiPirServer::evalOne(j, k0, g0);
-                auto b1 = BgiPirServer::evalOne(j, k1, g1);
+                auto b0 = BgiPirServer::evalOne(jb, k0, g0);
+                auto b1 = BgiPirServer::evalOne(jb, k1, g1);
 
                 //std::cout << i << (i == j ? "*" : " ") << " " << (b0 ^ b1) << std::endl;
 

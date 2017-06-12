@@ -53,8 +53,8 @@ namespace osuCrypto
         // power of 2
         u64 numLeafBlocks = (mCuckooParams.numBins() + 127) / 128;
         u64 gDepth = 2;
-        u64 kDepth = log2floor(numLeafBlocks) - gDepth;
-        u64 groupSize = (numLeafBlocks + (1 << kDepth)) / (1 << kDepth);
+        u64 kDepth = std::max<u64>(gDepth, log2floor(numLeafBlocks)) - gDepth;
+        u64 groupSize = (numLeafBlocks + (1 << kDepth) - 1) / (1 << kDepth);
         if (groupSize > 8) throw     std::runtime_error(LOCATION);
 
         BgiPirClient pir;
@@ -121,13 +121,12 @@ namespace osuCrypto
 		else 
 			std::cout << "no intersection." << std::endl;*/
 
+        mIntersection.reserve(mPsi.mIntersection.size());
 		for (u64 i = 0; i < mPsi.mIntersection.size(); ++i) {
 			//std::cout << mPsi.mIntersection[i] / mCuckooParams.mNumHashes << std::endl;
 			// divide index by #hashes			
-			mPsi.mIntersection[i] /= mCuckooParams.mNumHashes; 
+            mIntersection.emplace(mPsi.mIntersection[i] / mCuckooParams.mNumHashes);
 		}
-		        
-		mIntersection = mPsi.mIntersection;
 
     }
 }

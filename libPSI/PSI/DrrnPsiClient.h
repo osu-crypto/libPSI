@@ -4,6 +4,7 @@
 #include <cryptoTools/Network/Channel.h>
 #include <libOTe/NChooseOne/Kkrt/KkrtNcoOtReceiver.h>
 #include <libPSI/PSI/KkrtPsiReceiver.h>
+#include <unordered_set>
 namespace osuCrypto
 {
 
@@ -21,7 +22,7 @@ namespace osuCrypto
         KkrtPsiReceiver mPsi;
 
         u64 mClientSetSize, mServerSetSize, mNumBins;
-		std::vector<u64> mIntersection;
+		std::unordered_set<u64> mIntersection;
         KkrtNcoOtReceiver otRecv;
         block mHashingSeed;
     };

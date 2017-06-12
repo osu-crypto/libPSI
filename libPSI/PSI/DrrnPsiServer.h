@@ -12,7 +12,7 @@ namespace osuCrypto
     {
     public:
 
-        void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed);
+        void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1);
 
         void send(Channel clientChl, Channel srvChl, span<block> inputs);
 
@@ -21,7 +21,7 @@ namespace osuCrypto
         PRNG mPrng;
         KkrtPsiSender mPsi;
 
-        u64 mClientSetSize, mServerSetSize;
+        u64 mClientSetSize, mServerSetSize, mNumBins, mBinSize;
         u8 mServerId;
         block mHashingSeed;
     };

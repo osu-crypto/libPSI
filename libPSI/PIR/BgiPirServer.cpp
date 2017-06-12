@@ -1,7 +1,7 @@
 #include "BgiPirServer.h"
 #include <cryptoTools/Crypto/PRNG.h>
 #include <cryptoTools/Common/Matrix.h>
-
+#include <libPSI/PIR/BgiPirClient.h>
 namespace osuCrypto
 {
 
@@ -49,12 +49,18 @@ namespace osuCrypto
         chan.send(&sum, sizeof(block));
     }
 
-    u8 BgiPirServer::evalOne(u64 idx, span<block> k, span<block> g, block* bb, block* ss, u8* tt)
+    u8 BgiPirServer::evalOne(span<u8> idx, span<block> k, span<block> g, block* bb, block* ss, u8* tt)
     {
+        return  evalOne(BgiPirClient::bytesToUint128_t(idx), k, g, bb, ss, tt);
+    }
+
+    u8 BgiPirServer::evalOne(uint128_t idx, span<block> k, span<block> g, block* bb, block* ss, u8* tt)
+    {
+
         // static const std::array<block, 2> zeroOne{ZeroBlock, OneBlock};
         u64 kDepth = k.size() - 1;
-        u64 kIdx = idx / (g.size() * 128);
-        u64 gIdx = idx % (g.size() * 128);
+        auto kIdx = idx / (g.size() * 128);
+        u64 gIdx = static_cast<u64>(idx % (g.size() * 128));
         u64 byteIdx = gIdx % 16 + 16 * (gIdx / 128);
         u64 bitIdx = (gIdx % 128) / 16;
         //std::cout << "s         " << stt(s) << std::endl;
@@ -112,13 +118,13 @@ namespace osuCrypto
         //return ret;
     }
 
-    block BgiPirServer::traversePath(u64 depth, u64 idx, span<block> k)
+    block BgiPirServer::traversePath(u64 depth, uint128_t idx, span<block> k)
     {
         block s = k[0];
 
         for (u64 i = 0, shift = depth - 1; i < depth; ++i, --shift)
         {
-            const u8 keep = (idx >> shift) & 1;
+            const u8 keep = static_cast<u8>(idx >> shift) & 1;
             s = traverseOne(s, k[i + 1], keep);
 
             //if(idx == 2)std::cout << "i = " << i << " -> " << s << std::endl;
@@ -220,26 +226,26 @@ namespace osuCrypto
                     for (u64 bIdx = 0; bIdx < 128; ++bIdx)
                     {
                         sum = sum ^ (*dataIter++ & zeroAndAllOne[byteView[bIdx]]);
-//#ifndef NDEBUG
-//                        u64 byteIdx = bIdx % 16 + 16 * gIdx;
-//                        u64 bitIdx = (bIdx) / 16;
-//                        auto bit = BitIterator((u8*)gs.data() + byteIdx, bitIdx);
-//                        if (*bit != byteView[bIdx])
-//                            throw std::runtime_error(LOCATION);
-//
-//                        auto idx = dataIter - data.begin() - 1;
-//
-//                        u8 ttt;
-//                        block bbb, sss;
-//                        u8 bb = evalOne(idx, k, g,&bbb,&sss,&ttt );
-//
-//                        if (bb != byteView[bIdx])
-//                        {
-//                            std::cout << "failed at " << idx << std::endl;
-//                            //return sum;
-//                            //throw std::runtime_error(LOCATION);
-//                        }
-//#endif
+                        //#ifndef NDEBUG
+                        //                        u64 byteIdx = bIdx % 16 + 16 * gIdx;
+                        //                        u64 bitIdx = (bIdx) / 16;
+                        //                        auto bit = BitIterator((u8*)gs.data() + byteIdx, bitIdx);
+                        //                        if (*bit != byteView[bIdx])
+                        //                            throw std::runtime_error(LOCATION);
+                        //
+                        //                        auto idx = dataIter - data.begin() - 1;
+                        //
+                        //                        u8 ttt;
+                        //                        block bbb, sss;
+                        //                        u8 bb = evalOne(idx, k, g,&bbb,&sss,&ttt );
+                        //
+                        //                        if (bb != byteView[bIdx])
+                        //                        {
+                        //                            std::cout << "failed at " << idx << std::endl;
+                        //                            //return sum;
+                        //                            //throw std::runtime_error(LOCATION);
+                        //                        }
+                        //#endif
                     }
 
                 }
