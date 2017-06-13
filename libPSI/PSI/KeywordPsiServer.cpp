@@ -15,7 +15,7 @@ namespace osuCrypto
 		if (inputs.size() != mServerSetSize) {
 			throw std::runtime_error(LOCATION);
 		}
-
+        block hashingSeed = ZeroBlock;
 		//u64 numLeafBlocksPerBin = ((1 << ((sizeof(block)*8) - 1)) + 127) / 128;
 		//    u64 gDepth = 2;
 		//    u64 kDepth = std::max<u64>(gDepth, log2floor(numLeafBlocksPerBin)) - gDepth;
@@ -24,8 +24,13 @@ namespace osuCrypto
 		//    std::vector<block> pirData((1 << kDepth) * groupSize * 128);
 
 		//	std::cout << kDepth << " " << groupSize << std::endl;
-		
-        u64 inputByteCount = sizeof(block);
+        auto ssp(40);
+        u64 inputByteCount = (ssp + log2ceil(mClientSetSize * mServerSetSize) + 7) / 8;
+        AES hasher(hashingSeed);
+        std::vector<block> hashes(inputs.size());
+        hasher.ecbEncBlocks(inputs.data(), inputs.size(), hashes.data());
+        for (u64 i = 0; i < inputs.size(); ++i) hashes[i] = hashes[i] ^ inputs[i];
+
 		u64 groupSize = 5;
 		u64 kDepth = (inputByteCount  * 8) - log2floor(128 * groupSize);
 
@@ -46,7 +51,7 @@ namespace osuCrypto
 			u8 sum = 0;
 			for (u64 j = 0; j < inputs.size(); ++j)
 			{
-				span<u8> ss((u8*)&inputs[j], inputByteCount);
+				span<u8> ss((u8*)&hashes[j], inputByteCount);
                 auto bit = BgiPirServer::evalOne(ss, kk, g);
 
 				sum = sum ^ bit;

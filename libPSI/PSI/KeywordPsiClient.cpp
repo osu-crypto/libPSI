@@ -1,5 +1,6 @@
 #include "KeywordPsiClient.h"
 #include <cryptoTools/Common/BitVector.h>
+#include <cryptoTools/Common/Matrix.h>
 namespace osuCrypto
 {
     void KeywordPsiClient::init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed)
@@ -15,6 +16,7 @@ namespace osuCrypto
             throw std::runtime_error(LOCATION);
         }
 
+        block hashingSeed = ZeroBlock;
         // power of 2
         //u64 numLeafBlocks = (mCuckooParams.numBins() + 127) / 128;
         //u64 gDepth = 2;
@@ -24,7 +26,15 @@ namespace osuCrypto
 
         //std::cout << kDepth << " " << groupSize << std::endl;
 
-        u64 inputByteCount = sizeof(block);
+        //std::vector<
+        auto ssp(40);
+        u64 inputByteCount = (ssp + log2ceil(mClientSetSize * mServerSetSize) + 7)/ 8;
+        AES hasher(hashingSeed);
+        std::vector<block> hashes(inputs.size());
+        hasher.ecbEncBlocks(inputs.data(), inputs.size(), hashes.data());
+        for (u64 i = 0; i < inputs.size(); ++i) hashes[i] = hashes[i] ^ inputs[i];
+
+
         u64 groupSize = 5;
         u64 kDepth = (inputByteCount * 8) - log2floor(128 * groupSize);
 
@@ -44,7 +54,7 @@ namespace osuCrypto
                 g1(k1.data() + kDepth + 1, groupSize);
 
 
-            span<u8> idx((u8*)&inputs[i], inputByteCount);
+            span<u8> idx((u8*)&hashes[i], inputByteCount);
             pir.keyGen(idx, mPrng.get<block>(), kk0, g0, kk1, g1);
 
             s0.asyncSend(std::move(k0));
