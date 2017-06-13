@@ -21,7 +21,7 @@ namespace osuCrypto
         PRNG mPrng;
         KkrtPsiSender mPsi;
 
-        u64 mClientSetSize, mServerSetSize, mNumBins, mBinSize;
+        u64 mClientSetSize, mServerSetSize, mNumSimpleBins, mBinSize;
         u8 mServerId;
         block mHashingSeed;
     };

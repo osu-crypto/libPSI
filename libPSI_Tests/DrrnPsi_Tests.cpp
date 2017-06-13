@@ -76,7 +76,7 @@ void Psi_drrn_SingletonSet_Test_Impl()
 {
 	setThreadName("client");
 	u64 psiSecParam = 40;
-	u64 clientSetSize = 128;
+	u64 clientSetSize = 20;
 	u64 srvSetSize = 1 << 12;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
@@ -93,7 +93,8 @@ void Psi_drrn_SingletonSet_Test_Impl()
 		srvSet[i] = prng1.get<block>();
 	}
 
-	clientSet[5] = srvSet[23];
+    u64 intersectIdx = 0;
+	clientSet[intersectIdx] = srvSet[0];
 
 	IOService ios(0);
 	Endpoint epcs0(ios, "localhost", EpMode::Server, "cs0");
@@ -127,7 +128,12 @@ void Psi_drrn_SingletonSet_Test_Impl()
 	s0thrd.join();
 	s1thrd.join();
 	
-	if (client.mIntersection.size() != 1 || *client.mIntersection.begin() != 5) {
+	if (client.mIntersection.size() != 1 || *client.mIntersection.begin() != intersectIdx) {
+        std::cout << "size " << client.mIntersection.size() << std::endl;
+        if (client.mIntersection.size())
+        {
+            std::cout << *client.mIntersection.begin() << " != " << intersectIdx << std::endl;
+        }
 		throw UnitTestFail();
 	}
 }

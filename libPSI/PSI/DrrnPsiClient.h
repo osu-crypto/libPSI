@@ -5,6 +5,9 @@
 #include <libOTe/NChooseOne/Kkrt/KkrtNcoOtReceiver.h>
 #include <libPSI/PSI/KkrtPsiReceiver.h>
 #include <unordered_set>
+#include <libPSI/Tools/SimpleIndex.h>
+
+
 namespace osuCrypto
 {
 
@@ -18,10 +21,13 @@ namespace osuCrypto
 
         PRNG mPrng;
         CuckooParam mCuckooParams;
-        
+
+        //Matr
+        //SimpleIndex mSimpleIndex;
+
         KkrtPsiReceiver mPsi;
 
-        u64 mClientSetSize, mServerSetSize, mNumBins;
+        u64 mClientSetSize, mServerSetSize, mNumSimpleBins, mBinSize;
 		std::unordered_set<u64> mIntersection;
         KkrtNcoOtReceiver otRecv;
         block mHashingSeed;

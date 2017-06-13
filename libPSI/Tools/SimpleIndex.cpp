@@ -111,13 +111,13 @@ namespace osuCrypto
     }
 
 
-    void SimpleIndex::init(u64 numBins, u64 simpleSize, u64 statSecParam, u64 numHashFunction)
+    void SimpleIndex::init(u64 numBins, u64 numBalls, u64 statSecParam, u64 numHashFunction)
     {
         mNumHashFunctions = numHashFunction;
-        mMaxBinSize = get_bin_size(numBins, simpleSize * numHashFunction, statSecParam);
+        mMaxBinSize = get_bin_size(numBins, numBalls * numHashFunction, statSecParam);
         mBins.resize(numBins, mMaxBinSize);
         mBinSizes.resize(numBins, 0);
-        mItemToBinMap.resize(simpleSize, numHashFunction);
+        mItemToBinMap.resize(numBalls, numHashFunction);
     }
 
 
