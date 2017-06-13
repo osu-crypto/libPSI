@@ -38,6 +38,7 @@ struct LaunchParams
     u64 mVerbose;
     u64 mTrials;
     u64 mStatSecParam;
+    u64 mIdx;
 };
 
 

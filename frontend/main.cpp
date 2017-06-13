@@ -11,7 +11,7 @@ using namespace osuCrypto;
 #include "dcwMain.h"
 #include "dktMain.h"
 #include "OtBinMain.h"
-
+#include "DrrnPSIMain.h"
 #include "util.h"
 #include "signalHandle.h"
 
@@ -39,6 +39,7 @@ rr17aSMTags{ "rr17a-sm" },
 rr17bTags{ "rr17b" },
 rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
+drrnTag{ "drrn" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -54,11 +55,13 @@ binScalerTag{ "s", "binScaler" };
 
 bool firstRun(true);
 
+std::function<void(LaunchParams&)> NoOp;
+
 void run(
-    std::function<void(LaunchParams&)> recvProtol,
-    std::function<void(LaunchParams&)> sendProtol,
     std::vector<std::string> tag,
-    CLP& cmd)
+    CLP& cmd,
+    std::function<void(LaunchParams&)> recvProtol,
+    std::function<void(LaunchParams&)> sendProtol)
 {
 
     LaunchParams params;
@@ -92,7 +95,8 @@ void run(
 
         if (cmd.hasValue(roleTag))
         {
-            auto mode = cmd.get<u32>(roleTag) ? EpMode::Server : EpMode::Client;
+            params.mIdx = cmd.get<u32>(roleTag);
+            auto mode = params.mIdx ? EpMode::Server : EpMode::Client;
             Endpoint ep(ios, "localhost", 1213, mode, "none");
             params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
@@ -204,213 +208,9 @@ void pingTest(CLP& cmd)
 
     ios.stop();
 }
-//
-//void com()
-//{
-//    std::vector<int> COMMS{
-//        3616,          33792,
-//         6328 ,         16896      ,
-//         12656,   8448          ,
-//         3164 ,         16896      ,
-//         4068 ,     8448          ,
-//         6780 ,     4224          ,
-//         1808 ,         16896      ,
-//         3616 ,     8448          ,
-//         7232 ,     4224          ,
-//         1134 ,     8448          ,
-//         1890 ,     4224          ,
-//         3402 ,     2178          ,
-//         2268 ,     2112          ,
-//         3024 ,         1056      ,
-//         6048 ,         528      ,
-//         756 ,     2112          ,
-//         1512 ,         1056      ,
-//         3024 ,         528
-//    };
-//
-//    std::vector<char> data(40 * 1000 * 1000);
-//
-//    IOService ios;
-//    Endpoint ep0(ios, "localhost", EpMode::Client, "s");
-//    Endpoint ep1(ios, "localhost", EpMode::Server, "s");
-//
-//    auto c0 = ep0.addChannel("c");
-//    auto c1 = ep1.addChannel("c");
-//    c0.waitForConnection();
-//    c1.waitForConnection();
-//
-//    Timer t;
-//    for (u64 i = 0; i < COMMS.size(); i += 2)
-//    {
-//        auto s = t.setTimePoint("s");
-//
-//        c0.asyncSend(data.data(), COMMS[i] * 1000);
-//        c1.recv(data.data(), COMMS[i] * 1000);
-//        auto m = t.setTimePoint("m");
-//        c1.asyncSend(data.data(), COMMS[i + 1] * 1000);
-//        c0.recv(data.data(), COMMS[i + 1] * 1000);
-//
-//        auto e = t.setTimePoint("e");
-//
-//        auto total = std::chrono::duration_cast<std::chrono::milliseconds>(e - s).count();
-//        std::cout << COMMS[i] * 1000 << " " << COMMS[i + 1] * 1000 << " " << total
-//            //<< " = "
-//            //<< std::chrono::duration_cast<std::chrono::milliseconds>(m - s).count() 
-//            //<< " + " << std::chrono::duration_cast<std::chrono::milliseconds>(e - m).count() 
-//            //<< "        " << int((c0.getTotalDataSent() + c1.getTotalDataSent() ) / (total / 1000.0)  * 8)<< " bps   "
-//            //<< "   " << c0.getTotalDataSent()<<" + "<<c1.getTotalDataSent()  << " bytes "
-//            << std::endl;
-//
-//        c0.resetStats();
-//        c1.resetStats();
-//    }
-//}
-//
-//
-//void niave(int n)
-//{
-//    IOService ios;
-//    Endpoint ep0(ios, "localhost", EpMode::Server, "s");
-//    Endpoint ep1(ios, "localhost", EpMode::Client, "s");
-//    auto chl0 = ep0.addChannel("s");
-//    auto chl1 = ep1.addChannel("s");
-//
-//
-//    Timer t;
-//    t.setTimePoint("s");
-//    std::vector<block> data1(n), data2(n), recvBuff;
-//
-//    auto thrd = std::thread([&]() {
-//
-//
-//        PRNG prng(ZeroBlock);
-//        std::random_shuffle(data1.begin(), data1.end(), prng);
-//
-//        for (u64 i = 0; i < data1.size(); ++i)
-//        {
-//            SHA1 sha;
-//            sha.Update(data1[i]);
-//
-//            u8 buff[SHA1::HashSize];
-//            sha.Final(buff);
-//
-//            data1[i] = *(block*)buff;
-//        }
-//
-//        chl0.asyncSend(std::move(data1));
-//
-//    });
-//
-//
-//
-//    std::unordered_map<u64, u64> map(n);
-//    for (u64 i = 0; i < data2.size(); ++i)
-//    {
-//        SHA1 sha;
-//        sha.Update(data2[i]);
-//
-//        u8 buff[SHA1::HashSize];
-//        sha.Final(buff);
-//
-//        map.insert({ *(u64*)buff, i });
-//    }
-//
-//    chl1.recv(recvBuff);
-//
-//    std::vector<u64> intersection; intersection.reserve(n);
-//    for (u64 i = 0; i < n; ++i)
-//    {
-//        u64 key = *(u64*)&recvBuff[i];
-//
-//        auto iter = map.find(key);
-//
-//        if (iter != map.end())
-//        {
-//            if (eq(data2[iter->second], recvBuff[i]))
-//            {
-//                intersection.emplace_back(i);
-//            }
-//        }
-//    }
-//
-//    t.setTimePoint("s");
-//
-//    thrd.join();
-//    std::cout << t << std::endl;
-//
-//    std::cout << "comm " << chl0.getTotalDataRecv() + chl0.getTotalDataSent() << std::endl;
-//}
-
-
-void pir()
-{
-
-    for (u64 j = 8; j <= 8; j *= 2)
-    {
-
-        u64 depth = 19 - log2floor(j), groupBlkSize = j;
-        u64 domain = (1 << depth) * groupBlkSize * 128;
-
-        std::cout << j << " " << domain << std::endl;
-
-        std::vector<block> data(domain);
-        for (u64 i = 0; i < data.size(); ++i)
-            data[i] = toBlock(i);
-
-
-
-        std::vector<block> k0(depth + 1), k1(depth + 1);
-        std::vector<block> g0(groupBlkSize), g1(groupBlkSize);
-
-
-
-        u64 i = 0;// 1024;
-        BgiPirClient::keyGen(i, toBlock(i), k0, g0, k1, g1);
-
-        //std::cout << "---------------------------------------------------" << std::endl;
-        //for (u64 j = 0; j < data.size(); ++j)
-        //{
-        //    std::cout << int(BgiPirServer::evalOne(j, k0, g0) & 1);
-        //}
-        //std::cout << std::endl;
-        //for (u64 j = 0; j < data.size(); ++j)
-        //{
-        //    std::cout << int(BgiPirServer::evalOne(j, k1, g1) & 1);
-        //}
-        //std::cout << std::endl;
-        //std::cout << "---------------------------------------------------" << std::endl;
-        //for (u64 k = 0; k < 10; ++k)
-        //{
-
-            Timer t;
-            t.setTimePoint("start");
-            auto b0 = BgiPirServer::fullDomain(data, k0, g0);
-            t.setTimePoint("mid");
-            auto b1 = BgiPirServer::fullDomain(data, k1, g1);
-            t.setTimePoint("end");
-
-            std::cout << t << std::endl;
-        //}
-        //if (neq(b0 ^ b1, data[i]))
-        //{
-        //    std::cout << i << "  " << (b0^b1) << "(" << b0 << " ^ " << b1 << ")" << std::endl;
-        //    //throw std::runtime_error(LOCATION);
-        //}
-
-
-    }
-}
 
 int main(int argc, char** argv)
 {
-    //pir();
-    //return 0;
-    //com();
-    //simpleTest(argc,argv);
-
-    //if(argc == 1)
-    //    return 0;
-    //niave(1048576);
 
     backtraceHook();
 
@@ -445,13 +245,14 @@ int main(int argc, char** argv)
     run(DcwRecv, DcwSend, DcwTags, cmd);
     run(DcwRRecv, DcwRSend, DcwrTags, cmd);
 #endif
-    run(bfRecv, bfSend, rr16Tags, cmd);
-    run(rr17aRecv, rr17aSend, rr17aTags, cmd);
-    run(rr17aRecv_StandardModel, rr17aSend_StandardModel, rr17aSMTags, cmd);
-    run(rr17bRecv, rr17bSend, rr17bTags, cmd);
-    run(rr17bRecv_StandardModel, rr17bSend_StandardModel, rr17bSMTags, cmd);
-    run(DktRecv, DktSend, dktTags, cmd);
-    run(kkrtRecv, kkrtSend, kkrtTag, cmd);
+    run(rr16Tags, cmd, bfRecv, bfSend);
+    run(rr17aTags, cmd, rr17aRecv, rr17aSend);
+    run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
+    run(rr17bTags, cmd, rr17bRecv, rr17bSend);
+    run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
+    run(dktTags, cmd, DktRecv, DktSend);
+    run(kkrtTag, cmd, kkrtRecv, kkrtSend);
+    //run(drrnTag, cmd, Drrn17Recv, Drrn17Send, Drrn17Send);
 
 
     if ((cmd.isSet(unitTestTags) == false &&
@@ -465,6 +266,7 @@ int main(int argc, char** argv)
         cmd.isSet(rr17bTags) == false &&
         cmd.isSet(rr17bSMTags) == false &&
         cmd.isSet(kkrtTag) == false &&
+        cmd.isSet(drrnTag) == false &&
         cmd.isSet(dktTags) == false &&
         cmd.isSet(pingTag) == false) ||
         cmd.isSet(helpTags))
@@ -488,7 +290,8 @@ int main(int argc, char** argv)
             << "   -" << rr17aSMTags[0] << ": RR17sm - Hash to bins & compare style (standard model malicious secure)\n"
             << "   -" << rr17bTags[0] << ": RR17b  - Hash to bins & commit compare style (malicious secure)\n"
             << "   -" << dktTags[0] << "  : DKT12  - Public key style (malicious secure)\n"
-            << "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure)\n" << std::endl;
+            << "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure)\n"
+            << "   -" << drrnTag[0] << "  : DRRN17  - Two server PIR style (semi-honest secure)\n" << std::endl;
 
         std::cout << "Parameters:\n"
             << "   -" << roleTag[0]
