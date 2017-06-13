@@ -23,14 +23,17 @@ struct LaunchParams
     {
     }
 
-    std::vector<Channel> getChannels(u64 n)
-    {
+    std::vector<Channel> getChannels(u64 n) {
         return  std::vector<Channel>( mChls.begin(), mChls.begin() + n);
     }
 
+    std::vector<Channel> getChannels2(u64 n) {
+        return  std::vector<Channel>(mChls2.begin(), mChls2.begin() + n);
+    }
+
     std::string mHostName;
-    std::vector<Channel> mChls;
-    std::vector<u64> mNumItems;
+    std::vector<Channel> mChls, mChls2;
+    std::vector<u64> mNumItems, mNumItems2;
     std::vector<u64> mNumThreads;
     std::vector<double> mBinScaler;
 
@@ -57,6 +60,8 @@ void printTimings(
     LaunchParams & params,
     const osuCrypto::u64 &setSize,
     const osuCrypto::u64 &numThreads,
-    int s = 1);
+    int s = 1,
+    std::vector<osuCrypto::Channel>* chls2 = nullptr, 
+    u64 n2  = -1);
 
 void printHeader();

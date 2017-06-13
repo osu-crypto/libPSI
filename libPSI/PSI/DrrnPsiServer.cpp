@@ -152,10 +152,10 @@ namespace osuCrypto
                 shares[j] = shares[j] ^ otherShare[j];
             }
 
-            for (u64 i = 0; i < shares.size(); ++i)
-            {
-                std::cout << "sshare[" << i << "] = " << shares[i] << std::endl;
-            }
+            //for (u64 i = 0; i < shares.size(); ++i)
+            //{
+            //    std::cout << "sshare[" << i << "] = " << shares[i] << std::endl;
+            //}
             mPsi.sendInput(shares, clientChl);
         }
     }

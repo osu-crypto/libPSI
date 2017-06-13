@@ -19,43 +19,37 @@ void Drrn17Send(
     LaunchParams& params)
 {
     setThreadName("CP_Test_Thread");
-
+    u8 dummy[1];
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
-    for (auto setSize : params.mNumItems)
+    for (auto clientSetSize : params.mNumItems)
     {
-        for (auto cc : params.mNumThreads)
+
+        for (auto serverSetSize : params.mNumItems2)
         {
-            std::vector<Channel> sendChls = params.getChannels(cc);
-
-            for (auto ss : params.mBinScaler)
+            //for (auto cc : params.mNumThreads)
             {
-                for (u64 jj = 0; jj < params.mTrials; jj++)
+                std::vector<Channel> clientChls = params.getChannels(1);
+                std::vector<Channel> serverChls = params.getChannels2(1);
+
+                for (auto ss : params.mBinScaler)
                 {
-                    //std::vector<block> set(setSize);
-                    //prng.get(set.data(), set.size());
+                    for (u64 jj = 0; jj < params.mTrials; jj++)
+                    {
+                        std::vector<block> set(serverSetSize);
+                        prng.get(set.data(), set.size());
 
+                        //clientChls[0].asyncSend(dummy, 1);
+                        //clientChls[0].recv(dummy, 1);
 
-                    //sendChls[0].asyncSend(dummy, 1);
-                    //sendChls[0].recv(dummy, 1);
+                        if (params.mIdx < 1 || params.mIdx > 2) throw std::runtime_error("server index must be 1 or 2");
 
-                    //sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), ss, params.mBitSize);
-
-                    //sendChls[0].asyncSend(dummy, 1);
-                    //sendChls[0].recv(dummy, 1);
-
-                    //sendPSIs.sendInput(set, sendChls);
-
-                    //u64 dataSent = 0;
-                    //for (u64 g = 0; g < sendChls.size(); ++g)
-                    //{
-                    //    dataSent += sendChls[g].getTotalDataSent();
-                    //}
-
-                    //for (u64 g = 0; g < sendChls.size(); ++g)
-                    //    sendChls[g].resetStats();
+                        DrrnPsiServer srv;
+                        srv.init(params.mIdx - 1, clientChls[0], serverChls[0], serverSetSize, clientSetSize, ZeroBlock, ss);
+                        srv.send(clientChls[0], serverChls[0], set);
+                    }
                 }
             }
         }
@@ -73,64 +67,42 @@ void Drrn17Recv(
 
     if (params.mVerbose) std::cout << "\n";
 
-    for (auto setSize : params.mNumItems)
+    for (auto clientSetSize : params.mNumItems)
     {
-        for (auto numThreads : params.mNumThreads)
+
+        for (auto serverSetSize : params.mNumItems2)
         {
-            auto chls = params.getChannels(numThreads);
-
-
-            for (auto ss : params.mBinScaler)
+        //for (auto numThreads : params.mNumThreads)
             {
-                for (u64 jj = 0; jj < params.mTrials; jj++)
+                auto s0 = params.getChannels(1);
+                auto s1 = params.getChannels2(1);
+
+                for (auto ss : params.mBinScaler)
                 {
-//                    std::string tag("Drrn17");
-//
-//                    std::vector<block> sendSet(setSize), recvSet(setSize);
-//                    for (u64 i = 0; i < setSize; ++i)
-//                    {
-//                        sendSet[i] = recvSet[i] = prng.get<block>();
-//                    }
-//
-//
-//#ifdef OOS
-//                    OosNcoOtReceiver otRecv;
-//                    OosNcoOtSender   otSend;
-//#else
-//                    KkrtNcoOtReceiver otRecv;
-//                    KkrtNcoOtSender otSend;
-//#endif
-//                    Rr17aMPsiReceiver recvPSIs;
-//
-//
-//                    chls[0].recv(dummy, 1);
-//                    gTimer.reset();
-//                    chls[0].asyncSend(dummy, 1);
-//
-//
-//
-//                    Timer timer;
-//
-//                    auto start = timer.setTimePoint("start");
-//
-//                    recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), ss, params.mBitSize);
-//
-//                    chls[0].asyncSend(dummy, 1);
-//                    chls[0].recv(dummy, 1);
-//                    auto mid = timer.setTimePoint("init");
-//
-//
-//                    recvPSIs.sendInput(recvSet, chls);
-//
-//
-//                    auto end = timer.setTimePoint("done");
-//
-//                    auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
-//                    auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
-//
-//                    //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
-//
-//                    printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads, ss);
+                    for (u64 jj = 0; jj < params.mTrials; jj++)
+                    {
+                        std::string tag("Drrn ");
+
+                        std::vector<block> recvSet(clientSetSize);
+                        prng.get(recvSet.data(), recvSet.size());
+
+                        Timer timer;
+                        auto start = timer.setTimePoint("start");
+                        DrrnPsiClient client;
+                        client.init(s0[0], s1[0], serverSetSize, clientSetSize, ZeroBlock, ss);
+
+                        auto mid = timer.setTimePoint("online");
+
+                        client.recv(s0[0], s1[0], recvSet);
+                        auto end = timer.setTimePoint("done");
+
+                        auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+                        auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
+
+                        //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
+
+                        printTimings(tag, s0, offlineTime, onlineTime, params, clientSetSize, 1, ss, &s1, serverSetSize);
+                    }
                 }
             }
         }

@@ -246,7 +246,9 @@ void printTimings(
     LaunchParams & params,
     const osuCrypto::u64 &setSize,
     const osuCrypto::u64 &numThreads,
-    int s)
+    int s,
+    std::vector<osuCrypto::Channel>* chls2, 
+    u64 n2)
 {
     u64 dataSent = 0, dataRecv(0);
     for (u64 g = 0; g < chls.size(); ++g)
@@ -254,6 +256,14 @@ void printTimings(
         dataSent += chls[g].getTotalDataSent();
         dataRecv += chls[g].getTotalDataRecv();
         chls[g].resetStats();
+
+        if (chls2)
+        {
+            dataSent += (*chls2)[g].getTotalDataSent();
+            dataRecv += (*chls2)[g].getTotalDataRecv();
+            (*chls2)[g].resetStats();
+        }
+
     }
 
     // mico seconds
@@ -281,7 +291,7 @@ void printTimings(
     else
     {
         std::cout << std::setw(6) << tag
-            << std::setw(8) << setSize
+            << std::setw(8) << (std::to_string(setSize) + (n2 == -1? "" : "vs"+std::to_string(n2)))
             << std::setw(10) << (ToString(numThreads) + " " + ToString(s))
             << std::setw(14) << (offlineTime + onlineTime)
             << std::setw(14) << onlineTime

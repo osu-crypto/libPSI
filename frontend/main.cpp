@@ -44,7 +44,9 @@ dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
 numItems{ "n","numItems" },
+numItems2{ "n2","srvNumItems" },
 powNumItems{ "nn","powNumItems" },
+powNumItems2{ "nn2","srvPowNumItems" },
 verboseTags{ "v", "verbose" },
 trialsTags{ "trials" },
 roleTag{ "r", "role" },
@@ -57,45 +59,160 @@ bool firstRun(true);
 
 std::function<void(LaunchParams&)> NoOp;
 
-void run(
+
+void runPir(
     std::vector<std::string> tag,
     CLP& cmd,
     std::function<void(LaunchParams&)> recvProtol,
     std::function<void(LaunchParams&)> sendProtol)
 {
 
-    LaunchParams params;
-
-    params.mNumThreads = cmd.getMany<u64>(numThreads);
-    params.mVerbose = cmd.get<u64>(verboseTags);
-    params.mTrials = cmd.get<u64>(trialsTags);
-    params.mHostName = cmd.get<std::string>(hostNameTag);
-    params.mBitSize = cmd.get<u64>(bitSizeTag);
-    params.mBinScaler = cmd.getMany<double>(binScalerTag);
-
-
-    if (cmd.isSet(powNumItems))
-    {
-        params.mNumItems = cmd.getMany<u64>(powNumItems);
-        std::transform(
-            params.mNumItems.begin(),
-            params.mNumItems.end(),
-            params.mNumItems.begin(),
-            [](u64 v) { return 1 << v; });
-    }
-    else
-    {
-        params.mNumItems = cmd.getMany<u64>(numItems);
-    }
-
     if (cmd.isSet(tag))
     {
+        LaunchParams params;
+        params.mNumThreads = cmd.getMany<u64>(numThreads);
+        params.mVerbose = cmd.get<u64>(verboseTags);
+        params.mTrials = cmd.get<u64>(trialsTags);
+        params.mHostName = cmd.get<std::string>(hostNameTag);
+        params.mBitSize = cmd.get<u64>(bitSizeTag);
+        params.mBinScaler = cmd.getMany<double>(binScalerTag);
+
+        if (cmd.isSet(powNumItems)) {
+            params.mNumItems = cmd.getMany<u64>(powNumItems);
+            std::transform(
+                params.mNumItems.begin(),
+                params.mNumItems.end(),
+                params.mNumItems.begin(),
+                [](u64 v) { return 1 << v; });
+        }
+        else {
+            params.mNumItems = cmd.getMany<u64>(numItems);
+        }
+        if (cmd.isSet(powNumItems2)) {
+            params.mNumItems2 = cmd.getMany<u64>(powNumItems2);
+            std::transform(
+                params.mNumItems2.begin(),
+                params.mNumItems2.end(),
+                params.mNumItems2.begin(),
+                [](u64 v) { return 1 << v; });
+        }
+        else {
+            params.mNumItems2 = cmd.getMany<u64>(numItems2);
+        }
+
         IOService ios(0);
 
+        auto go = [&](LaunchParams& params)
+        {
+            EpMode m1, m2;
+            std::string n1, n2;
+            if (params.mIdx == 0)
+            {
+                m1 = m2 = EpMode::Client;
+                n1 = "01";
+                n2 = "02";
+            }
+            else if (params.mIdx == 1) {
+                m1 = EpMode::Server;
+                m2 = EpMode::Client;
+                n1 = "01";
+                n2 = "12";
+            }
+            else {
+                m1 = m2 = EpMode::Server;
+                n1 = "02";
+                n2 = "12";
+            }
+
+            Endpoint ep1(ios, "localhost", 1213, m1, n1);
+            Endpoint ep2(ios, "localhost", 1213, m2, n2);
+            params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
+            params.mChls2.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
+
+            for (u64 i = 0; i < params.mChls.size(); ++i) {
+                params.mChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+                params.mChls2[i] = ep2.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+            }
+
+            if (params.mIdx == 0) {
+                if (firstRun) printHeader();
+                recvProtol(params);
+            }
+            else sendProtol(params);
+
+            for (u64 i = 0; i < params.mChls.size(); ++i)
+                params.mChls[i].close();
+            ep1.stop();
+            ep2.stop();
+        };
 
         if (cmd.hasValue(roleTag))
         {
             params.mIdx = cmd.get<u32>(roleTag);
+            go(params);
+
+        }
+        else
+        {
+            if (firstRun) printHeader();
+
+            auto srv0 = std::thread([&]() {
+                auto params2 = params;
+                params2.mIdx = 1;
+                go(params2);
+            });
+            auto srv1 = std::thread([&]() {
+                auto params2 = params;
+                params2.mIdx = 2;
+                go(params2);
+            });
+
+            params.mIdx = 0;
+            go(params);
+        }
+
+        firstRun = false;
+        ios.stop();
+    }
+}
+
+
+void run(
+    std::vector<std::string> tag,
+    CLP& cmd,
+    std::function<void(LaunchParams&)> recvProtol,
+    std::function<void(LaunchParams&)> sendProtol)
+{
+    if (cmd.isSet(tag))
+    {
+        LaunchParams params;
+
+        params.mNumThreads = cmd.getMany<u64>(numThreads);
+        params.mVerbose = cmd.get<u64>(verboseTags);
+        params.mTrials = cmd.get<u64>(trialsTags);
+        params.mHostName = cmd.get<std::string>(hostNameTag);
+        params.mBitSize = cmd.get<u64>(bitSizeTag);
+        params.mBinScaler = cmd.getMany<double>(binScalerTag);
+
+
+        if (cmd.isSet(powNumItems))
+        {
+            params.mNumItems = cmd.getMany<u64>(powNumItems);
+            std::transform(
+                params.mNumItems.begin(),
+                params.mNumItems.end(),
+                params.mNumItems.begin(),
+                [](u64 v) { return 1 << v; });
+        }
+        else
+        {
+            params.mNumItems = cmd.getMany<u64>(numItems);
+        }
+
+        IOService ios(0);
+
+        auto go = [&](LaunchParams& params)
+        {
             auto mode = params.mIdx ? EpMode::Server : EpMode::Client;
             Endpoint ep(ios, "localhost", 1213, mode, "none");
             params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
@@ -118,44 +235,25 @@ void run(
                 params.mChls[i].close();
 
             ep.stop();
+        };
+
+        if (cmd.hasValue(roleTag))
+        {
+            params.mIdx = cmd.get<u32>(roleTag);
+            go(params);
         }
         else
         {
-            auto params2 = params;
             if (firstRun) printHeader();
 
             auto thrd = std::thread([&]()
             {
-                Endpoint ep(ios, "localhost", 1213, EpMode::Client, "none");
-                params2.mChls.resize(*std::max_element(params2.mNumThreads.begin(), params2.mNumThreads.end()));
-
-                for (u64 i = 0; i < params2.mChls.size(); ++i)
-                    params2.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-
-                recvProtol(params2);
-
-
-                for (u64 i = 0; i < params.mChls.size(); ++i)
-                    params2.mChls[i].close();
-                ep.stop();
-
+                auto params2 = params;
+                params2.mIdx = 1;
+                go(params2);
             });
-
-            Endpoint ep(ios, "localhost", 1213, EpMode::Server, "none");
-            params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
-
-            for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-
-            sendProtol(params);
-
-
-            for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i].close();
-
-            thrd.join();
-
-            ep.stop();
+            params.mIdx = 0;
+            go(params);
         }
 
         firstRun = false;
@@ -222,6 +320,7 @@ int main(int argc, char** argv)
 
     cmd.setDefault(numThreads, "1");
     cmd.setDefault(numItems, std::to_string(1 << 8));
+    cmd.setDefault(numItems2, std::to_string(1 << 8));
     //cmd.setDefault(verboseTags, "0");
     cmd.setDefault(trialsTags, "1");
     cmd.setDefault(bitSizeTag, "-1");
@@ -252,7 +351,7 @@ int main(int argc, char** argv)
     run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
     run(dktTags, cmd, DktRecv, DktSend);
     run(kkrtTag, cmd, kkrtRecv, kkrtSend);
-    //run(drrnTag, cmd, Drrn17Recv, Drrn17Send, Drrn17Send);
+    runPir(drrnTag, cmd, Drrn17Recv, Drrn17Send);
 
 
     if ((cmd.isSet(unitTestTags) == false &&

@@ -142,10 +142,10 @@ namespace osuCrypto
         s1.asyncSend(&rSeed, sizeof(block));
 
         //rGen.ecbEncBlocks(enc.data(), enc.size(), enc.data());
-        for (u64 i = 0; i < shares.size(); ++i)
-        {
-            std::cout << "c " << i << " " << shares[i] << std::endl;
-        }
+        //for (u64 i = 0; i < shares.size(); ++i)
+        //{
+        //    std::cout << "c " << i << " " << shares[i] << std::endl;
+        //}
         mPsi.sendInput(shares, s0);
 
         mIntersection.reserve(mPsi.mIntersection.size());
