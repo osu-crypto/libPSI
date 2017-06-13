@@ -16,19 +16,21 @@ namespace osuCrypto
 		}
 
 		// power of 2
-		u64 numLeafBlocks = (mServerSetSize + 127) / 128;
-		u64 gDepth = 2;
-		u64 kDepth = log2floor(sizeof(block)) - gDepth;
-		u64 groupSize = (numLeafBlocks + (1 << kDepth)) / (1 << kDepth);
-		if (groupSize > 8) {
-			throw std::runtime_error(LOCATION);
-		}
+		//u64 numLeafBlocks = (mCuckooParams.numBins() + 127) / 128;
+		//u64 gDepth = 2;
+		//u64 kDepth = std::max<u64>(gDepth, log2floor(numLeafBlocks)) - gDepth;
+		//u64 groupSize = (numLeafBlocks + (1 << kDepth) - 1) / (1 << kDepth);
+		//if (groupSize > 8) throw     std::runtime_error(LOCATION);
+
+		//std::cout << kDepth << " " << groupSize << std::endl;
+
+		u64 kDepth = 119;
+		u64 groupSize = 5;
 
 		BgiPirClient pir;
 
 		u64 numQueries = mClientSetSize;
-		u8 s0r, s1r;
-
+		u8 s0r = 0, s1r = 0;
 
 		for (u64 i = 0; i < mClientSetSize; ++i)
 		{

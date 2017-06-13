@@ -16,13 +16,18 @@ namespace osuCrypto
 			throw std::runtime_error(LOCATION);
 		}
 
-		u64 numLeafBlocks = (mServerSetSize + 127) / 128;
-		u64 gDepth = 2;
-		u64 kDepth = log2floor(numLeafBlocks) - gDepth;
-		u64 groupSize = (numLeafBlocks + (1 << kDepth)) / (1 << kDepth);
-		if (groupSize > 8) throw std::runtime_error(LOCATION);
+		//u64 numLeafBlocksPerBin = ((1 << ((sizeof(block)*8) - 1)) + 127) / 128;
+		//    u64 gDepth = 2;
+		//    u64 kDepth = std::max<u64>(gDepth, log2floor(numLeafBlocksPerBin)) - gDepth;
+		//    u64 groupSize = (numLeafBlocksPerBin + (1 << kDepth) - 1) / (1 << kDepth);
+		//    if (groupSize > 8) throw     std::runtime_error(LOCATION);
+		//    std::vector<block> pirData((1 << kDepth) * groupSize * 128);
 
+		//	std::cout << kDepth << " " << groupSize << std::endl;
 		
+		u64 kDepth = 119;
+		u64 groupSize = 5;
+
 		BgiPirServer pir;
 		pir.init(kDepth, groupSize);
 
@@ -40,7 +45,8 @@ namespace osuCrypto
 
 			for (u64 j = 0; j < inputs.size(); ++j)
 			{
-			   sum = sum ^ BgiPirServer::evalOne(inputs[i].m128i_u64[0], kk, g); //TODO: change to full block, once evalOne can handle that
+				span<u8> ss((u8*)&inputs[i], sizeof(block));
+				sum = sum ^ BgiPirServer::evalOne(ss, kk, g);
 			}
 
 			clientChl.send(&sum, sizeof(u8));
