@@ -63,7 +63,7 @@ void BgiPir_keyGen_test()
 
             for (u64 j = 0; j < domain; ++j)
             {
-                span<u8> jb((u8*)&j, sizeof(u64));
+                span<u8> jb((u8*)&j, (log2ceil(domain) + 7)/ 8);
                 auto b0 = BgiPirServer::evalOne(jb, k0, g0);
                 auto b1 = BgiPirServer::evalOne(jb, k1, g1);
 
