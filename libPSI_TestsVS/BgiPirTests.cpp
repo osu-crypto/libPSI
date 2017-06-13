@@ -16,6 +16,13 @@ namespace testsVS_apollo
             InitDebugPrinting();
             BgiPir_keyGen_test();
         }
+
+        TEST_METHOD(BgiPir_keyGen_128_testVS)
+        {
+            InitDebugPrinting();
+            BgiPir_keyGen_128_test();
+        }
+
         TEST_METHOD(BgiPir_PIR_testVS)
         {
             InitDebugPrinting();

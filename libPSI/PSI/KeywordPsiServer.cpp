@@ -25,8 +25,9 @@ namespace osuCrypto
 
 		//	std::cout << kDepth << " " << groupSize << std::endl;
 		
-		u64 kDepth = 119;
+        u64 inputByteCount = sizeof(block);
 		u64 groupSize = 5;
+		u64 kDepth = (inputByteCount  * 8) - log2floor(128 * groupSize);
 
 		BgiPirServer pir;
 		pir.init(kDepth, groupSize);
@@ -35,6 +36,7 @@ namespace osuCrypto
 
 		u64 numQueries = mClientSetSize;
 
+        BitVector results(numQueries);
 		for (u64 i = 0; i < numQueries; ++i)
 		{
 			clientChl.recv(k.data(), k.size() * sizeof(block));
@@ -42,14 +44,16 @@ namespace osuCrypto
 			span<block> g(k.data() + kDepth + 1, groupSize);
 			
 			u8 sum = 0;
-
 			for (u64 j = 0; j < inputs.size(); ++j)
 			{
-				span<u8> ss((u8*)&inputs[i], sizeof(block));
-				sum = sum ^ BgiPirServer::evalOne(ss, kk, g);
-			}
+				span<u8> ss((u8*)&inputs[j], inputByteCount);
+                auto bit = BgiPirServer::evalOne(ss, kk, g);
 
-			clientChl.send(&sum, sizeof(u8));
+				sum = sum ^ bit;
+			}
+            results[i] = sum;
 		}
+
+        clientChl.asyncSend(std::move(results));
 	}
 }

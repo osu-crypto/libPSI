@@ -30,6 +30,8 @@ namespace osuCrypto
 
     BgiPirClient::uint128_t BgiPirClient::bytesToUint128_t(const span<u8>& data)
     {
+        if (data.size() > 16)  throw std::runtime_error("inputsize is too large, 128 bit max. " LOCATION);
+
         using boost::multiprecision::cpp_int;
         uint128_t idx(0);
         BitIterator bit(data.data(), 0);

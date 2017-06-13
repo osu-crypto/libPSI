@@ -77,6 +77,8 @@
   <ItemGroup>
     <ClCompile Include="PSI\DrrnPsiClient.cpp" />
     <ClCompile Include="PSI\DrrnPsiServer.cpp" />
+    <ClCompile Include="PSI\KeywordPsiClient.cpp" />
+    <ClCompile Include="PSI\KeywordPsiServer.cpp" />
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
     <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
@@ -101,6 +103,8 @@
   <ItemGroup>
     <ClInclude Include="PSI\DrrnPsiClient.h" />
     <ClInclude Include="PSI\DrrnPsiServer.h" />
+    <ClInclude Include="PSI\KeywordPsiClient.h" />
+    <ClInclude Include="PSI\KeywordPsiServer.h" />
     <ClInclude Include="PSI\KkrtPsiReceiver.h" />
     <ClInclude Include="PSI\KkrtPsiSender.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />

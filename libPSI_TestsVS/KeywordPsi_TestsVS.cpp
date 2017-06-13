@@ -18,7 +18,6 @@ namespace KeywordPsiTests
 			Psi_Keyword_SingletonSet_Test_Impl();
 		}
 
-
 		TEST_METHOD(Psi_Keyword_FullSet_Test)
 		{
 			InitDebugPrinting();

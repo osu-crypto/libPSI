@@ -72,7 +72,7 @@ void Psi_Keyword_SingletonSet_Test_Impl()
 {
 	setThreadName("client");
 	u64 psiSecParam = 40;
-	u64 clientSetSize = 32;
+	u64 clientSetSize = 1;
 	u64 srvSetSize = 1 << 9;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
@@ -89,7 +89,7 @@ void Psi_Keyword_SingletonSet_Test_Impl()
 		srvSet[i] = prng1.get<block>();
 	}
 
-	clientSet[5] = srvSet[23];
+	clientSet[0] = srvSet[0];
 
 
 	IOService ios(0);
@@ -120,7 +120,7 @@ void Psi_Keyword_SingletonSet_Test_Impl()
 	s0thrd.join();
 	s1thrd.join();
 
-	if (client.mIntersection.size() != 1 || client.mIntersection[0] != 5) {
+	if (client.mIntersection.size() != 1 || client.mIntersection[0] != 0) {
 		throw UnitTestFail();
 	}
 }

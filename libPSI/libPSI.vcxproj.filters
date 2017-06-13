@@ -135,6 +135,12 @@
     <ClCompile Include="PSI\DrrnPsiClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PSI\KeywordPsiServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PSI\KeywordPsiClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MPSI\Dcw\DcwBfPsiReceiver.h">
@@ -204,6 +210,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PSI\DrrnPsiClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PSI\KeywordPsiClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PSI\KeywordPsiServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -47,5 +47,8 @@
     <ClCompile Include="DrrnPsi_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="KeywordPsi_TestsVS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

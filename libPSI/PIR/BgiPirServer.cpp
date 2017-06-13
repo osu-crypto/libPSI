@@ -51,6 +51,10 @@ namespace osuCrypto
 
     u8 BgiPirServer::evalOne(span<u8> idx, span<block> k, span<block> g, block* bb, block* ss, u8* tt)
     {
+        auto kDepth = (k.size() - 1);
+        auto exp = (kDepth + log2floor(128 * g.size()) + 7 ) / 8;
+        if (idx.size() != exp)  throw std::runtime_error("bad input size. " LOCATION);
+
         return  evalOne(BgiPirClient::bytesToUint128_t(idx), k, g, bb, ss, tt);
     }
 

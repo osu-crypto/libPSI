@@ -7,6 +7,39 @@
 
 using namespace osuCrypto;
 
+void BgiPir_keyGen_128_test()
+{
+    std::vector<block> vv{ CCBlock, OneBlock, AllOneBlock, AllOneBlock };
+
+    u64 depth = 128 - 7;
+    u64 groupBlkSize = 1;
+    PRNG prng(ZeroBlock);
+
+    std::vector<block> k0(depth + 1), k1(depth + 1);
+    std::vector<block> g0(groupBlkSize), g1(groupBlkSize);
+
+    block idx = prng.get<block>();
+    span<u8> ib((u8*)&idx, sizeof(block));
+
+    BgiPirClient::keyGen(ib, toBlock(1), k0, g0, k1, g1);
+
+    block target = idx;
+    for (u64 j = 0; j < 4; ++j)
+    {
+        span<u8> jb((u8*)&target, sizeof(block));
+        auto b0 = BgiPirServer::evalOne(jb, k0, g0);
+        auto b1 = BgiPirServer::evalOne(jb, k1, g1);
+
+        if ((b0 ^ b1) != eq(idx, target))
+        {
+            std::cout << "\n\n ======================= try  cur " << j << " " << (int)b0 << " ^ " << (int)b1 << " = " << (b0 ^ b1) << " != 1 ====================================\n\n\n";
+            throw std::runtime_error(LOCATION);
+        }
+
+        target = prng.get<block>();
+    }
+}
+
 void BgiPir_keyGen_test()
 {
     std::vector<block> vv{ CCBlock, OneBlock, AllOneBlock, AllOneBlock };
@@ -17,7 +50,6 @@ void BgiPir_keyGen_test()
     PRNG prng(ZeroBlock);
     for (u64 seed = 0; seed < 2; ++seed)
     {
-
         for (u64 ii = 0; ii < 2; ++ii)
         {
             auto i = prng.get<u64>() % domain;
@@ -28,44 +60,18 @@ void BgiPir_keyGen_test()
 
             BgiPirClient::keyGen(ib, toBlock(seed), k0, g0, k1, g1);
 
-            //for (u64 i = 0; i < k0.size(); ++i) std::cout << k0[i] << std::endl;
-            //for (u64 i = 0; i < g0.size(); ++i) std::cout << g0[i] << std::endl;
-
-            //std::cout << std::endl;
-            //for (u64 i = 0; i < k0.size(); ++i) std::cout << k1[i] << std::endl;
-            //for (u64 i = 0; i < g0.size(); ++i) std::cout << g1[i] << std::endl;
-            //std::cout << std::endl;
 
             for (u64 j = 0; j < domain; ++j)
             {
-
                 span<u8> jb((u8*)&j, sizeof(u64));
-
-
                 auto b0 = BgiPirServer::evalOne(jb, k0, g0);
                 auto b1 = BgiPirServer::evalOne(jb, k1, g1);
 
-                //std::cout << i << (i == j ? "*" : " ") << " " << (b0 ^ b1) << std::endl;
-
-                if (i == j)
+                if ((b0 ^ b1) != (i == j))
                 {
-                    if ((b0 ^ b1) != 1)
-                    {
-                        std::cout << "\n\n ======================= try " << seed << " " << ii << " target " << i << " cur " << j << " " << (int)b0 << " ^ " << (int)b1 << " = " << (b0 ^ b1) << " != 1 ====================================\n\n\n";
-                        throw std::runtime_error(LOCATION);
-                    }
+                    std::cout << "\n\n ======================= try " << seed << " " << ii << " target " << i << " cur " << j << " " << (int)b0 << " ^ " << (int)b1 << " = " << (b0 ^ b1) << " != 1 ====================================\n\n\n";
+                    throw std::runtime_error(LOCATION);
                 }
-                else
-                {
-                    if ((b0 ^ b1) != 0)
-                    {
-                        std::cout << "\n\n ======================= try " << seed << " " << ii << " target " << i << " cur " << j << " " << (int)b0 << " ^ " << (int)b1 << " = " << (b0 ^ b1) << " != 0 ====================================\n\n\n";
-                        throw std::runtime_error(LOCATION);
-                    }
-                }
-                //std::this_thread::sleep_for(std::chrono::seconds(01));
-                //std::cout << "------------ j " << j << " " << ii <<"-----------" << std::endl;
-                //std::terminate();
             }
         }
     }
