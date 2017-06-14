@@ -17,7 +17,7 @@ namespace osuCrypto
 
         u64 mRecverSize,mSenderSize,mStatSecParam;
         std::vector<u64> mIntersection;
-        CuckooIndex mIndex;
+        CuckooIndex<NotThreadSafe> mIndex;
 
         NcoOtExtReceiver * mOtRecv;
 

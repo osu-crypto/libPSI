@@ -38,7 +38,7 @@ namespace osuCrypto
             bool isEmpty() const { return mVal == -1; }
             u64 idx() const { return mVal  & (u64(-1) >> 8); }
             u64 hashIdx() const { return ((u8*)&mVal)[7] & 127; }
-            bool isCollision() const { return  ((u8*)&mVal)[7] >> 7; }
+            bool isCollision() const { return  (((u8*)&mVal)[7] >> 7) > 0; }
 
             void set(u64 idx, u8 hashIdx, bool collision)
             {

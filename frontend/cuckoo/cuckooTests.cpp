@@ -109,7 +109,7 @@ void simpleTest_find_e(int argc, char** argv)
         std::vector<std::array<u64, 400>> counts(numThrds);
         memset(counts.data(), 0, sizeof(u64) * 400 * numThrds);
 
-        u64 n = N / e;
+        u64 n = u64(N / e);
 
         u64 tries = u64(1) << t;
         //std::atomic<u64> completed(0);
@@ -638,7 +638,7 @@ void simpleTest_var_h(int argc, char** argv)
                 // update how long the string that we just printed is.
                 //stringLength = str.size();
 
-                stop = max;
+                stop = bool(max);
 
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }

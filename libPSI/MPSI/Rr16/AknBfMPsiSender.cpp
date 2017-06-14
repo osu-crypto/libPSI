@@ -206,7 +206,7 @@ namespace osuCrypto {
         std::vector< std::thread> thrds(chls.size());
 
 
-        for (u64 i = 0; i < chls.size(); ++i)
+        for (u64 i = 0; i < u64(chls.size()); ++i)
         {
             //gTimer.setTimePoint("sender.online.thrd_" + std::to_string(i) + "_spawned");
 

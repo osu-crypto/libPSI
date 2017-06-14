@@ -241,7 +241,7 @@ namespace osuCrypto
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
 
-        u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1, 8) / 8;
+        u64 maskSize = roundUpTo(u64(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1), 8) / 8;
 
         if (maskSize > sizeof(block))
             throw std::runtime_error("masked are stored in blocks, so they can exceed that size");
@@ -310,7 +310,7 @@ namespace osuCrypto
         u64 masksPer = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
         u64 numChunks = numMasks / masksPer;
         auto sendMaskBuffFreeCounter = new std::atomic<u32>;
-        *sendMaskBuffFreeCounter = numChunks;
+        *sendMaskBuffFreeCounter = u32(numChunks);
 
         auto startTime = gTimer.setTimePoint("online.send.spaw");
 
@@ -339,7 +339,7 @@ namespace osuCrypto
                 //for (u64 i = 0; i < ncoInputHasher.size(); ++i)
                     //ncoInputHasher[i].setKey(_mm_set1_epi64x(i) ^ mHashingSeed);
 
-                u64 phaseShift = log2ceil(mN);// / 8;
+                u8 phaseShift = u8(log2ceil(mN));// / 8;
 
                 for (u64 i = startIdx; i < endIdx; i += 128)
                 {

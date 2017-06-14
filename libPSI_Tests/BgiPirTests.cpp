@@ -30,7 +30,7 @@ void BgiPir_keyGen_128_test()
         auto b0 = BgiPirServer::evalOne(jb, k0, g0);
         auto b1 = BgiPirServer::evalOne(jb, k1, g1);
 
-        if ((b0 ^ b1) != eq(idx, target))
+        if (bool(b0 ^ b1) != eq(idx, target))
         {
             std::cout << "\n\n ======================= try  cur " << j << " " << (int)b0 << " ^ " << (int)b1 << " = " << (b0 ^ b1) << " != 1 ====================================\n\n\n";
             throw std::runtime_error(LOCATION);
@@ -46,7 +46,7 @@ void BgiPir_keyGen_test()
 
     u64 depth = 3;
     u64 groupBlkSize = 1;
-    u64 domain = (1 << depth) *  groupBlkSize * 128;
+    u64 domain = (1ull << depth) *  groupBlkSize * 128;
     PRNG prng(ZeroBlock);
     for (u64 seed = 0; seed < 2; ++seed)
     {
@@ -63,7 +63,7 @@ void BgiPir_keyGen_test()
 
             for (u64 j = 0; j < domain; ++j)
             {
-                span<u8> jb((u8*)&j, sizeof(u64));
+                span<u8> jb((u8*)&j, (log2ceil(domain) + 7)/ 8);
                 auto b0 = BgiPirServer::evalOne(jb, k0, g0);
                 auto b1 = BgiPirServer::evalOne(jb, k1, g1);
 
@@ -83,7 +83,7 @@ void BgiPir_PIR_test()
     BgiPirClient client;
     BgiPirServer s0, s1;
     u64 depth = 5, groupSize = 1;
-    auto domain = (1 << depth) * groupSize * 128;
+    auto domain = (1ull << depth) * groupSize * 128;
     auto tt = std::min<u64>(1000, domain);
     std::vector<block> vv(domain);
 
@@ -148,7 +148,7 @@ void BgiPir_FullDomain_test()
     {
 
         u64 depth = param[0], groupBlkSize = param[1];
-        u64 domain = (1 << depth) * groupBlkSize * 128;
+        u64 domain = (1ull << depth) * groupBlkSize * 128;
         u64 trials = 10;
 
         std::vector<block> data(domain);

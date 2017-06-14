@@ -38,8 +38,6 @@ namespace osuCrypto
         u64 groupSize = 5;
         u64 kDepth = (inputByteCount * 8) - log2floor(128 * groupSize);
 
-        BgiPirClient pir;
-
         u64 numQueries = mClientSetSize;
         u8 s0r = 0, s1r = 0;
 
@@ -55,7 +53,7 @@ namespace osuCrypto
 
 
             span<u8> idx((u8*)&hashes[i], inputByteCount);
-            pir.keyGen(idx, mPrng.get<block>(), kk0, g0, kk1, g1);
+            BgiPirClient::keyGen(idx, mPrng.get<block>(), kk0, g0, kk1, g1);
 
             s0.asyncSend(std::move(k0));
             s1.asyncSend(std::move(k1));

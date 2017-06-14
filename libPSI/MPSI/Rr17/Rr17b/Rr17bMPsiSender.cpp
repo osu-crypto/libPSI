@@ -263,7 +263,7 @@ namespace osuCrypto
                 auto& chl = chls[tIdx];
 
                 // we will phase off this many bits.
-                u64 phaseShift = log2ceil(mN);
+                u8 phaseShift = u8(log2ceil(mN));
 
                 // the start/end index of the item that we shoudl insert into the hash table
                 auto startIdx = tIdx       * mN / thrds.size();

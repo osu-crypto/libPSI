@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libPSI", "libPSI\libPSI.vcxproj", "{4B3D93AF-B008-452D-B1BC-CACC67C3DC27}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -51,6 +51,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tests_cryptoTools", "..\libOTe\cryptoTools\tests_cryptoTools\tests_cryptoTools.vcxproj", "{10DCA769-B168-4E7F-914E-E8A525333327}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86

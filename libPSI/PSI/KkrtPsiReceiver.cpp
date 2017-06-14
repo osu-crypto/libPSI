@@ -71,7 +71,7 @@ namespace osuCrypto
         //do base OT
         if (otRecv.hasBaseOts() == false)
         {
-            gTimer.setTimePoint("Init: BaseSSOT start");
+            gTimer.setTimePoint("Kkrt PSI Init: BaseSSOT start");
             NaorPinkas baseBase;
             std::array<block, 128> baseBaseOT;
             BitVector baseBaseChoice(128);
@@ -84,7 +84,7 @@ namespace osuCrypto
             base.send(baseOT, prng, chl0);
 
             otRecv.setBaseOts(baseOT);
-            gTimer.setTimePoint("Init: BaseSSOT done");
+            gTimer.setTimePoint("Kkrt PSI Init: BaseSSOT done");
         }
 
         fu.get();
@@ -113,10 +113,9 @@ namespace osuCrypto
         auto& chl = chls[0];
 
         SHA1 sha1;
-        u8 hashBuff[SHA1::HashSize];
 
         //u64 codeWordSize = get_codeword_size(std::max<u64>(mSenderSize, mRecverSize)); //by byte
-        u64 maskByteSize = (mStatSecParam + std::log2(mSenderSize * mRecverSize) + 7) / 8;//by byte
+        u64 maskByteSize = static_cast<u64>(mStatSecParam + std::log2(mSenderSize * mRecverSize) + 7) / 8;//by byte
 
         //insert item to corresponding bin
         mIndex.insert(inputs, mHashingSeed);
@@ -163,7 +162,7 @@ namespace osuCrypto
                     auto idx = bin.idx();
 
                     // get the smallest hash function index that maps this item to this bin.
-                    auto hIdx = CuckooIndex::minCollidingHashIdx(bIdx,mIndex.mHashes[idx], 3, mIndex.mBins.size());
+                    auto hIdx = CuckooIndex<>::minCollidingHashIdx(bIdx,mIndex.mHashes[idx], 3, mIndex.mBins.size());
 
                     auto& item = inputs[idx];
 

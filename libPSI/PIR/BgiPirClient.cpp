@@ -35,7 +35,7 @@ namespace osuCrypto
         using boost::multiprecision::cpp_int;
         uint128_t idx(0);
         BitIterator bit(data.data(), 0);
-        for (i64 i = 0; i < data.size() * 8; ++i)
+        for (u32 i = 0; i < u32(data.size() * 8); ++i)
         {
             if (*bit++) bit_set(idx, i);
         }
@@ -45,7 +45,7 @@ namespace osuCrypto
     void BgiPirClient::init(u64 depth, u64 groupBlkSize)
     {
 
-        mDatasetSize = 1 << depth;
+        mDatasetSize = u64(1) << depth;
         mKDepth = depth;
         mGroupBlkSize = groupBlkSize;
     }
@@ -179,20 +179,20 @@ namespace osuCrypto
         auto gs0 = temp.data() + g0.size() * 2;
         auto gs1 = temp.data() + g0.size() * 3;
 
-        for (u64 i = 0; i < g0.size(); ++i)
+        for (u64 i = 0; i < u64(g0.size()); ++i)
         {
             s0[i] = (s[0] & notThreeBlock) ^ toBlock(i);
             s1[i] = (s[1] & notThreeBlock) ^ toBlock(i);
         }
         aes0.ecbEncBlocks(s0, g0.size() * 2, gs0);
-        for (u64 i = 0; i < g0.size(); ++i)
+        for (u64 i = 0; i < u64(g0.size()); ++i)
         {
             gs0[i] = (gs0[i] ^ s0[i]);
             gs1[i] = (gs1[i] ^ s1[i]);
         }
         //std::cout << "gs0 " << gs0[0] /*<< " " << gs0[1]*/ << " = G(" << s0[0] /*<< " " << s0[1]*/ << ")" << std::endl;
         //std::cout << "gs1 " << gs1[0] /*<< " " << gs1[1]*/ << " = G(" << s1[0] /*<< " " << s1[1]*/ << ")" << std::endl;
-        for (u64 i = 0; i < g0.size(); ++i)
+        for (u64 i = 0; i < u64(g0.size()); ++i)
         {
             gs0[i] = gs0[i] ^ gs1[i];
         }

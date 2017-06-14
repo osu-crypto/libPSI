@@ -18,6 +18,7 @@ void Psi_drrn_EmptySet_Test_Impl()
 	u64 psiSecParam = 40;
 	u64 clientSetSize = 128;
 	u64 srvSetSize = 1 << 12;
+	u64 numThread = 2;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 	PRNG prng1(_mm_set_epi32(4253465, 34354565, 1, 23987045));
@@ -25,7 +26,7 @@ void Psi_drrn_EmptySet_Test_Impl()
 	std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
 	for (u64 i = 0; i < clientSetSize; ++i)
 	{
-		clientSet[i] = prng.get<block>();
+		clientSet[i] = prng.get<block>(); 
 	}
 
 	for (u64 i = 0; i < srvSet.size(); ++i)
@@ -60,8 +61,8 @@ void Psi_drrn_EmptySet_Test_Impl()
 	s0thrd.join();
 	s1thrd.join();
 
-	s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
-	s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
+	s0thrd = std::thread([&]() { s0.setInputs(srvSet, numThread); s0.send(s0cChl, s0sChl, numThread); });
+	s1thrd = std::thread([&]() { s1.setInputs(srvSet, numThread); s1.send(s1cChl, s1sChl, numThread); });
 	client.recv(cs0Chl, cs1Chl, clientSet);
 
 	s0thrd.join();
@@ -121,8 +122,8 @@ void Psi_drrn_SingletonSet_Test_Impl()
 	s0thrd.join();
 	s1thrd.join();
 
-	s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
-	s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
+	s0thrd = std::thread([&]() { s0.setInputs(srvSet); s0.send(s0cChl, s0sChl); });
+	s1thrd = std::thread([&]() { s1.setInputs(srvSet); s1.send(s1cChl, s1sChl); });
 	client.recv(cs0Chl, cs1Chl, clientSet);
 
 	s0thrd.join();
@@ -144,7 +145,8 @@ void Psi_drrn_FullSet_Test_Impl()
 	setThreadName("client");
 	u64 psiSecParam = 40;
 	u64 clientSetSize = 128;
-	u64 srvSetSize = 1 << 12;
+	u64 srvSetSize = 128;
+    u64 numThreads = 4;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 	PRNG prng1(_mm_set_epi32(4253465, 34354565, 0, 23987045));
@@ -185,8 +187,8 @@ void Psi_drrn_FullSet_Test_Impl()
 	s0thrd.join();
 	s1thrd.join();
 
-	s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, srvSet); });
-	s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, srvSet); });
+	s0thrd = std::thread([&]() { s0.setInputs(srvSet, numThreads); s0.send(s0cChl, s0sChl, numThreads); });
+	s1thrd = std::thread([&]() { s1.setInputs(srvSet, numThreads); s1.send(s1cChl, s1sChl, numThreads); });
 	client.recv(cs0Chl, cs1Chl, clientSet);
 
 	s0thrd.join();

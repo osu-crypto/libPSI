@@ -14,9 +14,14 @@ namespace osuCrypto
 
         void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1);
 
-        void send(Channel clientChl, Channel srvChl, span<block> inputs);
+		void setInputs(span<block> inputs, u64 numThreads = 1);
 
-        CuckooIndex mIndex;
+        void send(Channel clientChl, Channel srvChl, u64 numThreads = 1);
+
+		span<block> mInputs;
+
+        CuckooParam mCuckooParams;
+        CuckooIndex<NotThreadSafe> mIndex;
         KkrtNcoOtSender otSend;
         PRNG mPrng;
         KkrtPsiSender mPsi;
@@ -27,3 +32,4 @@ namespace osuCrypto
     };
 
 }
+ 

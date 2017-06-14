@@ -119,7 +119,7 @@ namespace osuCrypto
         std::vector<std::shared_future<std::unordered_map<u64, std::pair<block, u64>>>> masksFutures;
 
 
-        for (u64 i = 0; i < chls.size() - 1; ++i)masksFutures.push_back(masksProms[i].get_future());
+        for (u64 i = 0; i < u64(chls.size()) - 1; ++i)masksFutures.push_back(masksProms[i].get_future());
 
         std::mutex finalMtx;
 
@@ -378,7 +378,7 @@ namespace osuCrypto
             //u64 numMasks = theirMasksBuff.size() / maskSize;
             std::vector<u64> localIntersection;
 
-            for (u64 i = 0; i < theirMasks.size(); ++i)
+            for (u64 i = 0; i < u64(theirMasks.size()); ++i)
             {
                 auto& kk = *(u64*)&theirMasks[i];
 

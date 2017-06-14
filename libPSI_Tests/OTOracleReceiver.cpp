@@ -28,7 +28,7 @@ void OTOracleReceiver::receive(
 
     std::array<block, 2> ss;
 
-    for (u64 doneIdx = 0; doneIdx < messages.size(); ++doneIdx)
+    for (u64 doneIdx = 0; doneIdx < u64(messages.size()); ++doneIdx)
     {
         ss[0] = mPrng.get<block>();
         ss[1] = mPrng.get<block>();

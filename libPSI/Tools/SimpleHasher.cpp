@@ -117,7 +117,7 @@ namespace osuCrypto
         mRepSize = mInputBitSize - (u32)std::log2(mBinCount);
 #else
         //u64 scale = 2;
-        mBinCount = n / binScaler;
+        mBinCount = u64(n / binScaler);
         mN = n;
         mMtx.reset(new std::mutex[mBinCount]);
         mBins.resize(mBinCount);

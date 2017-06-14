@@ -224,7 +224,7 @@ namespace osuCrypto
 
 
         std::vector<block> recvMasks(mN);
-        u64 maskSize = roundUpTo(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1, 8) / 8;
+        u64 maskSize = roundUpTo(u64(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1), 8) / 8;
 
         if (maskSize > sizeof(block))
             throw std::runtime_error("masked are stored in blocks, so they can exceed that size");
@@ -277,7 +277,7 @@ namespace osuCrypto
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
 
 
-                u64 phaseShift = log2ceil(mN);
+                u8 phaseShift = u8(log2ceil(mN));
 
 
 
@@ -343,7 +343,7 @@ namespace osuCrypto
 
                 std::vector<u16> perm(mBins.mMaxBinSize);
                 for (size_t i = 0; i < perm.size(); i++)
-                    perm[i] = i;
+                    perm[i] = u16(i);
 
 
                 u64 otIdx = 0;// binStart * mBins.mMaxBinSize;
@@ -360,7 +360,7 @@ namespace osuCrypto
                         for (u64 i = 0; i < bin.size(); ++i)
                         {
                             u64 inputIdx = bin[i];
-                            u16 swapIdx = (prng.get<u16>() % (mBins.mMaxBinSize - i)) + i;
+                            u16 swapIdx = u16((prng.get<u16>() % (mBins.mMaxBinSize - i)) + i);
                             std::swap(perm[i], perm[swapIdx]);
 
 

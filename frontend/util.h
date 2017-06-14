@@ -60,7 +60,7 @@ void printTimings(
     LaunchParams & params,
     const osuCrypto::u64 &setSize,
     const osuCrypto::u64 &numThreads,
-    int s = 1,
+    double s = 1,
     std::vector<osuCrypto::Channel>* chls2 = nullptr, 
     u64 n2  = -1);
 

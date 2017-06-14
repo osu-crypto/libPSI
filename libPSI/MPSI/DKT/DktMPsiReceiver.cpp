@@ -524,7 +524,7 @@ namespace osuCrypto
         };
 
         std::vector<std::thread> thrds(chls.size()-1);
-        for (u64 i = 1; i < chls.size(); ++i)
+        for (u64 i = 1; i < u64(chls.size()); ++i)
         {
             thrds[i - 1] = std::thread([=] {
                 routine(i);

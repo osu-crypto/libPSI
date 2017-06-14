@@ -371,7 +371,7 @@ namespace osuCrypto
                 uPtr<Buff> sendBuff(new Buff(std::min(myInputEndIdx - i, u64(512)) * sizeof(block)));
                 auto view = sendBuff->getSpan<block>();
 
-                for (u64 j = 0; j < view.size(); ++i, ++j, ++ii)
+                for (u64 j = 0; j < u64(view.size()); ++i, ++j, ++ii)
                 {
 
                     Ksj = inputPoints[ii] * Rs;
@@ -402,7 +402,7 @@ namespace osuCrypto
 
 
         std::vector<std::thread> thrds(chls.size()-1);
-        for (u64 i = 1; i < chls.size(); ++i)
+        for (u64 i = 1; i < u64(chls.size()); ++i)
         {
             thrds[i - 1] = std::thread([=] {
                 routine(i);

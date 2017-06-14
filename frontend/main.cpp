@@ -140,10 +140,8 @@ void runPir(
             }
             else sendProtol(params);
 
-            for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i].close();
-            ep1.stop();
-            ep2.stop();
+            params.mChls.clear();
+            params.mChls2.clear();
         };
 
         if (cmd.hasValue(roleTag))
@@ -154,8 +152,6 @@ void runPir(
         }
         else
         {
-            if (firstRun) printHeader();
-
             auto srv0 = std::thread([&]() {
                 auto params2 = params;
                 params2.mIdx = 1;
@@ -169,10 +165,12 @@ void runPir(
 
             params.mIdx = 0;
             go(params);
+            srv0.join();
+            srv1.join();
         }
 
         firstRun = false;
-        ios.stop();
+        //ios.stop();
     }
 }
 
@@ -309,7 +307,6 @@ void pingTest(CLP& cmd)
 
 int main(int argc, char** argv)
 {
-
     backtraceHook();
 
 

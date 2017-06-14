@@ -87,14 +87,14 @@ namespace osuCrypto
 
         block sss = s & notThreeBlock;
 
-        for (u64 i = 0; i < g.size(); ++i)
+        for (u64 i = 0; i < u64(g.size()); ++i)
         {
             l[i] = sss ^ toBlock(i);
         }
 
 
         aes0.ecbEncBlocks(l, g.size(), gs);
-        for (u64 i = 0; i < g.size(); ++i)
+        for (u64 i = 0; i < u64(g.size()); ++i)
         {
             gs[i] = gs[i] ^ l[i];
         }
@@ -173,16 +173,16 @@ namespace osuCrypto
     }
     block BgiPirServer::fullDomain(span<block> data, span<block> k, span<block> g)
     {
-        u64 kDepth = k.size() - 1;
+        u64 kDepth = u64(k.size()) - 1;
         static const block mask = _mm_set_epi8(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
-        if (data.size() != (1 << (k.size() - 1)) * g.size() * 128)
+        if (data.size() != (i64(1) << (k.size() - 1)) * g.size() * 128)
             throw std::runtime_error(LOCATION);
 
         std::vector<block> prev{ k[0] }, next;
         for (u64 i = 0; i < std::min<u64>(3, kDepth); ++i)
         {
-            next.resize(1 << (i + 1));
+            next.resize(i64(1) << (i + 1));
             for (u64 j = 0; j < prev.size(); ++j)
             {
                 next[j * 2 + 0] = traverseOne(prev[j], k[i + 1], 0);
@@ -209,14 +209,14 @@ namespace osuCrypto
             {
                 u8 t = lsb(prev[kIdx]);
 
-                for (u64 i = 0; i < g.size(); ++i) l[i] = (prev[kIdx] & notThreeBlock) ^ toBlock(i);
+                for (u64 i = 0; i <u64(g.size()); ++i) l[i] = (prev[kIdx] & notThreeBlock) ^ toBlock(i);
                 aes0.ecbEncBlocks(l.data(), g.size(), gs.data());
-                for (u64 i = 0; i < g.size(); ++i) gs[i] = gs[i] ^ l[i] ^ (g[i] & zeroAndAllOne[t]);
+                for (u64 i = 0; i < u64(g.size()); ++i) gs[i] = gs[i] ^ l[i] ^ (g[i] & zeroAndAllOne[t]);
 
 
                 //std::cout << "k " << kIdx << "  " << gs[0] << std::endl;
 
-                for (u64 gIdx = 0; gIdx < g.size(); ++gIdx)
+                for (u64 gIdx = 0; gIdx < u64(g.size()); ++gIdx)
                 {
                     expandedS[0] = mask & _mm_srai_epi16(gs[gIdx], 0);
                     expandedS[1] = mask & _mm_srai_epi16(gs[gIdx], 1);
@@ -499,14 +499,14 @@ namespace osuCrypto
                 //}
                 //std::cout << std::endl;
 
-                auto inputIter0 = data.data() + ((0 << d) + idx) * g.size() * 128;
-                auto inputIter1 = data.data() + ((1 << d) + idx) * g.size() * 128;
-                auto inputIter2 = data.data() + ((2 << d) + idx) * g.size() * 128;
-                auto inputIter3 = data.data() + ((3 << d) + idx) * g.size() * 128;
-                auto inputIter4 = data.data() + ((4 << d) + idx) * g.size() * 128;
-                auto inputIter5 = data.data() + ((5 << d) + idx) * g.size() * 128;
-                auto inputIter6 = data.data() + ((6 << d) + idx) * g.size() * 128;
-                auto inputIter7 = data.data() + ((7 << d) + idx) * g.size() * 128;
+                auto inputIter0 = data.data() + ((u64(0) << d) + idx) * g.size() * 128;
+                auto inputIter1 = data.data() + ((u64(1) << d) + idx) * g.size() * 128;
+                auto inputIter2 = data.data() + ((u64(2) << d) + idx) * g.size() * 128;
+                auto inputIter3 = data.data() + ((u64(3) << d) + idx) * g.size() * 128;
+                auto inputIter4 = data.data() + ((u64(4) << d) + idx) * g.size() * 128;
+                auto inputIter5 = data.data() + ((u64(5) << d) + idx) * g.size() * 128;
+                auto inputIter6 = data.data() + ((u64(6) << d) + idx) * g.size() * 128;
+                auto inputIter7 = data.data() + ((u64(7) << d) + idx) * g.size() * 128;
 
                 for (u64 i = 0; i < 128 * g.size(); ++i)
                 {
