@@ -9,7 +9,7 @@
 
 #include <cryptoTools/Common/CuckooIndex.h>
 
-#define THREAD_SAFE_CUCKOO
+#define THREAD_SAFE_CUCKOO_HASHER
 
 namespace osuCrypto
 {
@@ -38,7 +38,7 @@ namespace osuCrypto
             u64 hashIdx() const;
 
             void swap(u64& idx, u64& hashIdx);
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
             Bin(const Bin& b) : mVal(b.mVal.load(std::memory_order_relaxed)) {}
             Bin(Bin&& b) : mVal(b.mVal.load(std::memory_order_relaxed)) {}
             std::atomic<u64> mVal;
@@ -85,7 +85,7 @@ namespace osuCrypto
         void insertBatch(span<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
 
         u64 find(span<u64> hashes);
-        u64 findBatch(MatrixView<u64> hashes, 
+        u64 findBatch(MatrixView<u64> hashes,
             span<u64> idxs,
             Workspace& wordkspace);
 

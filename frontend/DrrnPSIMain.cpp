@@ -1,5 +1,5 @@
 #include "bloomFilterMain.h"
-#include "cryptoTools/Network/Endpoint.h" 
+#include "cryptoTools/Network/Endpoint.h"
 
 #include "libPSI/PSI/DrrnPsiClient.h"
 #include "libPSI/PSI/DrrnPsiServer.h"
@@ -45,7 +45,6 @@ void Drrn17Send(
                         srv.setInputs(set, numThreads);
                         std::cout << "set     input\n" << std::flush;
 
-                        
 						clientChls[0].asyncSend(dummy, 1);
 						clientChls[0].recv(dummy, 1);
 

@@ -3,7 +3,7 @@
 #include "cryptoTools/Network/Endpoint.h"
 
 //using namespace std;
-#include "UnitTests.h" 
+#include "UnitTests.h"
 #include "cryptoTools/Common/Defines.h"
 using namespace osuCrypto;
 
@@ -313,6 +313,11 @@ int main(int argc, char** argv)
     CLP cmd;
     cmd.parse(argc, argv);
 
+    if (cmd.isSet("cuckoo"))
+    {
+        simpleTest(argc, argv);
+        return 0;
+    }
     //cmd.setDefault(rr17Tags, "");
 
     cmd.setDefault(numThreads, "1");

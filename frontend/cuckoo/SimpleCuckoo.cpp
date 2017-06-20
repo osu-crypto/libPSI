@@ -129,7 +129,7 @@ namespace osuCrypto
         u64 binCount = u64(mParams.mBinScaler * n);
 
         mBins.resize(binCount);
-        mStash.resize(mParams.mStashSize);
+        //mStash.resize(mParams.mStashSize);
     }
 
 
@@ -175,7 +175,7 @@ namespace osuCrypto
         while (remaining && tryCount++ < 100)
         {
 
-            // this data fetch can be slow (after the first loop). 
+            // this data fetch can be slow (after the first loop).
             // As such, lets do several fetches in parallel.
             for (u64 i = 0; i < remaining; ++i)
             {
@@ -201,8 +201,8 @@ namespace osuCrypto
 
                 //u64 oldIdx = w.oldVals[i] & (u64(-1) >> 8);
                 //u64 oldHash = (w.oldVals[i] >> 56);
-                //std::cout 
-                //    << i << "   bin[" << w.curAddrs[i] << "]  " 
+                //std::cout
+                //    << i << "   bin[" << w.curAddrs[i] << "]  "
                 //    << " gets (" << inputIdxs[i] << ", "<< w.curHashIdxs[i]<< "),"
                 //    << " evicts ("<< oldIdx << ", "<< oldHash<< ")" << std::endl;
 
@@ -223,9 +223,9 @@ namespace osuCrypto
 
             getIdx = putIdx + 1;
 
-            // Now we want an array that looks like 
-            //  |ABCD___________| but currently have 
-            //  |AB__Y_____Z____| so lets move them 
+            // Now we want an array that looks like
+            //  |ABCD___________| but currently have
+            //  |AB__Y_____Z____| so lets move them
             // forward and replace Y, Z with the values
             // they evicted.
             while (getIdx < remaining)
@@ -259,10 +259,11 @@ namespace osuCrypto
         // put any that remain in the stash.
         for (u64 i = 0, j = 0; i < remaining; ++j)
         {
-            mStash[j].swap(inputIdxs[i], w.curHashIdxs[i]);
+            mStash.push_back(Bin(inputIdxs[i], w.curHashIdxs[i]));
+            //mStash[j].swap(inputIdxs[i], w.curHashIdxs[i]);
 
-            if (inputIdxs[i] == u64(-1))
-                ++i;
+            //if (inputIdxs[i] == u64(-1))
+            //    ++i;
         }
 
         //std::cout << "total evicts "<< evists << std::endl;
@@ -334,7 +335,7 @@ namespace osuCrypto
                         if (val != u64(-1))
                         {
                             u64 itemIdx = val & (u64(-1) >> 8);
-                             
+
 
                             bool match =
                                 (mHashesView[itemIdx][0] == hashes[i][0]) &&
@@ -344,14 +345,14 @@ namespace osuCrypto
                             {
                                 idxs[i] = itemIdx;
                             }
-                            
+
                         }
 
                         ++j;
                     }
                 }
 
-            } 
+            }
 
 
         }
@@ -370,7 +371,7 @@ namespace osuCrypto
                 for (u64 j = 0; j < hashes.bounds()[1]; ++j)
                     w.findVal[i][j] = mBins[addr[j]].mVal.load(std::memory_order::memory_order_relaxed);
 #else
-                for (u64 j = 0; j < hashes.size()[1]; ++j)
+                for (u64 j = 0; j < hashes.stride(); ++j)
                     w.findVal[i][j] = mBins[addr[j]].mVal;
 #endif
             }

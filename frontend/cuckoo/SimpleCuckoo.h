@@ -48,9 +48,9 @@ namespace osuCrypto
             {}
 
             std::vector<u64>
-                curAddrs,   
+                curAddrs,
                 curHashIdxs,
-                oldVals;    
+                oldVals;
 
             Matrix<u64>   findVal;
         };
@@ -71,7 +71,7 @@ namespace osuCrypto
 
         void insertBatch(span<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
 
-        u64 findBatch(MatrixView<u64> hashes, 
+        u64 findBatch(MatrixView<u64> hashes,
             span<u64> idxs,
             Workspace& wordkspace);
 

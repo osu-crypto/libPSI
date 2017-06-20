@@ -217,7 +217,7 @@ namespace osuCrypto
             for (u64 i = 0; i < remaining; ++i)
             {
                 u64 newVal = inputIdxs[i] | (w.curHashIdxs[i] << 56);
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
                 w.oldVals[i] = mBins[w.curAddrs[i]].mVal.exchange(newVal, std::memory_order_relaxed);
 #else
                 w.oldVals[i] = mBins[w.curAddrs[i]].mVal;
@@ -300,7 +300,7 @@ namespace osuCrypto
         {
 
             u64 newVal = inputIdx | (hashIdx << 56);
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
             u64 oldVal = mBins[addr].mVal.exchange(newVal, std::memory_order_relaxed);
 #else
             u64 oldVal = mBins[addr].mVal;
@@ -350,7 +350,7 @@ namespace osuCrypto
                 (hashes[0]) % mBins.size(),
                 (hashes[1]) % mBins.size() };
 
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
             std::array<u64, 2> val{
                 mBins[addr[0]].mVal.load(std::memory_order::memory_order_relaxed),
                 mBins[addr[1]].mVal.load(std::memory_order::memory_order_relaxed) };
@@ -388,7 +388,7 @@ namespace osuCrypto
             u64 i = 0;
             while (i < mStash.size() && mStash[i].isEmpty() == false)
             {
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
                 u64 val = mStash[i].mVal.load(std::memory_order::memory_order_relaxed);
 #else
                 u64 val = mStash[i].mVal;
@@ -420,7 +420,7 @@ namespace osuCrypto
                 auto addr = (xrHashVal) % mBins.size();
 
 
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
                 u64 val = mBins[addr].mVal.load(std::memory_order::memory_order_relaxed);
 #else
                 u64 val = mBins[addr].mVal;
@@ -446,7 +446,7 @@ namespace osuCrypto
             u64 i = 0;
             while (i < mStash.size() && mStash[i].isEmpty() == false)
             {
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
                 u64 val = mStash[i].mVal.load(std::memory_order::memory_order_relaxed);
 #else
                 u64 val = mStash[i].mVal;
@@ -496,7 +496,7 @@ namespace osuCrypto
                 addr[0] = (hashes[i][0]) % mBins.size();
                 addr[1] = (hashes[i][1]) % mBins.size();
 
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
                 w.findVal[i][0] = mBins[addr[0]].mVal.load(std::memory_order::memory_order_relaxed);
                 w.findVal[i][1] = mBins[addr[1]].mVal.load(std::memory_order::memory_order_relaxed);
 #else
@@ -535,7 +535,7 @@ namespace osuCrypto
             u64 i = 0;
             while (i < mStash.size() && mStash[i].isEmpty() == false)
             {
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
                 u64 val = mStash[i].mVal.load(std::memory_order::memory_order_relaxed);
 #else
                 u64 val = mStash[i].mVal;
@@ -590,7 +590,7 @@ namespace osuCrypto
     void CuckooHasher::Bin::swap(u64 & idx, u64 & hashIdx)
     {
         u64 newVal = idx | (hashIdx << 56);
-#ifdef THREAD_SAFE_CUCKOO
+#ifdef THREAD_SAFE_CUCKOO_HASHER
         u64 oldVal = mVal.exchange(newVal, std::memory_order_relaxed);
 #else
         u64 oldVal = mVal;
