@@ -70,8 +70,8 @@ namespace osuCrypto
 
         block blk0, blk1;
 
-        srv0.recv(&blk0, sizeof(block));
-        srv1.recv(&blk1, sizeof(block));
+        srv0.recv((u8*)&blk0, sizeof(block));
+        srv1.recv((u8*)&blk1, sizeof(block));
 
         return blk0 ^ blk1;
     }

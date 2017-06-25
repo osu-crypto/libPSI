@@ -77,8 +77,8 @@ namespace osuCrypto
         }
 
 
-        otSend.configure( true, statSecParam, inputBitSize); 
-        otRecv.configure( true, statSecParam, inputBitSize); 
+        otSend.configure( true, statSecParam, inputBitSize);
+        otRecv.configure( true, statSecParam, inputBitSize);
         u64 baseOtCount = otSend.getBaseOTCount();
 
 
@@ -95,9 +95,9 @@ namespace osuCrypto
         chl0.recv(theirComm.data(), theirComm.size());
 
 
-        chl0.asyncSend(&myHashSeed, sizeof(block));
+        chl0.asyncSend((u8*)&myHashSeed, sizeof(block));
         block theirHashingSeed;
-        chl0.recv(&theirHashingSeed, sizeof(block));
+        chl0.recv((u8*)&theirHashingSeed, sizeof(block));
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
@@ -184,8 +184,8 @@ namespace osuCrypto
         //std::cout << IoStream::lock;
         //for (u64 i = 0; i < dynamic_cast<Rr17NcoOtReceiver*>(&otRecv)->mKos.mGens.size(); ++i)
         //{
-        //    std::cout << "sr " << i << "  " 
-        //        << dynamic_cast<Rr17NcoOtReceiver*>(&otRecv)->mKos.mGens[i][0].getSeed() << " " 
+        //    std::cout << "sr " << i << "  "
+        //        << dynamic_cast<Rr17NcoOtReceiver*>(&otRecv)->mKos.mGens[i][0].getSeed() << " "
         //        << dynamic_cast<Rr17NcoOtReceiver*>(&otRecv)->mKos.mGens[i][1].getSeed() << std::endl;
         //}
         //for (u64 i = 0; i < dynamic_cast<Rr17NcoOtSender*>(&otSend)->mKos.mGens.size(); ++i)
@@ -248,7 +248,7 @@ namespace osuCrypto
 
 
         std::vector<std::thread>  thrds(chls.size());
-        //std::vector<std::thread>  thrds(1);        
+        //std::vector<std::thread>  thrds(1);
 
         std::atomic<u32> remaining((u32)thrds.size()), remainingMasks((u32)thrds.size());
         std::promise<void> doneProm, maskProm;
@@ -359,15 +359,15 @@ namespace osuCrypto
                         //memcpy(ncoInputBuff.data() + i, inputs.data() + i, currentStepSize * sizeof(block));
                     }
 
-                    // since we are using random codes, lets just use the first part of the code 
+                    // since we are using random codes, lets just use the first part of the code
                     // as where each item should be hashed.
                     for (u64 j = 0; j < currentStepSize; ++j)
                     {
                         block& item = ncoInputBuff[i + j];
                         u64 addr = *(u64*)&item % mBins.mBinCount;
 
-                        // implements phase. Note that we are doing very course phasing. 
-                        // At the byte level. This is good enough for use. Since we just 
+                        // implements phase. Note that we are doing very course phasing.
+                        // At the byte level. This is good enough for use. Since we just
                         // need things tp be smaller than 76 bits.
 
                         item = shiftRight(item, phaseShift);
@@ -511,7 +511,7 @@ namespace osuCrypto
                                 //if (inputIdx == 1)
                                 //{
                                 //    std::cout  << IoStream::lock
-                                //        << "s " << inputIdx << " " 
+                                //        << "s " << inputIdx << " "
                                 //        << inputs[inputIdx] << " " << l << ": "
                                 //        << (sendMask ^ recvMasks[inputIdx]) << " = "
                                 //        << sendMask << " ^ " << recvMasks[inputIdx] << "     " << (baseMaskIdx + l) << " sendOtIdx " << innerOtIdx << std::endl << IoStream::unlock;

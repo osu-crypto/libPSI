@@ -60,7 +60,7 @@ namespace osuCrypto
 
         //std::cout << IoStream::lock << "recv: sending PSI seed " << myHashSeeds << std::endl << IoStream::unlock;
         // we need a random hash function, so both commit to a seed and then decommit later
-        chl0.asyncSend(&myHashSeeds, sizeof(block));
+        chl0.asyncSend((u8*)&myHashSeeds, sizeof(block));
         block theirHashingSeeds;
         auto fu = chl0.asyncRecv(&theirHashingSeeds, sizeof(block));
 
@@ -121,7 +121,7 @@ namespace osuCrypto
         mIndex.insert(inputs, mHashingSeed);
 
 
-        //we use 4 unordered_maps, we put the mask to the corresponding unordered_map 
+        //we use 4 unordered_maps, we put the mask to the corresponding unordered_map
         //that indicates of the hash function index 0,1,2. and the last unordered_maps is used for stash bin
         std::array<std::unordered_map<u64, std::pair<block, u64>>, 3> localMasks;
         //store the masks of elements that map to bin by h0
@@ -184,7 +184,7 @@ namespace osuCrypto
             // send the OT correction masks for the current step
 
             mOtRecv->sendCorrection(chl, currentStepSize);
-        }// Done with compute the masks for the main set of bins.          
+        }// Done with compute the masks for the main set of bins.
 
         gTimer.setTimePoint("R Online.sendBucketMask done");
 
@@ -207,7 +207,7 @@ namespace osuCrypto
 
             chl.recv(recvBuff.data(), curStepSize * 3 * maskByteSize);
 
-            std::array<u8*, 3>iters{ 
+            std::array<u8*, 3>iters{
                 recvBuff.data() + 0 * maskByteSize,
                 recvBuff.data() + 1 * maskByteSize,
                 recvBuff.data() + 2 * maskByteSize };

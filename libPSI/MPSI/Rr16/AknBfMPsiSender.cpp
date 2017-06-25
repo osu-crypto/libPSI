@@ -58,9 +58,9 @@ namespace osuCrypto {
         //mAknOt.init(m, mBinSize * mNumHashFunctions, mNumBins, mNumHashFunctions, otExt, chl, prng);
 
         theirCommFutre.get();
-        chl0.asyncSend(&myHashSeed, sizeof(block));
+        chl0.asyncSend((u8*)&myHashSeed, sizeof(block));
         block theirHashingSeed;
-        chl0.recv(&theirHashingSeed, sizeof(block));
+        chl0.recv((u8*)&theirHashingSeed, sizeof(block));
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
@@ -157,7 +157,7 @@ namespace osuCrypto {
                 hash.Reset();
                 hash.Update(mHashingSeed);
                 hash.Update(inputs[i]);
-                hash.Final(hashOut); 
+                hash.Final(hashOut);
                 //std::cout << "s " << (u64)hashOut << std::endl;
 
                 //PRNG hasher( *(block*)hashOut);
@@ -167,7 +167,7 @@ namespace osuCrypto {
                 hasher.ecbEncCounterMode(0, bv.size(), bv.data());
                 span<u64>iv((u64*)bv.data(), mNumHashFunctions);
 
-                //std::cout << "S inputs[" << i << "] " << inputs[i]  << " h -> " 
+                //std::cout << "S inputs[" << i << "] " << inputs[i]  << " h -> "
                 //    << toBlock(hashOut) << " = H("<< mHashingSeed <<" || "<< inputs[i]<<")"<< std::endl;
 
                 for (u64 j = 0; j < mNumHashFunctions; ++j)

@@ -39,7 +39,7 @@ namespace osuCrypto
         block myHashSeeds;
         myHashSeeds = mPrng.get<block>();
         auto& chl = chls[0];
-        chl.asyncSend(&myHashSeeds, sizeof(block));
+        chl.asyncSend((u8*)&myHashSeeds, sizeof(block));
         //std::cout <<IoStream::lock << "send: sending PSI seed " << myHashSeeds << std::endl << IoStream::unlock;
 
 
@@ -336,7 +336,7 @@ namespace osuCrypto
         // the buffer that we will write the masks to. There are
         // mParams.mNumHashes * mSenderSize rows, where the input at index
         // i will have its mParams.mNumHashes encodings written to locations
-        // { i * mParams.mNumHashes + 0, 
+        // { i * mParams.mNumHashes + 0,
         //   i * mParams.mNumHashes + 1,
         //   ...
         //   i * mParams.mNumHashes + mParams.mNumHashes - 1 }
@@ -349,7 +349,7 @@ namespace osuCrypto
         u64 numSteps = (numBins + stepSize - 1) / stepSize;
 
         // set of some inter thread communication objects that will
-        // allow this thread to know when the OT correction values have 
+        // allow this thread to know when the OT correction values have
         // been received.
         std::atomic<u64> recvedIdx(0);
 
@@ -388,8 +388,8 @@ namespace osuCrypto
         gTimer.setTimePoint("S Online.computeBucketMask start");
 
         // Now we will look over the inputs and try to encode them. Not that not all
-        // of the corrections have beed received. In the case that the current item 
-        // is mapped to a bin where we do not have the correction, we will simply 
+        // of the corrections have beed received. In the case that the current item
+        // is mapped to a bin where we do not have the correction, we will simply
         // skip this item for now. Once all corrections have been received, we
         // will make a second pass over the inputs and enocde them all.
 
@@ -414,7 +414,7 @@ namespace osuCrypto
                 {
                     auto& bIdx = binIdxs(inputIdx, h);
 
-                    // if the bin index is less than r, then we have recieved 
+                    // if the bin index is less than r, then we have recieved
                     // the correction and can encode it
                     if (bIdx < r)
                     {
@@ -431,7 +431,7 @@ namespace osuCrypto
                 i = (i + 1) % inputs.size();
             }
 
-            // after stepSize attempts to encode items, lets see if more 
+            // after stepSize attempts to encode items, lets see if more
             // corrections have arrived.
             r = recvedIdx.load(std::memory_order::memory_order_acquire);
         }
@@ -440,14 +440,14 @@ namespace osuCrypto
         gTimer.setTimePoint("S Online.linear start");
         auto encoding = myMaskBuff.data();
 
-        // OK, all corrections have been recieved. It is now safe to start sending 
+        // OK, all corrections have been recieved. It is now safe to start sending
         // masks to the reciever. We will send them in permuted order
         //     mPermute[0],
         //     mPermute[1],
         //        ...
         //     mPermute[mSenderSize]
         //
-        // Also note that we can start sending them before all have been 
+        // Also note that we can start sending them before all have been
         // encoded. This will allow us to start communicating data back to the
         // reciever almost right after all the corrections have been recieved.
         for (u64 i = 0; i < inputs.size();)
@@ -484,7 +484,7 @@ namespace osuCrypto
         gTimer.setTimePoint("S Online.done start");
 
         // send one byte to make sure that we dont leave this scope before the masks
-        // have all been sent. 
+        // have all been sent.
         // TODO: fix this.
         u8 dummy[1];
         chl.send(dummy, 1);

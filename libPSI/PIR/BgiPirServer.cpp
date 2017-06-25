@@ -32,8 +32,8 @@ namespace osuCrypto
 
         std::vector<block> k(mKDepth + 1);
         std::vector<block> groupWord(mGroupBlkSize);
-        chan.recv(k.data(), k.size() * sizeof(block));
-        chan.recv(groupWord.data(), groupWord.size() * sizeof(block));
+        chan.recv((u8*)k.data(), k.size() * sizeof(block));
+        chan.recv((u8*)groupWord.data(), groupWord.size() * sizeof(block));
 
         auto sum = fullDomain(data, k, groupWord);
         //block sum = ZeroBlock;
@@ -46,7 +46,7 @@ namespace osuCrypto
         //    sum = sum ^ add;
         //}
         //std::cout << std::endl;
-        chan.send(&sum, sizeof(block));
+        chan.send((u8*)&sum, sizeof(block));
     }
 
     u8 BgiPirServer::evalOne(span<u8> idx, span<block> k, span<block> g, block* bb, block* ss, u8* tt)
