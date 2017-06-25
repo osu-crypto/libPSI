@@ -86,7 +86,7 @@ namespace osuCrypto
 
 
 
-        otRecv.configure( true, statSecParam, inputBitSize); 
+        otRecv.configure( true, statSecParam, inputBitSize);
         u64 baseOtCount = otRecv.getBaseOTCount();
 
         //mOtMsgBlkSize = (baseOtCount + 127) / 128;
@@ -100,16 +100,16 @@ namespace osuCrypto
 
         auto& chl0 = chls[0];
 
-        // we need a random hash function, so we will both commit to a seed and then later decommit. 
+        // we need a random hash function, so we will both commit to a seed and then later decommit.
         //This is the commitments phase
         Commit comm(myHashSeed), theirComm;
         chl0.asyncSend(comm.data(), comm.size());
         chl0.recv(theirComm.data(), theirComm.size());
 
         // ok, now decommit to the seed.
-        chl0.asyncSend(&myHashSeed, sizeof(block));
+        chl0.asyncSend((u8*)&myHashSeed, sizeof(block));
         block theirHashingSeed;
-        chl0.recv(&theirHashingSeed, sizeof(block));
+        chl0.recv((u8*)&theirHashingSeed, sizeof(block));
 
         gTimer.setTimePoint("Init.recv.hashSeed");
 
@@ -117,12 +117,12 @@ namespace osuCrypto
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
 
-        // this SimpleHasher class knows how to hash things into bins. But first we need 
+        // this SimpleHasher class knows how to hash things into bins. But first we need
         // to compute how many bins we need, the max size of bins, etc.
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
 
         gTimer.setTimePoint("Init.recv.baseStart");
-        // since we are doing mmlicious PSI, we need OTs going in both directions. 
+        // since we are doing mmlicious PSI, we need OTs going in both directions.
         // This will hold the send OTs
 
         if (otRecv.hasBaseOts() == false)
@@ -234,8 +234,8 @@ namespace osuCrypto
         //std::vector<std::thread>  thrds(1);
 
         // since we are going to do this in parallel, these objects will
-        // be used for synchronization. specifically, when all threads are 
-        // done inserting items into the bins, the future will be fulfilled 
+        // be used for synchronization. specifically, when all threads are
+        // done inserting items into the bins, the future will be fulfilled
         // and all threads will advance to performing the base OtPsi's
         ThreadBarrier
             itemsInsertedBarrier(thrds.size());
@@ -244,15 +244,15 @@ namespace osuCrypto
 
 
 
-        // This maps tags -> (input position, OT-encoding). 
+        // This maps tags -> (input position, OT-encoding).
         std::unordered_multimap<u32, std::pair<u64, block>> tagMap(mN);
         std::mutex tagMapMtx;
 
         // this mutex is used to guard inserting things into the intersection vector.
         std::mutex mInsertMtx;
 
-        // This buffer will hold { H( inputs[0] ), ..., H( inputs[mN - 1] ) } and will be used as the location 
-        // which an item is inserted at in the hash table. Additionaly, if we perform the hash to smaller domain 
+        // This buffer will hold { H( inputs[0] ), ..., H( inputs[mN - 1] ) } and will be used as the location
+        // which an item is inserted at in the hash table. Additionaly, if we perform the hash to smaller domain
         // operation, then this will also be the input value to the OT-encoding functionality.
         std::vector<block> hashedInputBuffer(mHashToSmallerDomain ? inputs.size() : 0);
 
@@ -307,7 +307,7 @@ namespace osuCrypto
                 }
                 else
                 {
-                    // We key the AES with the hashingSeed. We then hash items to bins as AES(item) % #bins. 
+                    // We key the AES with the hashingSeed. We then hash items to bins as AES(item) % #bins.
                     // This should be near uniform.
                     AES inputHasher(mHashingSeed);
 

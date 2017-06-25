@@ -26,7 +26,7 @@ void Psi_drrn_EmptySet_Test_Impl()
 	std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
 	for (u64 i = 0; i < clientSetSize; ++i)
 	{
-		clientSet[i] = prng.get<block>(); 
+		clientSet[i] = prng.get<block>();
 	}
 
 	for (u64 i = 0; i < srvSet.size(); ++i)
@@ -77,8 +77,8 @@ void Psi_drrn_SingletonSet_Test_Impl()
 {
 	setThreadName("client");
 	u64 psiSecParam = 40;
-	u64 clientSetSize = 20;
-	u64 srvSetSize = 1 << 12;
+	u64 clientSetSize = 16;
+	u64 srvSetSize = 1 << 6;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 	PRNG prng1(_mm_set_epi32(4253465, 34354565, 1, 23987045));
@@ -86,12 +86,12 @@ void Psi_drrn_SingletonSet_Test_Impl()
 	std::vector<block> clientSet(clientSetSize), srvSet(srvSetSize);
 	for (u64 i = 0; i < clientSetSize; ++i)
 	{
-		clientSet[i] = prng.get<block>();
+		clientSet[i] = toBlock(i);
 	}
 
 	for (u64 i = 0; i < srvSet.size(); ++i)
 	{
-		srvSet[i] = prng1.get<block>();
+		srvSet[i] = toBlock(i + clientSetSize);
 	}
 
     u64 intersectIdx = 0;
@@ -128,7 +128,7 @@ void Psi_drrn_SingletonSet_Test_Impl()
 
 	s0thrd.join();
 	s1thrd.join();
-	
+
 	if (client.mIntersection.size() != 1 || *client.mIntersection.begin() != intersectIdx) {
         std::cout << "size " << client.mIntersection.size() << std::endl;
         if (client.mIntersection.size())
@@ -213,6 +213,6 @@ void Psi_drrn_FullSet_Test_Impl()
             failed = true;
 		}
 	}
-	
+
     if (failed) throw UnitTestFail();
 }

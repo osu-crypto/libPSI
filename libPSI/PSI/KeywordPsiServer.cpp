@@ -44,10 +44,10 @@ namespace osuCrypto
         BitVector results(numQueries);
 		for (u64 i = 0; i < numQueries; ++i)
 		{
-			clientChl.recv(k.data(), k.size() * sizeof(block));
+			clientChl.recv((u8*)k.data(), k.size() * sizeof(block));
 			span<block> kk(k.data(), kDepth + 1);
 			span<block> g(k.data() + kDepth + 1, groupSize);
-			
+
 			u8 sum = 0;
 			for (u64 j = 0; j < inputs.size(); ++j)
 			{

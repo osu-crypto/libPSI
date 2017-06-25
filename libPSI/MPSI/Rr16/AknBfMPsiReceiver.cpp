@@ -74,9 +74,9 @@ namespace osuCrypto
         //std::random_shuffle(mAknOt.mOnes.begin(), mAknOt.mOnes.end(), prng);
 
         theirCommFutre.get();
-        chl.asyncSend(&myHashSeed, sizeof(block));
+        chl.asyncSend((u8*)&myHashSeed, sizeof(block));
         block theirHashingSeed;
-        chl.recv(&theirHashingSeed, sizeof(block));
+        chl.recv((u8*)&theirHashingSeed, sizeof(block));
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
@@ -137,7 +137,7 @@ namespace osuCrypto
             auto & chl = chls[t];
             auto start = inputs.size() * t / chls.size();
             auto end = inputs.size() * (t + 1) / chls.size();
-            SHA1 hash; 
+            SHA1 hash;
 
 
             std::vector<u64> idxs((end - start)* mNumHashFunctions);
@@ -164,8 +164,8 @@ namespace osuCrypto
                 span<u64>iv((u64*)bv.data(), mNumHashFunctions);
 
 
-                //std::cout << "R inputs[" << i << "] " << inputs[i]  << " h -> " 
-                //    << toBlock(hashOut) << " = H(" << mHashingSeed << " || " << inputs[i] << ")" << std::endl; 
+                //std::cout << "R inputs[" << i << "] " << inputs[i]  << " h -> "
+                //    << toBlock(hashOut) << " = H(" << mHashingSeed << " || " << inputs[i] << ")" << std::endl;
                 //<< toBlock(hashOut) << std::endl;
 
                 for (u64 j = 0; j < mNumHashFunctions; ++j)
@@ -333,7 +333,7 @@ namespace osuCrypto
             //std::cout << IoStream::unlock;
 
 
-            // ok we have computed out masks. Lets have the thread that is first 
+            // ok we have computed out masks. Lets have the thread that is first
             // done start merging them into a bit hash table that can be queried.
             auto idx = firstDone++;
             if (idx == -1)
@@ -359,7 +359,7 @@ namespace osuCrypto
             }
             else
             {
-                // ok, we weren't first done, lets move out masks into the 
+                // ok, we weren't first done, lets move out masks into the
                 //  promise which the first threads will get in the code above.
                 masksProms[idx].set_value(std::move(localMasks));
 

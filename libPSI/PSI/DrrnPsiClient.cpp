@@ -71,21 +71,30 @@ namespace osuCrypto
         u64 groupSize = (numLeafBlocks + (u64(1) << kDepth) - 1) / (u64(1) << kDepth);
         if (groupSize > 8) throw std::runtime_error(LOCATION);
 
-        u64 numQueries = mClientSetSize * mCuckooParams.mNumHashes;
+        u64 numQueries = mNumSimpleBins * mBinSize;
 
         // mask generation
         block rSeed = mPrng.get<block>();
         AES rGen(rSeed);
-        std::vector<block> shares(numQueries), enc(mNumSimpleBins * mBinSize);
+        std::vector<block> shares(mClientSetSize * mCuckooParams.mNumHashes), r(numQueries), piS1(numQueries), s(numQueries);
+        //std::vector<u32> rIdxs(numQueries);
         //std::vector<u64> sharesIdx(shares.size());
-        rGen.ecbEncCounterMode(0, enc.size(), enc.data());
-        auto encIter = enc.begin();
+
+        rGen.ecbEncCounterMode(numQueries * 0, numQueries, r.data());
+        rGen.ecbEncCounterMode(numQueries * 1, numQueries, piS1.data());
+        rGen.ecbEncCounterMode(numQueries * 2, numQueries, s.data());
+
+        //auto encIter = enc.begin();
         auto shareIter = shares.begin();
         //auto shareIdxIter = sharesIdx.begin();
-        u64 queryIdx = 0;
+        u64 queryIdx = 0, dummyPermIdx = mClientSetSize * mCuckooParams.mNumHashes;
 
         std::unordered_map<u64, u64> inputMap;
-        inputMap.reserve(numQueries);
+        inputMap.reserve(mClientSetSize * mCuckooParams.mNumHashes);
+
+        std::vector<u32> pi(numQueries);
+        auto piIter = pi.begin();
+
 
 		u64 keySize = kDepth + 1 + groupSize;
         u64 mask = (u64(1) << 56) - 1;
@@ -125,14 +134,28 @@ namespace osuCrypto
                 // add input to masks
                 //*idx0Iter++ = *idx1Iter++ = cuckooIdx;
                 //*shareIdxIter = itemIdx;
-                *shareIter = *encIter ^  inputs[itemIdx];
+
+                // the index of the mask that will mask this item
+                auto rIdx = *piIter = itemIdx * mCuckooParams.mNumHashes + hashIdx;
+
+                // the masked value that will be inputted into the PSI
+                *shareIter = r[rIdx] ^  inputs[itemIdx];
+                std::cout << "c i=" << queryIdx << " " << (*shareIter ^ r[rIdx]) << " " << r[rIdx] << " rIdx" << rIdx << std::endl;
+
+                // This will be used to map itemed items in the intersection back to their input item
                 inputMap.insert({ queryIdx, itemIdx });
+
+                // This will be used to compute the perumation pi0 such that pi(*) = pi0(pi1(*))
+                // where pi1(*) is chosen at random
+                //rIdxs[queryIdx] = rIdx;
+
 
                 //*encIter = _mm_set1_epi64x(queryIdx);
                 //std::cout << "cq mask " << queryIdx << " " << *enc
                 //++shareIdxIter;
                 ++shareIter;
-                ++encIter;
+                ++piIter;
+                //++encIter;
                 ++queryIdx;
             }
 
@@ -141,23 +164,57 @@ namespace osuCrypto
             //mPrng.get(k1Iter,rem * keySize);
 
             binIter += rem;
-            encIter += rem;
+            for (u64 i = 0; i < rem; ++i)
+            {
+                *piIter++ = dummyPermIdx++;
+            }
+            //piIter += rem;
+            //encIter += rem;
 
-            auto off = binIter - bins.begin() + bins.stride() * (bIdx + 1);
-            if (binIter != bins.begin() + bins.stride() * (bIdx + 1))
-                throw std::runtime_error(LOCATION);
+            //auto off = binIter - bins.begin() + bins.stride() * (bIdx + 1);
+            //if (binIter != bins.begin() + bins.stride() * (bIdx + 1))
+            //    throw std::runtime_error(LOCATION);
 
             s0.asyncSend(std::move(k0));
             s1.asyncSend(std::move(k1));
-                                   
+
             //s0.asyncSend(std::move(idx0));
             //s1.asyncSend(std::move(idx1));
 
         }
 
-        s1.asyncSend(&rSeed, sizeof(block));
+        s1.asyncSend((u8*)&rSeed, sizeof(block));
+        std::vector<u32> pi1(numQueries), pi0(numQueries), pi1Inv(numQueries);
+        for (u32 i = 0; i < pi1.size(); ++i) pi1[i] = i;
+        PRNG prng(rSeed ^ OneBlock);
+        std::random_shuffle(pi1.begin(), pi1.end(), prng);
 
-        rGen.ecbEncBlocks(enc.data(), enc.size(), enc.data());
+
+        //std::vector<block> pi1RS(pi.size());
+        for (u64 i = 0; i < numQueries; ++i)
+        {
+            //auto pi1i = pi1[i];
+            //pi1RS[i] = r[pi1i] ^ s[pi1i];
+
+            pi1Inv[pi1[i]] = i;
+            //std::cout << "pi1(r + s)[" << i << "] " << pi1RS[i] << std::endl;
+        }
+        std::vector<block> piS0(r.size());
+        for (u64 i = 0; i < numQueries; ++i)
+        {
+            //std::cout << "r[" << i << "] " << r[i] << std::endl;
+            //std::cout << "pi(r + s)[" << i << "]=" << (r[pi[i]] ^ s[pi[i]]) << std::endl;
+
+
+            pi0[i] = pi1Inv[pi[i]];
+            piS0[i] = piS1[i] ^ s[pi[i]];
+            //std::cout << "pi (r + s)[" << i << "] = " << (r[pi[i]] ^ s[pi[i]]) << " = " << r[pi[i]] << " ^ " << s[pi[i]] << " c " << pi[i] << std::endl;
+            //std::cout << "pi`(r + s)[" << i << "] = " << pi1RS[pi0[i]]  <<" c " << pi0[pi1[i]] << std::endl;
+        }
+
+        s0.asyncSend(std::move(pi0));
+        s0.asyncSend(std::move(piS0));
+        //rGen.ecbEncBlocks(r.data(), r.size(), r.data());
         //for (u64 i = 0; i < shares.size(); ++i)
         //{
         //    std::cout << IoStream::lock << "cshares[" << i << "] " << shares[i] << " input[" << sharesIdx[i]<<"]" << std::endl << IoStream::unlock;
@@ -166,7 +223,7 @@ namespace osuCrypto
 
         mIntersection.reserve(mPsi.mIntersection.size());
         for (u64 i = 0; i < mPsi.mIntersection.size(); ++i) {
-            // divide index by #hashes			
+            // divide index by #hashes
             mIntersection.emplace(inputMap[mPsi.mIntersection[i]]);
         }
 

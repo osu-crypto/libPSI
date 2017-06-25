@@ -83,7 +83,7 @@ namespace osuCrypto
         }
 
         otSend.configure(true, statSecParam, inputBitSize);
-        otRecv.configure(true, statSecParam, inputBitSize); 
+        otRecv.configure(true, statSecParam, inputBitSize);
         u64 baseOtCount = otSend.getBaseOTCount();
 
         //mOtMsgBlkSize = (baseOtCount + 127) / 128;
@@ -97,16 +97,16 @@ namespace osuCrypto
 
         auto& chl0 = chls[0];
 
-        // we need a random hash function, so we will both commit to a seed and then later decommit. 
+        // we need a random hash function, so we will both commit to a seed and then later decommit.
         //This is the commitments phase
         Commit comm(myHashSeed), theirComm;
         chl0.asyncSend(comm.data(), comm.size());
         chl0.recv(theirComm.data(), theirComm.size());
 
         // ok, now decommit to the seed.
-        chl0.asyncSend(&myHashSeed, sizeof(block));
+        chl0.asyncSend((u8*)&myHashSeed, sizeof(block));
         block theirHashingSeed;
-        chl0.recv(&theirHashingSeed, sizeof(block));
+        chl0.recv((u8*)&theirHashingSeed, sizeof(block));
 
         gTimer.setTimePoint("Init.recv.hashSeed");
 
@@ -114,12 +114,12 @@ namespace osuCrypto
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
 
-        // this SimpleHasher class knows how to hash things into bins. But first we need 
+        // this SimpleHasher class knows how to hash things into bins. But first we need
         // to compute how many bins we need, the max size of bins, etc.
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
 
         gTimer.setTimePoint("Init.recv.baseStart");
-        // since we are doing mmlicious PSI, we need OTs going in both directions. 
+        // since we are doing mmlicious PSI, we need OTs going in both directions.
         // This will hold the send OTs
 
         if (otRecv.hasBaseOts() == false ||
@@ -281,8 +281,8 @@ namespace osuCrypto
         //std::vector<std::thread>  thrds(1);
 
         // since we are going to do this in parallel, these objects will
-        // be used for synchronization. specifically, when all threads are 
-        // done inserting items into the bins, the future will be fulfilled 
+        // be used for synchronization. specifically, when all threads are
+        // done inserting items into the bins, the future will be fulfilled
         // and all threads will advance to performing the base OtPsi's
         std::atomic<u32>
             insertRemaining(u32(thrds.size())),
@@ -356,15 +356,15 @@ namespace osuCrypto
                         // simple hack to skip hashing to smaller domain.
                         //memcpy(ncoInputBuff[0].data() + i, inputs.data() + i, currentStepSize * sizeof(block));
                     }
-                    // since we are using random codes, lets just use the first part of the code 
+                    // since we are using random codes, lets just use the first part of the code
                     // as where each item should be hashed.
                     for (u64 j = 0; j < currentStepSize; ++j)
                     {
                         block& item = ncoInputBuff[i + j];
                         u64 addr = *(u64*)&item % mBins.mBinCount;
 
-                        // implements phasing. Note that we are doing very course phasing. 
-                        // At the byte level. This is good enough for use. Since we just 
+                        // implements phasing. Note that we are doing very course phasing.
+                        // At the byte level. This is good enough for use. Since we just
                         // need things to be smaller than 76 bits for OOS16.
 
 
@@ -503,10 +503,10 @@ namespace osuCrypto
                                 //if (inputIdx == 11 )
                                 //{
                                 //    std::cout  << IoStream::lock
-                                //        << "r " << inputIdx << " " 
+                                //        << "r " << inputIdx << " "
                                 //        << inputs[inputIdx] << " " << l << ": "
-                                //        << (sendMask ^ recvMasks[inputIdx]) << " = " 
-                                //        << sendMask << " ^ " << recvMasks[inputIdx] 
+                                //        << (sendMask ^ recvMasks[inputIdx]) << " = "
+                                //        << sendMask << " ^ " << recvMasks[inputIdx]
                                 //        << " sendOtIdx " << innerOtIdx << std::endl << IoStream::unlock;
                                 //}
 
@@ -580,7 +580,7 @@ namespace osuCrypto
 
                 //    // make a buffer for the pseudo-code we need to send
                 //    maskBuffer.res
-                //    
+                //
                 //    chl.recv(maskBuffer);
                 //    maskView = maskBuffer.getMatrixView<u8>(maskSize);
 
@@ -598,7 +598,7 @@ namespace osuCrypto
                 u64 chunkSize = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
                 u64 numChunks = numMasks / chunkSize;
 
-                
+
                 Buff buff(chunkSize * maskSize);
 
                 for (u64 kk = tIdx; kk < numChunks; kk += chls.size())

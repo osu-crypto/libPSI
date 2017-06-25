@@ -2,6 +2,7 @@
 #include <libOTe/TwoChooseOne/IknpOtExtReceiver.h>
 #include <libPSI/PIR/BgiPirServer.h>
 #include <libPSI/Tools/SimpleIndex.h>
+#include <algorithm>
 namespace osuCrypto
 {
     void DrrnPsiServer::init(u8 serverId, Channel clientChl, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler)
@@ -15,7 +16,7 @@ namespace osuCrypto
 
         mCuckooParams = CuckooIndex<>::selectParams(mServerSetSize, ssp, true);
 
-        u64 numBalls = clientSetSize * mIndex.mParams.mNumHashes;
+        u64 numBalls = clientSetSize * mCuckooParams.mNumHashes;
         mNumSimpleBins = static_cast<u64>((numBalls / log2floor(numBalls)) * binScaler);
 
         if (mServerId == 0) gTimer.setTimePoint("DrrnSrv balls_bins start");
@@ -24,45 +25,27 @@ namespace osuCrypto
 
         if (serverId == 0)
         {
-            // i think these are the right set sizes for the final PSI        
+            // i think these are the right set sizes for the final PSI
             auto serverPsiInputSize = mBinSize * mNumSimpleBins;
-            auto clientPsiInputSize = clientSetSize * mIndex.mParams.mNumHashes;
+            auto clientPsiInputSize = clientSetSize * mCuckooParams.mNumHashes;
             mPsi.init(serverPsiInputSize, clientPsiInputSize, 40, clientChl, otSend, mPrng.get<block>());
         }
+
         if (mServerId == 0) gTimer.setTimePoint("DrrnSrv init end");
 
     }
 
     void DrrnPsiServer::setInputs(span<block> inputs, u64 numThreads)
     {
-        //if (numThreads == 0) numThreads = std::thread::hardware_concurrency();
-        //if (inputs.size() != mServerSetSize)
-        //    throw std::runtime_error(LOCATION);
-        //auto routine = [&](u64 tIdx)
-        //{
-        //	auto startIdx = tIdx * inputs.size() / numThreads;
-        //	span<block> region(
-        //		inputs.begin() + startIdx,
-        //		inputs.begin() + (tIdx + 1)* inputs.size() / numThreads);
 
         mHashingSeed = ZeroBlock; // todo, make random;
         mIndex.init(inputs.size(), 40, true);
         mIndex.insert(inputs, mHashingSeed);
-        //};
-
-        //std::vector<std::thread> thrds(numThreads - 1);
-        //for (u64 i = 1; i < numThreads; ++i)
-        //	thrds[i - 1] = std::thread([i, &routine]() { routine(i); });
-
-        //routine(0);
-
-        //for (u64 i = 1; i < numThreads; ++i)
-        //	thrds[i - 1].join();
 
         mInputs = inputs;
 
 #ifndef NDEBUG
-        //mIndex.validate(inputs, mHashingSeed);
+        mIndex.validate(inputs, mHashingSeed);
 #endif
     }
 
@@ -173,55 +156,99 @@ namespace osuCrypto
         if (mServerId)
         {
             block rSeed;
-            clientChl.recv(&rSeed, sizeof(block));
+            clientChl.recv((u8*)&rSeed, sizeof(block));
+
+            PRNG prng(rSeed ^ OneBlock);
+            if (shares.size() > (1ull << 32) - 1) throw std::runtime_error(LOCATION);
+
+            std::vector<u32> pi1(shares.size()), sigma(mIndex.mParams.mNumHashes);
+            for (u32 i = 0; i < sigma.size(); ++i) sigma[i] = i;
+            for (u32 i = 0; i < pi1.size(); ++i) pi1[i] = i;
+            std::random_shuffle(pi1.begin(), pi1.end(), prng);
+
+            std::vector<block>
+                r(shares.size()),
+                s(shares.size()),
+                piS1(shares.size()),
+                pi1SigmaRS(shares.size());
+
             AES rGen(rSeed);
+            rGen.ecbEncCounterMode(shares.size() * 0, shares.size(), r.data());
+            rGen.ecbEncCounterMode(shares.size() * 1, shares.size(), piS1.data());
+            rGen.ecbEncCounterMode(shares.size() * 2, shares.size(), s.data());
 
-
-            std::array<block, 8> buff;
-            u64 j = 0, end = shares.size() - 7;
-            for (; j < end; j += 8)
+            auto rIter = r.begin();
+            for (u64 i = 0; i < mClientSetSize; ++i)
             {
-                rGen.ecbEncCounterMode(j, 8, buff.data());
-
-                shares[j + 0] = shares[j + 0] ^ buff[0];
-                shares[j + 1] = shares[j + 1] ^ buff[1];
-                shares[j + 2] = shares[j + 2] ^ buff[2];
-                shares[j + 3] = shares[j + 3] ^ buff[3];
-                shares[j + 4] = shares[j + 4] ^ buff[4];
-                shares[j + 5] = shares[j + 5] ^ buff[5];
-                shares[j + 6] = shares[j + 6] ^ buff[6];
-                shares[j + 7] = shares[j + 7] ^ buff[7];
+                std::random_shuffle(sigma.begin(), sigma.end(), prng);
+                for (u64 j = 1; j < sigma.size(); ++j)
+                {
+                    std::swap(rIter[j], rIter[sigma[j]]);
+                }
+                rIter += sigma.size();
             }
-            rGen.ecbEncCounterMode(j, shares.size() - j, buff.data());
-            for (u64 i = 0; j < shares.size(); ++j, ++i)
+
+            for (u64 i = 0; i < pi1SigmaRS.size(); ++i)
             {
-                shares[j] = shares[j] ^ buff[i];
+                auto pi1i = pi1[i];
+                pi1SigmaRS[i] = r[pi1i] ^ s[pi1i];
+                //std::cout << "pi1(r + s)[" << i << "] " << pi1SigmaRS[i] << " = " << r[pi1i]<<" ^ "<<s[pi1i] << std::endl;
+            }
+            srvChl.asyncSend(std::move(pi1SigmaRS));
+
+            auto piSIter = piS1.begin();
+            for (u64 j =0; piSIter != piS1.end(); ++piSIter, ++j)
+            {
+                shares[j] = shares[j] ^ *piSIter;
             }
 
             srvChl.asyncSend(std::move(shares));
+            //srvChl.asyncSend(std::move(piS1));
         }
         else
         {
+            std::vector<u32> pi0(shares.size());
+            std::vector<block> piS0(shares.size()), pi1SigmaRS(shares.size()), piSigmaR0(shares.size());
+            clientChl.recv((u8*)pi0.data(), pi0.size() * sizeof(u32));
+            clientChl.recv(piS0);
 
-            std::vector<block> otherShare(shares.size());
-            srvChl.recv(otherShare.data(), otherShare.size() * sizeof(block));
+            srvChl.recv((u8*)pi1SigmaRS.data(), pi1SigmaRS.size() * sizeof(block));
 
-            u64  j = 0, end = shares.size() - 7;
-            for (; j < end; j += 8)
+            for (u64 i = 0; i < shares.size(); ++i)
             {
-                shares[j + 0] = shares[j + 0] ^ otherShare[j + 0];
-                shares[j + 1] = shares[j + 1] ^ otherShare[j + 1];
-                shares[j + 2] = shares[j + 2] ^ otherShare[j + 2];
-                shares[j + 3] = shares[j + 3] ^ otherShare[j + 3];
-                shares[j + 4] = shares[j + 4] ^ otherShare[j + 4];
-                shares[j + 5] = shares[j + 5] ^ otherShare[j + 5];
-                shares[j + 6] = shares[j + 6] ^ otherShare[j + 6];
-                shares[j + 7] = shares[j + 7] ^ otherShare[j + 7];
+                //std::cout << "pi(r + s)[" << i << "]=" << pi1SigmaRS[pi0[i]] << std::endl;
+                piSigmaR0[i] = pi1SigmaRS[pi0[i]] ^ piS0[i];
             }
-            for (; j < shares.size(); ++j)
+
+            // reuse the memory
+            auto& piSigmaRV1 = pi1SigmaRS;
+            srvChl.recv(piSigmaRV1);
+            //srvChl.recv(piS1);
+
+            for (u64 i = 0; i < shares.size(); ++i)
             {
-                shares[j] = shares[j] ^ otherShare[j];
+                //std::cout << "pi(r)[" << i << "] " << (piS1[i] ^ piSigmaR0[i]) << std::endl;
+                shares[i] = shares[i] ^ piSigmaR0[i] ^ piSigmaRV1[i];
+
+                //std::cout << "s i=" << i << " " << (shares[i] ^ (piS0[i] ^ piS1[i])) << " " << (piS0[i] ^ piS1[i]) << " = "
+                //    << piS0[i] << " + " << piS1[i] << std::endl;
             }
+            //u64  j = 0, end = shares.size() - 7;
+            //for (; j < end; j += 8)
+            //{
+            //    shares[j + 0] = shares[j + 0] ^ otherShare[j + 0];
+            //    shares[j + 1] = shares[j + 1] ^ otherShare[j + 1];
+            //    shares[j + 2] = shares[j + 2] ^ otherShare[j + 2];
+            //    shares[j + 3] = shares[j + 3] ^ otherShare[j + 3];
+            //    shares[j + 4] = shares[j + 4] ^ otherShare[j + 4];
+            //    shares[j + 5] = shares[j + 5] ^ otherShare[j + 5];
+            //    shares[j + 6] = shares[j + 6] ^ otherShare[j + 6];
+            //    shares[j + 7] = shares[j + 7] ^ otherShare[j + 7];
+            //}
+            //for (; j < shares.size(); ++j)
+            //{
+            //    shares[j] = shares[j] ^ otherShare[j];
+            //}
 
             //for (u64 i = 0; i < shares.size(); ++i)
             //{

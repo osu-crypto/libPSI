@@ -80,7 +80,7 @@ namespace osuCrypto
 
         otSend.configure(
             true, // input, is malicious
-            statSecParam, inputBitSize); 
+            statSecParam, inputBitSize);
         u64 baseOtCount = otSend.getBaseOTCount();
 
 
@@ -94,9 +94,9 @@ namespace osuCrypto
         chl0.recv(theirComm.data(), theirComm.size());
 
 
-        chl0.asyncSend(&myHashSeed, sizeof(block));
+        chl0.asyncSend((u8*)&myHashSeed, sizeof(block));
         block theirHashingSeed;
-        chl0.recv(&theirHashingSeed, sizeof(block));
+        chl0.recv((u8*)&theirHashingSeed, sizeof(block));
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
@@ -197,22 +197,22 @@ namespace osuCrypto
         // we will use these threads to perform the work.
         std::vector<std::thread>  thrds(chls.size());
 
-        // some barriers that will be used to ensure all threads have 
+        // some barriers that will be used to ensure all threads have
         // made it to some point before proceedding.
         ThreadBarrier
             itemsInsertedBarrier(thrds.size()),
             encodingsComputedBarrier(thrds.size());
 
 
-        // This buffer will hold { H( inputs[0] ), ..., H( inputs[mN - 1] ) } and will be used as the location 
-        // which an item is inserted at in the hash table. Additionaly, if we perform the hash to smaller domain 
+        // This buffer will hold { H( inputs[0] ), ..., H( inputs[mN - 1] ) } and will be used as the location
+        // which an item is inserted at in the hash table. Additionaly, if we perform the hash to smaller domain
         // operation, then this will also be the input value to the OT-encoding functionality.
         std::vector<block> hashedInputBuffer(mHashToSmallerDomain ? inputs.size() : 0);
 
         // Use this view to indicate which of the two buffers should be the OT-OT-encoding input values.
         span<block> otInputs(mHashToSmallerDomain ? hashedInputBuffer : inputs);
 
-        // next we will create a random permutation that the sender will use when 
+        // next we will create a random permutation that the sender will use when
         // sending over their commitments/decommitments. This permutation is over
         // the input order. The std::future permDone will be fulfilled when maskPerm
         // contains a random permutation of [0,1, ..., mN - 1].
@@ -258,7 +258,7 @@ namespace osuCrypto
                 // local randomness generator
                 PRNG prng(seed);
 
-                // rename these guys for convienience 
+                // rename these guys for convienience
                 auto& otSend = *mOtSends[tIdx];
                 auto& chl = chls[tIdx];
 
@@ -302,7 +302,7 @@ namespace osuCrypto
                 }
                 else
                 {
-                    // We key the AES with the hashingSeed. We then hash items to bins as AES(item) % #bins. 
+                    // We key the AES with the hashingSeed. We then hash items to bins as AES(item) % #bins.
                     // This should be near uniform.
                     AES inputHasher(mHashingSeed);
 
@@ -330,9 +330,9 @@ namespace osuCrypto
 
                 if (tIdx == 0) gTimer.setTimePoint("online.send.insert");
 
-                // This will index the OT that we should use for the current bin. 
+                // This will index the OT that we should use for the current bin.
                 // Each item used mBin.mMaxBinSize OT, where they are reused on items
-                // in the same bin. 
+                // in the same bin.
                 u64 otIdx = 0;// binStart * mBins.mMaxBinSize;
 
 
@@ -346,11 +346,11 @@ namespace osuCrypto
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
                     // Instead of doing things bin by bin, we will process "stepSize" worht of bins
-                    // at a time. currentStepSize denotes the size of our current step since the last 
+                    // at a time. currentStepSize denotes the size of our current step since the last
                     // one mine be a partial step
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
 
-                    // To compute the common OT-encodings, we need to receive correction values for these OT. 
+                    // To compute the common OT-encodings, we need to receive correction values for these OT.
                     // These values tells just how to encode our items, as OT sender...
                     otSend.recvCorrection(chl, currentStepSize * mBins.mMaxBinSize);
 
@@ -365,7 +365,7 @@ namespace osuCrypto
                             // bin[i] denotes the index if them input item that is stored at that location.
                             u64 inputIdx = bin[i];
 
-                            // First we compute the commitment to our value. Each of the common OT-encodings that we 
+                            // First we compute the commitment to our value. Each of the common OT-encodings that we
                             // generate for this items will be used to encrypt the decommitment value.
                             SHA1 sha;
 
@@ -377,12 +377,12 @@ namespace osuCrypto
                             // iter is the local in the shared sendMaskBuff that we should write this
                             // item's data. For each item x, we write as:
                             //
-                            //     Comm(x; r), 
-                            //     [[ x ]]_1  + ( 0000 || r ) 
+                            //     Comm(x; r),
+                            //     [[ x ]]_1  + ( 0000 || r )
                             //     ...
-                            //     [[ x ]]_m  + ( 0000 || r ) 
+                            //     [[ x ]]_m  + ( 0000 || r )
                             //
-                            // Where [[ x ]]_i denotes the i'th OT-encoding. ( 0000 || r ) denote 4 bytes of zero followed by the 
+                            // Where [[ x ]]_i denotes the i'th OT-encoding. ( 0000 || r ) denote 4 bytes of zero followed by the
                             // the decommitment value r. The leading zeros help the receiver identify x if they already know [[ x ]]_i
                             // which in turn allows them to efficiently check Comm(x; r)
                             auto iter = sendMaskBuff->data() + itemPermutation[inputIdx] * encodingSetSize;
@@ -393,7 +393,7 @@ namespace osuCrypto
                             sha.Final(iter);
                             iter += SHA1::HashSize;
 
-                            // Compute the i'th 
+                            // Compute the i'th
                             for (u64 l = 0, innerOtIdx = otIdx; l < mBins.mMaxBinSize; ++l)
                             {
 
@@ -448,7 +448,7 @@ namespace osuCrypto
                 // block until all masks are computed. the last to finish will set the promise...
                 encodingsComputedBarrier.decrementWait();
 
-                
+
                 auto itemsPerThread = (mN + thrds.size() - 1) / thrds.size();
                 auto startSendIdx = itemsPerThread * tIdx;
                 auto endSendIdx = std::min<u64>(itemsPerThread * (tIdx + 1), mN);
