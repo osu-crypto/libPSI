@@ -140,7 +140,7 @@ namespace osuCrypto
 
                 // the masked value that will be inputted into the PSI
                 *shareIter = r[rIdx] ^  inputs[itemIdx];
-                std::cout << "c i=" << queryIdx << " " << (*shareIter ^ r[rIdx]) << " " << r[rIdx] << " rIdx" << rIdx << std::endl;
+                //std::cout << "c i=" << queryIdx << " " << (*shareIter ^ r[rIdx]) << " " << r[rIdx] << " rIdx" << rIdx << std::endl;
 
                 // This will be used to map itemed items in the intersection back to their input item
                 inputMap.insert({ queryIdx, itemIdx });
