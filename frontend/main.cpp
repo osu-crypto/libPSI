@@ -25,7 +25,7 @@ using namespace osuCrypto;
 
 #include "cuckoo/cuckooTests.h"
 #include "cryptoTools/Common/CLP.h"
-
+#include "cryptoTools/Common/CuckooIndex.h"
 
 std::vector<std::string>
 unitTestTags{ "u", "unitTest" },
@@ -305,10 +305,35 @@ void pingTest(CLP& cmd)
     ios.stop();
 }
 
+//void hhhh()
+//{
+//
+//	double s = 5, e = 30;
+//	std::cout << "      ";
+//	for (u64 ssp = 10; ssp <= e; ssp += s)
+//	{
+//		std::cout << ssp << "     ";
+//	}
+//	std::cout << std::endl;
+//
+//	for (u64 nn = 6; nn < 20; nn += 2)
+//	{
+//		std::cout << nn << "  |  ";
+//
+//		for (u64 ssp = 10; ssp <= e; ssp += s)
+//		{
+//			auto p = CuckooIndex<>::selectParams(1 << nn, ssp, true, 2);
+//
+//			std::cout << p.mBinScaler << "   ";
+//		}
+//		std::cout << std::endl;
+//	}
+//}
+
 int main(int argc, char** argv)
 {
-    backtraceHook();
-
+	//hhhh();
+	//return 0;
 
     CLP cmd;
     cmd.parse(argc, argv);

@@ -14,13 +14,15 @@ namespace osuCrypto
 
         void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1);
 
+		//void setCuckooParam(osuCrypto::u64 &serverSetSize, int ssp);
+
 		void setInputs(span<block> inputs, u64 numThreads = 1);
 
         void send(Channel clientChl, Channel srvChl, u64 numThreads = 1);
 
 		span<block> mInputs;
 
-        CuckooParam mCuckooParams;
+        //CuckooParam mCuckooParams;
         CuckooIndex<NotThreadSafe> mIndex;
         KkrtNcoOtSender otSend;
         PRNG mPrng;

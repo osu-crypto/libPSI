@@ -5,18 +5,22 @@
 #include <algorithm>
 namespace osuCrypto
 {
-    void DrrnPsiServer::init(u8 serverId, Channel clientChl, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler)
+    void DrrnPsiServer::init(u8 serverId, Channel clientChl, Channel srvChl, u64 serverSetSize, u64 clientSetSize, block seed, double binScaler)
     {
         if (mServerId == 0) gTimer.setTimePoint("DrrnSrv init start");
         auto ssp(40);
         mPrng.SetSeed(seed);
         mClientSetSize = clientSetSize;
-        mServerSetSize = databaseSize;
+        mServerSetSize = serverSetSize;
         mServerId = serverId;
 
-        mCuckooParams = CuckooIndex<>::selectParams(mServerSetSize, ssp, true);
+		if (mIndex.mParams.mN != serverSetSize)
+			throw std::runtime_error(LOCATION);
 
-        u64 numBalls = clientSetSize * mCuckooParams.mNumHashes;
+		//setCuckooParam(serverSetSize, ssp);
+
+
+        u64 numBalls = clientSetSize * mIndex.mParams.mNumHashes;
         mNumSimpleBins = static_cast<u64>((numBalls / log2floor(numBalls)) * binScaler);
 
         if (mServerId == 0) gTimer.setTimePoint("DrrnSrv balls_bins start");
@@ -27,7 +31,7 @@ namespace osuCrypto
         {
             // i think these are the right set sizes for the final PSI
             auto serverPsiInputSize = mBinSize * mNumSimpleBins;
-            auto clientPsiInputSize = clientSetSize * mCuckooParams.mNumHashes;
+            auto clientPsiInputSize = clientSetSize * mIndex.mParams.mNumHashes;
             mPsi.init(serverPsiInputSize, clientPsiInputSize, 40, clientChl, otSend, mPrng.get<block>());
         }
 
@@ -35,11 +39,17 @@ namespace osuCrypto
 
     }
 
+	//void DrrnPsiServer::setCuckooParam(osuCrypto::u64 &serverSetSize, int ssp)
+	//{
+	//	u64 h = 2;
+	//	mIndex.init(CuckooIndex<>::selectParams(serverSetSize, ssp, true, h));
+	//}
+
     void DrrnPsiServer::setInputs(span<block> inputs, u64 numThreads)
     {
 
         mHashingSeed = ZeroBlock; // todo, make random;
-        mIndex.init(inputs.size(), 40, true);
+		mIndex.init(CuckooIndex<>::selectParams(inputs.size(), 20, true, 2));
         mIndex.insert(inputs, mHashingSeed);
 
         mInputs = inputs;
@@ -55,7 +65,6 @@ namespace osuCrypto
         //numThreads = 1;
         if (numThreads == 0) numThreads = std::thread::hardware_concurrency();
         if (mInputs.size() != mServerSetSize ||
-            mInputs.size() != mCuckooParams.mN ||
             mInputs.size() != mIndex.mParams.mN)
         {
             std::cout << " failed " << std::endl;
