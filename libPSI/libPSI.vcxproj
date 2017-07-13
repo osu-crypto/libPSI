@@ -76,20 +76,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PSI\DrrnPsiClient.cpp" />
-    <ClCompile Include="PSI\DrrnPsiServer.cpp" />
-    <ClCompile Include="PSI\KeywordPsiClient.cpp" />
-    <ClCompile Include="PSI\KeywordPsiServer.cpp" />
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
     <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
     <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp" />
-    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp" />
-    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp" />
-    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp" />
-    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp" />
     <ClCompile Include="Tools\SimpleHasher.cpp" />
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp" />
@@ -97,26 +89,15 @@
     <ClCompile Include="MPSI\Dcw\DcwBfPsiSender.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiSender.cpp" />
-    <ClCompile Include="PIR\BgiPirClient.cpp" />
-    <ClCompile Include="PIR\BgiPirServer.cpp" />
     <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PSI\DrrnPsiClient.h" />
-    <ClInclude Include="PSI\DrrnPsiServer.h" />
-    <ClInclude Include="PSI\KeywordPsiClient.h" />
-    <ClInclude Include="PSI\KeywordPsiServer.h" />
     <ClInclude Include="PSI\KkrtPsiReceiver.h" />
     <ClInclude Include="PSI\KkrtPsiSender.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h" />
     <ClInclude Include="MPSI\Dcw\ShamirSSScheme.h" />
     <ClInclude Include="MPSI\Rr16\AknBfMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h" />
     <ClInclude Include="Tools\SimpleHasher.h" />
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h" />
     <ClInclude Include="MPSI\DKT\DktMPsiSender.h" />
@@ -124,8 +105,6 @@
     <ClInclude Include="MPSI\Dcw\DcwBfPsiSender.h" />
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiReceiver.h" />
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiSender.h" />
-    <ClInclude Include="PIR\BgiPirClient.h" />
-    <ClInclude Include="PIR\BgiPirServer.h" />
     <ClInclude Include="Tools\SimpleIndex.h" />
   </ItemGroup>
   <ItemGroup>

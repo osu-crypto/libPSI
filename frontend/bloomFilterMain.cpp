@@ -1,5 +1,5 @@
 #include "bloomFilterMain.h"
-#include "cryptoTools/Network/Endpoint.h" 
+#include "cryptoTools/Network/Endpoint.h"
 
 #include "libPSI/MPSI/Rr16/AknBfMPsiReceiver.h"
 #include "libPSI/MPSI/Rr16/AknBfMPsiSender.h"
@@ -106,14 +106,14 @@ void bfRecv(LaunchParams& params)
                 chls[0].recv(dummy, 1);
                 auto mid = timer.setTimePoint("init");
 
-                 
+
                 recvPSIs.sendInput(set, chls);
                 auto end = timer.setTimePoint("done");
 
                 auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
                 auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-                std::string tag("RR16");               
+                std::string tag("RR16");
                 printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads);
 
             }

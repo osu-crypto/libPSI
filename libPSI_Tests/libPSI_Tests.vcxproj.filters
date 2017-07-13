@@ -39,15 +39,6 @@
     <ClCompile Include="BinOtPsi_Tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BgiPirTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DrrnPsi_Tests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="KeywordPSI_Tests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -72,15 +63,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BinOtPsi_Tests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BgiPirTests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DrrnPsi_Tests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="KeywordPsi_Tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,7 +11,6 @@ using namespace osuCrypto;
 #include "dcwMain.h"
 #include "dktMain.h"
 #include "OtBinMain.h"
-#include "DrrnPSIMain.h"
 #include "util.h"
 #include "signalHandle.h"
 
@@ -20,8 +19,6 @@ using namespace osuCrypto;
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include <numeric>
 #include "cryptoTools/Common/Log.h"
-#include "libPSI/PIR/BgiPirClient.h"
-#include "libPSI/PIR/BgiPirServer.h"
 
 #include "cuckoo/cuckooTests.h"
 #include "cryptoTools/Common/CLP.h"
@@ -34,12 +31,7 @@ DcwTags{ "dcw" },
 DcwrTags{ "dcwr" },
 #endif
 rr16Tags{ "rr16" },
-rr17aTags{ "rr17a" },
-rr17aSMTags{ "rr17a-sm" },
-rr17bTags{ "rr17b" },
-rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
-drrnTag{ "drrn" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -372,13 +364,8 @@ int main(int argc, char** argv)
     run(DcwRRecv, DcwRSend, DcwrTags, cmd);
 #endif
     run(rr16Tags, cmd, bfRecv, bfSend);
-    run(rr17aTags, cmd, rr17aRecv, rr17aSend);
-    run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
-    run(rr17bTags, cmd, rr17bRecv, rr17bSend);
-    run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
     run(dktTags, cmd, DktRecv, DktSend);
     run(kkrtTag, cmd, kkrtRecv, kkrtSend);
-    runPir(drrnTag, cmd, Drrn17Recv, Drrn17Send);
 
 
     if ((cmd.isSet(unitTestTags) == false &&
@@ -387,12 +374,7 @@ int main(int argc, char** argv)
         cmd.isSet(DcwrTags) == false &&
 #endif
         cmd.isSet(rr16Tags) == false &&
-        cmd.isSet(rr17aTags) == false &&
-        cmd.isSet(rr17aSMTags) == false &&
-        cmd.isSet(rr17bTags) == false &&
-        cmd.isSet(rr17bSMTags) == false &&
         cmd.isSet(kkrtTag) == false &&
-        cmd.isSet(drrnTag) == false &&
         cmd.isSet(dktTags) == false &&
         cmd.isSet(pingTag) == false) ||
         cmd.isSet(helpTags))
@@ -412,12 +394,8 @@ int main(int argc, char** argv)
             << "   -" << DcwrTags[0] << " : PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
 #endif
             << "   -" << rr16Tags[0] << " : RR16   - Random Garbled Bloom Filter (malicious secure)\n"
-            << "   -" << rr17aTags[0] << " : RR17   - Hash to bins & compare style (malicious secure)\n"
-            << "   -" << rr17aSMTags[0] << ": RR17sm - Hash to bins & compare style (standard model malicious secure)\n"
-            << "   -" << rr17bTags[0] << ": RR17b  - Hash to bins & commit compare style (malicious secure)\n"
             << "   -" << dktTags[0] << "  : DKT12  - Public key style (malicious secure)\n"
-            << "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure)\n"
-            << "   -" << drrnTag[0] << "  : DRRN17  - Two server PIR style (semi-honest secure)\n" << std::endl;
+            << "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure)\n" << std::endl;
 
         std::cout << "Parameters:\n"
             << "   -" << roleTag[0]
