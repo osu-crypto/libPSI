@@ -257,7 +257,7 @@ namespace osuCrypto
         }
 
         // put any that remain in the stash.
-        for (u64 i = 0, j = 0; i < remaining; ++j)
+        for (u64 i = 0; i < remaining; ++i)
         {
             mStash.push_back(Bin(inputIdxs[i], w.curHashIdxs[i]));
             //mStash[j].swap(inputIdxs[i], w.curHashIdxs[i]);
