@@ -1,40 +1,37 @@
 # libPSI
-A repository for private set intersection. Companion paper under submission.
+A repository for private set intersection. 
 
 
 ## Introduction
+Protocols:
 
-Primary construction is malicious secure and is based on the Garbled Bloom Filter construction of DCW. We implement an improved construction and note that the original DCW construction has a bug which is fixed in this work. The primary construction is embodied in the class AknBfPsi\*. The DcwPsi\* protocols were implemented for comparison purposes and should not be used (insecure and slow).
-
-
+ * Malicious Secure [RR17](https://eprint.iacr.org/2016/746) based on Bloom filters and OTs
+ * Malicious Secure [DKT10](https://eprint.iacr.org/2010/469) based on public key crypto (ECC)
+ * Semi-Honest Secure [KKRT16](https://eprint.iacr.org/2016/799) based on cuckoo hashing and OTs
+ 
 ## Install
 
-Our library is cross platform and has been tested on both Windows and Linux. The library should work on MAC but it has not been tested. There are several library dependencies including Boost, Crypto++, Miracl, Mpir, NTL.
+Our library is cross platform and has been tested on both Windows and Linux. The library should work on Mac but it has not been tested. There are several library dependencies including [libOTe](https://github.com/osu-crypto/libOte), Boost, Miracl, NTL. First follow the instructions at libOTe. Then build ntl located in `./thirdparty/`. A script is provided.
 
 ### Windows
 
-Once cloned, the libraries listed above must be built. For Boost, Crypto++, Miracl, Mpir there are powershell scripts that download and build the libraries. For NTL there is a script that downloads it but does not build it. Building can be done manually using VS or the method specified in their read me.
-
-Unit tests are built into the Test explorer and should all be passing. The frontend can also run the unit tests my executing it with no arguments.
-
-```
-./Release/frontend.exe
-```
+Once cloned, the libraries listed above must be built. Then open the solution in Visaul Studio.
 
 ### Linux
 
 Once cloned, the libraries listed above must be built. In Thirdparty/linux there are scripts that will download and build all of the libraries that are listed above. To build the library:
 
 ```
-./make
+cmake -G"Unix Makefiles"
+make
 ```
 
-Unit tests can be run by executing the program with no arguments.
+Unit tests can be run by executing the program.
 
 ```
-./Release/frontend.exe
+./bin/frontend.exe -u
 ```
-
+Other options can be seen by executing with no arguments.
 ## Help
 
 Contact Peter Rindal `rindalp@oregonstate.edu` for any assistance on building or running the library.

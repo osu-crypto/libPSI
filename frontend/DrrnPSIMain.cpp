@@ -14,6 +14,7 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include <numeric>
+#include "cuckoo/SimpleCuckoo.h"
 
 void Drrn17Send(
 	LaunchParams& params)
@@ -21,7 +22,7 @@ void Drrn17Send(
 	setThreadName("CP_Test_Thread");
 	u8 dummy[1];
 
-	PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
+	PRNG prng(_mm_set_epi32(4253465, 434565, 234435, 23987045));
 
 
 	for (auto clientSetSize : params.mNumItems)
@@ -41,9 +42,19 @@ void Drrn17Send(
 						std::vector<block> set(serverSetSize);
 						prng.get(set.data(), set.size());
 						DrrnPsiServer srv;
-                        std::cout << "setting input\n" << std::flush;
-                        srv.setInputs(set, numThreads);
-                        std::cout << "set     input\n" << std::flush;
+						//{
+						//	auto param = CuckooIndex<>::selectParams(set.size(), 20, true, 2);
+						//	//SimpleCuckoo cc;
+						//	//cc.mParams = param;
+						//	//cc.init();
+						//	//cc.insert(set, ZeroBlock);
+
+						//	CuckooIndex<NotThreadSafe> mm;
+						//	mm.init(param);
+						//	mm.insert(set, ZeroBlock);
+						//}
+
+                        srv.setInputs(set, params.mNumHash, 10);
 
 						clientChls[0].asyncSend(dummy, 1);
 						clientChls[0].recv(dummy, 1);
@@ -100,7 +111,7 @@ void Drrn17Recv(
 						Timer timer;
 						auto start = timer.setTimePoint("start");
 						DrrnPsiClient client;
-						client.init(s0[0], s1[0], serverSetSize, clientSetSize, ZeroBlock, ss);
+						client.init(s0[0], s1[0], serverSetSize, clientSetSize, ZeroBlock, params.mNumHash, ss, 10);
 
 						auto mid = timer.setTimePoint("online");
 

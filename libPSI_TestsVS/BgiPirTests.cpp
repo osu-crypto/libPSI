@@ -6,7 +6,7 @@
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace testsVS_apollo
-{        
+{
     TEST_CLASS(BgiPirTests)
     {
     public:
@@ -32,7 +32,19 @@ namespace testsVS_apollo
         TEST_METHOD(BgiPir_FullDomain_testVS)
         {
             InitDebugPrinting();
-            BgiPir_FullDomain_test();
+			BgiPir_FullDomain_test();
         }
+
+		TEST_METHOD(BgiPir_FullDomain_iterator_testVS)
+		{
+			InitDebugPrinting();
+			BgiPir_FullDomain_iterator_test();
+		}
+
+		TEST_METHOD(BgiPir_FullDomain_multikey_testVS)
+		{
+			InitDebugPrinting();
+			BgiPir_FullDomain_multikey_test();
+		}
     };
 }

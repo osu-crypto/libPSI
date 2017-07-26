@@ -16,14 +16,15 @@ namespace osuCrypto
 
 		//void setCuckooParam(osuCrypto::u64 &serverSetSize, int ssp);
 
-		void setInputs(span<block> inputs, u64 numThreads = 1);
+		void setInputs(span<block> inputs, u64 numThreads = 2, u64 ssp = 20);
 
         void send(Channel clientChl, Channel srvChl, u64 numThreads = 1);
 
-		span<block> mInputs;
+		std::vector<block> mCuckooData;
 
         //CuckooParam mCuckooParams;
         CuckooIndex<NotThreadSafe> mIndex;
+
         KkrtNcoOtSender otSend;
         PRNG mPrng;
         KkrtPsiSender mPsi;

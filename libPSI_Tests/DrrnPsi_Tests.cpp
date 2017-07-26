@@ -54,15 +54,15 @@ void Psi_drrn_EmptySet_Test_Impl()
 	DrrnPsiClient client;
 	DrrnPsiServer s0, s1;
 
-	auto s0thrd = std::thread([&]() { s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
-	auto s1thrd = std::thread([&]() { s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s0thrd = std::thread([&]() {s0.setInputs(srvSet, numThread); s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s1thrd = std::thread([&]() {s1.setInputs(srvSet, numThread); s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
 	client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
 
 	s0thrd.join();
 	s1thrd.join();
 
-	s0thrd = std::thread([&]() { s0.setInputs(srvSet, numThread); s0.send(s0cChl, s0sChl, numThread); });
-	s1thrd = std::thread([&]() { s1.setInputs(srvSet, numThread); s1.send(s1cChl, s1sChl, numThread); });
+	s0thrd = std::thread([&]() {  s0.send(s0cChl, s0sChl, numThread); });
+	s1thrd = std::thread([&]() {  s1.send(s1cChl, s1sChl, numThread); });
 	client.recv(cs0Chl, cs1Chl, clientSet);
 
 	s0thrd.join();
@@ -115,15 +115,15 @@ void Psi_drrn_SingletonSet_Test_Impl()
 	DrrnPsiClient client;
 	DrrnPsiServer s0, s1;
 
-	auto s0thrd = std::thread([&]() { s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
-	auto s1thrd = std::thread([&]() { s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s0thrd = std::thread([&]() {s0.setInputs(srvSet); s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s1thrd = std::thread([&]() {s1.setInputs(srvSet); s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
 	client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
 
 	s0thrd.join();
 	s1thrd.join();
 
-	s0thrd = std::thread([&]() { s0.setInputs(srvSet); s0.send(s0cChl, s0sChl); });
-	s1thrd = std::thread([&]() { s1.setInputs(srvSet); s1.send(s1cChl, s1sChl); });
+	s0thrd = std::thread([&]() {  s0.send(s0cChl, s0sChl); });
+	s1thrd = std::thread([&]() {  s1.send(s1cChl, s1sChl); });
 	client.recv(cs0Chl, cs1Chl, clientSet);
 
 	s0thrd.join();
@@ -146,7 +146,7 @@ void Psi_drrn_FullSet_Test_Impl()
 	u64 psiSecParam = 40;
 	u64 clientSetSize = 128;
 	u64 srvSetSize = 128;
-    u64 numThreads = 4;
+    u64 numHash = 2;
 
 	PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 	PRNG prng1(_mm_set_epi32(4253465, 34354565, 0, 23987045));
@@ -180,15 +180,15 @@ void Psi_drrn_FullSet_Test_Impl()
 	DrrnPsiClient client;
 	DrrnPsiServer s0, s1;
 
-	auto s0thrd = std::thread([&]() { s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
-	auto s1thrd = std::thread([&]() { s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s0thrd = std::thread([&]() { s0.setInputs(srvSet, numHash); s0.init(0, s0cChl, s0sChl, srvSetSize, clientSetSize, prng.get<block>()); });
+	auto s1thrd = std::thread([&]() { s1.setInputs(srvSet, numHash); s1.init(1, s1cChl, s1sChl, srvSetSize, clientSetSize, prng.get<block>()); });
 	client.init(cs0Chl, cs1Chl, srvSetSize, clientSetSize, prng.get<block>());
 
 	s0thrd.join();
 	s1thrd.join();
 
-	s0thrd = std::thread([&]() { s0.setInputs(srvSet, numThreads); s0.send(s0cChl, s0sChl, numThreads); });
-	s1thrd = std::thread([&]() { s1.setInputs(srvSet, numThreads); s1.send(s1cChl, s1sChl, numThreads); });
+	s0thrd = std::thread([&]() { s0.send(s0cChl, s0sChl, numHash); });
+	s1thrd = std::thread([&]() { s1.send(s1cChl, s1sChl, numHash); });
 	client.recv(cs0Chl, cs1Chl, clientSet);
 
 	s0thrd.join();

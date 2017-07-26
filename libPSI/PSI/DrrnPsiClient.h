@@ -15,7 +15,7 @@ namespace osuCrypto
     {
     public:
 
-        void init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed, double binScaler = 1);
+        void init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed,u64 numHash = 2, double binScaler = 1, u64 cuckooSsp = 20);
 
         void recv(Channel s0, Channel s1, span<block> inputs);
 

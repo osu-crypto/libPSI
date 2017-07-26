@@ -44,7 +44,7 @@ namespace osuCrypto
 
 
         block theirHashingSeeds;
-        auto fu = chl.asyncRecv(&theirHashingSeeds, sizeof(block));
+        auto fu = chl.asyncRecv((u8*)&theirHashingSeeds, sizeof(block));
 
         // init Simple hash
         mParams = CuckooIndex<>::selectParams(mRecverSize, statSec, true);

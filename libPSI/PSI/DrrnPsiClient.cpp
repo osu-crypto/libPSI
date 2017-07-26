@@ -3,7 +3,7 @@
 #include <libPSI/PIR/BgiPirClient.h>
 namespace osuCrypto
 {
-	void DrrnPsiClient::init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed, double binScaler)
+	void DrrnPsiClient::init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed, u64 numHash, double binScaler, u64 cuckooSsp)
 	{
 		auto ssp(40);
 		mPrng.SetSeed(seed);
@@ -11,7 +11,7 @@ namespace osuCrypto
 		mClientSetSize = clientSetSize;
 		mHashingSeed = ZeroBlock;
 
-		mCuckooParams = CuckooIndex<>::selectParams(serverSetSize, 20, true, 2);
+		mCuckooParams = CuckooIndex<>::selectParams(serverSetSize, cuckooSsp, true, numHash);
 
 
 
