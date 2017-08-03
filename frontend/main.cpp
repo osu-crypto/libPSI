@@ -45,7 +45,8 @@ roleTag{ "r", "role" },
 hostNameTag{ "ip" },
 pingTag{ "ping" },
 bitSizeTag{ "b","bitSize" },
-binScalerTag{ "s", "binScaler" };
+binScalerTag{ "s", "binScaler" },
+numHashTag{ "nh" };
 
 bool firstRun(true);
 
@@ -68,6 +69,7 @@ void runPir(
         params.mHostName = cmd.get<std::string>(hostNameTag);
         params.mBitSize = cmd.get<u64>(bitSizeTag);
         params.mBinScaler = cmd.getMany<double>(binScalerTag);
+		params.mNumHash = cmd.get<u64>(numHashTag);
 
         if (cmd.isSet(powNumItems)) {
             params.mNumItems = cmd.getMany<u64>(powNumItems);
@@ -345,6 +347,7 @@ int main(int argc, char** argv)
     cmd.setDefault(bitSizeTag, "-1");
     cmd.setDefault(binScalerTag, "1");
     cmd.setDefault(hostNameTag, "127.0.0.1:1212");
+	cmd.setDefault(numHashTag, "2");
 
     cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
 

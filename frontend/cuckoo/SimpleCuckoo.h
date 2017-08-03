@@ -6,8 +6,8 @@
 #include "cryptoTools/Common/Matrix.h"
 //#include <mutex>
 #include <atomic>
-#include "libPSI/Tools/CuckooHasher.h"
 //#define THREAD_SAFE_CUCKOO
+#include "cryptoTools/Common/CuckooIndex.h"
 
 namespace osuCrypto
 {
@@ -67,9 +67,52 @@ namespace osuCrypto
         CuckooParam mParams;
 
         void print() const;
-        void init(u64 n, u64 statSecParam, bool multiThreaded);
+        void init();
 
-        void insertBatch(span<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
+		void insert(span<block> items, block hashingSeed)
+		{
+			std::vector<block> hashs(items.size());
+			std::vector<u64> idxs(items.size());
+			AES hasher(hashingSeed);
+
+			for (u64 i = 0; i < u64(items.size()); i += u64(hashs.size()))
+			{
+				auto min = std::min<u64>(items.size() - i, hashs.size());
+
+				hasher.ecbEncBlocks(items.data() + i, min, hashs.data());
+
+				for (u64 j = 0, jj = i; j < min; ++j, ++jj)
+				{
+					idxs[j] = jj;
+					hashs[j] = hashs[j] ^ items[jj];
+
+					//if(jj < 1) std::cout<< IoStream::lock << "item[" << jj << "] = " <<items[jj]<<" -> " << hashs[j] << std::endl << IoStream::unlock;
+				}
+
+				insert(idxs, hashs);
+			}
+		}
+
+		void insert(span<u64> itemIdxs, span<block> hashs)
+		{
+			Workspace ws(itemIdxs.size(), mParams.mNumHashes);
+			std::vector<block> bb(mParams.mNumHashes);
+			Matrix<u64> hh(hashs.size(), mParams.mNumHashes);
+
+			for (i64 i = 0; i < hashs.size(); ++i)
+			{
+				AES aes(hashs[i]);
+				aes.ecbEncCounterMode(0, bb.size(), bb.data());
+				for (u64 j = 0; j < mParams.mNumHashes; ++j)
+				{
+					hh(i, j) = *(u64*)&bb[j];
+					//hh(i,j) = CuckooIndex<>::getHash(hashs[i], j, mParams.numBins());
+				}
+			}
+
+			insertBatch(itemIdxs, hh, ws);
+		}
+		void insertBatch(span<u64> itemIdxs, MatrixView<u64> hashs, Workspace& workspace);
 
         u64 findBatch(MatrixView<u64> hashes,
             span<u64> idxs,
@@ -77,7 +120,6 @@ namespace osuCrypto
 
 
         u64 stashUtilization();
-    private:
 
         std::vector<u64> mHashes;
         MatrixView<u64> mHashesView;

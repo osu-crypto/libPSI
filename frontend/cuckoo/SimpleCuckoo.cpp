@@ -99,34 +99,15 @@ namespace osuCrypto
 
     }
 
-    void SimpleCuckoo::init(u64 n, u64 statSecParam, bool multiThreaded)
+    void SimpleCuckoo::init()
     {
-        if (statSecParam != 40) throw std::runtime_error("not implemented");
 
-
-        //if (n <= 1 << 7)
-        //    mParams = k2n07s40CuckooParam;
-        //else if (n <= 1 << 8)
-        //    mParams = k2n08s40CuckooParam;
-        //else if (n <= 1 << 12)
-        //    mParams = k2n12s40CuckooParam;
-        //else if (n <= 1 << 16)
-        //    mParams = k2n16s40CuckooParam;
-        //else if (n <= 1 << 20)
-        //    mParams = k2n20s40CuckooParam;
-        //else if (n <= 1 << 24)
-        //    mParams = k2n24s40CuckooParam;
-        //else
-        //    throw std::runtime_error("not implemented");
-
-
-
-        mHashes.resize(n * mParams.mNumHashes, 0);
+        mHashes.resize(mParams.mN * mParams.mNumHashes, 0);
 
 
         mHashesView = MatrixView<u64>(mHashes.begin(), mHashes.end(), mParams.mNumHashes);
 
-        u64 binCount = u64(mParams.mBinScaler * n);
+        u64 binCount = u64(mParams.mBinScaler * mParams.mN);
 
         mBins.resize(binCount);
         //mStash.resize(mParams.mStashSize);
@@ -184,7 +165,8 @@ namespace osuCrypto
 #else
                 w.curAddrs[i] = (mHashesView.data() + inputIdxs[i] * width)[w.curHashIdxs[i]] % mBins.size();
 #endif
-                //std::cout <<  i << "   idx " << inputIdxs[i]  <<  "  addr "<< w.curAddrs[i] << std::endl;
+                //if(inputIdxs[i]  == 8)
+				//std::cout <<  i << "   idx " << inputIdxs[i]  <<  "  addr "<< w.curAddrs[i] << std::endl;
             }
             //std::cout << std::endl;
 
@@ -198,14 +180,16 @@ namespace osuCrypto
                 w.oldVals[i] = mBins[w.curAddrs[i]].mVal;
                 mBins[w.curAddrs[i]].mVal = newVal;
 #endif
+				//if (inputIdxs[i] == 8)
+				//{
 
-                //u64 oldIdx = w.oldVals[i] & (u64(-1) >> 8);
-                //u64 oldHash = (w.oldVals[i] >> 56);
-                //std::cout
-                //    << i << "   bin[" << w.curAddrs[i] << "]  "
-                //    << " gets (" << inputIdxs[i] << ", "<< w.curHashIdxs[i]<< "),"
-                //    << " evicts ("<< oldIdx << ", "<< oldHash<< ")" << std::endl;
-
+				//	u64 oldIdx = w.oldVals[i] & (u64(-1) >> 8);
+				//	u64 oldHash = (w.oldVals[i] >> 56);
+				//	std::cout
+				//	    << i << "   bin[" << w.curAddrs[i] << "]  "
+				//	    << " gets (" << inputIdxs[i] << ", "<< w.curHashIdxs[i]<< "),"
+				//	    << " evicts ("<< oldIdx << ", "<< oldHash<< ")" << std::endl;
+				//}
             }
 
             // this loop will update the items that were just evicted. The main
@@ -257,7 +241,7 @@ namespace osuCrypto
         }
 
         // put any that remain in the stash.
-        for (u64 i = 0, j = 0; i < remaining; ++j)
+        for (u64 i = 0; i < remaining; ++i)
         {
             mStash.push_back(Bin(inputIdxs[i], w.curHashIdxs[i]));
             //mStash[j].swap(inputIdxs[i], w.curHashIdxs[i]);

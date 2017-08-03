@@ -62,7 +62,7 @@ namespace osuCrypto
         // we need a random hash function, so both commit to a seed and then decommit later
         chl0.asyncSend((u8*)&myHashSeeds, sizeof(block));
         block theirHashingSeeds;
-        auto fu = chl0.asyncRecv(&theirHashingSeeds, sizeof(block));
+        auto fu = chl0.asyncRecv((u8*)&theirHashingSeeds, sizeof(block));
 
         //gTimer.setTimePoint("Init.hashSeed");
 

@@ -42,6 +42,7 @@ struct LaunchParams
     u64 mTrials;
     u64 mStatSecParam;
     u64 mIdx;
+	u64 mNumHash;
 };
 
 
@@ -61,7 +62,7 @@ void printTimings(
     const osuCrypto::u64 &setSize,
     const osuCrypto::u64 &numThreads,
     double s = 1,
-    std::vector<osuCrypto::Channel>* chls2 = nullptr, 
+    std::vector<osuCrypto::Channel>* chls2 = nullptr,
     u64 n2  = -1);
 
 void printHeader();
