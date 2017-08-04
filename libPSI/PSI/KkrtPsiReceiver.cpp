@@ -47,7 +47,7 @@ namespace osuCrypto
         mSenderSize = senderSize;
         mRecverSize = recverSize;
 
-        mIndex.init(recverSize, statSecParam, true);
+        mIndex.init(recverSize, statSecParam, true, 3);
 
         //mNumStash = get_stash_size(recverSize);
 

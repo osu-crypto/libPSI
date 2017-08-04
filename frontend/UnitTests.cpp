@@ -13,7 +13,6 @@
 #include "DcwBfPsi_Tests.h"
 #include "DktMPsi_Tests.h"
 
-
 using namespace osuCrypto;
 
 void run(std::string name, std::function<void(void)> func)
@@ -49,7 +48,6 @@ void kkrt_psi_all()
 
 }
 
-
 void DktPsi_all()
 {
     std::cout << std::endl;
@@ -79,15 +77,26 @@ void AknBfPsi_all()
     run("AknBfPsi_FullSet_Test_Impl              ", AknBfPsi_FullSet_Test_Impl);
     run("AknBfPsi_SingltonSet_Test_Impl          ", AknBfPsi_SingltonSet_Test_Impl);
 }
+void OtBinPsi_all()
+{
+    std::cout << std::endl;
+    run("CuckooHasher_Test_Impl          ", CuckooHasher_Test_Impl);
+
+    run("Rr17a_Oos_EmptrySet_Test_Impl         ", Rr17a_Oos_EmptrySet_Test_Impl);
+    run("Rr17a_Oos_FullSet_Test_Impl           ", Rr17a_Oos_FullSet_Test_Impl);
+    run("Rr17a_Oos_SingltonSet_Test_Impl       ", Rr17a_Oos_SingltonSet_Test_Impl);
+
+    run("Rr17b_Oos_EmptrySet_Test_Impl         ", Rr17b_Oos_EmptrySet_Test_Impl);
+    run("Rr17b_Oos_FullSet_Test_Impl           ", Rr17b_Oos_FullSet_Test_Impl);
+    run("Rr17b_Oos_SingltonSet_Test_Impl       ", Rr17b_Oos_SingltonSet_Test_Impl);
+
+}
 
 
 void run_all()
 {
-
     kkrt_psi_all();
     AknBfPsi_all();
-#ifdef ENABLE_DCW
-    DcwPsi_all();
-#endif
+    OtBinPsi_all();
     DktPsi_all();
 }

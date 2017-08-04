@@ -33,6 +33,9 @@
     <ClCompile Include="dktMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OtBinMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cuckooTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,9 +46,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="signalHandle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OtBinMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,6 +62,9 @@
     <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OtBinMain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="dktMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,9 +75,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="signalHandle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OtBinMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -31,7 +31,12 @@ DcwTags{ "dcw" },
 DcwrTags{ "dcwr" },
 #endif
 rr16Tags{ "rr16" },
+rr17aTags{ "rr17a" },
+rr17aSMTags{ "rr17a-sm" },
+rr17bTags{ "rr17b" },
+rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
+drrnTag{ "drrn" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -51,122 +56,6 @@ numHashTag{ "nh" };
 bool firstRun(true);
 
 std::function<void(LaunchParams&)> NoOp;
-
-
-void runPir(
-    std::vector<std::string> tag,
-    CLP& cmd,
-    std::function<void(LaunchParams&)> recvProtol,
-    std::function<void(LaunchParams&)> sendProtol)
-{
-
-    if (cmd.isSet(tag))
-    {
-        LaunchParams params;
-        params.mNumThreads = cmd.getMany<u64>(numThreads);
-        params.mVerbose = cmd.get<u64>(verboseTags);
-        params.mTrials = cmd.get<u64>(trialsTags);
-        params.mHostName = cmd.get<std::string>(hostNameTag);
-        params.mBitSize = cmd.get<u64>(bitSizeTag);
-        params.mBinScaler = cmd.getMany<double>(binScalerTag);
-		params.mNumHash = cmd.get<u64>(numHashTag);
-
-        if (cmd.isSet(powNumItems)) {
-            params.mNumItems = cmd.getMany<u64>(powNumItems);
-            std::transform(
-                params.mNumItems.begin(),
-                params.mNumItems.end(),
-                params.mNumItems.begin(),
-                [](u64 v) { return 1 << v; });
-        }
-        else {
-            params.mNumItems = cmd.getMany<u64>(numItems);
-        }
-        if (cmd.isSet(powNumItems2)) {
-            params.mNumItems2 = cmd.getMany<u64>(powNumItems2);
-            std::transform(
-                params.mNumItems2.begin(),
-                params.mNumItems2.end(),
-                params.mNumItems2.begin(),
-                [](u64 v) { return 1 << v; });
-        }
-        else {
-            params.mNumItems2 = cmd.getMany<u64>(numItems2);
-        }
-
-        IOService ios(0);
-
-        auto go = [&](LaunchParams& params)
-        {
-            EpMode m1, m2;
-            std::string n1, n2;
-            if (params.mIdx == 0)
-            {
-                m1 = m2 = EpMode::Client;
-                n1 = "01";
-                n2 = "02";
-            }
-            else if (params.mIdx == 1) {
-                m1 = EpMode::Server;
-                m2 = EpMode::Client;
-                n1 = "01";
-                n2 = "12";
-            }
-            else {
-                m1 = m2 = EpMode::Server;
-                n1 = "02";
-                n2 = "12";
-            }
-
-            Endpoint ep1(ios, "localhost", 1213, m1, n1);
-            Endpoint ep2(ios, "localhost", 1213, m2, n2);
-            params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
-            params.mChls2.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
-
-            for (u64 i = 0; i < params.mChls.size(); ++i) {
-                params.mChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-                params.mChls2[i] = ep2.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-            }
-
-            if (params.mIdx == 0) {
-                if (firstRun) printHeader();
-                recvProtol(params);
-            }
-            else sendProtol(params);
-
-            params.mChls.clear();
-            params.mChls2.clear();
-        };
-
-        if (cmd.hasValue(roleTag))
-        {
-            params.mIdx = cmd.get<u32>(roleTag);
-            go(params);
-
-        }
-        else
-        {
-            auto srv0 = std::thread([&]() {
-                auto params2 = params;
-                params2.mIdx = 1;
-                go(params2);
-            });
-            auto srv1 = std::thread([&]() {
-                auto params2 = params;
-                params2.mIdx = 2;
-                go(params2);
-            });
-
-            params.mIdx = 0;
-            go(params);
-            srv0.join();
-            srv1.join();
-        }
-
-        firstRun = false;
-        //ios.stop();
-    }
-}
 
 
 void run(
@@ -367,6 +256,10 @@ int main(int argc, char** argv)
     run(DcwRRecv, DcwRSend, DcwrTags, cmd);
 #endif
     run(rr16Tags, cmd, bfRecv, bfSend);
+    run(rr17aTags, cmd, rr17aRecv, rr17aSend);
+    run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
+    run(rr17bTags, cmd, rr17bRecv, rr17bSend);
+    run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
     run(dktTags, cmd, DktRecv, DktSend);
     run(kkrtTag, cmd, kkrtRecv, kkrtSend);
 
@@ -377,7 +270,12 @@ int main(int argc, char** argv)
         cmd.isSet(DcwrTags) == false &&
 #endif
         cmd.isSet(rr16Tags) == false &&
+        cmd.isSet(rr17aTags) == false &&
+        cmd.isSet(rr17aSMTags) == false &&
+        cmd.isSet(rr17bTags) == false &&
+        cmd.isSet(rr17bSMTags) == false &&
         cmd.isSet(kkrtTag) == false &&
+        cmd.isSet(drrnTag) == false &&
         cmd.isSet(dktTags) == false &&
         cmd.isSet(pingTag) == false) ||
         cmd.isSet(helpTags))
@@ -397,8 +295,12 @@ int main(int argc, char** argv)
             << "   -" << DcwrTags[0] << " : PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
 #endif
             << "   -" << rr16Tags[0] << " : RR16   - Random Garbled Bloom Filter (malicious secure)\n"
+            << "   -" << rr17aTags[0] << " : RR17   - Hash to bins & compare style (malicious secure)\n"
+            << "   -" << rr17aSMTags[0] << ": RR17sm - Hash to bins & compare style (standard model malicious secure)\n"
+            << "   -" << rr17bTags[0] << ": RR17b  - Hash to bins & commit compare style (malicious secure)\n"
             << "   -" << dktTags[0] << "  : DKT12  - Public key style (malicious secure)\n"
-            << "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure)\n" << std::endl;
+            << "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure)\n"
+            << "   -" << drrnTag[0] << "  : DRRN17  - Two server PIR style (semi-honest secure)\n" << std::endl;
 
         std::cout << "Parameters:\n"
             << "   -" << roleTag[0]

@@ -111,6 +111,18 @@
     <ClCompile Include="Tools\SimpleIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MPSI\Dcw\DcwBfPsiReceiver.h">
@@ -153,6 +165,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tools\SimpleIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

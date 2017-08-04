@@ -47,8 +47,7 @@ namespace osuCrypto
         auto fu = chl.asyncRecv((u8*)&theirHashingSeeds, sizeof(block));
 
         // init Simple hash
-        mParams = CuckooIndex<>::selectParams(mRecverSize, statSec, true);
-        if (mParams.mNumHashes != 3) throw std::runtime_error(LOCATION);
+        mParams = CuckooIndex<>::selectParams(mRecverSize, statSec, true, 3);
 
         otSend.configure(false, 40, 128);
 

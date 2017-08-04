@@ -76,6 +76,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp" />
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
     <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
@@ -92,6 +96,11 @@
     <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h" />
     <ClInclude Include="PSI\KkrtPsiReceiver.h" />
     <ClInclude Include="PSI\KkrtPsiSender.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />
