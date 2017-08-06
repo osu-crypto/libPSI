@@ -37,31 +37,20 @@ void Drrn17Send(
 
 				for (auto ss : params.mBinScaler)
 				{
-					for (u64 jj = 0; jj < params.mTrials; jj++)
-					{
-						std::vector<block> set(serverSetSize);
-						prng.get(set.data(), set.size());
+					if (params.mBitSize == -1) params.mBitSize = 128;
+
+					std::vector<block> set(serverSetSize);
+					prng.get(set.data(), set.size());
+					for (u64 jj = 0; jj < params.mTrials; jj++) {
+
+
 						DrrnPsiServer srv;
-						//{
-						//	auto param = CuckooIndex<>::selectParams(set.size(), 20, true, 2);
-						//	//SimpleCuckoo cc;
-						//	//cc.mParams = param;
-						//	//cc.init();
-						//	//cc.insert(set, ZeroBlock);
-
-						//	CuckooIndex<NotThreadSafe> mm;
-						//	mm.init(param);
-						//	mm.insert(set, ZeroBlock);
-						//}
-
-                        srv.setInputs(set, params.mNumHash, 10);
+						srv.setInputs(set, params.mNumHash, 10, (params.mBitSize + 7) / 8);
 
 						clientChls[0].asyncSend(dummy, 1);
 						clientChls[0].recv(dummy, 1);
 
 						if (params.mIdx < 1 || params.mIdx > 2) throw std::runtime_error("server index must be 1 or 2");
-
-
 						srv.init(u8(params.mIdx - 1), clientChls[0], serverChls[0], serverSetSize, clientSetSize, ZeroBlock, ss);
 						srv.send(clientChls[0], serverChls[0], numThreads);
 					}
@@ -75,7 +64,7 @@ void Drrn17Recv(
 	LaunchParams& params)
 {
 	setThreadName("CP_Test_Thread");
-    u8 dummy[1];
+	u8 dummy[1];
 
 
 	PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -101,13 +90,14 @@ void Drrn17Recv(
 
 						std::vector<block> recvSet(clientSetSize);
 						prng.get(recvSet.data(), recvSet.size());
-                        s0[0].asyncSend(dummy, 1);
-                        s1[0].asyncSend(dummy, 1);
-                        s0[0].recv(dummy, 1);
-                        s1[0].recv(dummy, 1);
 
 
-                        gTimer.reset();
+						s0[0].asyncSend(dummy, 1);
+						s1[0].asyncSend(dummy, 1);
+						s0[0].recv(dummy, 1);
+						s1[0].recv(dummy, 1);
+
+						gTimer.reset();
 						Timer timer;
 						auto start = timer.setTimePoint("start");
 						DrrnPsiClient client;

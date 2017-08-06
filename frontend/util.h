@@ -1,6 +1,6 @@
 #pragma once
 #include "cryptoTools/Network/Channel.h"
-
+#include "cryptoTools/Common/CLP.h"
 using namespace osuCrypto;
 
 template<typename ... Args>
@@ -30,6 +30,8 @@ struct LaunchParams
     std::vector<Channel> getChannels2(u64 n) {
         return  std::vector<Channel>(mChls2.begin(), mChls2.begin() + n);
     }
+
+	CLP *mCmd;
 
     std::string mHostName;
     std::vector<Channel> mChls, mChls2;

@@ -40,17 +40,33 @@ namespace osuCrypto
         myHashSeeds = mPrng.get<block>();
         auto& chl = chls[0];
         chl.asyncSend((u8*)&myHashSeeds, sizeof(block));
-        //std::cout <<IoStream::lock << "send: sending PSI seed " << myHashSeeds << std::endl << IoStream::unlock;
-
-
         block theirHashingSeeds;
         auto fu = chl.asyncRecv((u8*)&theirHashingSeeds, sizeof(block));
 
+
+#ifndef  NDEBUG
+		bool hashBase = otSend.hasBaseOts();
+		chl.asyncSend(&hashBase, 1);
+		chl.asyncSend(&senderSize, 1);
+		chl.asyncSend(&recverSize, 1);
+		chl.asyncSend(&statSec, 1);
+		u64 sSize, rSize, ssp;
+		chl.recv(&hashBase, 1);
+		chl.recv(&sSize, 1);
+		chl.recv(&rSize, 1);
+		chl.recv(&ssp, 1);
+
+		if (sSize != senderSize ||
+			rSize != recverSize ||
+			ssp != statSec ||
+			hashBase != otSend.hasBaseOts())
+			throw std::runtime_error(LOCATION);
+#endif // ! NDEBUG
+
         // init Simple hash
-        mParams = CuckooIndex<>::selectParams(mRecverSize, statSec, true);
+        mParams = CuckooIndex<>::selectParams(mRecverSize, statSec, 0, 3);
         if (mParams.mNumHashes != 3) throw std::runtime_error(LOCATION);
 
-        otSend.configure(false, 40, 128);
 
         //mIndex.init(cuckoo.mBins.size(), mSenderSize, statSec, cuckoo.mParams.mNumHashes);
 
@@ -61,6 +77,7 @@ namespace osuCrypto
             std::array<std::array<block, 2>, 128> baseBaseOT;
             baseBase.send(baseBaseOT, mPrng, chl);
 
+			otSend.configure(false, 40, 128);
             IknpOtExtReceiver base;
             BitVector baseChoice(otSend.getBaseOTCount());
             baseChoice.randomize(mPrng);
@@ -71,7 +88,7 @@ namespace osuCrypto
             otSend.setBaseOts(baseOT, baseChoice);
         }
 
-        fu.get();
+		fu.get();
         //std::cout << IoStream::lock << "send: recved PSI seed " << theirHashingSeeds << std::endl << IoStream::unlock;
 
         mHashingSeed = myHashSeeds ^ theirHashingSeeds;

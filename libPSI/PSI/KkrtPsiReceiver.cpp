@@ -47,7 +47,7 @@ namespace osuCrypto
         mSenderSize = senderSize;
         mRecverSize = recverSize;
 
-        mIndex.init(recverSize, statSecParam, true);
+        mIndex.init(recverSize, statSecParam, 0, 3);
 
         //mNumStash = get_stash_size(recverSize);
 
@@ -55,14 +55,35 @@ namespace osuCrypto
         PRNG prng(seed);
         block myHashSeeds;
         myHashSeeds = prng.get<block>();
-        auto& chl0 = chls[0];
+        auto& chl = chls[0];
 
 
         //std::cout << IoStream::lock << "recv: sending PSI seed " << myHashSeeds << std::endl << IoStream::unlock;
         // we need a random hash function, so both commit to a seed and then decommit later
-        chl0.asyncSend((u8*)&myHashSeeds, sizeof(block));
+        chl.asyncSend((u8*)&myHashSeeds, sizeof(block));
         block theirHashingSeeds;
-        auto fu = chl0.asyncRecv((u8*)&theirHashingSeeds, sizeof(block));
+        auto fu = chl.asyncRecv((u8*)&theirHashingSeeds, sizeof(block));
+
+
+
+#ifndef  NDEBUG
+		bool hashBase = otRecv.hasBaseOts();
+		chl.asyncSend(&hashBase, 1);
+		chl.asyncSend(&senderSize, 1);
+		chl.asyncSend(&recverSize, 1);
+		chl.asyncSend(&statSecParam, 1);
+		u64 sSize, rSize, ssp;
+		chl.recv(&hashBase, 1);
+		chl.recv(&sSize, 1);
+		chl.recv(&rSize, 1);
+		chl.recv(&ssp, 1);
+
+		if (sSize != senderSize ||
+			rSize != recverSize ||
+			ssp != statSecParam ||
+			hashBase != otRecv.hasBaseOts())
+			throw std::runtime_error(LOCATION);
+#endif // ! NDEBUG
 
         //gTimer.setTimePoint("Init.hashSeed");
 
@@ -76,24 +97,24 @@ namespace osuCrypto
             std::array<block, 128> baseBaseOT;
             BitVector baseBaseChoice(128);
             baseBaseChoice.randomize(prng);
-            baseBase.receive(baseBaseChoice, baseBaseOT, prng, chl0);
+            baseBase.receive(baseBaseChoice, baseBaseOT, prng, chl);
 
             IknpOtExtSender base;
             std::vector<std::array<block, 2>> baseOT(otRecv.getBaseOTCount());
             base.setBaseOts(baseBaseOT, baseBaseChoice);
-            base.send(baseOT, prng, chl0);
+            base.send(baseOT, prng, chl);
 
             otRecv.setBaseOts(baseOT);
             gTimer.setTimePoint("Kkrt PSI Init: BaseSSOT done");
         }
 
-        fu.get();
+		fu.get();
 
         //std::cout << IoStream::lock << "recv: recved PSI seed " << theirHashingSeeds << std::endl << IoStream::unlock;
 
         mHashingSeed = myHashSeeds ^ theirHashingSeeds;
 
-        otRecv.init(mIndex.mBins.size() + mIndex.mStash.size(), prng, chl0);
+        otRecv.init(mIndex.mBins.size() + mIndex.mStash.size(), prng, chl);
         mOtRecv = &otRecv;
     }
 

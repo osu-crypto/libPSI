@@ -16,8 +16,18 @@ namespace osuCrypto
 
 
 		u64 numBalls = clientSetSize * mCuckooParams.mNumHashes;
-		mNumSimpleBins = static_cast<u64>((numBalls / log2floor(numBalls)) * binScaler);
+		mNumSimpleBins = std::max<u64>(1, static_cast<u64>((numBalls / log2floor(numBalls)) * binScaler));
 		mBinSize = SimpleIndex::get_bin_size(mNumSimpleBins, numBalls, ssp);
+
+
+		{
+			otRecv.configure(false, 40, 128);
+			PRNG sharedPrng(toBlock(44444));
+			std::vector<std::array<block, 2>> sendBlks(otRecv.getBaseOTCount());
+			sharedPrng.get(sendBlks.data(), sendBlks.size());
+
+			otRecv.setBaseOts(sendBlks);
+		}
 
 		// i think these are the right set sizes for the final PSI
 		auto serverPsiInputSize = mBinSize * mNumSimpleBins;

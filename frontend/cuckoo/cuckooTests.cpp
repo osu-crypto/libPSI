@@ -28,7 +28,7 @@ void tt()
 	hashMap1.mParams.mStashSize = 400;
 
 
-	hashMap1.init(n, 40, true);
+	hashMap1.init(hashMap1.mParams);
 
 
 	hashMap1.insert(idx, hashes);

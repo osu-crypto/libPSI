@@ -16,12 +16,18 @@ namespace osuCrypto
 
 		//void setCuckooParam(osuCrypto::u64 &serverSetSize, int ssp);
 
-		void setInputs(span<block> inputs, u64 numThreads = 2, u64 ssp = 20);
+		void setInputs(span<block> inputs, u64 numThreads = 2, u64 ssp = 20, u64 byteSize = 16);
 
         void send(Channel clientChl, Channel srvChl, u64 numThreads = 1);
 
+//#define ITEM_SIZE 128
+#if  ITEM_SIZE == 128
 		std::vector<block> mCuckooData;
-
+#elif ITEM_SIZE == 64
+		std::vector<u64> mCuckooData;
+#else
+		Matrix<u8> mCuckooData;
+#endif
         //CuckooParam mCuckooParams;
         CuckooIndex<NotThreadSafe> mIndex;
 
@@ -29,7 +35,7 @@ namespace osuCrypto
         PRNG mPrng;
         KkrtPsiSender mPsi;
 
-        u64 mClientSetSize, mServerSetSize, mNumSimpleBins, mBinSize;
+        u64 mClientSetSize, mServerSetSize, mNumSimpleBins, mBinSize, mByteSize;
         u8 mServerId;
         block mHashingSeed;
     };

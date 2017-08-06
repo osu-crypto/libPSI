@@ -78,6 +78,7 @@ void runPir(
         params.mBitSize = cmd.get<u64>(bitSizeTag);
         params.mBinScaler = cmd.getMany<double>(binScalerTag);
 		params.mNumHash = cmd.get<u64>(numHashTag);
+		params.mCmd = &cmd;
 
         if (cmd.isSet(powNumItems)) {
             params.mNumItems = cmd.getMany<u64>(powNumItems);
@@ -106,6 +107,8 @@ void runPir(
 
         auto go = [&](LaunchParams& params)
         {
+
+			std::this_thread::sleep_for(std::chrono::seconds(2));
             EpMode m1, m2;
             std::string n1, n2;
             if (params.mIdx == 0)
@@ -126,8 +129,8 @@ void runPir(
                 n2 = "12";
             }
 
-            Endpoint ep1(ios, "localhost", 1213, m1, n1);
-            Endpoint ep2(ios, "localhost", 1213, m2, n2);
+            Endpoint ep1(ios, "localhost", 1214, m1, n1);
+            Endpoint ep2(ios, "localhost", 1214, m2, n2);
             params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
             params.mChls2.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
