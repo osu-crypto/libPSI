@@ -16,6 +16,7 @@ namespace osuCrypto
 	{
 	public:
 		KkrtPsiSender();
+		KkrtPsiSender(KkrtPsiSender&& mv) = default;
 		~KkrtPsiSender();
 
 		u64 mSenderSize, mRecverSize, mStatSecParam;

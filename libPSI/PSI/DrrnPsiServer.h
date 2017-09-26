@@ -12,13 +12,15 @@ namespace osuCrypto
     {
     public:
 
-        void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1);
+		void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1);
+		void init(u8 serverId, span<Channel> chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1);
 
 		//void setCuckooParam(osuCrypto::u64 &serverSetSize, int ssp);
 
 		void setInputs(span<block> inputs, u64 numThreads = 2, u64 ssp = 20, u64 byteSize = 16);
 
-        void send(Channel clientChl, Channel srvChl, u64 numThreads = 1);
+		void send(Channel clientChl, Channel srvChl, u64 numThreads = 1);
+		void send(span<Channel> clientChl, Channel srvChl, u64 numThreads = 1);
 
 //#define ITEM_SIZE 128
 #if  ITEM_SIZE == 128
@@ -31,9 +33,9 @@ namespace osuCrypto
         //CuckooParam mCuckooParams;
         CuckooIndex<NotThreadSafe> mIndex;
 
-        KkrtNcoOtSender otSend;
         PRNG mPrng;
-        KkrtPsiSender mPsi;
+        std::vector<KkrtNcoOtSender> otSend;
+		std::vector<KkrtPsiSender> mPsi;
 
         u64 mClientSetSize, mServerSetSize, mNumSimpleBins, mBinSize, mByteSize;
         u8 mServerId;

@@ -27,6 +27,8 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/CLP.h"
 #include "cryptoTools/Common/CuckooIndex.h"
 
+#include "binningExp.h"
+
 std::vector<std::string>
 unitTestTags{ "u", "unitTest" },
 #ifdef ENABLE_DCW
@@ -337,8 +339,9 @@ void pingTest(CLP& cmd)
 
 int main(int argc, char** argv)
 {
+	binningExp();
 	//hhhh();
-	//return 0;
+	return 0;
 
     CLP cmd;
     cmd.parse(argc, argv);

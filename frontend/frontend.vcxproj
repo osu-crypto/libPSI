@@ -84,6 +84,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="binningExp.cpp" />
     <ClCompile Include="bloomFilterMain.cpp" />
     <ClCompile Include="cuckooTest.cpp" />
     <ClCompile Include="cuckoo\SimpleCuckoo.cpp" />
@@ -98,6 +99,7 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="binningExp.h" />
     <ClInclude Include="bloomFilterMain.h" />
     <ClInclude Include="cuckoo\cuckooTests.h" />
     <ClInclude Include="cuckoo\SimpleCuckoo.h" />
