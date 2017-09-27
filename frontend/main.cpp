@@ -339,9 +339,9 @@ void pingTest(CLP& cmd)
 
 int main(int argc, char** argv)
 {
-	binningExp();
-	//hhhh();
-	return 0;
+	//binningExp();
+	////hhhh();
+	//return 0;
 
     CLP cmd;
     cmd.parse(argc, argv);

@@ -81,6 +81,9 @@ namespace osuCrypto
 		u64 groupSize = (numLeafBlocks + (u64(1) << kDepth) - 1) / (u64(1) << kDepth);
 		if (groupSize > 8) throw std::runtime_error(LOCATION);
 
+		std::cout << "kDepth:   " << kDepth << std::endl;
+		std::cout << "mBinSize: " << mBinSize << std::endl;
+
 		u64 numQueries = mNumSimpleBins * mBinSize;
 
 		// mask generation
