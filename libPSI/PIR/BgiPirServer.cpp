@@ -182,6 +182,70 @@ namespace osuCrypto
 
 		return stcw[keep];
 	}
+
+	block BgiPirServer::fullDomainNaive(span<block> data, span<block> k, span<block> g)
+	{
+		u64 kDepth = u64(k.size()) - 1;
+		//std::vector<u8> bits(d,0);
+		u64 idx = 0;
+		u64 depth = 0;
+		u64 end = (1ull << kDepth);
+
+		if (data.size() != end * 128 * g.size())
+			throw std::runtime_error(LOCATION);
+
+		std::vector<block> words(k.size());
+		words[0] = k[0];
+
+		auto dataIter = data.begin();
+		block sum = ZeroBlock;
+		while (idx != end)
+		{
+			while (depth != kDepth)
+			{
+				auto bit = idx & (1ull << depth) ? 1 : 0;
+				words[depth + 1] = traverseOne(words[depth], k[depth + 1], bit);
+				++depth;
+			}
+
+
+			{
+				std::vector<block> temp(g.size() * 2);
+				auto gs = temp.data();
+				auto l = temp.data() + g.size();
+
+				block sss = words.back() & notThreeBlock;
+
+				for (u64 i = 0; i < u64(g.size()); ++i)
+				{
+					l[i] = sss ^ toBlock(i);
+				}
+
+				aes0.ecbEncBlocks(l, g.size(), gs);
+				for (u64 i = 0; i < u64(g.size()); ++i)
+				{
+					gs[i] = gs[i] ^ l[i];
+				}
+
+
+				BitIterator iter((u8*)gs, 0);
+				for (u64 i = 0; i < g.size() * 128; ++i)
+				{
+					if (*iter++)
+						sum = sum ^ *dataIter;
+
+					++dataIter;
+				}
+			}
+
+			u64 shift = (idx + 1) ^ idx;
+			depth -= log2floor(shift) + 1;
+			++idx;
+		}
+
+		return  sum;
+	}
+
 	block BgiPirServer::fullDomain(span<block> data, span<block> k, span<block> g)
 	{
 		//FullDomainGenerator gen;

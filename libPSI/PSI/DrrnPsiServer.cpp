@@ -111,6 +111,7 @@ namespace osuCrypto
 		}
 		//auto fIter = futrs.begin();
 
+		std::cout << "|cuckoo|: " << mIndex.mBins.size() << std::endl;
 
 		//u64 cuckooIdx = 0;
 		auto routine = [this, numThreads, kDepth, keySize, groupSize, &futrs, &k, &shares](u64 tIdx)

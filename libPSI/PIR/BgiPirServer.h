@@ -23,6 +23,7 @@ namespace osuCrypto
 		static u8 evalOne(uint128_t idx, span<block> k, span<block> g, block* = nullptr, block* = nullptr, u8* tt = nullptr);
 		static block traversePath(u64 depth, uint128_t idx, span<block> k);
 		static block traverseOne(const block &s, const block&k, const osuCrypto::u8 &keep, bool print = false);
+		static block fullDomainNaive(span<block> data, span<block> k, span<block> g);
 		static block fullDomain(span<block> data, span<block> k, span<block> g);
 		//static BitVector BgiPirServer_bv;
 
