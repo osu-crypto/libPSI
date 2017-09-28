@@ -7,7 +7,7 @@ namespace osuCrypto
 {
 	void DrrnPsiServer::init(u8 serverId, Channel clientChl, Channel srvChl, u64 serverSetSize, u64 clientSetSize, block seed, double binScaler)
 	{
-
+		init(serverId, span<Channel>{ &clientChl,1 }, srvChl, serverSetSize, clientSetSize, seed, binScaler);
 	}
 
 
