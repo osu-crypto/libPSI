@@ -11,6 +11,10 @@ namespace osuCrypto
     class DrrnPsiServer
     {
     public:
+		DrrnPsiServer()
+			: mUseSingleDataPass(true)
+			, mNiave(false)
+		{}
 
         void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1);
 
@@ -25,6 +29,7 @@ namespace osuCrypto
         //CuckooParam mCuckooParams;
         CuckooIndex<NotThreadSafe> mIndex;
 
+		bool mUseSingleDataPass, mNiave;
         KkrtNcoOtSender otSend;
         PRNG mPrng;
         KkrtPsiSender mPsi;

@@ -11,12 +11,12 @@ namespace osuCrypto
 		mClientSetSize = clientSetSize;
 		mHashingSeed = ZeroBlock;
 
-		mCuckooParams = CuckooIndex<>::selectParams(serverSetSize, cuckooSsp, true, numHash);
+		mCuckooParams = CuckooIndex<>::selectParams(serverSetSize, cuckooSsp, 0, numHash);
 
 
 
 		u64 numBalls = clientSetSize * mCuckooParams.mNumHashes;
-		mNumSimpleBins = static_cast<u64>((numBalls / log2floor(numBalls)) * binScaler);
+		mNumSimpleBins = std::max<u64>(1, (numBalls / log2floor(numBalls)) * binScaler);
 		mBinSize = SimpleIndex::get_bin_size(mNumSimpleBins, numBalls, ssp);
 
 		// i think these are the right set sizes for the final PSI
@@ -71,8 +71,8 @@ namespace osuCrypto
 		u64 groupSize = (numLeafBlocks + (u64(1) << kDepth) - 1) / (u64(1) << kDepth);
 		if (groupSize > 8) throw std::runtime_error(LOCATION);
 
-		std::cout << "kDepth:   " << kDepth << std::endl;
-		std::cout << "mBinSize: " << mBinSize << std::endl;
+		//std::cout << "kDepth:   " << kDepth << std::endl;
+		//std::cout << "mBinSize: " << mBinSize << std::endl;
 
 		u64 numQueries = mNumSimpleBins * mBinSize;
 

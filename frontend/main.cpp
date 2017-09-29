@@ -71,6 +71,7 @@ void runPir(
 	if (cmd.isSet(tag))
 	{
 		LaunchParams params;
+		params.mCmd = &cmd;
 		params.mNumThreads = cmd.getMany<u64>(numThreads);
 		params.mVerbose = cmd.get<u64>(verboseTags);
 		params.mTrials = cmd.get<u64>(trialsTags);
@@ -394,8 +395,8 @@ void ttt22()
 
 int main(int argc, char** argv)
 {
-	ttt22();
-	return 0;
+	//ttt22();
+	//return 0;
 	//hhhh();
 	//return 0;
 
@@ -417,7 +418,7 @@ int main(int argc, char** argv)
 	cmd.setDefault(bitSizeTag, "-1");
 	cmd.setDefault(binScalerTag, "1");
 	cmd.setDefault(hostNameTag, "127.0.0.1:1212");
-	cmd.setDefault(numHashTag, "2");
+	cmd.setDefault(numHashTag, "3");
 
 	cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
 

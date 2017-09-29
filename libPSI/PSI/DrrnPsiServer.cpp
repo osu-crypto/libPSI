@@ -21,11 +21,13 @@ namespace osuCrypto
 
 
 		u64 numBalls = clientSetSize * mIndex.mParams.mNumHashes;
-		mNumSimpleBins = static_cast<u64>((numBalls / log2floor(numBalls)) * binScaler);
+		mNumSimpleBins = std::max<u64>(1, (numBalls / log2floor(numBalls)) * binScaler);
 
 		if (mServerId == 0) gTimer.setTimePoint("DrrnSrv balls_bins start");
 		mBinSize = SimpleIndex::get_bin_size(mNumSimpleBins, numBalls, ssp);
 
+		if (mNumSimpleBins == 1 && mBinSize != numBalls)
+			throw std::runtime_error(LOCATION);
 
 		if (serverId == 0)
 		{
@@ -56,7 +58,7 @@ namespace osuCrypto
 
 		mHashingSeed = ZeroBlock; // todo, make random;
 		if (mIndex.mBins.size()) throw std::runtime_error(LOCATION);
-		mIndex.init(CuckooIndex<>::selectParams(inputs.size(), ssp, true, numHash));
+		mIndex.init(CuckooIndex<>::selectParams(inputs.size(), ssp, 0, numHash));
 		//std::cout << mIndex.mParams.mN << " " << mIndex.mParams.mBinScaler << std::endl;
 
 		mIndex.insert(inputs, mHashingSeed);
@@ -111,7 +113,7 @@ namespace osuCrypto
 		}
 		//auto fIter = futrs.begin();
 
-		std::cout << "|cuckoo|: " << mIndex.mBins.size() << std::endl;
+		//std::cout << "|cuckoo|: " << mIndex.mBins.size() << std::endl;
 
 		//u64 cuckooIdx = 0;
 		auto routine = [this, numThreads, kDepth, keySize, groupSize, &futrs, &k, &shares](u64 tIdx)
@@ -128,80 +130,136 @@ namespace osuCrypto
 				//auto curSize = std::min<u64>(cuckooSlotsPerBin, mIndex.mBins.size() - cuckooIdx);
 
 				futrs[binIdx].get();
-				BgiPirServer::MultiKey mk;
-				auto kIter = k.data() + keySize * binIdx * mBinSize;
-
-				mk.init(mBinSize, kDepth + 1, groupSize);
-				////auto idxIter = idxs.data() + binIdx * mBinSize;
-				for (u64 i = 0; i < mBinSize; ++i)
+				if (mUseSingleDataPass)
 				{
-					span<block> kk(kIter, kDepth + 1);
-					span<block> g(kIter + kDepth + 1, groupSize);
-					mk.setKey(i, kk, g);
 
-					//*shareIter = BgiPirServer::fullDomain(pirData, kk, g);
-				//if (neq(kIter[keySize - 1], ZeroBlock))
-				//{
-				//    std::cout << IoStream::lock << "bIdx " << binIdx << " " << i << " key " << kIter[keySize - 1] << "   shareIdx=" << (shareIter - shares.begin()) << " pir["<< *idxIter <<"] " << pirData[*idxIter]<< std::endl << IoStream::unlock;
-				//}
-				//++shareIter;
-					kIter += keySize;
-					//++idxIter;
-				}
+					BgiPirServer::MultiKey mk;
+					auto kIter = k.data() + keySize * binIdx * mBinSize;
 
-				auto numSteps = mBinSize / 8;
-				for (u64 i = 0; cuckooIdx < cuckooEnd; ++i, ++cuckooIdx)
-				{
-					auto& item = mIndex.mBins[cuckooIdx];
-					auto bits = mk.yeild();
-
-					auto empty = item.isEmpty();
-					if (empty == false)
+					mk.init(mBinSize, kDepth + 1, groupSize);
+					////auto idxIter = idxs.data() + binIdx * mBinSize;
+					for (u64 i = 0; i < mBinSize; ++i)
 					{
-						auto pirData_i = mCuckooData[cuckooIdx];
+						span<block> kk(kIter, kDepth + 1);
+						span<block> g(kIter + kDepth + 1, groupSize);
+						mk.setKey(i, kk, g);
 
-						//if (bits.size() != mBinSize) throw std::runtime_error(LOCATION);
+						//*shareIter = BgiPirServer::fullDomain(pirData, kk, g);
+					//if (neq(kIter[keySize - 1], ZeroBlock))
+					//{
+					//    std::cout << IoStream::lock << "bIdx " << binIdx << " " << i << " key " << kIter[keySize - 1] << "   shareIdx=" << (shareIter - shares.begin()) << " pir["<< *idxIter <<"] " << pirData[*idxIter]<< std::endl << IoStream::unlock;
+					//}
+					//++shareIter;
+						kIter += keySize;
+						//++idxIter;
+					}
 
-						auto bitsIter = bits.data();
-						auto shareIter = shares.data() + binIdx * mBinSize;
+					auto numSteps = mBinSize / 8;
+					for (u64 i = 0; cuckooIdx < cuckooEnd; ++i, ++cuckooIdx)
+					{
+						auto& item = mIndex.mBins[cuckooIdx];
+						auto bits = mk.yeild();
 
-						for (u64 j = 0; j < numSteps; ++j)
+						auto empty = item.isEmpty();
+						if (empty == false)
 						{
-							shareIter[0] = shareIter[0] ^ (zeroAndAllOne[bitsIter[0]] & pirData_i);
-							shareIter[1] = shareIter[1] ^ (zeroAndAllOne[bitsIter[1]] & pirData_i);
-							shareIter[2] = shareIter[2] ^ (zeroAndAllOne[bitsIter[2]] & pirData_i);
-							shareIter[3] = shareIter[3] ^ (zeroAndAllOne[bitsIter[3]] & pirData_i);
-							shareIter[4] = shareIter[4] ^ (zeroAndAllOne[bitsIter[4]] & pirData_i);
-							shareIter[5] = shareIter[5] ^ (zeroAndAllOne[bitsIter[5]] & pirData_i);
-							shareIter[6] = shareIter[6] ^ (zeroAndAllOne[bitsIter[6]] & pirData_i);
-							shareIter[7] = shareIter[7] ^ (zeroAndAllOne[bitsIter[7]] & pirData_i);
+							auto pirData_i = mCuckooData[cuckooIdx];
 
-							bitsIter += 8;
-							shareIter += 8;
+							//if (bits.size() != mBinSize) throw std::runtime_error(LOCATION);
+
+							auto bitsIter = bits.data();
+							auto shareIter = shares.data() + binIdx * mBinSize;
+
+							for (u64 j = 0; j < numSteps; ++j)
+							{
+								shareIter[0] = shareIter[0] ^ (zeroAndAllOne[bitsIter[0]] & pirData_i);
+								shareIter[1] = shareIter[1] ^ (zeroAndAllOne[bitsIter[1]] & pirData_i);
+								shareIter[2] = shareIter[2] ^ (zeroAndAllOne[bitsIter[2]] & pirData_i);
+								shareIter[3] = shareIter[3] ^ (zeroAndAllOne[bitsIter[3]] & pirData_i);
+								shareIter[4] = shareIter[4] ^ (zeroAndAllOne[bitsIter[4]] & pirData_i);
+								shareIter[5] = shareIter[5] ^ (zeroAndAllOne[bitsIter[5]] & pirData_i);
+								shareIter[6] = shareIter[6] ^ (zeroAndAllOne[bitsIter[6]] & pirData_i);
+								shareIter[7] = shareIter[7] ^ (zeroAndAllOne[bitsIter[7]] & pirData_i);
+
+								bitsIter += 8;
+								shareIter += 8;
+							}
+
+							for (u64 j = 0; j < mBinSize % 8; ++j)
+							{
+								shareIter[j] = shareIter[j] ^ (zeroAndAllOne[bitsIter[j]] & pirData_i);
+							}
+
+
+							//{
+							//    auto hash = mIndex.mHashes[idx];
+							//    std::cout << IoStream::lock << "sinput[" << idx << "] = " << mInputs[idx] << " -> pir["<< i << "], hash= "  << hash << " ("
+							//        << CuckooIndex<>::getHash(hash, 0, mIndex.mBins.size()) << ", "
+							//        << CuckooIndex<>::getHash(hash, 1, mIndex.mBins.size()) << ", "
+							//        << CuckooIndex<>::getHash(hash, 2, mIndex.mBins.size()) << ") " << mIndex.mBins[cuckooIdx].hashIdx()
+							//        << std::endl << IoStream::unlock;
+							//}
 						}
-
-						for (u64 j = 0; j < mBinSize % 8; ++j)
-						{
-							shareIter[j] = shareIter[j] ^ (zeroAndAllOne[bitsIter[j]] & pirData_i);
-						}
-
-
-						//{
-						//    auto hash = mIndex.mHashes[idx];
-						//    std::cout << IoStream::lock << "sinput[" << idx << "] = " << mInputs[idx] << " -> pir["<< i << "], hash= "  << hash << " ("
-						//        << CuckooIndex<>::getHash(hash, 0, mIndex.mBins.size()) << ", "
-						//        << CuckooIndex<>::getHash(hash, 1, mIndex.mBins.size()) << ", "
-						//        << CuckooIndex<>::getHash(hash, 2, mIndex.mBins.size()) << ") " << mIndex.mBins[cuckooIdx].hashIdx()
-						//        << std::endl << IoStream::unlock;
-						//}
 					}
 				}
+				else
+				{
+					auto kIter = k.data() + keySize * binIdx * mBinSize;
+					//vector<block>  pirData(&mCuckooData[cuckooIdx], cuckooEnd - cuckooIdx); 
+					std::vector<block> pirData((u64(1) << kDepth) * groupSize * 128);
 
+					//auto idxIter = idxs.data() + binIdx * mBinSize;
+					auto shareIter = shares.begin() + binIdx * mBinSize;
 
+					if ((cuckooEnd - cuckooIdx) > pirData.size())
+					{
+						throw std::runtime_error(LOCATION);
+					}
 
-				//for (u64 i = 0; i < pirData.size(); ++i)
-				//{
-				//}
+					memcpy(pirData.data(), &mCuckooData[cuckooIdx], (cuckooEnd - cuckooIdx) * sizeof(block));
+					//for (u64 i = 0; cuckooIdx < cuckooEnd; ++i, ++cuckooIdx)
+					//{
+					//	auto& item = mIndex.mBins[cuckooIdx];
+					//	auto empty = item.isEmpty();
+					//	if (empty == false)
+					//	{
+					//		auto idx = item.idx();
+					//		pirData[i] = mCuckooData[cuckooIdx];
+
+					//		//{
+					//		//    auto hash = mIndex.mHashes[idx];
+					//		//    std::cout << IoStream::lock << "sinput[" << idx << "] = " << mInputs[idx] << " -> pir["<< i << "], hash= "  << hash << " ("
+					//		//        << CuckooIndex<>::getHash(hash, 0, mIndex.mBins.size()) << ", "
+					//		//        << CuckooIndex<>::getHash(hash, 1, mIndex.mBins.size()) << ", "
+					//		//        << CuckooIndex<>::getHash(hash, 2, mIndex.mBins.size()) << ") " << mIndex.mBins[cuckooIdx].hashIdx()
+					//		//        << std::endl << IoStream::unlock;
+					//		//}
+					//	}
+					//}
+
+					for (u64 i = 0; i < mBinSize; ++i)
+					{
+
+						span<block> kk(kIter, kDepth + 1);
+						span<block> g(kIter + kDepth + 1, groupSize);
+
+						if (mNiave)
+						{
+							*shareIter = BgiPirServer::fullDomainNaive(pirData, kk, g);
+						}
+						else
+						{
+							*shareIter = BgiPirServer::fullDomain(pirData, kk, g);
+						}
+						//if (neq(kIter[keySize - 1], ZeroBlock))
+						//{
+						//    std::cout << IoStream::lock << "bIdx " << binIdx << " " << i << " key " << kIter[keySize - 1] << "   shareIdx=" << (shareIter - shares.begin()) << " pir["<< *idxIter <<"] " << pirData[*idxIter]<< std::endl << IoStream::unlock;
+						//}
+						++shareIter;
+						kIter += keySize;
+						//++idxIter;
+					}
+				}
 			}
 		};
 		if (mServerId == 0) gTimer.setTimePoint("DrrnSrv PSI start");

@@ -42,6 +42,8 @@ void Drrn17Send(
 						std::vector<block> set(serverSetSize);
 						prng.get(set.data(), set.size());
 						DrrnPsiServer srv;
+						srv.mUseSingleDataPass = params.mCmd->isSet("multiDP") == false;
+						srv.mNiave = params.mCmd->isSet("niave");
 						//{
 						//	auto param = CuckooIndex<>::selectParams(set.size(), 20, true, 2);
 						//	//SimpleCuckoo cc;
