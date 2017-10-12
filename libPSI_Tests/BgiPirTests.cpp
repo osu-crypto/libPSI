@@ -2,6 +2,7 @@
 #include "libPSI/PIR/BgiPirClient.h"
 #include "libPSI/PIR/BgiPirServer.h"
 #include <cryptoTools/Network/IOService.h>
+#include <cryptoTools/Network/Endpoint.h>
 #include <cryptoTools/Crypto/PRNG.h>
 #include <cryptoTools/Common/BitVector.h>
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Network/Endpoint.h"
+#include "cryptoTools/Network/IOService.h"
 
 //using namespace std;
 #include "UnitTests.h"
@@ -18,15 +19,19 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/MatrixView.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
+
 #include <numeric>
+#include <chrono>
+
 #include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
 #include "libPSI/PIR/BgiPirClient.h"
 #include "libPSI/PIR/BgiPirServer.h"
 
 #include "cuckoo/cuckooTests.h"
 #include "cryptoTools/Common/CLP.h"
 #include "cryptoTools/Common/CuckooIndex.h"
-
+#include "libPSI/Tools/SimpleIndex.h"
 std::vector<std::string>
 unitTestTags{ "u", "unitTest" },
 #ifdef ENABLE_DCW
@@ -395,7 +400,9 @@ void ttt22()
 
 int main(int argc, char** argv)
 {
-	//ttt22();
+	//std::cout << "20: " << SimpleIndex::get_bin_size(1 << 14, (1 << 24) * 3, 20) << std::endl;;
+	//std::cout << "40: " << SimpleIndex::get_bin_size(1 << 14, (1 << 24) * 3, 40) << std::endl;;
+	////ttt22();
 	//return 0;
 	//hhhh();
 	//return 0;

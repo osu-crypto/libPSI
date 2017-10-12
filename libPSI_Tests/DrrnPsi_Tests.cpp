@@ -2,6 +2,7 @@
 
 #include "Common.h"
 #include "cryptoTools/Network/Endpoint.h"
+#include "cryptoTools/Network/IOService.h"
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Common/Log.h"
 

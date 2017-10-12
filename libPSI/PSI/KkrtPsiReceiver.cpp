@@ -3,6 +3,7 @@
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
 #include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
 #include "libPSI/Tools/SimpleHasher.h"
 #include <libOTe/Base/naor-pinkas.h>
 #include <unordered_map>

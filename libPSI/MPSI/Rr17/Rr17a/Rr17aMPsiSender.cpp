@@ -302,10 +302,10 @@ namespace osuCrypto
 
         std::atomic<u64> maskIdx(0);// , inserts(0);
         //std::shared_ptr<Buff> sendMaskBuff(new Buff);
-        Buff* sendMaskBuff(new Buff);
+        std::vector<u8>* sendMaskBuff(new std::vector<u8>);
         auto numMasks = maskPerm.size() * mBins.mMaxBinSize;
         sendMaskBuff->resize(numMasks * maskSize);
-        auto maskView = sendMaskBuff->getMatrixView<u8>(maskSize);
+        auto maskView = MatrixView<u8>(sendMaskBuff->begin(), sendMaskBuff->end(), maskSize);
 
         u64 masksPer = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
         u64 numChunks = numMasks / masksPer;
@@ -450,7 +450,7 @@ namespace osuCrypto
 
 
 
-                Buff buff;
+                std::vector<u8> buff;
                 otIdx = 0;
 
                 if (tIdx == 0) gTimer.setTimePoint("online.send.recvMask");

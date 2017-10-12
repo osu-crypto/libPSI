@@ -2,6 +2,8 @@
 #include <libOTe/TwoChooseOne/IknpOtExtReceiver.h>
 #include <libPSI/PIR/BgiPirServer.h>
 #include <libPSI/Tools/SimpleIndex.h>
+
+#include <cryptoTools/Common/Timer.h>
 #include <algorithm>
 namespace osuCrypto
 {
@@ -103,7 +105,7 @@ namespace osuCrypto
 		std::vector<block> shares(mNumSimpleBins * mBinSize);
 
 		u64 keySize = kDepth + 1 + groupSize;
-		std::vector<std::future<u64>> futrs(mNumSimpleBins);
+		std::vector<std::future<void>> futrs(mNumSimpleBins);
 		Matrix<block> k(mNumSimpleBins * mBinSize, keySize);
 		//std::vector<u64> idxs(mNumSimpleBins * mBinSize);
 		for (u64 bIdx = 0; bIdx < futrs.size(); ++bIdx)

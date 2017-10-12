@@ -1,6 +1,7 @@
 #include "DrrnPsiClient.h"
-
+#include <unordered_map>
 #include <libPSI/PIR/BgiPirClient.h>
+
 namespace osuCrypto
 {
 	void DrrnPsiClient::init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed, u64 numHash, double binScaler, u64 cuckooSsp)

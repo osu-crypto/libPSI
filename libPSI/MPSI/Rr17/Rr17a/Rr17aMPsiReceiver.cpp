@@ -6,6 +6,7 @@
 
 #include <libPSI/Tools/SimpleHasher.h>
 #include <cryptoTools/Common/Log.h>
+#include <cryptoTools/Common/Timer.h>
 #include <libOTe/Base/naor-pinkas.h>
 #include <unordered_map>
 
@@ -297,7 +298,6 @@ namespace osuCrypto
 
         std::promise<void> maskProm;
         std::shared_future<void> maskFuture(maskProm.get_future());
-        ByteStream maskBuffer;
 
 
         CuckooHasher maskMap;
@@ -599,17 +599,15 @@ namespace osuCrypto
                 u64 numChunks = numMasks / chunkSize;
 
 
-                Buff buff(chunkSize * maskSize);
+                std::vector<u8> buff(chunkSize * maskSize);
+				MatrixView<u8> maskView(buff.data(), buff.size(), maskSize);
 
                 for (u64 kk = tIdx; kk < numChunks; kk += chls.size())
                 {
-                    auto curSize = std::min(chunkSize, numMasks - kk * chunkSize) * maskSize;
-
-
+					auto num = std::min(chunkSize, numMasks - kk * chunkSize);
+                    auto curSize =  num * maskSize;
 
                     chl.recv(buff.data(), curSize);
-
-                    auto maskView = buff.getMatrixView<u8>(maskSize);
 
                     for (u64 i = 0; i < maskView.bounds()[0]; )
                     {

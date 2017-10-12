@@ -55,8 +55,13 @@ void Drrn17Send(
 						//	mm.init(param);
 						//	mm.insert(set, ZeroBlock);
 						//}
-
+						Timer tt;
+						auto s = tt.setTimePoint("s");
                         srv.setInputs(set, params.mNumHash, 10);
+						auto e = tt.setTimePoint("e");
+
+						if (params.mCmd->isSet("cuckooTime")&& params.mIdx == 1)
+							std::cout << "ch:" << std::chrono::duration_cast<std::chrono::milliseconds>(e - s).count() << "ms " << std::flush;
 
 						clientChls[0].asyncSend(dummy, 1);
 						clientChls[0].recv(dummy, 1);
