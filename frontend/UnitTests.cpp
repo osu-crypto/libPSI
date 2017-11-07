@@ -112,9 +112,9 @@ void ShamirSSScheme_all()
 void AknBfPsi_all()
 {
     std::cout << std::endl;
-    run("AknBfPsi_EmptrySet_Test_Impl            ", AknBfPsi_EmptrySet_Test_Impl);
-    run("AknBfPsi_FullSet_Test_Impl              ", AknBfPsi_FullSet_Test_Impl);
-    run("AknBfPsi_SingltonSet_Test_Impl          ", AknBfPsi_SingltonSet_Test_Impl);
+    run("RR16_EmptrySet_Test_Impl            ", AknBfPsi_EmptrySet_Test_Impl);
+    run("RR16_FullSet_Test_Impl              ", AknBfPsi_FullSet_Test_Impl);
+    run("RR16_SingltonSet_Test_Impl          ", AknBfPsi_SingltonSet_Test_Impl);
 }
 void OtBinPsi_all()
 {
