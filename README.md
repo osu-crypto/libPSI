@@ -5,26 +5,33 @@ A repository for private set intersection.
 ## Introduction
 Protocols:
 
- * Malicious Secure [RR17](https://eprint.iacr.org/2016/746) based on Bloom filters and OTs
+ * Malicious Secure [RR17](https://eprint.iacr.org/2017/769) based on simple hashing and OTs (fastest)
+ * Malicious Secure [RR16](https://eprint.iacr.org/2016/746) based on Bloom filters and OTs
  * Malicious Secure [DKT10](https://eprint.iacr.org/2010/469) based on public key crypto (ECC)
- * Semi-Honest Secure [KKRT16](https://eprint.iacr.org/2016/799) based on cuckoo hashing and OTs
+ * Semi-Honest Secure [KKRT16](https://eprint.iacr.org/2016/799) based on cuckoo hashing and OTs (fastest)
  
 ## Install
 
-Our library is cross platform and has been tested on both Windows and Linux. The library should work on Mac but it has not been tested. There are several library dependencies including [libOTe](https://github.com/osu-crypto/libOte), Boost, Miracl, NTL. First follow the instructions at libOTe. Then build ntl located in `./thirdparty/`. A script is provided.
+Our library is cross platform and has been tested on both Windows and Linux. The library should work on Mac but it has not been tested. There are several library dependencies including [libOTe](https://github.com/osu-crypto/libOte), Boost, Miracl. First follow the instructions at libOTe. 
+
 
 ### Windows
 
-Once cloned, the libraries listed above must be built. Then open the solution in Visaul Studio.
+First clone and build libOTe. libOTe and libPSI should share the same parent directory. Then clone this library and open the solution in Visaul Studio.
 
 ### Linux
 
-Once cloned, the libraries listed above must be built. In Thirdparty/linux there are scripts that will download and build all of the libraries that are listed above. To build the library:
+
+libOTe and libPSI should share the same parent directory.
 
 ```
-cmake -G"Unix Makefiles"
+[libOTe clone build steps](https://github.com/osu-crypto/libOTe)
+git clone https://github.com/osu-crypto/libPSI.git
+cd libPSI
+cmake .
 make
 ```
+
 
 Unit tests can be run by executing the program.
 
