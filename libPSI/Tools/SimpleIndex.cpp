@@ -80,7 +80,7 @@ namespace osuCrypto
 
         auto B = std::max<u64>(1, numBalls / numBins);
 
-        double currentProb = 0;
+        double currentProb = getBinOverflowProb(numBins, numBalls, B);
         u64 step = 1;
 
         bool doubling = true;

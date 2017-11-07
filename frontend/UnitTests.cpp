@@ -48,8 +48,47 @@ void kkrt_psi_all()
 
 }
 
+//void bitVec_all()
+//{
+//    std::cout << std::endl;
+//    run("BitVector_Indexing_Test                 ", BitVector_Indexing_Test_Impl);
+//    run("BitVector_Parity                        ", BitVector_Parity_Test_Impl);
+//    run("BitVector_Append_Test                   ", BitVector_Append_Test_Impl);
+//    run("BitVector_Copy_Test                     ", BitVector_Copy_Test_Impl);
+//}
+//
+//void OT_all()
+//{
+//    std::cout << std::endl;
+//
+//    run("Transpose_Test_Impl                     ", Transpose_Test_Impl);
+//    run("KosOtExt_100Receive_Test_Impl           ", KosOtExt_100Receive_Test_Impl);
+//    run("LzKosOtExt_100Receive_Test_Impl         ", LzKosOtExt_100Receive_Test_Impl);
+//    run("IknpOtExt_100Receive_Test_Impl          ", IknpOtExt_100Receive_Test_Impl);
+//    run("AknOt_sendRecv1000_Test                 ", AknOt_sendRecv1000_Test);
+//    run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
+//    run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
+//    run("LinearCode_Test_Impl                       ", LinearCode_Test_Impl);
+//    run("NaorPinkasOt_Test                       ", NaorPinkasOt_Test_Impl);
+//}
+////
+//
+//void Ecc_all()
+//{
+//    std::cout << std::endl;
+//
+//    run("Ecc2mNumber_Test                        ", Ecc2mNumber_Test);
+//    run("Ecc2mPoint_Test                         ", Ecc2mPoint_Test);
+//    run("EccpNumber_Test                         ", EccpNumber_Test);
+//    run("EccpPoint_Test                          ", EccpPoint_Test);
+//
+//}
+//
+
+
+
 void DktPsi_all()
-{
+{ 
     std::cout << std::endl;
     run("DktPsi_EmptrySet_Test_Impl              ", DktMPsi_EmptrySet_Test_Impl);
     run("DktPsi_FullSet_Test_Impl                ", DktMPsi_FullSet_Test_Impl);
@@ -93,10 +132,23 @@ void OtBinPsi_all()
 }
 
 
+
+
 void run_all()
 {
+    //LinearCode_Test_Impl();
+    //run("OosNcoOt_Test_Impl                      ", OosNcoOt_Test_Impl);
+    //run("KkrtNcoOt_Test                          ", KkrtNcoOt_Test_Impl);
+    //run("Rr17a_Oos_SingltonSet_Test_Impl       ", Rr17a_Oos_SingltonSet_Test_Impl);
+
+    //run("Rr17a_Kkrt_SingltonSet_Test_Impl      ", Rr17a_Kkrt_SingltonSet_Test_Impl);
+    //NetWork_all();
+    //bitVec_all();
+    //Ecc_all();
+    //OT_all();
     kkrt_psi_all();
     AknBfPsi_all();
     OtBinPsi_all();
+    //DcwPsi_all();
     DktPsi_all();
 }

@@ -4,6 +4,7 @@
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
 #include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
 #include <set>
 
 namespace osuCrypto {
@@ -106,26 +107,14 @@ namespace osuCrypto {
         //std::vector<u8> hashBuff(roundUpTo(mNumHashFunctions * sizeof(u64), sizeof(block)));
         std::vector<block>bv((mNumHashFunctions + 1) / 2);
 
-        ByteStream piBuff;
-        piBuff.resize(mBfBitCount * sizeof(LogOtCount_t));
+        std::vector<LogOtCount_t> permutes(mBfBitCount);
 
-        //u64 blockSize = 4096 * 128 * 20;
-        ////std::cout << "blockSize " << blockSize << std::endl;
-        //for (i64 i = 0; i < (i64)piBuff.size();i += blockSize)
-        //{
-        //    auto ss = std::min(blockSize, piBuff.size() - i);
-
-        //    chl0.recv(piBuff.data() + i, ss);
-        //    gTimer.setTimePoint("sender.online.permRecv("+std::to_string(i/ blockSize) + "/" + std::to_string(piBuff.size()/ blockSize) +")");
-
-        //}
-        chl0.recv(piBuff);
+        chl0.recv(permutes.data(), permutes.size());
 
         gTimer.setTimePoint("sender.online.permRecv");
         //TODO("make perm item size smaller");
 
 
-        auto permutes = piBuff.getSpan<LogOtCount_t>();
 
         if (permutes.size() != mBfBitCount)
             throw std::runtime_error(LOCATION);
@@ -137,9 +126,7 @@ namespace osuCrypto {
             auto end = inputs.size() * (t + 1) / chls.size();
             std::set<u64> idxs;
 
-            std::unique_ptr<ByteStream> myMasksBuff(new ByteStream((end - start) * sizeof(block)));
-            myMasksBuff->setp(myMasksBuff->capacity());
-            auto myMasks = myMasksBuff->getSpan<block>();
+            std::vector<block> myMasks((end - start));
             SHA1 hash;
             u8 hashOut[SHA1::HashSize];
 
@@ -193,8 +180,8 @@ namespace osuCrypto {
 
             if (result)
             {
-                //chl.asyncSend(std::move(myMasksBuff));
-                chl.send(*myMasksBuff);
+                chl.asyncSend(std::move(myMasks));
+                //chl.send(*myMasksBuff);
             }
 
 

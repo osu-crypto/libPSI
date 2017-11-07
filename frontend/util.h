@@ -1,6 +1,6 @@
 #pragma once
 #include "cryptoTools/Network/Channel.h"
-
+#include "cryptoTools/Common/CLP.h"
 using namespace osuCrypto;
 
 template<typename ... Args>
@@ -43,6 +43,8 @@ struct LaunchParams
     u64 mStatSecParam;
     u64 mIdx;
 	u64 mNumHash;
+
+	CLP* mCmd;
 };
 
 

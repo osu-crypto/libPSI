@@ -5,6 +5,50 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/CLP.h"
 #include <fstream>
 #include "cuckooTests.h"
+#include <iomanip>
+
+void tt()
+{
+	u64 n = 10000;
+
+	double e = 2;
+	u64 h = 3;
+	std::vector<u64> idx(n);
+	std::vector<block> hashes(n);
+	PRNG prng(ZeroBlock);
+
+	for (u64 i = 0; i < hashes.size(); ++i)
+	{
+		idx[i] = i;
+		hashes[i] = prng.get<block>();
+	}
+
+	CuckooIndex<> hashMap1;
+	hashMap1.mParams.mBinScaler = e;
+	hashMap1.mParams.mNumHashes = h;
+	hashMap1.mParams.mStashSize = 400;
+
+
+	hashMap1.init(n, 40, 0, 3);
+
+
+	hashMap1.insert(idx, hashes);
+
+	std::vector<u64> idxret(n);
+
+
+	hashMap1.find(hashes, idxret);
+	for (u64 i = 0; i < n; ++i)
+	{
+		if (idxret[i] != i)
+		{
+			std::cout << i << std::endl;
+			throw std::runtime_error("");
+		}
+	}
+}
+
+
 
 
 void runOne(
@@ -140,7 +184,8 @@ void runOne(
 				std::cout << "  >" << std::fixed << p << secLevel;
 			}
 			else if (good == 0) {
-				std::cout << "  <" << std::fixed << p << secLevel;
+				std::cout 
+					<< "  <" << std::fixed << p << secLevel;
 			}
 			else {
 				std::cout << "  " << secLevel;
@@ -279,3 +324,363 @@ void simpleTest(int argc, char** argv)
 	}
 	std::cout << std::endl;
 }
+
+//void simpleTest(int argc, char** argv)
+//{
+//    simpleTest_find_e(argc, argv);
+//    return;
+//}
+
+
+
+
+
+
+
+
+	//std::fstream out;
+	//out.open("./stashSizes.txt", out.out | out.trunc);
+
+	//CLP cmd;
+	//cmd.parse(argc, argv);
+	//cmd.setDefault("n", "1000");
+	//cmd.setDefault("h", "2");
+	//cmd.setDefault("e", "2");
+	//cmd.setDefault("t", "16");
+	//cmd.setDefault("x", "1");
+	//cmd.setDefault("s", "1.1");
+
+	//u64 n = cmd.get<u64>("n");
+	//u64 h = cmd.get<u64>("h");
+	//double e = cmd.get<double>("e");
+	//u64 t = cmd.get<u64>("t");
+	//u64 numThrds = cmd.get<u64>("x");
+	//double step = cmd.get<double>("s");
+
+	////std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
+
+	//u64 max = 1;
+
+	//while (max)
+	//{
+
+	//    std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
+
+	//    std::array<std::atomic<u64>, 400> counts;
+
+	//    for (u64 i = 0; i < counts.size(); ++i)
+	//        counts[i] = 0;
+
+	//    u64 tries = u64(1) << t;
+	//    std::atomic<u64> completed(0);
+
+
+	//    auto routine = [tries, &completed, &counts, n, h, e, numThrds](u64 tIdx)
+	//    {
+
+	//        PRNG prng(_mm_set1_epi64x(tIdx));
+
+	//        std::vector<u64> hashs(n * h + 1);
+	//        std::vector<u64> idxs(n);
+
+
+	//        SimpleCuckoo::Workspace ws(n, h);
+
+	//        u64 startIdx = tIdx * tries / numThrds;
+	//        u64 endIdx = (tIdx + 1) * tries / numThrds;
+	//        u64 count = endIdx - startIdx;
+
+
+	//        for (u64 i = 0; i < count; ++i)
+	//        {
+	//            //if (i % step == 0)std::cout << "\r" << (i / step) << "%" << flush;
+
+
+	//            prng.mAes.ecbEncCounterMode(prng.mBlockIdx, n * h / 2, (block*)hashs.data());
+	//            prng.mBlockIdx += n;
+	//            for (u64 i = 0; i < n; ++i)
+	//            {
+	//                idxs[i] = i;
+	//            }
+
+
+
+	//            SimpleCuckoo c;
+
+	//            c.mParams.mBinScaler = e;
+	//            c.mParams.mNumHashes = h;
+	//            c.mParams.mStashSize = 400;
+
+	//            c.init(n, 40, false);
+
+
+	//            MatrixView<u64> hashsView((u64*)hashs.data(), n, h);
+
+	//            c.insertBatch(idxs, hashsView, ws);
+
+	//            u64 stashSize = c.stashUtilization();
+	//            ++counts[stashSize];
+
+	//            ++completed;
+	//            //maxStash = std::max((u64)maxStash, stashSize);
+	//            //std::cout << stashSize << std::endl;
+	//        }
+	//        //std::cout << "\r";
+
+	//    };
+
+	//    std::vector<std::thread> thrds(numThrds);
+
+	//    for (u64 i = 0; i < numThrds; ++i)
+	//    {
+	//        thrds[i] = std::thread([&, i]() {routine(i); });
+	//    }
+
+	//    //u64 stringLength = 0;
+	//    while ((u64)completed != tries)
+	//    {
+	//        double percent = completed * 10000 / tries / 100.0;
+
+	//        u64 max = 0;
+	//        for (u64 i = counts.size() - 1; i != 0; --i)
+	//        {
+	//            if (counts[i])
+	//            {
+	//                max = i;
+	//                break;
+	//            }
+	//        }
+
+	//        std::stringstream ss;
+	//        ss << "\r " << std::setw(5) << percent << "%  (" << completed << " / " << tries << ")   count[" << max << "] = " << counts[max];
+	//        std::string str = ss.str();
+
+	//        // first print spaces to clear what was on screen, then print the actual string.
+	//        //std::cout << '\r' << std::string(' ', stringLength) << flush << str << flush;
+
+	//        // update how long the string that we just printed is.
+	//        //stringLength = str.size();
+
+	//        //stop = max;
+
+	//        std::this_thread::sleep_for(std::chrono::seconds(1));
+	//    }
+
+	//    max = 0;
+	//    u64 min = 0;
+	//    for (u64 i = counts.size() - 1; i != 0; --i)
+	//    {
+	//        if (counts[i])
+	//        {
+	//            max = i;
+	//            break;
+	//        }
+	//    }
+	//    for (u64 i = 0; i < counts.size(); ++i)
+	//    {
+	//        if (counts[i])
+	//        {
+	//            min = i;
+	//            break;
+	//        }
+	//    }
+
+	//    std::cout << "\r                                                " << std::endl;
+
+	//    for (u64 i = min; i <= max; ++i)
+	//    {
+	//        std::cout << i << "  " << counts[i] << std::endl;
+	//    }
+
+	//    //if (!stop)
+	//    //{
+
+	//    //    std::cout << "\r" << "h=" << h << "  e=" << e << " passed                                                " << std::endl;
+	//    //    out << "h=" << h << "  e=" << e << " passed" << std::endl;
+	//    //}
+	//    //else
+	//    //{
+	//    //    std::cout << "\r" << "h=" << h << "  e=" << e << " failed " << completed << " / " << tries << "                  "<< std::endl;
+	//    //    out << "h=" << h << "  e=" << e << " failed " << completed << " / " << tries << std::endl;
+	//    //}
+
+	//    for (u64 i = 0; i < numThrds; ++i)
+	//    {
+	//        thrds[i].join();
+	//    }
+
+	//    e *= step;
+
+	//}
+//}
+
+//
+//
+//void simpleTest_var_h(int argc, char** argv)
+//{
+//    //tt();
+//    //return;
+//
+//    std::fstream out;
+//    out.open("./stashSizes.txt", out.out | out.trunc);
+//
+//    CLP cmd;
+//    cmd.parse(argc, argv);
+//    cmd.setDefault("n", "1000");
+//    cmd.setDefault("h", "2");
+//    cmd.setDefault("e", "2");
+//    cmd.setDefault("t", "16");
+//    cmd.setDefault("x", "1");
+//
+//    u64 n = cmd.get<u64>("n");
+//    //u64 h = cmd.get<u64>("h");
+//    double e = cmd.get<double>("e");
+//    u64 t = cmd.get<u64>("t");
+//    u64 numThrds = cmd.get<u64>("x");
+//
+//    //std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
+//
+//    e = 1;
+//    double step = 0.05;
+//
+//    for (u64 h = 6; h > 1; --h)
+//    {
+//        u64 max = 1;
+//
+//        while (max)
+//        {
+//
+//            std::cout << "n=" << n << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
+//
+//            std::atomic<bool>  stop(false);
+//            std::array<std::atomic<u64>, 400> counts;
+//
+//            for (u64 i = 0; i < counts.size(); ++i)
+//                counts[i] = 0;
+//
+//            u64 tries = u64(1) << t;
+//            std::atomic<u64> completed(0);
+//
+//
+//            auto routine = [tries, &completed, &counts, &stop, n, h, e, numThrds](u64 tIdx)
+//            {
+//
+//                PRNG prng(_mm_set1_epi64x(tIdx));
+//
+//                std::vector<u64> hashs(n * h + 1);
+//                std::vector<u64> idxs(n);
+//
+//
+//                SimpleCuckoo::Workspace ws(n, h);
+//
+//                u64 startIdx = tIdx * tries / numThrds;
+//                u64 endIdx = (tIdx + 1) * tries / numThrds;
+//                u64 count = endIdx - startIdx;
+//
+//
+//                for (u64 i = 0; i < count && !stop; ++i)
+//                {
+//                    //if (i % step == 0)std::cout << "\r" << (i / step) << "%" << flush;
+//
+//
+//                    prng.mAes.ecbEncCounterMode(prng.mBlockIdx, n * h / 2, (block*)hashs.data());
+//                    prng.mBlockIdx += n;
+//                    for (u64 i = 0; i < n; ++i)
+//                    {
+//                        idxs[i] = i;
+//                    }
+//
+//
+//
+//                    SimpleCuckoo c;
+//
+//                    c.mParams.mBinScaler = e;
+//                    c.mParams.mNumHashes = h;
+//                    c.mParams.mStashSize = 400;
+//
+//                    c.init(n, 40, false);
+//
+//
+//                    MatrixView<u64> hashsView((u64*)hashs.data(), n, h);
+//
+//                    c.insertBatch(idxs, hashsView, ws);
+//
+//                    u64 stashSize = c.stashUtilization();
+//                    ++counts[stashSize];
+//
+//                    ++completed;
+//                    //maxStash = std::max((u64)maxStash, stashSize);
+//                    //std::cout << stashSize << std::endl;
+//                }
+//                //std::cout << "\r";
+//
+//            };
+//
+//            std::vector<std::thread> thrds(numThrds);
+//
+//            for (u64 i = 0; i < numThrds; ++i)
+//            {
+//                thrds[i] = std::thread([&, i]() {routine(i); });
+//            }
+//
+//            //u64 stringLength = 0;
+//            while ((u64)completed != tries && !stop)
+//            {
+//                double percent = completed * 10000 / tries / 100.0;
+//
+//                u64 max = 0;
+//                for (u64 i = counts.size() - 1; i != 0; --i)
+//                {
+//                    if (counts[i])
+//                    {
+//                        max = i;
+//                        break;
+//                    }
+//                }
+//
+//                std::stringstream ss;
+//                ss << "\r " << std::setw(5) << percent << "%  (" << completed << " / " << tries << ")   count[" << max << "] = " << counts[max];
+//                std::string str = ss.str();
+//
+//                // first print spaces to clear what was on screen, then print the actual string.
+//                //std::cout << '\r' << std::string(' ', stringLength) << flush << str << flush;
+//
+//                // update how long the string that we just printed is.
+//                //stringLength = str.size();
+//
+//                stop = bool(max);
+//
+//                std::this_thread::sleep_for(std::chrono::seconds(1));
+//            }
+//            std::cout << "\r" << std::endl;
+//
+//            max = 0;
+//            for (u64 i = counts.size() - 1; i != 0; --i)
+//            {
+//                if (counts[i])
+//                {
+//                    max = i;
+//                    break;
+//                }
+//            }
+//
+//            if (!stop)
+//            {
+//
+//                out << "h=" << h << "  e=" << e << " passed" << std::endl;
+//            }
+//            else
+//            {
+//                out << "h=" << h << "  e=" << e << " failed " << completed << " / " << tries << std::endl;
+//            }
+//
+//            for (u64 i = 0; i < numThrds; ++i)
+//            {
+//                thrds[i].join();
+//            }
+//
+//            if (max) e += step;
+//
+//        }
+//    }
+//}

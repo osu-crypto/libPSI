@@ -6,6 +6,7 @@
 
 #include "libPSI/Tools/SimpleHasher.h"
 #include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
 #include "libOTe/Base/naor-pinkas.h"
 #include <unordered_map>
 

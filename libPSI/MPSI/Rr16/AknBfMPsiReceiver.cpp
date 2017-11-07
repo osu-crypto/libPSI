@@ -127,8 +127,7 @@ namespace osuCrypto
         if (sizeof(LogOtCount_t) * 8 < std::ceil(std::log2(mTotalOtCount)))
             throw std::runtime_error(LOCATION);
 
-        u64 permByteSize = sizeof(LogOtCount_t);
-        ByteStream permuteBuff(mBfBitCount * permByteSize);
+        std::vector<LogOtCount_t> permute(mBfBitCount);
         //std::cout << "size  " << permuteBuff.size() << " = " <<mBfBitCount << " * " << permByteSize  << std::endl;
 
         std::vector<block>bv((mNumHashFunctions + 1) / 2);
@@ -212,7 +211,7 @@ namespace osuCrypto
 
                 // if we are the main thread, then convert the bloom filter into a permutation
                 //TODO("make perm item size smaller");
-                auto vv = permuteBuff.getSpan<LogOtCount_t>();
+                auto& vv = permute;
 
                 std::array<std::vector<u64>::iterator, 2> idxIters{ mAknOt.mZeros.begin(), mAknOt.mOnes.begin() };
 
@@ -239,7 +238,7 @@ namespace osuCrypto
                 //u8 dummy[1];
                 //chl.asyncSendCopy(dummy, 1);
                 //std::cout << "size  " << permuteBuff.size() << std::endl;
-                chl.asyncSend(permuteBuff.data(), permuteBuff.size());
+                chl.asyncSend(permute);
                 //u64 blockSize = 4096 * 128 * 20;
                 //std::cout << "blockSize " << blockSize << std::endl;
 
@@ -272,7 +271,6 @@ namespace osuCrypto
             // store all masks in the local hash table. will be merged together in a bit.
             std::unordered_map<u64, std::pair<block, u64>> localMasks;
             localMasks.reserve(end - start);
-            auto permute = permuteBuff.getSpan<LogOtCount_t>();
 
 
             //std::cout << IoStream::lock;
@@ -367,13 +365,11 @@ namespace osuCrypto
                 mergeDoneFuture.get();
             }
 
-            ByteStream theirMasksBuff;
-            chl.recv(theirMasksBuff);
+            std::vector<block> theirMasks;
+            chl.recv(theirMasks);
 
             if (t == 0)
                 gTimer.setTimePoint("online.recvMasked");
-
-            auto theirMasks = theirMasksBuff.getSpan<block>();
 
             //u64 numMasks = theirMasksBuff.size() / maskSize;
             std::vector<u64> localIntersection;

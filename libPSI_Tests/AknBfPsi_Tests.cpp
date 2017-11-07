@@ -1,6 +1,7 @@
 #include "AknBfPsi_Tests.h"
 
 #include "cryptoTools/Network/Endpoint.h"
+#include <cryptoTools/Network/IOService.h>
 #include "Common.h"
 #include "cryptoTools/Common/Defines.h"
 #include "libPSI/MPSI/Rr16/AknBfMPsiReceiver.h"

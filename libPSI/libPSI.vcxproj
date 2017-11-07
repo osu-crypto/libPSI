@@ -76,16 +76,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp" />
-    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp" />
-    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp" />
-    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp" />
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
     <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
     <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp" />
+    <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp" />
     <ClCompile Include="Tools\SimpleHasher.cpp" />
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp" />
@@ -96,17 +96,17 @@
     <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
-    <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h" />
     <ClInclude Include="PSI\KkrtPsiReceiver.h" />
     <ClInclude Include="PSI\KkrtPsiSender.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h" />
     <ClInclude Include="MPSI\Dcw\ShamirSSScheme.h" />
     <ClInclude Include="MPSI\Rr16\AknBfMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />
+    <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h" />
     <ClInclude Include="Tools\SimpleHasher.h" />
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h" />
     <ClInclude Include="MPSI\DKT\DktMPsiSender.h" />

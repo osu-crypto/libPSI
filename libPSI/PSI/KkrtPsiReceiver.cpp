@@ -3,10 +3,12 @@
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
 #include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/Timer.h"
 #include "libPSI/Tools/SimpleHasher.h"
 #include <libOTe/Base/naor-pinkas.h>
 #include <unordered_map>
 #include "libOTe/TwoChooseOne/IknpOtExtSender.h"
+#include <iomanip>
 namespace osuCrypto
 {
 
@@ -47,7 +49,7 @@ namespace osuCrypto
         mSenderSize = senderSize;
         mRecverSize = recverSize;
 
-        mIndex.init(recverSize, statSecParam, 0, 3);
+        mIndex.init(recverSize, statSecParam, 0,3);
 
         //mNumStash = get_stash_size(recverSize);
 

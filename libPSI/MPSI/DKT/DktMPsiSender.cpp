@@ -2,8 +2,7 @@
 #include "cryptoTools/Crypto/Curve.h"
 #include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
-
-#include "cryptoTools/Common/ByteStream.h"
+#include "cryptoTools/Network/Channel.h"
 
 namespace osuCrypto
 {
@@ -125,7 +124,7 @@ namespace osuCrypto
                     pch += otherPch;
                 }
 
-                Buff buff(X.sizeBytes() * 2);
+                std::vector<u8> buff(X.sizeBytes() * 2);
                 chl.recv(buff.data(), buff.size());
                 X.fromBytes(buff.data());
                 sigmaA.fromBytes(buff.data() + X.sizeBytes());
@@ -160,7 +159,7 @@ namespace osuCrypto
             sigmaPhis.reserve(subsetInputSize);
             sigma2As.reserve(subsetInputSize);
 
-            Buff buff;
+			std::vector<u8> buff;
             buff.resize(X.sizeBytes() * 2);
             const u64 stepSize = 64;
 
@@ -172,11 +171,11 @@ namespace osuCrypto
             {
 
                 EccPoint sigma2A = gg * sigma2R;
-                uPtr<Buff> sendBuff(new Buff(sigma2A.sizeBytes()));
-                sigma2A.toBytes(sendBuff->data());
+				std::vector<u8> sendBuff(sigma2A.sizeBytes());
+                sigma2A.toBytes(sendBuff.data());
 
                 sigma2Hasher.Reset();
-                sigma2Hasher.Update(sendBuff->data(), sendBuff->size());
+                sigma2Hasher.Update(sendBuff.data(), sendBuff.size());
 
                 chl.asyncSend(std::move(sendBuff));
             }
@@ -187,8 +186,7 @@ namespace osuCrypto
             {
                 auto curStepSize = std::min(stepSize, theirInputEndIdx - i);
 
-                uPtr<Buff> sendBuff;
-                sendBuff.reset(new Buff(Z.sizeBytes() * curStepSize));
+				std::vector<u8> sendBuff(Z.sizeBytes() * curStepSize);
 
                 chl.recv(buff);
 
@@ -199,7 +197,7 @@ namespace osuCrypto
                     throw std::runtime_error(LOCATION);
                 }
                 auto iter = buff.data();
-                auto sendIter = sendBuff->data();
+                auto sendIter = sendBuff.data();
 
                 for (u64 j = 0; j < curStepSize; ++j, ++i)
                 {
@@ -225,7 +223,7 @@ namespace osuCrypto
 
                 }
 
-                sigma2Hasher.Update(sendBuff->data(), sendBuff->size());
+                sigma2Hasher.Update(sendBuff.data(), sendBuff.size());
                 chl.asyncSend(std::move(sendBuff));
                 //std::cout << " buff  " << (u32)buff.data()[10] << std::endl;
                 //std::cout << " M.back()  " << Ms.back() << std::endl;
@@ -260,9 +258,9 @@ namespace osuCrypto
 
 
 
-                uPtr<Buff> sendBuff(new Buff(Z.sizeBytes() + sigma2Phi.sizeBytes()));
-                Z.toBytes(sendBuff->data());
-                sigma2Phi.toBytes(sendBuff->data() + Z.sizeBytes());
+				std::vector<u8> sendBuff(Z.sizeBytes() + sigma2Phi.sizeBytes());
+                Z.toBytes(sendBuff.data());
+                sigma2Phi.toBytes(sendBuff.data() + Z.sizeBytes());
                 chl.asyncSend(std::move(sendBuff));
 
 
@@ -349,8 +347,8 @@ namespace osuCrypto
             {
 
                 auto curStepSize = std::min(stepSize, Mps.size() - i);
-                uPtr<Buff> sendBuff(new Buff(Z.sizeBytes() * curStepSize));
-                auto iter = sendBuff->data();
+				std::vector<u8> sendBuff(Z.sizeBytes() * curStepSize);
+                auto iter = sendBuff.data();
 
 
                 for (u64 j = 0; j < curStepSize; ++j, ++i)
@@ -368,8 +366,7 @@ namespace osuCrypto
             for (u64 i = myInputStartIdx, ii = 0; i < myInputEndIdx;)
             {
 
-                uPtr<Buff> sendBuff(new Buff(std::min(myInputEndIdx - i, u64(512)) * sizeof(block)));
-                auto view = sendBuff->getSpan<block>();
+				std::vector<block> view(std::min(myInputEndIdx - i, u64(512)));
 
                 for (u64 j = 0; j < u64(view.size()); ++i, ++j, ++ii)
                 {
@@ -394,7 +391,7 @@ namespace osuCrypto
                     view[j] = toBlock(hashOut);
                 }
 
-                chl.asyncSend(std::move(sendBuff));
+                chl.asyncSend(std::move(view));
             }
 
 

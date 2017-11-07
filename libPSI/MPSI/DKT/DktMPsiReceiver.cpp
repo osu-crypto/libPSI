@@ -4,7 +4,6 @@
 #include "cryptoTools/Common/Log.h"
 
 #include <unordered_map>
-#include "cryptoTools/Common/ByteStream.h"
 
 namespace osuCrypto
 {
@@ -153,8 +152,8 @@ namespace osuCrypto
 
             if (t == 0)
             {
-                uPtr<Buff> sendBuff(new Buff(X.sizeBytes() * 2));
-                auto iter = sendBuff->data();
+                std::vector<u8> sendBuff(X.sizeBytes() * 2);
+                auto iter = sendBuff.data();
                 X.toBytes(iter); iter += X.sizeBytes();
                 sigmaA.toBytes(iter);
                 sigmaHasher.Update(iter, sigmaA.sizeBytes());
@@ -184,8 +183,8 @@ namespace osuCrypto
                 auto curStepSize = std::min(stepSize, myInputEndIdx - i);
 
 
-                uPtr<Buff> sendBuff(new Buff(g.sizeBytes() * 3 * curStepSize));
-                auto iter = sendBuff->data();
+				std::vector<u8> sendBuff(g.sizeBytes() * 3 * curStepSize);
+                auto iter = sendBuff.data();
 
                 for (u64 j = 0; j < curStepSize; ++j, ++i)
                 {
@@ -239,8 +238,8 @@ namespace osuCrypto
                 sigmaValsProm.set_value({ &sigmaE, &sigmaPhi });
 
 
-                uPtr<Buff> sendBuff(new Buff(sigmaPhi.sizeBytes()));
-                sigmaPhi.toBytes(sendBuff->data());
+                std::vector<u8> sendBuff(sigmaPhi.sizeBytes());
+                sigmaPhi.toBytes(sendBuff.data());
                 chl.asyncSend(std::move(sendBuff));
             }
             else
@@ -270,8 +269,8 @@ namespace osuCrypto
                 auto curStepSize = std::min(stepSize, myInputEndIdx - i);
 
 
-                uPtr<Buff> sendBuff(new ByteStream(sigmaPhi.sizeBytes() * curStepSize));
-                auto iter = sendBuff->data();
+                std::vector<u8> sendBuff(sigmaPhi.sizeBytes() * curStepSize);
+                auto iter = sendBuff.data();
 
                 for (u64 j = 0; j < curStepSize; ++j, ++i, ++ii)
                 {
@@ -320,7 +319,7 @@ namespace osuCrypto
             if (t == 0)
             {
 
-                ByteStream buff;
+                std::vector<u8> buff;
                 chl.recv(buff);
                 if (buff.size() != sigma2A.sizeBytes()) throw std::runtime_error("");
                 sigma2A.fromBytes(buff.data());
@@ -331,7 +330,7 @@ namespace osuCrypto
             {
                 auto curStepSize = std::min(stepSize, myInputEndIdx - i);
 
-                ByteStream buff;
+				std::vector<u8> buff;
                 chl.recv(buff);
                 sigma2Hasher.Update(buff.data(), buff.size());
 
@@ -358,7 +357,7 @@ namespace osuCrypto
                 sigma2Hasher.Final(hashOut);
                 sigma2C.randomize(toBlock(hashOut));
 
-                ByteStream buff(Z.sizeBytes() + sigma2Phi.sizeBytes());
+				std::vector<u8> buff(Z.sizeBytes() + sigma2Phi.sizeBytes());
                 chl.recv(buff.data(), buff.size());
                 Z.fromBytes(buff.data());
                 sigma2Phi.fromBytes(buff.data() + Z.sizeBytes());
@@ -390,17 +389,15 @@ namespace osuCrypto
                 Z = *std::get<2>(rr);// .third;
             }
 
-
-            ByteStream buff2(Z.sizeBytes());
-
-
+			std::vector<u8> buff2(Z.sizeBytes());
 
             std::vector<InputHash> hashVec;
             if (t == 0) hashs.reserve(inputs.size());
             else hashVec.resize(subsetInputSize);
             auto hashVecIter = hashVec.begin();
 
-            Buff buff;
+
+			std::vector<u8> buff;
             for (u64 i = myInputStartIdx, ii = 0; i < myInputEndIdx;)
             {
                 auto curStepSize = std::min(stepSize, myInputEndIdx - i);
@@ -486,10 +483,10 @@ namespace osuCrypto
                 mergedHashTableFutr.get();
             }
 
+			std::vector<block> view;
             for (u64 i = theirInputStartIdx; i < theirInputEndIdx; )
             {
-                chl.recv(buff);
-                auto view = buff.getSpan<block>();
+                chl.recv(view);
                 i += view.size();
 
                 for (auto& Tsj : view)
