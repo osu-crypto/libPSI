@@ -69,7 +69,7 @@ void Drrn17Send(
 						if (params.mIdx < 1 || params.mIdx > 2) throw std::runtime_error("server index must be 1 or 2");
 
 
-						srv.init(u8(params.mIdx - 1), clientChls[0], serverChls[0], serverSetSize, clientSetSize, ZeroBlock, ss);
+						srv.init(u8(params.mIdx - 1), clientChls[0], serverChls[0], serverSetSize, clientSetSize, ZeroBlock, ss, params.mCmd->get<int>("bigBlock"));
 						srv.send(clientChls[0], serverChls[0], numThreads);
 					}
 				}
@@ -118,7 +118,7 @@ void Drrn17Recv(
 						Timer timer;
 						auto start = timer.setTimePoint("start");
 						DrrnPsiClient client;
-						client.init(s0[0], s1[0], serverSetSize, clientSetSize, ZeroBlock, params.mNumHash, ss, 10);
+						client.init(s0[0], s1[0], serverSetSize, clientSetSize, ZeroBlock, params.mNumHash, ss, 10, params.mCmd->get<int>("bigBlock"));
 
 						auto mid = timer.setTimePoint("online");
 

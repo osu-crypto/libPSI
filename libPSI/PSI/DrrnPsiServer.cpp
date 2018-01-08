@@ -7,14 +7,15 @@
 #include <algorithm>
 namespace osuCrypto
 {
-	void DrrnPsiServer::init(u8 serverId, Channel clientChl, Channel srvChl, u64 serverSetSize, u64 clientSetSize, block seed, double binScaler)
+	void DrrnPsiServer::init(u8 serverId, Channel clientChl, Channel srvChl, u64 serverSetSize, u64 clientSetSize, block seed, double binScaler, u64 bigBlockSize)
 	{
-		if (mServerId == 0) gTimer.setTimePoint("DrrnSrv init start");
+		if (mServerId == 0) gTimer.setTimePoint("Drrn_Srv.init.start");
 		auto ssp(40);
 		mPrng.SetSeed(seed);
 		mClientSetSize = clientSetSize;
 		mServerSetSize = serverSetSize;
 		mServerId = serverId;
+		mBigBlockSize = bigBlockSize;
 
 		if (mIndex.mParams.mN != serverSetSize)
 			throw std::runtime_error(LOCATION);
@@ -25,21 +26,69 @@ namespace osuCrypto
 		u64 numBalls = clientSetSize * mIndex.mParams.mNumHashes;
 		mNumSimpleBins = std::max<u64>(1, (numBalls / log2floor(numBalls)) * binScaler);
 
-		if (mServerId == 0) gTimer.setTimePoint("DrrnSrv balls_bins start");
+		if (mServerId == 0) gTimer.setTimePoint("Drrn_Srv balls_bins start");
 		mBinSize = SimpleIndex::get_bin_size(mNumSimpleBins, numBalls, ssp);
 
 		if (mNumSimpleBins == 1 && mBinSize != numBalls)
 			throw std::runtime_error(LOCATION);
 
+			auto serverPsiInputSize = mBinSize * mNumSimpleBins * mBigBlockSize;
 		if (serverId == 0)
 		{
 			// i think these are the right set sizes for the final PSI
-			auto serverPsiInputSize = mBinSize * mNumSimpleBins;
 			auto clientPsiInputSize = clientSetSize * mIndex.mParams.mNumHashes;
+			//std::cout << "|ss| "<< serverPsiInputSize << std::endl;
 			mPsi.init(serverPsiInputSize, clientPsiInputSize, 40, clientChl, otSend, mPrng.get<block>());
+
+			srvChl.recv(mPi1SigmaRS);
+		}
+		else
+		{
+			block rSeed = CCBlock;
+			//clientChl.recv((u8*)&rSeed, sizeof(block));
+
+			PRNG prng(rSeed ^ OneBlock);
+
+			std::vector<u32> pi1(serverPsiInputSize), sigma(mIndex.mParams.mNumHashes);
+			for (u32 i = 0; i < sigma.size(); ++i) sigma[i] = i;
+			for (u32 i = 0; i < pi1.size(); ++i) pi1[i] = i;
+			std::random_shuffle(pi1.begin(), pi1.end(), prng);
+
+			std::vector<block>
+				r(serverPsiInputSize),
+				s(serverPsiInputSize),
+				//piS1(serverPsiInputSize),
+				pi1SigmaRS(serverPsiInputSize);
+
+			mPiS1.resize(serverPsiInputSize);
+
+			AES rGen(rSeed);
+			//memset(r.data(), 0, r.size() * sizeof(block));
+			rGen.ecbEncCounterMode(serverPsiInputSize * 0, serverPsiInputSize, r.data());
+			rGen.ecbEncCounterMode(serverPsiInputSize * 1, serverPsiInputSize, mPiS1.data());
+			rGen.ecbEncCounterMode(serverPsiInputSize * 2, serverPsiInputSize, s.data());
+
+			auto rIter = r.begin();
+			for (u64 i = 0; i < mClientSetSize; ++i)
+			{
+				std::random_shuffle(sigma.begin(), sigma.end(), prng);
+				for (u64 j = 1; j < sigma.size(); ++j)
+				{
+					std::swap(rIter[j], rIter[sigma[j]]);
+				}
+				rIter += sigma.size();
+			}
+
+			for (u64 i = 0; i < pi1SigmaRS.size(); ++i)
+			{
+				auto pi1i = pi1[i];
+				pi1SigmaRS[i] = r[pi1i] ^ s[pi1i];
+				//std::cout << "pi1(r + s)[" << i << "] " << pi1SigmaRS[i] << " = " << r[pi1i]<<" ^ "<<s[pi1i] << std::endl;
+			}
+			srvChl.asyncSend(std::move(pi1SigmaRS));
 		}
 
-		if (mServerId == 0) gTimer.setTimePoint("DrrnSrv init end");
+		if (mServerId == 0) gTimer.setTimePoint("Drrn_Srv.init.end");
 
 	}
 
@@ -94,17 +143,20 @@ namespace osuCrypto
 
 		u64 cuckooSlotsPerBin = (mIndex.mBins.size() + mNumSimpleBins) / mNumSimpleBins;
 
-		if (mServerId == 0) gTimer.setTimePoint("DrrnSrv send start");
+		if (mServerId == 0) gTimer.setTimePoint("Drrn_Srv.send.start");
 
 		// power of 2
-		u64 numLeafBlocksPerBin = (cuckooSlotsPerBin + 127) / 128;
+		u64 numLeafBlocksPerBin = (cuckooSlotsPerBin + mBigBlockSize * 128 - 1) / (mBigBlockSize * 128);
 		u64 gDepth = 2;
 		u64 kDepth = std::max<u64>(gDepth, log2floor(numLeafBlocksPerBin)) - gDepth;
 		u64 groupSize = (numLeafBlocksPerBin + (u64(1) << kDepth) - 1) / (u64(1) << kDepth);
 		if (groupSize > 8) throw     std::runtime_error(LOCATION);
-		std::vector<block> shares(mNumSimpleBins * mBinSize);
+		std::vector<block> shares(mNumSimpleBins * mBinSize * mBigBlockSize);
 
 		u64 keySize = kDepth + 1 + groupSize;
+
+		//if(mServerId == 0)
+		//	std::cout << "|key| " << keySize << std::endl;
 		std::vector<std::future<void>> futrs(mNumSimpleBins);
 		Matrix<block> k(mNumSimpleBins * mBinSize, keySize);
 		//std::vector<u64> idxs(mNumSimpleBins * mBinSize);
@@ -121,6 +173,7 @@ namespace osuCrypto
 		auto routine = [this, numThreads, kDepth, keySize, groupSize, &futrs, &k, &shares](u64 tIdx)
 		{
 			//std::vector<block> pirData((u64(1) << kDepth) * groupSize * 128);
+			u64 total = 0;
 
 			for (u64 binIdx = tIdx; binIdx < mNumSimpleBins; binIdx += numThreads)
 			{
@@ -156,53 +209,92 @@ namespace osuCrypto
 						//++idxIter;
 					}
 
+
+					std::vector<block> expandedBits(mBinSize);
 					auto numSteps = mBinSize / 8;
-					for (u64 i = 0; cuckooIdx < cuckooEnd; ++i, ++cuckooIdx)
+					while (cuckooIdx < cuckooEnd)
 					{
-						auto& item = mIndex.mBins[cuckooIdx];
-						auto bits = mk.yeild();
 
-						auto empty = item.isEmpty();
-						if (empty == false)
+
 						{
-							auto pirData_i = mCuckooData[cuckooIdx];
 
-							//if (bits.size() != mBinSize) throw std::runtime_error(LOCATION);
-
+							// for this bin and this slot, get all of the DPF values corresponding to it. 
+							// One for each of the queries to this bin.
+							auto bits = mk.yeild();
 							auto bitsIter = bits.data();
-							auto shareIter = shares.data() + binIdx * mBinSize;
-
+							auto expandedBitsIter = expandedBits.data();
 							for (u64 j = 0; j < numSteps; ++j)
 							{
-								shareIter[0] = shareIter[0] ^ (zeroAndAllOne[bitsIter[0]] & pirData_i);
-								shareIter[1] = shareIter[1] ^ (zeroAndAllOne[bitsIter[1]] & pirData_i);
-								shareIter[2] = shareIter[2] ^ (zeroAndAllOne[bitsIter[2]] & pirData_i);
-								shareIter[3] = shareIter[3] ^ (zeroAndAllOne[bitsIter[3]] & pirData_i);
-								shareIter[4] = shareIter[4] ^ (zeroAndAllOne[bitsIter[4]] & pirData_i);
-								shareIter[5] = shareIter[5] ^ (zeroAndAllOne[bitsIter[5]] & pirData_i);
-								shareIter[6] = shareIter[6] ^ (zeroAndAllOne[bitsIter[6]] & pirData_i);
-								shareIter[7] = shareIter[7] ^ (zeroAndAllOne[bitsIter[7]] & pirData_i);
-
+								expandedBitsIter[0] = zeroAndAllOne[bitsIter[0]];
+								expandedBitsIter[1] = zeroAndAllOne[bitsIter[1]];
+								expandedBitsIter[2] = zeroAndAllOne[bitsIter[2]];
+								expandedBitsIter[3] = zeroAndAllOne[bitsIter[3]];
+								expandedBitsIter[4] = zeroAndAllOne[bitsIter[4]];
+								expandedBitsIter[5] = zeroAndAllOne[bitsIter[5]];
+								expandedBitsIter[6] = zeroAndAllOne[bitsIter[6]];
+								expandedBitsIter[7] = zeroAndAllOne[bitsIter[7]];
+								expandedBitsIter += 8;
 								bitsIter += 8;
-								shareIter += 8;
 							}
-
 							for (u64 j = 0; j < mBinSize % 8; ++j)
 							{
-								shareIter[j] = shareIter[j] ^ (zeroAndAllOne[bitsIter[j]] & pirData_i);
+								expandedBitsIter[j] = zeroAndAllOne[bitsIter[j]];
 							}
-
-
-							//{
-							//    auto hash = mIndex.mHashes[idx];
-							//    std::cout << IoStream::lock << "sinput[" << idx << "] = " << mInputs[idx] << " -> pir["<< i << "], hash= "  << hash << " ("
-							//        << CuckooIndex<>::getHash(hash, 0, mIndex.mBins.size()) << ", "
-							//        << CuckooIndex<>::getHash(hash, 1, mIndex.mBins.size()) << ", "
-							//        << CuckooIndex<>::getHash(hash, 2, mIndex.mBins.size()) << ") " << mIndex.mBins[cuckooIdx].hashIdx()
-							//        << std::endl << IoStream::unlock;
-							//}
 						}
+
+						
+						for (u64 i = 0; i < mBigBlockSize && cuckooIdx < cuckooEnd; ++i, ++cuckooIdx)
+						{
+
+							auto item = mIndex.mBins[cuckooIdx];
+							auto empty = item.isEmpty();
+							if (empty == false)
+							{
+								auto pirData_i = mCuckooData[cuckooIdx];
+
+								//if (bits.size() != mBinSize) throw std::runtime_error(LOCATION);
+
+								auto shareIter = shares.data() + binIdx * mBinSize * mBigBlockSize + i * mBinSize;
+								auto expandedBitsIter = expandedBits.data();
+
+								for (u64 j = 0; j < numSteps; ++j)
+								{
+									shareIter[0] = shareIter[0] ^ expandedBitsIter[0] & pirData_i;
+									shareIter[1] = shareIter[1] ^ expandedBitsIter[1] & pirData_i;
+									shareIter[2] = shareIter[2] ^ expandedBitsIter[2] & pirData_i;
+									shareIter[3] = shareIter[3] ^ expandedBitsIter[3] & pirData_i;
+									shareIter[4] = shareIter[4] ^ expandedBitsIter[4] & pirData_i;
+									shareIter[5] = shareIter[5] ^ expandedBitsIter[5] & pirData_i;
+									shareIter[6] = shareIter[6] ^ expandedBitsIter[6] & pirData_i;
+									shareIter[7] = shareIter[7] ^ expandedBitsIter[7] & pirData_i;
+
+									shareIter += 8;
+									expandedBitsIter += 8;
+
+									total += 8;
+								}
+								 
+								for (u64 j = 0; j < mBinSize % 8; ++j)
+								{
+									shareIter[j] = shareIter[j] ^ expandedBitsIter[j] & pirData_i;
+
+									++total;
+								}
+
+
+								//{
+								//    auto hash = mIndex.mHashes[idx];
+								//    std::cout << IoStream::lock << "sinput[" << idx << "] = " << mInputs[idx] << " -> pir["<< i << "], hash= "  << hash << " ("
+								//        << CuckooIndex<>::getHash(hash, 0, mIndex.mBins.size()) << ", "
+								//        << CuckooIndex<>::getHash(hash, 1, mIndex.mBins.size()) << ", "
+								//        << CuckooIndex<>::getHash(hash, 2, mIndex.mBins.size()) << ") " << mIndex.mBins[cuckooIdx].hashIdx()
+								//        << std::endl << IoStream::unlock;
+								//}
+							}
+						}
+
 					}
+
 				}
 				else
 				{
@@ -263,8 +355,11 @@ namespace osuCrypto
 					}
 				}
 			}
+			//if (mServerId == 0)
+			//std::cout << total << std::endl;
+
 		};
-		if (mServerId == 0) gTimer.setTimePoint("DrrnSrv PSI start");
+		if (mServerId == 0) gTimer.setTimePoint("Drrn_Srv.query");
 
 		std::vector<std::thread> thrds(numThreads - 1);
 		for (u64 i = 1; i < numThreads; ++i)
@@ -275,51 +370,14 @@ namespace osuCrypto
 		for (u64 i = 1; i < numThreads; ++i)
 			thrds[i - 1].join();
 
+		if (mServerId == 0) gTimer.setTimePoint("Drrn_Srv.psi");
+
 		if (mServerId)
 		{
-			block rSeed;
-			clientChl.recv((u8*)&rSeed, sizeof(block));
 
-			PRNG prng(rSeed ^ OneBlock);
-			if (shares.size() > (1ull << 32) - 1) throw std::runtime_error(LOCATION);
 
-			std::vector<u32> pi1(shares.size()), sigma(mIndex.mParams.mNumHashes);
-			for (u32 i = 0; i < sigma.size(); ++i) sigma[i] = i;
-			for (u32 i = 0; i < pi1.size(); ++i) pi1[i] = i;
-			std::random_shuffle(pi1.begin(), pi1.end(), prng);
-
-			std::vector<block>
-				r(shares.size()),
-				s(shares.size()),
-				piS1(shares.size()),
-				pi1SigmaRS(shares.size());
-
-			AES rGen(rSeed);
-			rGen.ecbEncCounterMode(shares.size() * 0, shares.size(), r.data());
-			rGen.ecbEncCounterMode(shares.size() * 1, shares.size(), piS1.data());
-			rGen.ecbEncCounterMode(shares.size() * 2, shares.size(), s.data());
-
-			auto rIter = r.begin();
-			for (u64 i = 0; i < mClientSetSize; ++i)
-			{
-				std::random_shuffle(sigma.begin(), sigma.end(), prng);
-				for (u64 j = 1; j < sigma.size(); ++j)
-				{
-					std::swap(rIter[j], rIter[sigma[j]]);
-				}
-				rIter += sigma.size();
-			}
-
-			for (u64 i = 0; i < pi1SigmaRS.size(); ++i)
-			{
-				auto pi1i = pi1[i];
-				pi1SigmaRS[i] = r[pi1i] ^ s[pi1i];
-				//std::cout << "pi1(r + s)[" << i << "] " << pi1SigmaRS[i] << " = " << r[pi1i]<<" ^ "<<s[pi1i] << std::endl;
-			}
-			srvChl.asyncSend(std::move(pi1SigmaRS));
-
-			auto piSIter = piS1.begin();
-			for (u64 j = 0; piSIter != piS1.end(); ++piSIter, ++j)
+			auto piSIter = mPiS1.begin();
+			for (u64 j = 0; piSIter != mPiS1.end(); ++piSIter, ++j)
 			{
 				shares[j] = shares[j] ^ *piSIter;
 			}
@@ -330,23 +388,23 @@ namespace osuCrypto
 		else
 		{
 			std::vector<u32> pi0(shares.size());
-			std::vector<block> piS0(shares.size()), pi1SigmaRS(shares.size()), piSigmaR0(shares.size());
+			std::vector<block> piS0(shares.size()),  piSigmaR0(shares.size());
 			clientChl.recv((u8*)pi0.data(), pi0.size() * sizeof(u32));
 			clientChl.recv(piS0);
-
-			srvChl.recv((u8*)pi1SigmaRS.data(), pi1SigmaRS.size() * sizeof(block));
+			gTimer.setTimePoint("Drrn_Srv.recv_client_perm");
+			//srvChl.recv((u8*)pi1SigmaRS.data(), pi1SigmaRS.size() * sizeof(block));
 
 			for (u64 i = 0; i < shares.size(); ++i)
 			{
 				//std::cout << "pi(r + s)[" << i << "]=" << pi1SigmaRS[pi0[i]] << std::endl;
-				piSigmaR0[i] = pi1SigmaRS[pi0[i]] ^ piS0[i];
+				piSigmaR0[i] = mPi1SigmaRS[pi0[i]] ^ piS0[i];
 			}
 
 			// reuse the memory
-			auto& piSigmaRV1 = pi1SigmaRS;
+			auto& piSigmaRV1 = mPi1SigmaRS;
 			srvChl.recv(piSigmaRV1);
 			//srvChl.recv(piS1);
-
+			gTimer.setTimePoint("Drrn_Srv.recv_server_perm");
 			for (u64 i = 0; i < shares.size(); ++i)
 			{
 				//std::cout << "pi(r)[" << i << "] " << (piS1[i] ^ piSigmaR0[i]) << std::endl;
@@ -379,7 +437,7 @@ namespace osuCrypto
 			mPsi.sendInput(shares, clientChl);
 		}
 
-		if (mServerId == 0) gTimer.setTimePoint("DrrnSrv send Done");
+		if (mServerId == 0) gTimer.setTimePoint("Drrn_Srv.send_done");
 
 	}
 }

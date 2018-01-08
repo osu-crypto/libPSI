@@ -15,7 +15,11 @@ namespace osuCrypto
     {
     public:
 
-        void init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed,u64 numHash = 2, double binScaler = 1, u64 cuckooSsp = 20);
+        void init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed,
+			u64 numHash = 2,
+			double binScaler = 1, 
+			u64 cuckooSsp = 20,
+			u64 bigBlockSize = 8);
 
         void recv(Channel s0, Channel s1, span<block> inputs);
 
@@ -27,7 +31,7 @@ namespace osuCrypto
 
         KkrtPsiReceiver mPsi;
 
-        u64 mClientSetSize, mServerSetSize, mNumSimpleBins, mBinSize;
+        u64 mClientSetSize, mServerSetSize, mNumSimpleBins, mBinSize, mBigBlockSize;
 		std::unordered_set<u64> mIntersection;
         KkrtNcoOtReceiver otRecv;
         block mHashingSeed;

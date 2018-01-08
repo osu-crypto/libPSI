@@ -16,7 +16,7 @@ namespace osuCrypto
 			, mNiave(false)
 		{}
 
-        void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1);
+        void init(u8 serverId, Channel chan, Channel srvChl, u64 databaseSize, u64 clientSetSize, block seed, double binScaler = 1, u64 bigBlockSize = 8);
 
 		//void setCuckooParam(osuCrypto::u64 &serverSetSize, int ssp);
 
@@ -24,7 +24,7 @@ namespace osuCrypto
 
         void send(Channel clientChl, Channel srvChl, u64 numThreads = 1);
 
-		std::vector<block> mCuckooData;
+		std::vector<block> mCuckooData, mPiS1, mPi1SigmaRS;
 
         //CuckooParam mCuckooParams;
         CuckooIndex<NotThreadSafe> mIndex;
@@ -34,7 +34,18 @@ namespace osuCrypto
         PRNG mPrng;
         KkrtPsiSender mPsi;
 
-        u64 mClientSetSize, mServerSetSize, mNumSimpleBins, mBinSize;
+		u64 mClientSetSize, mServerSetSize;
+
+		// The number of regions that the server's cuckoo table is divided into. 
+		u64 mNumSimpleBins;
+		
+		// The number of queries that are made to any given bin (cuckoo table resions).
+		u64 mBinSize;
+		
+		// The number of cuckoo table items that any given DPF point corresponds to. 
+		u64 mBigBlockSize;
+
+
         u8 mServerId;
         block mHashingSeed;
     };

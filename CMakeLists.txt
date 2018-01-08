@@ -59,8 +59,8 @@ set(Miracl_Dirs "${libOTe_Dirs}/cryptoTools/thirdparty/linux/miracl/")
 include_directories("${Miracl_Dirs}") 
 
 # default location for NTL
-set(NTL_Dirs "${CMAKE_SOURCE_DIR}/thirdparty/linux/ntl/")
-include_directories("${NTL_Dirs}/include/")
+#set(NTL_Dirs "${CMAKE_SOURCE_DIR}/thirdparty/linux/ntl/")
+#include_directories("${NTL_Dirs}/include/")
 
 # default location for Boost
 set(BOOST_ROOT "${libOTe_Dirs}/cryptoTools/thirdparty/linux/boost/")

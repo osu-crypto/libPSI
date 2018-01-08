@@ -4,6 +4,7 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
 #include <chrono>
+#include <iomanip>
 
 #define tryCount 4
 #define trials (1 << 8)

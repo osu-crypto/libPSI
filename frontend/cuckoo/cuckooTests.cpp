@@ -5,6 +5,7 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/CLP.h"
 #include <fstream>
 #include "cuckooTests.h"
+#include <iomanip>
 
 void tt()
 {

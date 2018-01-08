@@ -4,15 +4,25 @@
 
 namespace osuCrypto
 {
-	void DrrnPsiClient::init(Channel s0, Channel s1, u64 serverSetSize, u64 clientSetSize, block seed, u64 numHash, double binScaler, u64 cuckooSsp)
+	void DrrnPsiClient::init(
+		Channel s0,
+		Channel s1, 
+		u64 serverSetSize, 
+		u64 clientSetSize, 
+		block seed, 
+		u64 numHash, 
+		double binScaler, 
+		u64 cuckooSsp,
+		u64 bigBlockSize)
 	{
 		auto ssp(40);
 		mPrng.SetSeed(seed);
 		mServerSetSize = serverSetSize;
 		mClientSetSize = clientSetSize;
 		mHashingSeed = ZeroBlock;
+		mBigBlockSize = bigBlockSize;
 
-		mCuckooParams = CuckooIndex<>::selectParams(serverSetSize, cuckooSsp, 0, numHash);
+		mCuckooParams = CuckooIndex<>::selectParams(mServerSetSize, cuckooSsp, 0, numHash);
 
 
 
@@ -21,7 +31,7 @@ namespace osuCrypto
 		mBinSize = SimpleIndex::get_bin_size(mNumSimpleBins, numBalls, ssp);
 
 		// i think these are the right set sizes for the final PSI
-		auto serverPsiInputSize = mBinSize * mNumSimpleBins;
+		auto serverPsiInputSize = mBinSize * mNumSimpleBins * mBigBlockSize;
 		auto clientPsiInputSize = clientSetSize * mCuckooParams.mNumHashes;
 		mPsi.init(serverPsiInputSize, clientPsiInputSize, 40, s0, otRecv, mPrng.get<block>());
 	}
@@ -66,7 +76,7 @@ namespace osuCrypto
 
 
 		// power of 2
-		u64 numLeafBlocks = (cuckooSlotsPerBin + 127) / 128;
+		u64 numLeafBlocks = (cuckooSlotsPerBin + mBigBlockSize * 128 - 1)/ (mBigBlockSize * 128);
 		u64 gDepth = 2;
 		u64 kDepth = std::max<u64>(gDepth, log2floor(numLeafBlocks)) - gDepth;
 		u64 groupSize = (numLeafBlocks + (u64(1) << kDepth) - 1) / (u64(1) << kDepth);
@@ -76,17 +86,22 @@ namespace osuCrypto
 		//std::cout << "mBinSize: " << mBinSize << std::endl;
 
 		u64 numQueries = mNumSimpleBins * mBinSize;
+		auto permSize = numQueries * mBigBlockSize;
 
 		// mask generation
-		block rSeed = mPrng.get<block>();
+		block rSeed = CCBlock;// mPrng.get<block>();
 		AES rGen(rSeed);
-		std::vector<block> shares(mClientSetSize * mCuckooParams.mNumHashes), r(numQueries), piS1(numQueries), s(numQueries);
+
+
+		std::vector<block> shares(mClientSetSize * mCuckooParams.mNumHashes), r(permSize), piS1(permSize), s(permSize);
 		//std::vector<u32> rIdxs(numQueries);
 		//std::vector<u64> sharesIdx(shares.size());
 
-		rGen.ecbEncCounterMode(numQueries * 0, numQueries, r.data());
-		rGen.ecbEncCounterMode(numQueries * 1, numQueries, piS1.data());
-		rGen.ecbEncCounterMode(numQueries * 2, numQueries, s.data());
+		//TODO("use real masks");
+		//memset(r.data(), 0, r.size() * sizeof(block));
+		rGen.ecbEncCounterMode(r.size() * 0, r.size(), r.data());
+		rGen.ecbEncCounterMode(r.size() * 1, r.size(), piS1.data());
+		rGen.ecbEncCounterMode(r.size() * 2, r.size(), s.data());
 
 		//auto encIter = enc.begin();
 		auto shareIter = shares.begin();
@@ -96,7 +111,7 @@ namespace osuCrypto
 		std::unordered_map<u64, u64> inputMap;
 		inputMap.reserve(mClientSetSize * mCuckooParams.mNumHashes);
 
-		std::vector<u32> pi(numQueries);
+		std::vector<u32> pi(permSize);
 		auto piIter = pi.begin();
 
 
@@ -130,9 +145,10 @@ namespace osuCrypto
 				u64 cuckooIdx = CuckooIndex<>::getHash(hashs[itemIdx], hashIdx, numCuckooBins) - binOffset;
 				++binIter;
 
+				auto bigBlockoffset = cuckooIdx % mBigBlockSize;
+				auto bigBlockIdx = cuckooIdx / mBigBlockSize;
 
-
-				BgiPirClient::keyGen(cuckooIdx, mPrng.get<block>(), kk0, g0, kk1, g1);
+				BgiPirClient::keyGen(bigBlockIdx, mPrng.get<block>(), kk0, g0, kk1, g1);
 
 				//std::cout <<IoStream::lock << "c " << bIdx << " " << i << " k " << g0[g0.size() - 1] << " input[" << itemIdx << "] = "<< inputs[itemIdx] <<" , h= " << i32(hashIdx) << " cuckoo= " <<cuckooIdx << " (" << binOffset +cuckooIdx <<")"<< std::endl << IoStream::unlock;
 				// add input to masks
@@ -140,7 +156,7 @@ namespace osuCrypto
 				//*shareIdxIter = itemIdx;
 
 				// the index of the mask that will mask this item
-				auto rIdx = *piIter = itemIdx * mCuckooParams.mNumHashes + hashIdx;
+				auto rIdx = *piIter = itemIdx * mCuckooParams.mNumHashes + hashIdx * mBigBlockSize + bigBlockoffset;
 
 				// the masked value that will be inputted into the PSI
 				*shareIter = r[rIdx] ^ inputs[itemIdx];
@@ -187,15 +203,15 @@ namespace osuCrypto
 
 		}
 
-		s1.asyncSend((u8*)&rSeed, sizeof(block));
-		std::vector<u32> pi1(numQueries), pi0(numQueries), pi1Inv(numQueries);
+		//s1.asyncSend((u8*)&rSeed, sizeof(block));
+		std::vector<u32> pi1(permSize), pi0(permSize), pi1Inv(permSize);
 		for (u32 i = 0; i < pi1.size(); ++i) pi1[i] = i;
 		PRNG prng(rSeed ^ OneBlock);
 		std::random_shuffle(pi1.begin(), pi1.end(), prng);
 
 
 		//std::vector<block> pi1RS(pi.size());
-		for (u64 i = 0; i < numQueries; ++i)
+		for (u64 i = 0; i < permSize; ++i)
 		{
 			//auto pi1i = pi1[i];
 			//pi1RS[i] = r[pi1i] ^ s[pi1i];
@@ -204,7 +220,7 @@ namespace osuCrypto
 			//std::cout << "pi1(r + s)[" << i << "] " << pi1RS[i] << std::endl;
 		}
 		std::vector<block> piS0(r.size());
-		for (u64 i = 0; i < numQueries; ++i)
+		for (u64 i = 0; i < permSize; ++i)
 		{
 			//std::cout << "r[" << i << "] " << r[i] << std::endl;
 			//std::cout << "pi(r + s)[" << i << "]=" << (r[pi[i]] ^ s[pi[i]]) << std::endl;

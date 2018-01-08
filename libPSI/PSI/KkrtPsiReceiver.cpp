@@ -53,7 +53,7 @@ namespace osuCrypto
 
         //mNumStash = get_stash_size(recverSize);
 
-        gTimer.setTimePoint("Init.start");
+        gTimer.setTimePoint("KKRT_psi_R.Init.start");
         PRNG prng(seed);
         block myHashSeeds;
         myHashSeeds = prng.get<block>();
@@ -66,14 +66,14 @@ namespace osuCrypto
         block theirHashingSeeds;
         auto fu = chl0.asyncRecv((u8*)&theirHashingSeeds, sizeof(block));
 
-        //gTimer.setTimePoint("Init.hashSeed");
+        //gTimer.setTimePoint("KKRT_psi_R.Init.hashSeed");
 
         otRecv.configure(false, statSecParam, 128);
 
         //do base OT
         if (otRecv.hasBaseOts() == false)
         {
-            gTimer.setTimePoint("Kkrt PSI Init: BaseSSOT start");
+            gTimer.setTimePoint("KKRT_psi_R.BaseSSOT start");
             NaorPinkas baseBase;
             std::array<block, 128> baseBaseOT;
             BitVector baseBaseChoice(128);
@@ -86,7 +86,7 @@ namespace osuCrypto
             base.send(baseOT, prng, chl0);
 
             otRecv.setBaseOts(baseOT);
-            gTimer.setTimePoint("Kkrt PSI Init: BaseSSOT done");
+            gTimer.setTimePoint("KKRT_psi_R.BaseSSOT done");
         }
 
         fu.get();
@@ -110,7 +110,7 @@ namespace osuCrypto
         // check that the number of inputs is as expected.
         if (inputs.size() != mRecverSize)
             throw std::runtime_error("inputs.size() != mN");
-        gTimer.setTimePoint("R Online.Start");
+        gTimer.setTimePoint("KKRT_psi_R.Online.Start");
 
         auto& chl = chls[0];
 
@@ -143,7 +143,7 @@ namespace osuCrypto
         TODO("run in parallel");
         auto binStart = 0;
         auto binEnd = mIndex.mBins.size();
-        gTimer.setTimePoint("R Online.computeBucketMask start");
+        gTimer.setTimePoint("KKRT_psi_R.Online.compMask");
         u64 stepSize = 1 << 10;
 
         //for each batch
@@ -188,7 +188,7 @@ namespace osuCrypto
             mOtRecv->sendCorrection(chl, currentStepSize);
         }// Done with compute the masks for the main set of bins.
 
-        gTimer.setTimePoint("R Online.sendBucketMask done");
+        gTimer.setTimePoint("KKRT_psi_R.Online.sentMask");
 
 
         //u64 sendCount = (mSenderSize + stepSize - 1) / stepSize;
@@ -237,9 +237,9 @@ namespace osuCrypto
                 iters[2] += 3 * maskByteSize;
             }
         }
-        gTimer.setTimePoint("R Online.Bucket done");
+        gTimer.setTimePoint("KKRT_psi_R.Online.Bucketed");
 
-        u8 dummy[1];
-        chl.recv(dummy, 1);
+        //u8 dummy[1];
+        //chl.recv(dummy, 1);
     }
 }
