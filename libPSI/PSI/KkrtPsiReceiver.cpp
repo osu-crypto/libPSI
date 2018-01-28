@@ -201,7 +201,7 @@ namespace osuCrypto
         //std::this_thread::sleep_for(std::chrono::seconds(1));
         Matrix<u8> recvBuff(masksPerRegion, maskByteSize);
         //receive the sender's marks, we have 3 buffs that corresponding to the mask of elements used hash index 0,1,2
-        for (u64 regionIdx = 0, i = 0; regionIdx < numRegions; ++regionIdx)
+        for (u64 regionIdx = 0; regionIdx < numRegions; ++regionIdx)
         {
             auto start = regionIdx * stepSize;
             u64 curStepSize = std::min<u64>(mSenderSize - start, stepSize);

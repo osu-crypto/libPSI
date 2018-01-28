@@ -345,8 +345,8 @@ void rr17bRecv(
 {
     setThreadName("CP_Test_Thread");
 
-    LinearCode code;
-    code.loadBinFile(SOLUTION_DIR "/../libOTe/libOTe/Tools/bch511.bin");
+    //LinearCode code;
+    //code.loadBinFile(SOLUTION_DIR "/../libOTe/libOTe/Tools/bch511.txt");
 
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -610,7 +610,7 @@ void kkrtRecv(
 
             for (u64 jj = 0; jj < params.mTrials; jj++)
             {
-                std::string tag("RR17b");
+                std::string tag("kkrt");
 
                 std::vector<block> sendSet(setSize), recvSet(setSize);
                 for (u64 i = 0; i < setSize; ++i)

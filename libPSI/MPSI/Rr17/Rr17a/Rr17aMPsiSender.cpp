@@ -56,13 +56,6 @@ namespace osuCrypto
         mN = n;
         gTimer.setTimePoint("init.send.start");
 
-        // must be a multiple of 128...
-        ;// = 128 * CodeWordSize;
-        //u64 plaintextBlkSize;
-
-        u64 compSecParam = 128;
-
-
 
         // hash to smaller domain size?
         if (inputBitSize == -1)
@@ -312,7 +305,7 @@ namespace osuCrypto
         auto sendMaskBuffFreeCounter = new std::atomic<u32>;
         *sendMaskBuffFreeCounter = u32(numChunks);
 
-        auto startTime = gTimer.setTimePoint("online.send.spaw");
+        gTimer.setTimePoint("online.send.spaw");
 
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
         {
@@ -547,7 +540,7 @@ namespace osuCrypto
                 }
                 if (tIdx == 0)
                 {
-                    auto midTime = gTimer.setTimePoint("online.send.sendMask");
+                    gTimer.setTimePoint("online.send.sendMask");
                     //std::cout << " start->mid  " << std::chrono::duration_cast<std::chrono::milliseconds>(midTime - startTime).count() << std::endl;
 
                 }

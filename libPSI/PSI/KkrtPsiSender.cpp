@@ -346,7 +346,6 @@ namespace osuCrypto
 
         // we will process data in chucks of this size.
         u64 stepSize = 1 << 10;
-        u64 numSteps = (numBins + stepSize - 1) / stepSize;
 
         // set of some inter thread communication objects that will
         // allow this thread to know when the OT correction values have
@@ -363,7 +362,6 @@ namespace osuCrypto
             {
                 // compute the  size of the current step and the end index
                 auto currentStepSize = std::min(stepSize, numBins - recvedIdx);
-                auto stepEnd = recvedIdx + currentStepSize;
 
                 // receive the corrections.
                 mOtSender->recvCorrection(chl, currentStepSize);
@@ -454,7 +452,6 @@ namespace osuCrypto
         {
             auto start = i;
             auto currentStepSize = std::min(stepSize, inputs.size() - i);
-            auto stepEnd = i + currentStepSize;
 
             for (u64 j = 0; j < currentStepSize; ++j, ++i)
             {

@@ -58,10 +58,10 @@ namespace osuCrypto
         gTimer.setTimePoint("init.send.start");
 
         // must be a multiple of 128...
-        ;// = 128 * CodeWordSize;
+        // = 128 * CodeWordSize;
         //u64 plaintextBlkSize;
-
-        u64 compSecParam = 128;
+        //
+        //u64 compSecParam = 128;
 
 
 
@@ -245,7 +245,7 @@ namespace osuCrypto
         auto binsPerThread = (mBins.mBinCount + thrds.size() - 1) / thrds.size();
 
 
-        auto startTime = gTimer.setTimePoint("online.send.spaw");
+        gTimer.setTimePoint("online.send.spaw");
 
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
         {
@@ -432,7 +432,7 @@ namespace osuCrypto
                 }
                 if (tIdx == 0)
                 {
-                    auto midTime = gTimer.setTimePoint("online.send.sendMask");
+                    gTimer.setTimePoint("online.send.sendMask");
                     //std::cout << " start->mid  " << std::chrono::duration_cast<std::chrono::milliseconds>(midTime - startTime).count() << std::endl;
 
                 }
@@ -442,7 +442,7 @@ namespace osuCrypto
 
                 if (tIdx == 0)
                 {
-                    auto midTime = gTimer.setTimePoint("online.send.check");
+                    gTimer.setTimePoint("online.send.check");
                 }
 
                 // block until all masks are computed. the last to finish will set the promise...

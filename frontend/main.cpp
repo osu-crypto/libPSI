@@ -13,7 +13,6 @@ using namespace osuCrypto;
 #include "dktMain.h"
 #include "OtBinMain.h"
 #include "util.h"
-#include "signalHandle.h"
 
 #include "cryptoTools/Common/MatrixView.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
@@ -275,12 +274,13 @@ int main(int argc, char** argv)
 			<< "   -" << DcwTags[0] << "  : DCW13  - Garbled Bloom Filter (semi-honest*)\n"
 			<< "   -" << DcwrTags[0] << " : PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
 #endif
-			<< "   -" << rr16Tags[0] << " : RR16   - Random Garbled Bloom Filter (malicious secure)\n"
-			<< "   -" << rr17aTags[0] << " : RR17   - Hash to bins & compare style (malicious secure, fastest)\n"
-			<< "   -" << rr17aSMTags[0] << ": RR17sm - Hash to bins & compare style (standard model malicious secure)\n"
-			<< "   -" << rr17bTags[0] << ": RR17b  - Hash to bins & commit compare style (malicious secure)\n"
-			<< "   -" << dktTags[0] << "  : DKT12  - Public key style (malicious secure)\n"
-			<< "   -" << kkrtTag[0] << "  : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
+			<< "   -" << rr16Tags[0] << "    : RR16    - Random Garbled Bloom Filter (malicious secure)\n"
+			<< "   -" << rr17aTags[0] << "   : RR17    - Hash to bins & compare style (malicious secure, fastest)\n"
+			<< "   -" << rr17aSMTags[0] << ": RR17sm  - Hash to bins & compare style (standard model malicious secure)\n"
+            << "   -" << rr17bTags[0] << "   : RR17b   - Hash to bins & commit compare style (malicious secure)\n"
+            << "   -" << rr17bSMTags[0] << ": RR17bsm - Hash to bins & commit compare style (standard model malicious secure)\n"
+			<< "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
+			<< "   -" << kkrtTag[0] << "    : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
 			<< std::endl;
 
 		std::cout << "Parameters:\n"
