@@ -42,8 +42,7 @@ namespace osuCrypto
         double binScaler,
         u64 inputBitSize)
     {
-        std::vector<Channel> c{ chl0 };
-        init(n, statSec, c, ots, seed, binScaler, inputBitSize);
+        init(n, statSec, { &chl0, 1 }, ots, seed, binScaler, inputBitSize);
     }
 
     void Rr17bMPsiSender::init(u64 n, u64 statSecParam,
@@ -104,7 +103,7 @@ namespace osuCrypto
 
 
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
-
+		std::cout << "binSize " << mBins.mMaxBinSize << " vs " << n << " (" << double(mBins.mMaxBinSize) / n << ")" << std::endl;
         //mPsis.resize(mBins.mBinCount);
 
         gTimer.setTimePoint("init.send.baseStart");

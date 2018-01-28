@@ -105,6 +105,7 @@ namespace osuCrypto
 
 
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
+		std::cout << "binSize " << mBins.mMaxBinSize << " vs " << n << " (" << double(mBins.mMaxBinSize) / n << ")" << std::endl;
 
         //mPsis.resize(mBins.mBinCount);
 
