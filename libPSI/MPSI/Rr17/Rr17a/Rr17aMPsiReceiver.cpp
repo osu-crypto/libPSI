@@ -599,15 +599,18 @@ namespace osuCrypto
                 u64 numChunks = numMasks / chunkSize;
 
 
-                std::vector<u8> buff(chunkSize * maskSize);
-				MatrixView<u8> maskView(buff.data(), buff.size(), maskSize);
+                //std::vector<u8> buff(chunkSize * maskSize);
+				Matrix<u8> maskView(chunkSize, maskSize);
 
                 for (u64 kk = tIdx; kk < numChunks; kk += chls.size())
                 {
 					auto num = std::min(chunkSize, numMasks - kk * chunkSize);
                     auto curSize =  num * maskSize;
 
-                    chl.recv(buff.data(), curSize);
+                    if (curSize > maskView.size())
+                        throw std::runtime_error(LOCATION);
+
+                    chl.recv(maskView.data(), curSize);
 
                     for (u64 i = 0; i < maskView.bounds()[0]; )
                     {
@@ -617,7 +620,12 @@ namespace osuCrypto
                         {
                             auto mask = maskView[i];
                             tempMaskBuff[j] = ZeroBlock;
-                            memcpy(&tempMaskBuff[j], mask.data(), maskSize);
+                            auto* dest = &tempMaskBuff[j];
+
+                            if(mask.data() > maskView.data() + maskView.size())
+                                throw std::runtime_error(LOCATION);
+
+                            memcpy(dest, mask.data(), maskSize);
 
 
                             //std::cout << tempMaskBuff[j] << "    " <<kk <<"  "<< (i) << std::endl;

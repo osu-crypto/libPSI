@@ -93,7 +93,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OtBinMain.cpp" />
     <ClCompile Include="signalHandle.cpp" />
-    <ClCompile Include="UnitTests.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -104,7 +103,6 @@
     <ClInclude Include="dktMain.h" />
     <ClInclude Include="OtBinMain.h" />
     <ClInclude Include="signalHandle.h" />
-    <ClInclude Include="UnitTests.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>

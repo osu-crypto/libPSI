@@ -18,9 +18,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UnitTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dcwMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -50,9 +47,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="UnitTests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dcwMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>

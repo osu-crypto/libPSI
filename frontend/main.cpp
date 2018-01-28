@@ -105,9 +105,10 @@ void run(
 			for (u64 i = 0; i < params.mChls.size(); ++i)
 				params.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
 
-			if (cmd.get<bool>(roleTag))
+			if (params.mIdx == 0)
 			{
 				if (firstRun) printHeader();
+                firstRun = false;
 
 				recvProtol(params);
 			}
@@ -129,8 +130,6 @@ void run(
 		}
 		else
 		{
-			if (firstRun) printHeader();
-
 			auto thrd = std::thread([&]()
 			{
 				auto params2 = params;
@@ -139,9 +138,9 @@ void run(
 			});
 			params.mIdx = 0;
 			go(params);
+            thrd.join();
 		}
 
-		firstRun = false;
 		ios.stop();
 	}
 }

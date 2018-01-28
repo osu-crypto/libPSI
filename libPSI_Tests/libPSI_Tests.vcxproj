@@ -84,6 +84,7 @@
     <ClCompile Include="OTOracleReceiver.cpp" />
     <ClCompile Include="OTOracleSender.cpp" />
     <ClCompile Include="ShamirSSScheme_Tests.cpp" />
+    <ClCompile Include="UnitTests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AknBfPsi_Tests.h" />
@@ -94,6 +95,7 @@
     <ClInclude Include="OTOracleReceiver.h" />
     <ClInclude Include="OTOracleSender.h" />
     <ClInclude Include="ShamirSSScheme_Tests.h" />
+    <ClInclude Include="UnitTests.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

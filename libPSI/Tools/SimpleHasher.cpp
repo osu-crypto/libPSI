@@ -4,7 +4,7 @@
 #include <random>
 #include "cryptoTools/Common/Log.h"
 #include <numeric>
-
+#include "SimpleIndex.h"
 namespace osuCrypto
 {
 
@@ -60,63 +60,6 @@ namespace osuCrypto
 
     void SimpleHasher::init(u64 n, u64 numBits, block hashSeed, u64 secParam, double binScaler)
     {
-#ifdef OLD_SIMPLE_HASH_PARAM
-        mHashSeed = hashSeed;
-        mN = n;
-        mInputBitSize = numBits;
-
-        double best = (999999999999999.0);
-
-        for (u64 maxBin = 15; maxBin < 40; maxBin++)
-        {
-            u64 binsHigh = n * 2;
-            u64 binsLow = 1;
-            // finds the min number of bins needed to get max occ. to be maxBin
-
-            if (-maxprob(n, binsHigh, maxBin) < secParam)
-            {
-                // maxBins is too small, skip it.
-                continue;
-            }
-
-
-            while (binsHigh != binsLow && binsHigh - 1 != binsLow)
-            {
-                auto mid = (binsHigh + binsLow) / 2;
-
-                if (-maxprob(n, mid, maxBin) < secParam)
-                {
-                    binsLow = mid;
-                }
-                else
-                {
-                    binsHigh = mid;
-                }
-            }
-
-            u64 bins = binsHigh;
-
-            u64 logBinCount = (u64)std::log2(bins);
-
-            double total = bins*(double)maxBin * (double)maxBin * ((double)mInputBitSize - logBinCount);
-
-            if (total < best)
-            {
-                best = total;
-                mBinCount = bins;
-                mMaxBinSize = maxBin;
-                //std::cout << "##########################################################" << std::endl;
-                //std::cout << n << "  " << bins << "   " << maxBin << "    " << logBinCount << "     " << total << std::endl;
-                //std::cout << "##########################################################" << std::endl;
-
-            }
-        }
-
-        mMtx.reset(new std::mutex[mBinCount]);
-        mBins.resize(mBinCount);
-        mRepSize = mInputBitSize - (u32)std::log2(mBinCount);
-#else
-        //u64 scale = 2;
         mBinCount = u64(n / binScaler);
         mN = n;
         mMtx.reset(new std::mutex[mBinCount]);
@@ -137,25 +80,25 @@ namespace osuCrypto
 			case (16):
 			case (128):
                 mMaxBinSize = 16;
-                break;
+                return;
             case (1 << 8):
                 mMaxBinSize = 16;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 17;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 18;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 19;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 20;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
 
         }
@@ -167,22 +110,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 20;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 22;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 23;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 24;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 25;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
 
         }
@@ -194,22 +137,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 24;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 25;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 26;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 28;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 29;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
 
         }
@@ -220,22 +163,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 26;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 28;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 30;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 31;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 32;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 5.0)
@@ -245,22 +188,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 29;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 31;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 33;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 34;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 36;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 6.0)
@@ -270,22 +213,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 32;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 34;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 35;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 37;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 38;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 8.0)
@@ -295,22 +238,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 36;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 39;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 41;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 42;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 44;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 10.0)
@@ -320,22 +263,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 40;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 43;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 45;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 47;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 49;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 12.0)
@@ -345,22 +288,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 44;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 48;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 50;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 52;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 53;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 16.0)
@@ -370,22 +313,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 51;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 56;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 58;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 60;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 62;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 20.0)
@@ -395,22 +338,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 58;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 63;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 66;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 68;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 70;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 24.0)
@@ -420,22 +363,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 64;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 70;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 73;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 76;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 78;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 32.0)
@@ -445,22 +388,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 76;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 84;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 87;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 90;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 92;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 48.0)
@@ -470,22 +413,22 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 98;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 109;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 113;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 116;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 119;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
+
             }
         }
         else if (binScaler == 64.0)
@@ -495,63 +438,26 @@ namespace osuCrypto
             {
             case (1 << 8):
                 mMaxBinSize = 117;
-                break;
+                return;
             case (1 << 12):
                 mMaxBinSize = 133;
-                break;
+                return;
             case (1 << 16):
                 mMaxBinSize = 137;
-                break;
+                return;
             case (1 << 20):
                 mMaxBinSize = 141;
-                break;
+                return;
             case (1 << 24):
                 mMaxBinSize = 144;
-                break;
+                return;
             default:
-                throw std::runtime_error(LOCATION);
                 break;
             }
         }
-        else
-        {
-            throw std::runtime_error(LOCATION);
-        }
 
+        mMaxBinSize = SimpleIndex::get_bin_size(mBinCount, mN, secParam);
 
-
-
-
-
-        //std::cout << IoStream::lock;
-        //double k = 1;
-        //mMaxBinSize = 10;
-        //while (k > -double(secParam))
-        //{
-        //    ++mMaxBinSize;
-        //    double sum = 0, sum2 = 1;
-
-        //    u64 i = mMaxBinSize;
-        //    while (sum != sum2 && i < mN)
-        //    {
-        //        sum2 = sum;
-
-        //        sum += mBinCount * binomial(mN, i) * std::pow(1.0 / mBinCount, i) * std::pow(1 - 1.0 / mBinCount, mN - i);
-
-
-        //        ++i;
-        //        std::cout << "sec = " << std::log2(sum) << std::endl;
-        //    }
-        //    // cite: Scalable Private Set Intersection Based on OT Extension - Pinkas, et. al
-        //    //k = double(mBinCount) * std::pow(mN * 2.6 / mBinCount / mMaxBinSize, mMaxBinSize);
-
-
-        //    k = std::log2(sum);
-        //}
-        ////--mMaxBinSize;
-        //std::cout << IoStream::unlock;
-
-#endif
     }
 
     //void SimpleHasher::preHashedInsertItems(ArrayView<block> mySet, u64 itemIdx)
