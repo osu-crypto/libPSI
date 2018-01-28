@@ -282,7 +282,7 @@ namespace osuCrypto
                     for (u64 i = startIdx; i < endIdx; ++i)
                     {
                         // hash to smaller domain using the RO
-                        SHA1 sha;
+                        SHA1 sha(sizeof(block));
                         sha.Update(mHashingSeed);
                         sha.Update(inputs[i]);
                         sha.Final(hashedInputBuffer[i]);
