@@ -98,8 +98,8 @@ namespace osuCrypto
 
 
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
-        std::cout << "max bin size: " << mBins.mMaxBinSize 
-            << " (" << double(mBins.mMaxBinSize) / (double(mBins.mN) / mBins.mBins.size()) <<") " << statSecParam << std::endl;
+        //std::cout << "max bin size: " << mBins.mMaxBinSize 
+        //    << " (" << double(mBins.mMaxBinSize) / (double(mBins.mN) / mBins.mBins.size()) <<") " << statSecParam << std::endl;
         //mPsis.resize(mBins.mBinCount);
 
         gTimer.setTimePoint("init.send.baseStart");
