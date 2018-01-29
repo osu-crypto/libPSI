@@ -70,8 +70,8 @@ namespace osuCrypto
         }
 
 
-        otSend.configure( true, 40, inputBitSize);
-        otRecv.configure( true, 40, inputBitSize);
+        otSend.configure(true, 40, inputBitSize);
+        otRecv.configure(true, 40, inputBitSize);
         u64 baseOtCount = otSend.getBaseOTCount();
 
 
@@ -98,8 +98,8 @@ namespace osuCrypto
 
 
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
-        std::cout << "max bin size: " << mBins.mMaxBinSize 
-            << " (" << double(mBins.mMaxBinSize) / (double(mBins.mN) / mBins.mBins.size()) <<") " << statSecParam << std::endl;
+        std::cout << "max bin size: " << mBins.mMaxBinSize
+            << " (" << double(mBins.mMaxBinSize) / (double(mBins.mN) / mBins.mBins.size()) << ") " << statSecParam << std::endl;
         //mPsis.resize(mBins.mBinCount);
 
         gTimer.setTimePoint("init.send.baseStart");
@@ -258,7 +258,10 @@ namespace osuCrypto
 
         //for (u64 hashIdx = 0; hashIdx < ncoInputBuff.size(); ++hashIdx)
         //    ncoInputBuff[hashIdx].resize(inputs.size());
-
+        for (u64 i = 0; i < mN; ++i)
+        {
+            ostreamLock(std::cout) << "s[" << i << "] " << inputs[i] << std::endl;
+        }
 
         std::vector<u64> maskPerm(mN);
 
@@ -321,7 +324,7 @@ namespace osuCrypto
                 auto& otSend = *mOtSends[tIdx];
 
                 auto& chl = chls[tIdx];
-                auto startIdx = tIdx       * mN / thrds.size();
+                auto startIdx = tIdx * mN / thrds.size();
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
 
                 // compute the region of inputs this thread should insert.
@@ -342,10 +345,10 @@ namespace osuCrypto
                     if (mHashToSmallerDomain)
                     {
 
-                            ncoInputHasher.ecbEncBlocks(
-                                inputs.data() + i,
-                                currentStepSize,
-                                ncoInputBuff.data() + i);
+                        ncoInputHasher.ecbEncBlocks(
+                            inputs.data() + i,
+                            currentStepSize,
+                            ncoInputBuff.data() + i);
                     }
                     else
                     {
@@ -388,7 +391,7 @@ namespace osuCrypto
 
                 //const u64 stepSize = 128;
 
-                auto binStart = tIdx       * mBins.mBinCount / thrds.size();
+                auto binStart = tIdx * mBins.mBinCount / thrds.size();
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
 
                 std::vector<u16> permutation(mBins.mMaxBinSize);
@@ -504,11 +507,11 @@ namespace osuCrypto
 
                                 //if (inputIdx == 1)
                                 //{
-                                //    std::cout  << IoStream::lock
-                                //        << "s " << inputIdx << " "
-                                //        << inputs[inputIdx] << " " << l << ": "
-                                //        << (sendMask ^ recvMasks[inputIdx]) << " = "
-                                //        << sendMask << " ^ " << recvMasks[inputIdx] << "     " << (baseMaskIdx + l) << " sendOtIdx " << innerOtIdx << std::endl << IoStream::unlock;
+                                //ostreamLock(std::cout)
+                                //    << "s " << inputIdx << " "
+                                //    << inputs[inputIdx] << " " << l << ": "
+                                //    << (sendMask ^ recvMasks[inputIdx]) << " = "
+                                //    << sendMask << " ^ " << recvMasks[inputIdx] << "     " << (baseMaskIdx + l) << " sendOtIdx " << innerOtIdx << std::endl;
                                 //}
 
                                 sendMask = sendMask ^ recvMasks[inputIdx];
