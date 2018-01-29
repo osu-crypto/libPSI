@@ -85,14 +85,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bloomFilterMain.cpp" />
-    <ClCompile Include="cuckooTest.cpp" />
     <ClCompile Include="cuckoo\SimpleCuckoo.cpp" />
     <ClCompile Include="cuckoo\cuckooTests.cpp" />
     <ClCompile Include="dcwMain.cpp" />
     <ClCompile Include="dktMain.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OtBinMain.cpp" />
-    <ClCompile Include="signalHandle.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -102,7 +100,6 @@
     <ClInclude Include="dcwMain.h" />
     <ClInclude Include="dktMain.h" />
     <ClInclude Include="OtBinMain.h" />
-    <ClInclude Include="signalHandle.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>

@@ -33,16 +33,10 @@
     <ClCompile Include="OtBinMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cuckooTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cuckoo\SimpleCuckoo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cuckoo\cuckooTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="signalHandle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -66,9 +60,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cuckoo\cuckooTests.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="signalHandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

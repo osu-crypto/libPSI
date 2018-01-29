@@ -83,8 +83,8 @@ namespace osuCrypto
             mHashToSmallerDomain = false;
         }
 
-        otSend.configure(true, statSecParam, inputBitSize);
-        otRecv.configure(true, statSecParam, inputBitSize);
+        otSend.configure(true, 40, inputBitSize);
+        otRecv.configure(true, 40, inputBitSize);
         u64 baseOtCount = otSend.getBaseOTCount();
 
         //mOtMsgBlkSize = (baseOtCount + 127) / 128;
@@ -301,7 +301,7 @@ namespace osuCrypto
 
 
         CuckooHasher maskMap;
-        maskMap.init(mN * mBins.mMaxBinSize, mStatSecParam, chls.size() > 1);
+        maskMap.init(mN * mBins.mMaxBinSize, 40, chls.size() > 1);
 
 
         // this mutex is used to guard inserting things into the intersection vector.

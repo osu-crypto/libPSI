@@ -67,7 +67,7 @@ namespace osuCrypto
         };
 
 
-
+        bool mPrint = true;
         u64 mTotalTries;
 
         bool operator==(const CuckooHasher& cmp)const;

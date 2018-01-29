@@ -6,6 +6,14 @@
 //using namespace std;
 #include "UnitTests.h"
 #include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/Version.h"
+
+//#if !defined(CRYPTO_TOOLS_VERSION_MAJOR) || CRYPTO_TOOLS_VERSION_MAJOR != 1 || CRYPTO_TOOLS_VERSION_MAJOR != 1
+//#error "Wrong crypto tools version."
+//#endif
+
+
+
 using namespace osuCrypto;
 
 #include "bloomFilterMain.h"
@@ -54,7 +62,8 @@ hostNameTag{ "ip" },
 pingTag{ "ping" },
 bitSizeTag{ "b","bitSize" },
 binScalerTag{ "s", "binScaler" },
-numHashTag{ "nh" };
+numHashTag{ "nh" },
+statSecParamTag{"ssp"};
 
 bool firstRun(true);
 
@@ -77,7 +86,7 @@ void run(
 		params.mHostName = cmd.get<std::string>(hostNameTag);
 		params.mBitSize = cmd.get<u64>(bitSizeTag);
 		params.mBinScaler = cmd.getMany<double>(binScalerTag);
-
+        params.mStatSecParam = cmd.get<u64>(statSecParamTag);
 
 		if (cmd.isSet(powNumItems))
 		{
@@ -218,7 +227,7 @@ int main(int argc, char** argv)
 	cmd.setDefault(binScalerTag, "1");
 	cmd.setDefault(hostNameTag, "127.0.0.1:1212");
 	cmd.setDefault(numHashTag, "3");
-
+    cmd.setDefault(statSecParamTag, 10);
 	cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
 
 	if (cmd.isSet(unitTestTags))

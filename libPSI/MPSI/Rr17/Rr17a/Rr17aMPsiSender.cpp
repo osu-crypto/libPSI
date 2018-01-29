@@ -70,8 +70,8 @@ namespace osuCrypto
         }
 
 
-        otSend.configure( true, statSecParam, inputBitSize);
-        otRecv.configure( true, statSecParam, inputBitSize);
+        otSend.configure( true, 40, inputBitSize);
+        otRecv.configure( true, 40, inputBitSize);
         u64 baseOtCount = otSend.getBaseOTCount();
 
 
@@ -98,7 +98,8 @@ namespace osuCrypto
 
 
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
-
+        std::cout << "max bin size: " << mBins.mMaxBinSize 
+            << " (" << double(mBins.mMaxBinSize) / (double(mBins.mN) / mBins.mBins.size()) <<") " << statSecParam << std::endl;
         //mPsis.resize(mBins.mBinCount);
 
         gTimer.setTimePoint("init.send.baseStart");

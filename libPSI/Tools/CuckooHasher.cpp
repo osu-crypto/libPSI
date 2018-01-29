@@ -4,7 +4,7 @@
 #include <random>
 #include "cryptoTools/Common/Log.h"
 #include <numeric>
-
+#include "cryptoTools/Common/CuckooIndex.h"
 namespace osuCrypto
 {
      
@@ -115,34 +115,37 @@ namespace osuCrypto
 
     void CuckooHasher::init(u64 n, u64 statSecParam, bool multiThreaded)
     {
-        if (statSecParam != 40) throw std::runtime_error("not implemented");
 
-        //std::cout << "Params: " << n << " " << std::log2(n) << std::endl;
+        mParams = CuckooIndex<>::selectParams(n, statSecParam, 0, 2);
+        //
+        ////if (statSecParam != 40) throw std::runtime_error("not implemented");
 
-        if (n <= 1 << 7)
-            mParams = k2n07s40CuckooParam;
-        else if (n <= u64(1) << 8)
-            mParams = k2n08s40CuckooParam;
-        else if (n <= u64(1) << 12)
-            mParams = k2n12s40CuckooParam;
-        else if (n <= u64(1) << 16)
-            mParams = k2n16s40CuckooParam;
-        else if (n <= u64(1) << 20)
-            mParams = k2n20s40CuckooParam;
-        else if (n <= u64(1) << 24)
-            mParams = k2n24s40CuckooParam;
-        else if (n <= u64(1) << 28)
-            mParams = k2n28s40CuckooParam;
-        else if (n <= u64(1) << 30)
-            mParams = k2n30s40CuckooParam;
-        else if (n <= u64(1) << 32)
-            mParams = k2n32s40CuckooParam;
-        else
-        {
-            std::cout << "Failed to find cuckoo parameters large enough  "<< n << " " << std::log2(n) << "\n" LOCATION << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            throw std::runtime_error("not implemented " LOCATION);
-        }
+        ////std::cout << "Params: " << n << " " << std::log2(n) << std::endl;
+
+        //if (n <= 1 << 7)
+        //    mParams = k2n07s40CuckooParam;
+        //else if (n <= u64(1) << 8)
+        //    mParams = k2n08s40CuckooParam;
+        //else if (n <= u64(1) << 12)
+        //    mParams = k2n12s40CuckooParam;
+        //else if (n <= u64(1) << 16)
+        //    mParams = k2n16s40CuckooParam;
+        //else if (n <= u64(1) << 20)
+        //    mParams = k2n20s40CuckooParam;
+        //else if (n <= u64(1) << 24)
+        //    mParams = k2n24s40CuckooParam;
+        //else if (n <= u64(1) << 28)
+        //    mParams = k2n28s40CuckooParam;
+        //else if (n <= u64(1) << 30)
+        //    mParams = k2n30s40CuckooParam;
+        //else if (n <= u64(1) << 32)
+        //    mParams = k2n32s40CuckooParam;
+        //else
+        //{
+        //    std::cout << "Failed to find cuckoo parameters large enough  "<< n << " " << std::log2(n) << "\n" LOCATION << std::endl;
+        //    std::this_thread::sleep_for(std::chrono::seconds(1));
+        //    throw std::runtime_error("not implemented " LOCATION);
+        //}
 
 
         mHashes.resize(n * mParams.mNumHashes, u64(-1));
@@ -275,7 +278,10 @@ namespace osuCrypto
         for (u64 i = 0, j = 0; i < remaining; ++j)
         {
             if (j >= mStash.size())
+            {
+                if (mPrint)std::cout << "stash overflow " << std::endl;
                 throw std::runtime_error(LOCATION);
+            }
 
             mStash[j].swap(inputIdxs[i], w.curHashIdxs[i]);
 
