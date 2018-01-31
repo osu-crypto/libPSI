@@ -269,7 +269,10 @@ namespace osuCrypto
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
 
-
+        //for (u64 i = 0; i < mN; ++i)
+        //{
+        //    ostreamLock(std::cout) << "r[" << i << "] " << inputs[i] << std::endl;
+        //}
 
         std::vector<block> recvMasks(mN);
         u64 maskSize = roundUpTo(u64(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1), 8) / 8;
@@ -299,15 +302,14 @@ namespace osuCrypto
         std::promise<void> maskProm;
         std::shared_future<void> maskFuture(maskProm.get_future());
 
-
-        CuckooHasher maskMap;
-        maskMap.init(mN * mBins.mMaxBinSize, 40, chls.size() > 1);
-
+        //std::vector<block> sendMasks(mN * mBins.mMaxBinSize);
+        //CuckooHasher maskMap;
+        //maskMap.init(mN * mBins.mMaxBinSize, 40, chls.size() > 1);
 
         // this mutex is used to guard inserting things into the intersection vector.
         std::mutex mInsertMtx;
 
-        std::vector<block> hashToSmallerDomainBuff( mHashToSmallerDomain ? mN : 0);
+        std::vector<block> hashToSmallerDomainBuff(mHashToSmallerDomain ? mN : 0);
         span<block> ncoInputBuff(mHashToSmallerDomain ? hashToSmallerDomainBuff : inputs);
 
         //std::cout << ncoInputBuff.data() << "  " << ncoInputBuff[0].data() << std::endl;
@@ -327,7 +329,7 @@ namespace osuCrypto
 
                 auto& chl = chls[tIdx];
 
-                auto startIdx = tIdx     * mN / thrds.size();
+                auto startIdx = tIdx * mN / thrds.size();
                 auto endIdx = (tIdx + 1) * mN / thrds.size();
 
 
@@ -345,10 +347,10 @@ namespace osuCrypto
                     if (mHashToSmallerDomain)
                     {
 
-                            ncoInputHasher.ecbEncBlocks(
-                                inputs.data() + i,
-                                currentStepSize,
-                                ncoInputBuff.data() + i);
+                        ncoInputHasher.ecbEncBlocks(
+                            inputs.data() + i,
+                            currentStepSize,
+                            ncoInputBuff.data() + i);
 
                     }
                     else
@@ -398,15 +400,15 @@ namespace osuCrypto
                 if (tIdx == 0) gTimer.setTimePoint("online.recv.insertDone");
 
                 // get the region of the base OTs that this thread should do.
-                auto binStart = tIdx       * mBins.mBinCount / thrds.size();
+                auto binStart = tIdx * mBins.mBinCount / thrds.size();
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
 
                 PRNG prng(seed);
 
 
                 std::vector<u16> perm(mBins.mMaxBinSize);
-				for (size_t i = 0; i < perm.size(); i++)
-					perm[i] = u16(i);
+                for (size_t i = 0; i < perm.size(); i++)
+                    perm[i] = u16(i);
 
 
                 //const u64 stepSize = 128;
@@ -459,21 +461,19 @@ namespace osuCrypto
                 otIdx = 0;
                 //std::cout << IoStream::lock;
 
-                std::vector<block> tempMaskBuff(32);
-                std::vector<u64> tempIdxBuff(tempMaskBuff.size());
-                CuckooHasher::Workspace w(tempMaskBuff.size());
-                u64 tempMaskIdx = 0;
-                //std::cout << IoStream::lock << "bidx[" << tIdx << "] = " << binStart << " ~ " << binEnd << "  (" << mBins.mBinCount << ")" << std::endl << IoStream::unlock;
+                std::vector<std::pair<u64, std::pair<u64, block>>> insertBuffer(mBins.mMaxBinSize * 4096);
+                auto insertIter = insertBuffer.data();
+                auto insertEnd = insertBuffer.data() + insertBuffer.size();
+
+
+                auto keySize = std::min<u64>(sizeof(u64), maskSize);
+                u64 keyMask = (1ull << (keySize * 8)) - 1;// (~0ull) >> ((sizeof(u64) - keySize) * 8);
+                std::unordered_map<u64, std::pair<i64, block>> maskMap;maskMap.reserve(mN * mBins.mMaxBinSize);
+
                 for (u64 bIdx = binStart; bIdx < binEnd;)
                 {
-
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
-
-                    //std::cout << "recver recv " << (currentStepSize * mBins.mMaxBinSize) << std::endl;
-
                     otSend.recvCorrection(chl, currentStepSize * mBins.mMaxBinSize);
-
-
 
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
@@ -481,19 +481,18 @@ namespace osuCrypto
 
                         for (u64 i = 0; i < bin.size(); ++i)
                         {
-
                             u64 inputIdx = bin[i];
-                            //if (inputIdx > ncoInputBuff[0].size())
-                            //    throw std::runtime_error(LOCATION);
-
-                            //std::cout << IoStream::lock << bIdx <<" "<< inputIdx << std::endl << IoStream::unlock;
-
                             u64 innerOtIdx = otIdx;
-
 
                             for (u64 l = 0; l < mBins.mMaxBinSize; ++l)
                             {
-                                block sendMask;
+                                block& sendMask = insertIter->second.second;
+                                u64& key = insertIter->first;
+                                insertIter->second.first = inputIdx * mBins.mMaxBinSize + l;
+                                ++insertIter;
+                                //*sendIndexIter = inputIdx * mBins.mMaxBinSize + l; ++sendIndexIter;
+
+
 
                                 otSend.encode(
                                     innerOtIdx,
@@ -502,38 +501,26 @@ namespace osuCrypto
 
                                 //if (inputIdx == 11 )
                                 //{
-                                //    std::cout  << IoStream::lock
-                                //        << "r " << inputIdx << " "
-                                //        << inputs[inputIdx] << " " << l << ": "
-                                //        << (sendMask ^ recvMasks[inputIdx]) << " = "
-                                //        << sendMask << " ^ " << recvMasks[inputIdx]
-                                //        << " sendOtIdx " << innerOtIdx << std::endl << IoStream::unlock;
+                                    //ostreamLock(std::cout)
+                                    //    << "r " << inputIdx << " "
+                                    //    << inputs[inputIdx] << " " << l << ": "
+                                    //    << (sendMask ^ recvMasks[inputIdx]) << " = "
+                                    //    << sendMask << " ^ " << recvMasks[inputIdx]
+                                    //    << " sendOtIdx " << innerOtIdx << std::endl;
                                 //}
 
                                 sendMask = sendMask ^ recvMasks[inputIdx];
-
-
-                                tempIdxBuff[tempMaskIdx] = inputIdx * mBins.mMaxBinSize + l;
-
-
-                                tempMaskBuff[tempMaskIdx] = ZeroBlock;
-                                memcpy(&tempMaskBuff[tempMaskIdx], &sendMask, maskSize);
-                                ++tempMaskIdx;
-
-                                if (tempMaskIdx == tempMaskBuff.size())
-                                {
-
-                                    // use aes as a hash function. A weak invertable one. but security doesnt matter here.
-                                    mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
-                                    MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2);
-
-                                    maskMap.insertBatch(tempIdxBuff, hashes, w);
-
-                                    tempMaskIdx = 0;
-                                }
-
-
+                                key = (*(u64*)&sendMask) & keyMask;
                                 ++innerOtIdx;
+                            }
+
+                            if (insertIter == insertEnd)
+                            {
+                                insertIter = insertBuffer.data();
+
+                                std::lock_guard<std::mutex> lock(mInsertMtx);
+                                for (u64 i = 0; i < insertBuffer.size(); ++i)
+                                    maskMap.insert(insertBuffer[i]);
                             }
                         }
 
@@ -541,17 +528,17 @@ namespace osuCrypto
                     }
 
                 }
-                //std::cout << IoStream::unlock;
-
 
                 otSend.check(chl, prng.get<block>());
                 otRecv.check(chl, prng.get<block>());
 
-                // use aes as a hash function. A weak invertable one. but security doesnt matter here.
-                mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), tempMaskIdx, tempMaskBuff.data());
-                std::vector<u64> idxs(tempIdxBuff.begin(), tempIdxBuff.begin() + tempMaskIdx);
-                MatrixView<u64> hashes((u64*)tempMaskBuff.data(), tempMaskIdx, 2);
-                maskMap.insertBatch(idxs, hashes, w);
+
+                {
+                    auto size = insertIter - insertBuffer.data();
+                    std::lock_guard<std::mutex> lock(mInsertMtx);
+                    for (u64 i = 0; i < size; ++i)
+                        maskMap.insert(insertBuffer[i]);
+                }
 
 
                 if (tIdx == 0) gTimer.setTimePoint("online.recv.sendMask");
@@ -570,84 +557,49 @@ namespace osuCrypto
                 else
                     maskProm.set_value();
 
-                //MatrixView<u8> maskView;
-                //if (tIdx == 0)
-                //{
-
-                //    static const u64 chunkSize = 1 << 20;
-
-                //    u64 numMasks = mN * mBins.mMaxBinSize;
-
-                //    // make a buffer for the pseudo-code we need to send
-                //    maskBuffer.res
-                //
-                //    chl.recv(maskBuffer);
-                //    maskView = maskBuffer.getMatrixView<u8>(maskSize);
-
-                //    //if (maskView.size()[0] != numMasks)
-                //    //    throw std::runtime_error("size not expedted");
-
-                //    maskProm.set_value(maskView);
-                //}
-                //else
-                //{
-                //    maskView = maskFuture.get();
-                //}
 
                 u64 numMasks = mN * mBins.mMaxBinSize;
                 u64 chunkSize = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
                 u64 numChunks = numMasks / chunkSize;
 
 
+                std::array<block, 32> tempMaskBuff;
+                //std::array<u64, 32> tempIdxBuff;
+
                 //std::vector<u8> buff(chunkSize * maskSize);
-				Matrix<u8> maskView(chunkSize, maskSize);
+                Matrix<u8> maskView(chunkSize, maskSize);
 
                 for (u64 kk = tIdx; kk < numChunks; kk += chls.size())
                 {
-					auto num = std::min(chunkSize, numMasks - kk * chunkSize);
-                    auto curSize =  num * maskSize;
+                    auto num = std::min(chunkSize, numMasks - kk * chunkSize);
+                    auto curSize = num * maskSize;
 
                     if (curSize > maskView.size())
                         throw std::runtime_error(LOCATION);
 
                     chl.recv(maskView.data(), curSize);
+                    auto maskIter = maskView.data();
 
-                    for (u64 i = 0; i < maskView.bounds()[0]; )
+                    for (u64 i = 0; i < num; ++i)
                     {
-                        u64 curStepSize = std::min(tempMaskBuff.size(), maskView.bounds()[0] - i);
+                        if (maskIter > maskView.data() + curSize)
+                            throw std::runtime_error(LOCATION);
+                        auto key = *(u64*)maskIter & keyMask; 
+                        auto ll = maskMap.find(key);
 
-                        for (u64 j = 0; j < curStepSize; ++j, ++i)
+
+                        auto bb = ll != maskMap.end();
+                        if (bb && (memcmp(&ll->second.second, maskIter, maskSize) == 0))
                         {
-                            auto mask = maskView[i];
-                            tempMaskBuff[j] = ZeroBlock;
-                            auto* dest = &tempMaskBuff[j];
+                            auto idx = ll->second.first / mBins.mMaxBinSize;
+                            //auto offset = ll->second.first % mBins.mMaxBinSize;
+                            //std::cout << IoStream::lock << "match on " << idx << " " << offset << "  " << hashes[j][0] << std::endl << IoStream::unlock;
 
-                            if(mask.data() > maskView.data() + maskView.size())
-                                throw std::runtime_error(LOCATION);
-
-                            memcpy(dest, mask.data(), maskSize);
-
-
-                            //std::cout << tempMaskBuff[j] << "    " <<kk <<"  "<< (i) << std::endl;
+                            localIntersection.push_back(idx);
                         }
 
-                        mAesFixedKey.ecbEncBlocks(tempMaskBuff.data(), curStepSize, tempMaskBuff.data());
 
-                        MatrixView<u64> hashes((u64*)tempMaskBuff.data(), curStepSize, 2);
-                        maskMap.findBatch(hashes, tempIdxBuff, w);
-
-                        for (u64 j = 0; j < curStepSize; ++j)
-                        {
-                            //u64 idx = maskMap.find(span<u64>((u64*)&tempMaskBuff[j], 2));
-                            if (tempIdxBuff[j] != u64(-1))
-                            {
-                                auto idx = tempIdxBuff[j] / mBins.mMaxBinSize;
-                                //auto offset = tempIdxBuff[j] % mBins.mMaxBinSize;
-                                //std::cout << IoStream::lock << "match on " << idx << " " << offset << "  " << hashes[j][0] << std::endl << IoStream::unlock;
-
-                                localIntersection.push_back(idx);
-                            }
-                        }
+                        maskIter += maskSize;
                     }
 
                 }
