@@ -269,10 +269,10 @@ namespace osuCrypto
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
 
-        for (u64 i = 0; i < mN; ++i)
-        {
-            ostreamLock(std::cout) << "r[" << i << "] " << inputs[i] << std::endl;
-        }
+        //for (u64 i = 0; i < mN; ++i)
+        //{
+        //    ostreamLock(std::cout) << "r[" << i << "] " << inputs[i] << std::endl;
+        //}
 
         std::vector<block> recvMasks(mN);
         u64 maskSize = roundUpTo(u64(mStatSecParam + 2 * std::log(mN * mBins.mMaxBinSize) - 1), 8) / 8;
