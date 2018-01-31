@@ -587,7 +587,9 @@ namespace osuCrypto
                         auto key = *(u64*)maskIter & keyMask; 
                         auto ll = maskMap.find(key);
 
-                        if (ll != maskMap.end() && memcmp(&ll->second.second, maskIter, maskSize) == 0);
+
+                        auto bb = ll != maskMap.end();
+                        if (bb && (memcmp(&ll->second.second, maskIter, maskSize) == 0))
                         {
                             auto idx = ll->second.first / mBins.mMaxBinSize;
                             //auto offset = ll->second.first % mBins.mMaxBinSize;
