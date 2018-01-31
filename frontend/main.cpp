@@ -227,7 +227,7 @@ int main(int argc, char** argv)
 	cmd.setDefault(binScalerTag, "1");
 	cmd.setDefault(hostNameTag, "127.0.0.1:1212");
 	cmd.setDefault(numHashTag, "3");
-    cmd.setDefault(statSecParamTag, 40);
+    cmd.setDefault(statSecParamTag, 40); 
 	cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
 
 	if (cmd.isSet(unitTestTags))
