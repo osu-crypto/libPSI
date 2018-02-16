@@ -76,6 +76,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="MPSI\Grr18\Grr18Common.cpp" />
+    <ClCompile Include="MPSI\Grr18\Grr18MPsiReceiver.cpp" />
+    <ClCompile Include="MPSI\Grr18\Grr18MPsiSender.cpp" />
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
     <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
@@ -86,6 +89,7 @@
     <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp" />
     <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp" />
+    <ClCompile Include="Tools\RandomShuffle.cpp" />
     <ClCompile Include="Tools\SimpleHasher.cpp" />
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp" />
@@ -96,6 +100,9 @@
     <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MPSI\Grr18\Grr18Common.h" />
+    <ClInclude Include="MPSI\Grr18\Grr18MPsiReceiver.h" />
+    <ClInclude Include="MPSI\Grr18\Grr18MPsiSender.h" />
     <ClInclude Include="PSI\KkrtPsiReceiver.h" />
     <ClInclude Include="PSI\KkrtPsiSender.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />
@@ -107,6 +114,7 @@
     <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h" />
     <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h" />
+    <ClInclude Include="Tools\RandomShuffle.h" />
     <ClInclude Include="Tools\SimpleHasher.h" />
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h" />
     <ClInclude Include="MPSI\DKT\DktMPsiSender.h" />
