@@ -35,8 +35,7 @@ void DktSend(LaunchParams& params)
 
 
                 DktMPsiSender sendPSIs;
-
-                gTimer.reset();
+                
                 Timer timer;
 
                 sendPSIs.init(setSize, params.mStatSecParam, prng.get<block>());
@@ -67,8 +66,6 @@ void DktRecv(LaunchParams& params)
                 prng.get(set.data(), set.size());
 
                 DktMPsiReceiver recvPSIs;
-
-                gTimer.reset();
 
                 Timer timer;
                 auto start = timer.setTimePoint("start");

@@ -93,7 +93,7 @@ namespace osuCrypto
         //mOtMsgBlkSize = (baseOtCount + 127) / 128;
 
 
-        gTimer.setTimePoint("Init.recv.start");
+        setTimePoint("rr17b.Init.recv.start");
         mPrng.SetSeed(seed);
         auto& prng = mPrng;
 
@@ -112,7 +112,7 @@ namespace osuCrypto
         block theirHashingSeed;
         chl0.recv((u8*)&theirHashingSeed, sizeof(block));
 
-        gTimer.setTimePoint("Init.recv.hashSeed");
+        setTimePoint("rr17b.Init.recv.hashSeed");
 
         // compute the hashing seed as the xor of both of ours seeds.
         mHashingSeed = myHashSeed ^ theirHashingSeed;
@@ -122,7 +122,7 @@ namespace osuCrypto
         // to compute how many bins we need, the max size of bins, etc.
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
 
-        gTimer.setTimePoint("Init.recv.baseStart");
+        setTimePoint("rr17b.Init.recv.baseStart");
         // since we are doing mmlicious PSI, we need OTs going in both directions.
         // This will hold the send OTs
 
@@ -146,7 +146,7 @@ namespace osuCrypto
         }
 
 
-        gTimer.setTimePoint("Init.recv.ExtStart");
+        setTimePoint("rr17b.Init.recv.ExtStart");
 
 
 
@@ -202,7 +202,7 @@ namespace osuCrypto
         for (auto& thrd : thrds)
             thrd.join();
 
-        gTimer.setTimePoint("Init.recv.done");
+        setTimePoint("rr17b.Init.recv.done");
 
     }
 
@@ -216,7 +216,7 @@ namespace osuCrypto
     void Rr17bMPsiReceiver::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
         // this is the online phase.
-        gTimer.setTimePoint("online.recv.start");
+        setTimePoint("rr17b.online.recv.start");
 
         // check that the number of inputs is as expected.
         if (inputs.size() != mN)
@@ -269,7 +269,7 @@ namespace osuCrypto
             thrds[tIdx] = std::thread([&, tIdx, seed]()
             {
 
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.thrdStart");
+                if (tIdx == 0) setTimePoint("rr17b.online.recv.thrdStart");
 
                 auto& otRecv = *mOtRecvs[tIdx];
                 auto& chl = chls[tIdx];
@@ -302,8 +302,7 @@ namespace osuCrypto
                         item = shiftRight(item, phaseShift);
 
                         // insert this item into its bin.
-                        std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
-                        mBins.mBins[addr].emplace_back(i);
+                        mBins.push(addr, i);
                     }
                 }
                 else
@@ -325,15 +324,14 @@ namespace osuCrypto
                         item = shiftRight(item, phaseShift);
 
                         // insert this item into its bin.
-                        std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
-                        mBins.mBins[addr].emplace_back(i);
+                        mBins.push(addr, i);
                     }
                 }
 
                 // block until all items have been inserted. the last to finish will set the promise...
                 itemsInsertedBarrier.decrementWait();
 
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.insertDone");
+                if (tIdx == 0) setTimePoint("rr17b.online.recv.insertDone");
 
                 // get the region of the base OTs that this thread should do.
                 auto binStart = tIdx       * mBins.mBinCount / thrds.size();
@@ -356,7 +354,7 @@ namespace osuCrypto
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
 
-                        auto& bin = mBins.mBins[bIdx];
+                        auto bin = mBins.getBin(bIdx);
 
                         for (u64 i = 0; i < bin.size(); ++i)
                         {
@@ -403,13 +401,13 @@ namespace osuCrypto
                 }
 
 
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.recvMask");
+                if (tIdx == 0) setTimePoint("rr17b.online.recv.recvMask");
 
 
                 otRecv.check(chl, prng.get<block>());
 
 
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.checkdone");
+                if (tIdx == 0) setTimePoint("rr17b.online.recv.checkdone");
 
 
                 // this is the intersection that will be computed by this thread,
@@ -506,11 +504,11 @@ namespace osuCrypto
                         mIntersection = std::move(localIntersection);
                     }
                 }
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.done");
+                if (tIdx == 0) setTimePoint("rr17b.online.recv.done");
 
 
                 //if (!tIdx)
-                //    gTimer.setTimePoint("sendInput.done");
+                //    setTimePoint("rr17b.sendInput.done");
             });
         }
 
@@ -520,7 +518,7 @@ namespace osuCrypto
 
         //std::cout << IoStream::lock << "exit" << std::endl << IoStream::unlock;
 
-        gTimer.setTimePoint("online.recv.exit");
+        setTimePoint("rr17b.online.recv.exit");
 
         //std::cout << gTimer;
     }

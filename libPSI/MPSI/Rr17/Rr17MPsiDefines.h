@@ -5,5 +5,5 @@ namespace osuCrypto
 {
 
 
-    static const u64 stepSize(128);
+    static const u64 stepSize(512);
 }

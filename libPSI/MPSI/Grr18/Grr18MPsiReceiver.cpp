@@ -14,15 +14,23 @@
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 
-#include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
-#include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
-
 #include <libPSI/MPSI/Rr17/Rr17MPsiDefines.h>
 #include <libPSI/Tools/CuckooHasher.h>
 #include "Grr18Common.h"
+#include <sparsehash/dense_hash_map>
 
 namespace osuCrypto
 {
+
+
+    template<typename T>
+    struct NoHash
+    {
+        inline size_t operator()(const T& v) const
+        {
+            return v;
+        }
+    };
 
 
     inline block shiftRight(block v, u8 n)
@@ -45,8 +53,8 @@ namespace osuCrypto
         u64 n,
         u64 statSecParam,
         Channel & chl0,
-        NcoOtExtReceiver& ots,
-        NcoOtExtSender& otSend,
+        OosNcoOtReceiver& ots,
+        OosNcoOtSender& otSend,
         block seed,
         double binScaler,
         u64 inputBitSize)
@@ -59,8 +67,8 @@ namespace osuCrypto
         u64 n,
         u64 statSecParam,
         span<Channel> chls,
-        NcoOtExtReceiver& otRecv,
-        NcoOtExtSender& otSend,
+        OosNcoOtReceiver& otRecv,
+        OosNcoOtSender& otSend,
         block seed,
         double binScaler,
         u64 inputBitSize)
@@ -92,7 +100,7 @@ namespace osuCrypto
         //mOtMsgBlkSize = (baseOtCount + 127) / 128;
 
 
-        gTimer.setTimePoint("Init.recv.start");
+        setTimePoint("grr.recv.Init.start");
         mPrng.SetSeed(seed);
         auto& prng = mPrng;
 
@@ -111,7 +119,7 @@ namespace osuCrypto
         block theirHashingSeed;
         chl0.recv((u8*)&theirHashingSeed, sizeof(block));
 
-        gTimer.setTimePoint("Init.recv.hashSeed");
+        setTimePoint("grr.recv.Init.hashSeed");
 
         // compute the hashing seed as the xor of both of ours seeds.
         mHashingSeed = myHashSeed ^ theirHashingSeed;
@@ -121,7 +129,7 @@ namespace osuCrypto
         // to compute how many bins we need, the max size of bins, etc.
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
 
-        gTimer.setTimePoint("Init.recv.baseStart");
+        setTimePoint("grr.recv.Init.baseStart");
         // since we are doing mmlicious PSI, we need OTs going in both directions.
         // This will hold the send OTs
 
@@ -163,7 +171,7 @@ namespace osuCrypto
         }
 
 
-        gTimer.setTimePoint("Init.recv.ExtStart");
+        setTimePoint("grr.recv.Init.ExtStart");
 
         mOneSided = false;
 
@@ -173,11 +181,11 @@ namespace osuCrypto
         // now make the threads that will to the extension
         for (u64 i = 0; i < chls.size(); ++i)
         {
-            mOtRecvs[i] = std::move(otRecv.split());
-            mOtSends[i] = std::move(otSend.split());
+            mOtRecvs[i] = std::move(otRecv.oosSplit());
+            mOtSends[i] = std::move(otSend.oosSplit());
         }
 
-        gTimer.setTimePoint("Init.recv.done");
+        setTimePoint("grr.recv.Init.done");
     }
 
 
@@ -190,7 +198,7 @@ namespace osuCrypto
     void Grr18MPsiReceiver::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
         // this is the online phase.
-        gTimer.setTimePoint("online.recv.start");
+        setTimePoint("grr.recv.online.start");
 
         // check that the number of inputs is as expected.
         if (inputs.size() != mN)
@@ -235,6 +243,8 @@ namespace osuCrypto
         std::vector<block> hashToSmallerDomainBuff(mHashToSmallerDomain ? mN : 0);
         span<block> ncoInputBuff(mHashToSmallerDomain ? hashToSmallerDomainBuff : inputs);
 
+        Matrix<u8> masks(mN, mBins.mMaxBinSize * maskSize);
+
         //std::cout << ncoInputBuff.data() << "  " << ncoInputBuff[0].data() << std::endl;
 
         // fr each thread, spawn it.
@@ -243,8 +253,9 @@ namespace osuCrypto
             auto seed = mPrng.get<block>();
             thrds[tIdx] = std::thread([&, tIdx, seed]()
             {
+                setThreadName("recv_thrd_" + ToString(tIdx));
 
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.thrdStart");
+                if (tIdx == 0) setTimePoint("grr.recv.online.thrdStart");
 
                 auto& otRecv = *mOtRecvs[tIdx];
                 auto& otSend = *mOtSends[tIdx];
@@ -257,7 +268,7 @@ namespace osuCrypto
                 auto binStart = tIdx * mBins.mBinCount / thrds.size();
                 auto binEnd = (tIdx + 1) * mBins.mBinCount / thrds.size();
 
-
+                const auto multiThreaded = chls.size() > 1;
                 auto& chl = chls[tIdx];
 
                 std::vector<u8> loads(binEnd - binStart), theirLoads;
@@ -292,14 +303,25 @@ namespace osuCrypto
                         block& item = ncoInputBuff[i + j];
                         u64 addr = *(u64*)&item % mBins.mBinCount;
 
+                        //ostreamLock(std::cout) << "r[" << i + j << "] = " << ncoInputBuff[i + j] << " -> bin " << addr << std::endl;
+
                         // implements phasing. Note that we are doing very course phasing.
                         // At the byte level. This is good enough for use. Since we just
                         // need things to be smaller than 76 bits for OOS16.
 
                         item = shiftRight(item, phaseShift);
 
-                        std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
-                        mBins.mBins[addr].emplace_back(i + j);
+
+                        mBins.push(addr, i + j);
+                        //if (multiThreaded)
+                        //{
+                        //    std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
+                        //    mBins.mBins[addr].emplace_back(i + j);
+                        //}
+                        //else
+                        //{
+                        //    mBins.mBins[addr].emplace_back(i + j);
+                        //}
                     }
                 }
 
@@ -309,7 +331,7 @@ namespace osuCrypto
                 else
                     insertProm.set_value();
 
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.insertDone");
+                if (tIdx == 0) setTimePoint("grr.recv.online.insertDone");
 
 
                 PRNG prng(seed);
@@ -338,8 +360,9 @@ namespace osuCrypto
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
 
-                        auto& bin = mBins.mBins[bIdx];
+                        auto bin = mBins.getBin(bIdx);
                         auto load = loads[bIdx - binStart];
+
 
                         permutation.resize(loads[bIdx - binStart]);
                         for (size_t i = 0; i < permutation.size(); i++)
@@ -352,10 +375,12 @@ namespace osuCrypto
                             {
                                 u64 inputIdx = bin[permutation[i]];
 
+
                                 otRecv.encode(
                                     otIdx,                   //  input
                                     &ncoInputBuff[inputIdx], //  input
                                     &recvMasks[inputIdx]);   // output
+                                //ostreamLock(std::cout) << "r[" << inputIdx << "] encoded under " << i << " -> " << recvMasks[inputIdx] << std::endl;
                             }
                             else
                             {
@@ -370,7 +395,7 @@ namespace osuCrypto
                 }
 
 
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.recvMask");
+                if (tIdx == 0) setTimePoint("grr.recv.online.recvMask");
 
 
 
@@ -381,46 +406,73 @@ namespace osuCrypto
                 otSend.init(theirTotalLoad, prng, throwIfUsed);
 
                 theirLoadsFut.get();
+                std::vector<std::future<void>> correctionFutrs((binEnd - binStart + stepSize - 1) / stepSize);
 
-                std::vector<std::pair<u64, std::pair<u64, block>>> insertBuffer(mBins.mMaxBinSize * 4096);
+                for (u64 bIdx = binStart, i = 0; bIdx < binEnd;)
+                {
+                    u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
+                    auto numCorrections = 0ull;
+
+                    for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
+                    {
+                        numCorrections += theirLoads[bIdx - binStart];
+                    }
+                    correctionFutrs[i++] = otSend.asyncRecvCorrection(chl, numCorrections);
+                }
+
+
+
+                std::vector<std::pair<u64, u64>> insertBuffer(mBins.mMaxBinSize * 4096);
                 auto insertIter = insertBuffer.data();
                 auto insertEnd = insertBuffer.data() + insertBuffer.size();
 
 
-                auto keySize = std::min<u64>(sizeof(u64), maskSize);
-                u64 keyMask = (1ull << (keySize * 8)) - 1;// (~0ull) >> ((sizeof(u64) - keySize) * 8);
-                std::unordered_map<u64, std::pair<i64, block>> maskMap; maskMap.reserve(mN * mBins.mMaxBinSize);
+                u64 keyMask = (maskSize >= 8) ? ~0ull : ~(~0ull << (maskSize * 8));
 
-                for (u64 bIdx = binStart; bIdx < binEnd;)
+                Expects(keyMask);
+
+                //std::unordered_map<u64, std::pair<i64, block>> maskMap; maskMap.reserve(mN * mBins.mMaxBinSize);
+                google::dense_hash_map<u64, u64, NoHash<u64>> maskMap(mN * mBins.mMaxBinSize);
+                maskMap.set_empty_key(0);
+
+                for (u64 bIdx = binStart, i = 0; bIdx < binEnd;)
                 {
                     u64 currentStepSize = std::min(stepSize, binEnd - bIdx);
-                    auto numCorrections = otSend.recvCorrection(chl);
+                    correctionFutrs[i++].get();
 
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
-                        auto& bin = mBins.mBins[bIdx];
+                        auto bin = mBins.getBin(bIdx);
                         auto binLoad = theirLoads[bIdx - binStart];
+
 
                         for (u64 i = 0; i < bin.size(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;
 
+                            //ostreamLock oo(std::cout);
+                            //oo << "r[" << inputIdx << "] encodes " << std::endl;
+
                             if (insertIter + binLoad > insertEnd)
                             {
+                                auto size = insertIter - insertBuffer.data();
                                 insertIter = insertBuffer.data();
-
-                                std::lock_guard<std::mutex> lock(mInsertMtx);
-                                for (u64 i = 0; i < insertBuffer.size(); ++i)
-                                    maskMap.insert(insertBuffer[i]);
+                                if (multiThreaded)
+                                {
+                                    std::lock_guard<std::mutex> lock(mInsertMtx);
+                                    maskMap.insert(insertBuffer.begin(), insertBuffer.begin() + size);
+                                }
+                                else
+                                    maskMap.insert(insertBuffer.begin(), insertBuffer.begin() + size);
                             }
 
 
                             for (u64 l = 0; l < binLoad; ++l)
                             {
-                                block& sendMask = insertIter->second.second;
+                                block sendMask;
                                 u64& key = insertIter->first;
-                                insertIter->second.first = inputIdx * mBins.mMaxBinSize + l;
+                                insertIter->second = inputIdx * mBins.mMaxBinSize + l;
                                 ++insertIter;
 
 
@@ -429,9 +481,13 @@ namespace osuCrypto
                                     &ncoInputBuff[inputIdx],
                                     &sendMask);
 
-
+                                //oo << "   " << sendMask << " ^ " << recvMasks[inputIdx];
                                 sendMask = sendMask ^ recvMasks[inputIdx];
                                 key = (*(u64*)&sendMask) & keyMask;
+                                //oo << " -> " << sendMask << "   ~  " << key << "  ~ " << innerOtIdx << std::endl;
+
+
+                                memcpy(masks.data(inputIdx) + l * maskSize, &sendMask, maskSize);
                                 ++innerOtIdx;
                             }
 
@@ -439,25 +495,30 @@ namespace osuCrypto
                         }
 
                         otIdx += binLoad;
-                        numCorrections -= binLoad;
                     }
 
-                    if (numCorrections)throw std::runtime_error(LOCATION);
                 }
 
-                otSend.check(chl, prng.get<block>());
-                otRecv.check(chl, prng.get<block>());
+                u64 totalMaskCount;
+                auto totalMaskCountFutr = chl.asyncRecv(totalMaskCount);
 
+
+
+                otRecv.finalize(chl, prng); // sends
+                otSend.finalize(chl);       // recvs
+                otSend.sendCheckSeed(chl, prng.get<block>()); // sends
+                otRecv.recvCheckSeed(chl);  // recvs
+
+                otRecv.check(chl, prng.get<block>());
 
                 {
                     auto size = insertIter - insertBuffer.data();
                     std::lock_guard<std::mutex> lock(mInsertMtx);
-                    for (u64 i = 0; i < size; ++i)
-                        maskMap.insert(insertBuffer[i]);
+                    maskMap.insert(insertBuffer.begin(), insertBuffer.begin() + size);
                 }
 
 
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.sendMask");
+                if (tIdx == 0) setTimePoint("grr.recv.online.sendMask");
 
                 // all masks have been merged
 
@@ -473,31 +534,76 @@ namespace osuCrypto
                 else
                     maskProm.set_value();
 
+                totalMaskCountFutr.get();
 
 
-                std::vector<u8> buff;
-                chl.recv(buff);
-                while (buff.size() != 1)
+                u64 maxSendSize = 1ull << log2ceil(mN);
+                auto curRow = totalMaskCount * tIdx / chls.size();
+                auto endRow = totalMaskCount * (tIdx + 1) / chls.size();
+
+                Matrix<u8> theirMasks(endRow - curRow, maskSize, AllocType::Uninitialized);
+                auto theirMasksIter = theirMasks.data();
+                std::vector<std::future<void>> maskFutrs((endRow - curRow + maxSendSize - 1) / maxSendSize);
+                auto futrIter = maskFutrs.begin();
+
                 {
-                    MatrixView<u8> view(buff.begin(), buff.end(), maskSize);
-                    auto rows = view.rows();
-                    auto iter = view.data();
-
-                    for (u64 i = 0; i < rows; ++i)
+                    int i = 0;
+                    //ostreamLock oo(std::cout);
+                    //oo << "r " << curRow << " -> " << endRow << std::endl;
+                    while (curRow != endRow)
                     {
-                        auto key = *(u64*)iter & keyMask;
+                        auto step = std::min(maxSendSize, endRow - curRow);
+                        //oo << "r step " << step << " " << i++ << std::endl;
+                         
+                        if (theirMasksIter + step * maskSize > theirMasks.data() + theirMasks.size())
+                            throw std::runtime_error(LOCATION);
+
+                        *futrIter++ = chl.asyncRecv(theirMasksIter, step * maskSize);
+                        theirMasksIter += step * maskSize;
+                        curRow += step;
+                    }
+                }
+
+                curRow = totalMaskCount * tIdx / chls.size();
+                endRow = totalMaskCount * (tIdx + 1) / chls.size();
+                theirMasksIter = theirMasks.data();
+
+                futrIter = maskFutrs.begin();
+                int i = 0;
+                while (curRow != endRow)
+                {
+                    auto step = std::min(maxSendSize, endRow - curRow);
+                    curRow += step;
+
+                    //std::cout << i++ << std::endl;
+                    futrIter++->get();
+
+                    //std::cout << "#rows " << rows << std::endl;
+                    for (u64 i = 0; i < step; ++i)
+                    {
+                        auto key = *(u64*)theirMasksIter & keyMask;
+                        //if (key == 0)
+                        //    throw std::runtime_error(LOCATION);
+
                         auto ll = maskMap.find(key);
 
-                        if (ll != maskMap.end() && (memcmp(&ll->second.second, iter, maskSize) == 0))
+                        if (ll != maskMap.end())
                         {
-                            auto idx = ll->second.first / mBins.mMaxBinSize;
-                            localIntersection.push_back(idx);
+                            auto idx = ll->second / mBins.mMaxBinSize;
+                            auto offset = ll->second % mBins.mMaxBinSize;
+                            auto localMask = masks.data(idx) + offset * maskSize;
+
+
+                            if (memcmp(theirMasksIter, localMask, maskSize) == 0)
+                            {
+                                //std::cout << "full " << idx << " " << offset << std::endl;
+
+                                localIntersection.push_back(idx);
+                            }
                         }
 
-                        iter += maskSize;
+                        theirMasksIter += maskSize;
                     }
-
-                    chl.recv(buff);
 
                 }
 
@@ -516,8 +622,9 @@ namespace osuCrypto
                         mIntersection = std::move(localIntersection);
                     }
                 }
-                if (tIdx == 0) gTimer.setTimePoint("online.recv.done");
+                if (tIdx == 0) setTimePoint("grr.recv.online.done");
 
+                otSend.check(chl, prng.get<block>());
 
             });
         }
@@ -528,7 +635,7 @@ namespace osuCrypto
 
         //std::cout << IoStream::lock << "exit" << std::endl << IoStream::unlock;
 
-        gTimer.setTimePoint("online.recv.exit");
+        setTimePoint("grr.recv.online.exit");
 
         //std::cout << gTimer;
     }

@@ -54,7 +54,7 @@ namespace osuCrypto
     {
         mStatSecParam = statSecParam;
         mN = n;
-        gTimer.setTimePoint("init.send.start");
+        setTimePoint("rr17a.init.send.start");
 
 
         // hash to smaller domain size?
@@ -94,7 +94,7 @@ namespace osuCrypto
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
-        gTimer.setTimePoint("init.send.hashSeed");
+        setTimePoint("rr17a.init.send.hashSeed");
 
 
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
@@ -102,7 +102,7 @@ namespace osuCrypto
         std::cout << "max bin size: " << mBins.mMaxBinSize << " #masks " << mN * mBins.mMaxBinSize<< std::endl;
         //mPsis.resize(mBins.mBinCount);
 
-        gTimer.setTimePoint("init.send.baseStart");
+        setTimePoint("rr17a.init.send.baseStart");
 
         if (otSend.hasBaseOts() == false ||
             otRecv.hasBaseOts() == false)
@@ -148,7 +148,7 @@ namespace osuCrypto
             otRecv.setBaseOts(sendBaseMsg);
         }
 
-        gTimer.setTimePoint("init.send.extStart");
+        setTimePoint("rr17a.init.send.extStart");
 
         mOtSends.resize(chls.size());
         mOtRecvs.resize(chls.size());
@@ -219,7 +219,7 @@ namespace osuCrypto
         for (auto& thrd : thrds)
             thrd.join();
 
-        gTimer.setTimePoint("init.send.done");
+        setTimePoint("rr17a.init.send.done");
 
     }
 
@@ -309,7 +309,7 @@ namespace osuCrypto
         auto sendMaskBuffFreeCounter = new std::atomic<u32>;
         *sendMaskBuffFreeCounter = u32(numChunks);
 
-        gTimer.setTimePoint("online.send.spaw");
+        setTimePoint("rr17a.online.send.spaw");
 
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
         {
@@ -318,7 +318,7 @@ namespace osuCrypto
 
                 PRNG prng(seed);
 
-                if (tIdx == 0) gTimer.setTimePoint("online.send.thrdStart");
+                if (tIdx == 0) setTimePoint("rr17a.online.send.thrdStart");
 
                 auto& otRecv = *mOtRecvs[tIdx];
                 auto& otSend = *mOtSends[tIdx];
@@ -369,10 +369,7 @@ namespace osuCrypto
 
                         item = shiftRight(item, phaseShift);
 
-
-
-                        std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
-                        mBins.mBins[addr].emplace_back(i + j);
+                        mBins.push(addr, i + j);
                     }
 
                     //if (tIdx == 0) std::cout << "\r" << std::setw(8) << i << " / " << endIdx << " a" << std::flush;
@@ -387,14 +384,14 @@ namespace osuCrypto
                 else
                     doneProm.set_value();
 
-                if (tIdx == 0) gTimer.setTimePoint("online.send.insert");
+                if (tIdx == 0) setTimePoint("rr17a.online.send.insert");
 
                 //if (!tIdx)
                 {
                     u64 max = 0;
-                    for (auto& b : mBins.mBins)
+                    for(u64 i =0; i < mBins.mBinCount; ++i)
                     {
-                        max = std::max(max, b.size());
+                        max = std::max<u64>(max, mBins.getBinSize(i));
                     }
 
                     std::cout << " true max: " << max << std::endl;
@@ -421,7 +418,7 @@ namespace osuCrypto
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
 
-                        auto& bin = mBins.mBins[bIdx];
+                        auto bin = mBins.getBin(bIdx);
                         std::random_shuffle(permutation.begin(), permutation.end(), prng);
 
                         for (u64 i = 0; i < permutation.size(); ++i)
@@ -461,9 +458,9 @@ namespace osuCrypto
                 std::vector<u8> buff;
                 otIdx = 0;
 
-                if (tIdx == 0) gTimer.setTimePoint("online.send.recvMask");
+                if (tIdx == 0) setTimePoint("rr17a.online.send.recvMask");
                 permDone.get();
-                if (tIdx == 0) gTimer.setTimePoint("online.send.permPromDone");
+                if (tIdx == 0) setTimePoint("rr17a.online.send.permPromDone");
 
                 //std::cout << IoStream::lock;
 
@@ -476,7 +473,7 @@ namespace osuCrypto
 
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
-                        auto& bin = mBins.mBins[bIdx];
+                        auto bin = mBins.getBin(bIdx);
                         auto mm = maskIdx.fetch_add(bin.size(), std::memory_order::memory_order_relaxed);
 
 
@@ -545,7 +542,7 @@ namespace osuCrypto
                 }
                 if (tIdx == 0)
                 {
-                    gTimer.setTimePoint("online.send.sendMask");
+                    setTimePoint("rr17a.online.send.sendMask");
                     //std::cout << " start->mid  " << std::chrono::duration_cast<std::chrono::milliseconds>(midTime - startTime).count() << std::endl;
 
                 }
@@ -586,7 +583,7 @@ namespace osuCrypto
 
                 }
 
-                if (tIdx == 0) gTimer.setTimePoint("online.send.finalMask");
+                if (tIdx == 0) setTimePoint("rr17a.online.send.finalMask");
 
             });
         }

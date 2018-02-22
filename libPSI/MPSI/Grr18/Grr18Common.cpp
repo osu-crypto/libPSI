@@ -26,11 +26,12 @@ namespace osuCrypto
             for (u64 i = 0; i < loads.size(); ++i)
             {
                 auto noise = exp(prng);
-                auto ss = std::min<u64>(bins.mBins[binStart + i].size() + noise, bins.mMaxBinSize);
+                auto binSize = bins.getBinSize(binStart + i);
+                auto ss = std::min<u64>(binSize + noise, bins.mMaxBinSize);
                 if (ss > 255)
                     throw std::runtime_error(LOCATION);
                 
-                avg += ss - bins.mBins[binStart + i].size();
+                avg += ss - binSize;
 
                 loads[i] = ss;
 
@@ -58,20 +59,26 @@ namespace osuCrypto
 
             if(lookup.size() == 0)
             {
-                throw std::runtime_error(LOCATION);
+                std::cout << "warning. no bin padding" << std::endl;
+                lookup = { 0 };
+                //throw std::runtime_error(LOCATION);
             }
 
             std::exponential_distribution<double> exp(1.0 / eps);
 
             for (u64 i = 0; i < loads.size(); ++i)
             {
+                auto load = bins.getBinSize(binStart + i);
+
+                if (load > 255) throw std::runtime_error(LOCATION);
+
                 auto noise = exp(prng) * (prng.getBit() * 2 - 1);
                 auto estimate =
                     std::max<i32>(
-                        std::min<i32>(lookup.size() - 1, bins.mBins[binStart + i].size() + noise)
+                        std::min<i32>(lookup.size() - 1, load + noise)
                         , 0);
 
-                loads[i] = lookup[estimate];
+                loads[i] =  std::max<u8>(lookup[estimate],load);
 
 
                 totalLoad += loads[i];

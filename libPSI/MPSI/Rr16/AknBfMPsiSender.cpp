@@ -24,7 +24,7 @@ namespace osuCrypto {
     }
     void AknBfMPsiSender::init(u64 n, u64 statSecParam, OtExtSender& otExt, span<Channel> chls, block seed)
     {
-        gTimer.setTimePoint("sender.init.start");
+        setTimePoint("AknPSI.sender.init.start");
         mN = n;
         mStatSecParam = statSecParam;
 
@@ -48,10 +48,10 @@ namespace osuCrypto {
         //mHashs.resize(numHashFunctions);
 
 
-        gTimer.setTimePoint("sender.init.aknOT.start");
+        setTimePoint("AknPSI.sender.init.aknOT.start");
 
         mAknOt.init(totalOtCount, cncOnesThreshold, cncProb, otExt, chls, prng);
-        gTimer.setTimePoint("sender.init.aknOT.done");
+        setTimePoint("AknPSI.sender.init.aknOT.done");
 
         if (mBfBitCount > mAknOt.mMessages.size())
             throw std::runtime_error(LOCATION);
@@ -66,7 +66,7 @@ namespace osuCrypto {
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
 
-        gTimer.setTimePoint("sender.init.done");
+        setTimePoint("AknPSI.sender.init.done");
 
     }
 
@@ -84,7 +84,7 @@ namespace osuCrypto {
         if (inputs.size() != mN)
             throw std::runtime_error(LOCATION);
 
-        gTimer.setTimePoint("sender.online.start");
+        setTimePoint("AknPSI.sender.online.start");
 
         //TODO("real seed");
         PRNG prng(mSeed);
@@ -95,7 +95,7 @@ namespace osuCrypto {
 
         //u8 dummy[1];
         //chl.recv(dummy, 1);
-        //gTimer.setTimePoint("sender.online.dummyRecv");
+        //setTimePoint("AknPSI.sender.online.dummyRecv");
 
 
 
@@ -111,7 +111,7 @@ namespace osuCrypto {
 
         chl0.recv(permutes.data(), permutes.size());
 
-        gTimer.setTimePoint("sender.online.permRecv");
+        setTimePoint("AknPSI.sender.online.permRecv");
         //TODO("make perm item size smaller");
 
 
@@ -131,7 +131,7 @@ namespace osuCrypto {
             u8 hashOut[SHA1::HashSize];
 
             if (t == 0)
-                gTimer.setTimePoint("sender.online.masksStart");
+                setTimePoint("AknPSI.sender.online.masksStart");
 
 
             //std::cout << IoStream::lock;
@@ -173,7 +173,7 @@ namespace osuCrypto {
 
 
             if (t == 0)
-                gTimer.setTimePoint("sender.online.masksComputed");
+                setTimePoint("AknPSI.sender.online.masksComputed");
 
 
             bool result = isValidPermFuture.get();
@@ -186,7 +186,7 @@ namespace osuCrypto {
 
 
             if (t == 0)
-                gTimer.setTimePoint("sender.online.masksSent");
+                setTimePoint("AknPSI.sender.online.masksSent");
         };
 
 
@@ -195,11 +195,11 @@ namespace osuCrypto {
 
         for (u64 i = 0; i < u64(chls.size()); ++i)
         {
-            //gTimer.setTimePoint("sender.online.thrd_" + std::to_string(i) + "_spawned");
+            //setTimePoint("AknPSI.sender.online.thrd_" + std::to_string(i) + "_spawned");
 
             thrds[i] = std::thread([&, i]()
             {
-                //gTimer.setTimePoint("sender.online.thrd_" + std::to_string(i) + "_started");
+                //setTimePoint("AknPSI.sender.online.thrd_" + std::to_string(i) + "_started");
                 routine(i);
             });
 

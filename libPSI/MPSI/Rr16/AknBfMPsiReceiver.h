@@ -1,5 +1,6 @@
 #pragma once
 #include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Network/Channel.h"
 #include "libOTe/NChooseK/AknOtReceiver.h"
 
@@ -10,7 +11,7 @@ namespace osuCrypto
     void computeAknBfParams(u64 n, u64 statSecParam, u64& totalOtCount, u64& totalOnesCount, u64& cncOnesThreshold, double& cncProb, u64& numHashFunctions, u64& bfBitCount);
 
 
-    class AknBfMPsiReceiver
+    class AknBfMPsiReceiver : public TimerAdapter
     {
     public:
         typedef u32 LogOtCount_t;

@@ -89,7 +89,7 @@ void Grr18_Oos_EmptrySet_Test_Impl()
 void Grr18_Oos_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
-    u64 setSize = 8, psiSecParam = 40, numThreads(1);
+    u64 setSize = 1024, psiSecParam = 40, numThreads(1);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     std::vector<block> sendSet(setSize), recvSet(setSize);
@@ -102,7 +102,7 @@ void Grr18_Oos_FullSet_Test_Impl()
 
     std::string name("psi");
 
-    IOService ios(0);
+    IOService ios(2);
     Endpoint ep0(ios, "localhost", 1212, EpMode::Client, name);
     Endpoint ep1(ios, "localhost", 1212, EpMode::Server, name);
 
@@ -123,21 +123,19 @@ void Grr18_Oos_FullSet_Test_Impl()
         send.init(setSize, psiSecParam, sendChls, otSend0, otRecv0, prng.get<block>());
         send.sendInput(sendSet, sendChls);
     });
+    try {
+        recv.init(setSize, psiSecParam, recvChls, otRecv1, otSend1, ZeroBlock);
+        recv.sendInput(recvSet, recvChls);
 
-    recv.init(setSize, psiSecParam, recvChls, otRecv1, otSend1, ZeroBlock);
-    recv.sendInput(recvSet, recvChls);
+    }
+    catch (std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        throw e;
+    }
 
     thrd.join();
 
-    for (u64 i = 0; i < numThreads; ++i)
-    {
-        sendChls[i].close();
-        recvChls[i].close();
-    }
-
-    ep0.stop();
-    ep1.stop();
-    ios.stop();
 
     if (recv.mIntersection.size() != setSize)
     {

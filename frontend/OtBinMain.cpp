@@ -126,10 +126,10 @@ void rr17aRecv(
                     KkrtNcoOtSender otSend;
 #endif
                     Rr17aMPsiReceiver recvPSIs;
-
+                    recvPSIs.setTimer(_gTimer);
 
                     chls[0].recv(dummy, 1);
-                    gTimer.reset();
+                    _gTimer.reset();
                     chls[0].asyncSend(dummy, 1);
 
 
@@ -189,6 +189,7 @@ void rr17aSend_StandardModel(
                     Rr17NcoOtSender otSend;
 
                     Rr17aMPsiSender sendPSIs;
+                    sendPSIs.setTimer(_gTimer);
 
                     sendChls[0].asyncSend(dummy, 1);
                     sendChls[0].recv(dummy, 1);
@@ -249,10 +250,11 @@ void rr17aRecv_StandardModel(
                     Rr17NcoOtSender otSend;
 
                     Rr17aMPsiReceiver recvPSIs;
+                    recvPSIs.setTimer(_gTimer);
 
 
                     chls[0].recv(dummy, 1);
-                    gTimer.reset();
+                    _gTimer.reset();
                     chls[0].asyncSend(dummy, 1);
 
 
@@ -313,10 +315,11 @@ void rr17bSend(
                     OosNcoOtSender   otSend;
 
                     Rr17bMPsiSender sendPSIs;
+                    sendPSIs.setTimer(_gTimer);
 
                     sendChls[0].asyncSend(dummy, 1);
                     sendChls[0].recv(dummy, 1);
-                    gTimer.reset();
+                    _gTimer.reset();
 
                     sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, prng.get<block>(), ss, params.mBitSize);
 
@@ -335,7 +338,7 @@ void rr17bSend(
                         sendChls[g].resetStats();
 
 
-                    if (params.mVerbose > 1) std::cout << gTimer << std::endl;
+                    if (params.mVerbose > 1) std::cout << _gTimer << std::endl;
                 }
             }
         }
@@ -378,10 +381,11 @@ void rr17bRecv(
 
                     OosNcoOtReceiver otRecv;// (code, 40);
                     Rr17bMPsiReceiver recvPSIs;
+                    recvPSIs.setTimer(_gTimer);
 
 
                     chls[0].recv(dummy, 1);
-                    gTimer.reset();
+                    _gTimer.reset();
                     chls[0].asyncSend(dummy, 1);
 
 
@@ -442,6 +446,7 @@ void rr17bSend_StandardModel(
                     Rr17NcoOtSender otSend;
 
                     Rr17bMPsiSender sendPSIs;
+                    sendPSIs.setTimer(_gTimer);
 
                     sendChls[0].asyncSend(dummy, 1);
                     sendChls[0].recv(dummy, 1);
@@ -503,10 +508,11 @@ void rr17bRecv_StandardModel(
                     Rr17NcoOtReceiver otRecv;
 
                     Rr17bMPsiReceiver recvPSIs;
+                    recvPSIs.setTimer(_gTimer);
 
 
                     chls[0].recv(dummy, 1);
-                    gTimer.reset();
+                    _gTimer.reset();
                     chls[0].asyncSend(dummy, 1);
 
 
@@ -565,6 +571,7 @@ void kkrtSend(
                 KkrtNcoOtSender otSend;
 
                 KkrtPsiSender sendPSIs;
+                sendPSIs.setTimer(_gTimer);
 
                 sendChls[0].asyncSend(dummy, 1);
                 sendChls[0].recv(dummy, 1);
@@ -623,10 +630,11 @@ void kkrtRecv(
                 KkrtNcoOtReceiver otRecv;
 
                 KkrtPsiReceiver recvPSIs;
+                recvPSIs.setTimer(_gTimer);
 
 
                 chls[0].recv(dummy, 1);
-                gTimer.reset();
+                _gTimer.reset();
                 chls[0].asyncSend(dummy, 1);
 
 
@@ -663,8 +671,9 @@ void kkrtRecv(
 void grr18Send(
     LaunchParams& params)
 {
-    setThreadName("CP_Test_Thread");
+    setThreadName("send_grr18");
 
+    _gTimer.setTimePoint("grr18Send()");
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -686,6 +695,8 @@ void grr18Send(
                     OosNcoOtSender   otSend;
 
                     Grr18MPsiSender sendPSIs;
+                    sendPSIs.setTimer(_gTimer);
+
                     sendPSIs.mEps = params.mCmd->get<double>("eps");
 
                     sendChls[0].asyncSend(dummy, 1); 
@@ -693,8 +704,8 @@ void grr18Send(
 
                     sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), ss, params.mBitSize);
 
-                    sendChls[0].asyncSend(dummy, 1);
-                    sendChls[0].recv(dummy, 1);
+                    //sendChls[0].asyncSend(dummy, 1);
+                    //sendChls[0].recv(dummy, 1);
 
                     sendPSIs.sendInput(set, sendChls);
 
@@ -715,9 +726,10 @@ void grr18Send(
 void grr18Recv(
     LaunchParams& params)
 {
-    setThreadName("CP_Test_Thread");
+    setThreadName("recv_grr18");
 
-
+    _gTimer.setTimePoint("grr18Recv()");
+    
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
@@ -734,7 +746,7 @@ void grr18Recv(
             {
                 for (u64 jj = 0; jj < params.mTrials; jj++)
                 {
-                    std::string tag("RR17a");
+                    std::string tag("grr18");
 
                     std::vector<block> sendSet(setSize), recvSet(setSize);
                     for (u64 i = 0; i < setSize; ++i)
@@ -747,10 +759,12 @@ void grr18Recv(
                     OosNcoOtSender   otSend;
 
                     Grr18MPsiReceiver recvPSIs;
+                    recvPSIs.setTimer(_gTimer);
+
                     recvPSIs.mEps = params.mCmd->get<double>("eps");
 
                     chls[0].recv(dummy, 1);
-                    gTimer.reset();
+
                     chls[0].asyncSend(dummy, 1);
 
 
@@ -758,11 +772,12 @@ void grr18Recv(
                     Timer timer;
 
                     auto start = timer.setTimePoint("start");
+                    _gTimer.setTimePoint("start");
 
                     recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), ss, params.mBitSize);
 
-                    chls[0].asyncSend(dummy, 1);
-                    chls[0].recv(dummy, 1);
+                    //chls[0].asyncSend(dummy, 1);
+                    //chls[0].recv(dummy, 1);
                     auto mid = timer.setTimePoint("init");
 
 

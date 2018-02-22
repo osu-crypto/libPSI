@@ -18,27 +18,28 @@ namespace osuCrypto
     {
     }
 
+
     void SimpleHasher::print() const
     {
 
-        //std::cout << IoStream::lock;
-        for (u64 i = 0; i < mBins.size(); ++i)
-        {
-            std::cout << "Bin #" << i << std::endl;
+        ////std::cout << IoStream::lock;
+        //for (u64 i = 0; i < mBinCount; ++i)
+        //{
+        //    std::cout << "Bin #" << i << std::endl;
 
-            std::cout << " contains " << mBins[i].size() << " elements" << std::endl;
+        //    std::cout << " contains " << getBinSize(i) << " elements" << std::endl;
 
-            for (u64 j = 0; j < mBins[i].size(); ++j)
-            {
-                std::cout
-                    << "    " << mBins[i][j]
-                    /*<< "  " << mBins[i][j].second */ << std::endl;
-            }
+        //    for (u64 j = 0; j < mBins[i].size(); ++j)
+        //    {
+        //        std::cout
+        //            << "    " << mBins[i][j]
+        //            /*<< "  " << mBins[i][j].second */ << std::endl;
+        //    }
 
-            std::cout << std::endl;
-        }
+        //    std::cout << std::endl;
+        //}
 
-        std::cout << std::endl;// << IoStream::unlock;
+        //std::cout << std::endl;// << IoStream::unlock;
     }
 
     double maxprob(u64 balls, u64 bins, u64 k)
@@ -62,8 +63,13 @@ namespace osuCrypto
     {
         mBinCount = u64(n / binScaler);
         mN = n;
-        mMtx.reset(new std::mutex[mBinCount]);
-        mBins.resize(mBinCount);
+        mBinSizes.reset( new std::atomic<u8>[mBinCount]());
+
+
+        for (u64 i = 0; i < mBinCount; ++i)
+        {
+            mBinSizes[i].store(0, std::memory_order::memory_order_relaxed);
+        }
 
         if (secParam == 40)
         {
@@ -80,22 +86,22 @@ namespace osuCrypto
                 case (16):
                 case (128):
                     mMaxBinSize = 16;
-                    return;
+                    break;
                 case (1 << 8):
                     mMaxBinSize = 16;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 17;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 18;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 19;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 20;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -110,19 +116,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 20;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 22;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 23;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 24;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 25;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -137,19 +143,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 24;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 25;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 26;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 28;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 29;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -163,19 +169,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 26;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 28;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 30;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 31;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 32;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -188,19 +194,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 29;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 31;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 33;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 34;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 36;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -213,19 +219,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 32;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 34;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 35;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 37;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 38;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -238,19 +244,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 36;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 39;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 41;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 42;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 44;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -263,19 +269,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 40;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 43;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 45;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 47;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 49;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -288,19 +294,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 44;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 48;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 50;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 52;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 53;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -313,19 +319,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 51;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 56;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 58;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 60;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 62;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -338,19 +344,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 58;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 63;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 66;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 68;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 70;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -363,19 +369,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 64;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 70;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 73;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 76;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 78;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -388,19 +394,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 76;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 84;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 87;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 90;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 92;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -413,19 +419,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 98;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 109;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 113;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 116;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 119;
-                    return;
+                    break;
                 default:
                     break;
 
@@ -438,19 +444,19 @@ namespace osuCrypto
                 {
                 case (1 << 8):
                     mMaxBinSize = 117;
-                    return;
+                    break;
                 case (1 << 12):
                     mMaxBinSize = 133;
-                    return;
+                    break;
                 case (1 << 16):
                     mMaxBinSize = 137;
-                    return;
+                    break;
                 case (1 << 20):
                     mMaxBinSize = 141;
-                    return;
+                    break;
                 case (1 << 24):
                     mMaxBinSize = 144;
-                    return;
+                    break;
                 default:
                     break;
                 }
@@ -459,7 +465,11 @@ namespace osuCrypto
         
 
         mMaxBinSize = SimpleIndex::get_bin_size(mBinCount, mN, secParam);
+        mBins_.resize(mBinCount, mMaxBinSize);
 
+
+        if (mMaxBinSize > 255)
+            throw std::runtime_error("mBinSizes only holds u8's " LOCATION);
     }
 
     //void SimpleHasher::preHashedInsertItems(ArrayView<block> mySet, u64 itemIdx)

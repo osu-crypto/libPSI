@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Network/Channel.h"
 #include "libOTe/NChooseOne/NcoOtExt.h"
 #include "libPSI/Tools/CuckooHasher.h"
@@ -9,7 +10,7 @@
 namespace osuCrypto
 {
 
-    class KkrtPsiReceiver
+    class KkrtPsiReceiver : public TimerAdapter
     {
     public:
         KkrtPsiReceiver();

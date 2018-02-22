@@ -25,10 +25,12 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/MatrixView.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
-
+#include <fstream>
 #include <numeric>
 #include <chrono>
-
+#include "tests_cryptoTools/UnitTests.h"
+#include "libOTe_Tests/UnitTests.h"
+#include "libPSI_Tests/UnitTests.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
 
@@ -36,6 +38,8 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/CLP.h"
 #include "cryptoTools/Common/CuckooIndex.h"
 #include "libPSI/Tools/SimpleIndex.h"
+#include "libOTe/Tools/LinearCode.h"
+#include "libOTe/Tools/bch511.h"
 std::vector<std::string>
 unitTestTags{ "u", "unitTest" },
 #ifdef ENABLE_DCW
@@ -210,41 +214,49 @@ void shuffle()
     PRNG prng(ZeroBlock, 256);
 
     RandomShuffle ss;
-    gTimer.setTimePoint("s");
+    Timer timer;
+    timer.setTimePoint("s");
     for (u64 jj = 0; jj < 10; ++jj)
     {
 
         ss.shuffle(vals, prng);
 
     }
-    gTimer.setTimePoint("s");
-    std::cout << gTimer << std::endl;
-    gTimer.reset();
-    gTimer.setTimePoint("s");
+    timer.setTimePoint("s");
+    std::cout << timer << std::endl;
+    timer.reset();
+    timer.setTimePoint("s");
 
     for (u64 jj = 0; jj < 10; ++jj)
     {
         ss.mergeShuffle(vals, prng);
     }
-    gTimer.setTimePoint("m");
-    std::cout << gTimer << std::endl;
-    gTimer.reset();
+    timer.setTimePoint("m");
+    std::cout << timer << std::endl;
+    timer.reset();
 
 
 }
 
 int main(int argc, char** argv)
 {
+    LinearCode mCode;
+    mCode.load(bch511_binary, sizeof(bch511_binary));
 
-    for (auto nn : { 8, 12, 16, 20 })
-    {
-        for (auto mm : { 4, 10 })
-        {
-            auto n = 1ull << nn;
-            auto m = n / mm;
-            std::cout << "n=" << n << " m=" << m << " -> binSize " << SimpleIndex::get_bin_size(m, n, 40) << std::endl;;
-        }
-    }
+    u8 in[100], out[100];
+    mCode.encode(in, out);
+    //for (auto nn : { 8, 12, 16, 20 })
+    //{
+    //    for (auto mm : { 4, 10 })
+    //    {
+    //        auto n = 1ull << nn;
+    //        auto m = n / mm;
+    //        std::cout << "n=" << n << " m=" << m << " -> binSize " << SimpleIndex::get_bin_size(m, n, 40) << std::endl;;
+    //        gTimer.setTimePoint("b" + ToString(nn) + " " + ToString(mm));
+    //    }
+    //}
+    //std::cout << gTimer << std::endl;
+
     ////ttt22();
     //shuffle();
     //return 0;
@@ -277,7 +289,26 @@ int main(int argc, char** argv)
     cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
 
     if (cmd.isSet(unitTestTags))
-        run_all();
+    {
+        auto tests = tests_cryptoTools::Tests;
+        tests += tests_libOTe::Tests;
+        tests += libPSI_Tests::Tests;
+
+        if (cmd.isSet("list"))
+        {
+            tests.list();
+        }
+        else
+        {
+            cmd.setDefault("loop", 1);
+            auto loop = cmd.get<u64>("loop");
+
+            if (cmd.hasValue(unitTestTags))
+                tests.run(cmd.getMany<u64>(unitTestTags), loop);
+            else
+                tests.runAll(loop);
+        }
+    }
 
     if (cmd.isSet(pingTag))
         pingTest(cmd);
@@ -339,6 +370,7 @@ int main(int argc, char** argv)
             << "   -" << rr17bSMTags[0] << ": RR17bsm - Hash to bins & commit compare style (standard model malicious secure)\n"
             << "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
             << "   -" << kkrtTag[0] << "    : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
+            << "   -" << grr18Tags[0] << "    : GRR18  - ...\n"
             << std::endl;
 
         std::cout << "Parameters:\n"
@@ -376,6 +408,10 @@ int main(int argc, char** argv)
         std::cout << "Unit Tests:\n"
             << "   -" << unitTestTags[0] << ": Run all unit tests\n" << std::endl;
 
-}
+    }
+
+    std::ofstream f;
+    f.open("./times.txt", std::ofstream::out | std::ofstream::app);
+    f << _gTimer << std::endl;
     return 0;
 }

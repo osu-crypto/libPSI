@@ -46,7 +46,6 @@ set(Boost_USE_STATIC_RUNTIME     ON)
 find_package(Boost  COMPONENTS system thread)
 
 if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIR}) 
   message( "Found Boost at ${Boost_LIBRARIES}")
 else()
    message(FATAL_ERROR "Failed to find boost at " ${Boost_Lib_Dirs} " Need system thread")
@@ -94,9 +93,14 @@ find_library(
 
 file(GLOB_RECURSE SRCS *.cpp)
  
-include_directories(${CMAKE_SOURCE_DIR}/libPSI)
 
 add_library(libPSI ${SRCS})
+
+
+target_include_directories(libPSI PUBLIC ${Boost_INCLUDE_DIR}) 
+target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/linux/sparsehash/src/) 
+target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/libPSI) 
+target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/libPSI) 
 
 target_link_libraries(libPSI ${libOTe_LIB} ${cryptoTools_LIB} ${MIRACL_LIB}  ${Boost_LIBRARIES})
 

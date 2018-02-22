@@ -34,7 +34,7 @@ namespace osuCrypto
     {
 
         //Timer timer;
-        gTimer.setTimePoint("Init.start");
+        setTimePoint("AknPSI.recv.Init.start");
         mMyInputSize = n;
         mTheirInputSize = n;
         mStatSecParam = statSecParam;
@@ -55,17 +55,17 @@ namespace osuCrypto
         //u64 statSecParam(40);
         u64 totalOnesCount,  cncThreshold;
         double cncProb;
-        gTimer.setTimePoint("Init.params");
+        setTimePoint("AknPSI.recv.Init.params");
 
         computeAknBfParams(mMyInputSize, statSecParam, mTotalOtCount, totalOnesCount, cncThreshold, cncProb, mNumHashFunctions, mBfBitCount);
 
 
 
 
-        gTimer.setTimePoint("Init.aknOTstart");
+        setTimePoint("AknPSI.recv.Init.aknOTstart");
         mAknOt.init(mTotalOtCount, totalOnesCount, cncProb, otExt, chls, prng);
 
-        gTimer.setTimePoint("Init.aknFinish");
+        setTimePoint("AknPSI.recv.Init.aknFinish");
 
         if (mBfBitCount > mAknOt.mMessages.size())
             throw std::runtime_error(LOCATION);
@@ -80,7 +80,7 @@ namespace osuCrypto
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
-        gTimer.setTimePoint("Init.done");
+        setTimePoint("AknPSI.recv.Init.done");
         //std::cout << timer;
     }
 
@@ -97,7 +97,7 @@ namespace osuCrypto
         if (inputs.size() != mMyInputSize)
             throw std::runtime_error(LOCATION);
         //Timer timer;
-        gTimer.setTimePoint("online.start");
+        setTimePoint("AknPSI.recv.online.start");
 
         PRNG prng(mSeed);
 
@@ -207,7 +207,7 @@ namespace osuCrypto
 
             if (t == 0)
             {
-                gTimer.setTimePoint("online.BF_computed");
+                setTimePoint("AknPSI.recv.online.BF_computed");
 
                 // if we are the main thread, then convert the bloom filter into a permutation
                 //TODO("make perm item size smaller");
@@ -251,7 +251,7 @@ namespace osuCrypto
 
                 permuteDoneProm.set_value();
 
-                gTimer.setTimePoint("online.perm_computed");
+                setTimePoint("AknPSI.recv.online.perm_computed");
 
             }
             else
@@ -336,7 +336,7 @@ namespace osuCrypto
             auto idx = firstDone++;
             if (idx == -1)
             {
-                gTimer.setTimePoint("online.maskSet1_done");
+                setTimePoint("AknPSI.recv.online.maskSet1_done");
 
                 // first done. Lets do the merge of the masks and insert ours first
                 masks.insert(localMasks.begin(), localMasks.end());
@@ -352,7 +352,7 @@ namespace osuCrypto
                 // signal the other threads that the merge is done.
                 mergeDoneProm.set_value();
 
-                gTimer.setTimePoint("online.masks_merged");
+                setTimePoint("AknPSI.recv.online.masks_merged");
 
             }
             else
@@ -369,7 +369,7 @@ namespace osuCrypto
             chl.recv(theirMasks);
 
             if (t == 0)
-                gTimer.setTimePoint("online.recvMasked");
+                setTimePoint("AknPSI.recv.online.recvMasked");
 
             //u64 numMasks = theirMasksBuff.size() / maskSize;
             std::vector<u64> localIntersection;
@@ -417,7 +417,7 @@ namespace osuCrypto
         for (auto& thrd : thrds)
             thrd.join();
 
-        gTimer.setTimePoint("online.done");
+        setTimePoint("AknPSI.recv.online.done");
 
         //std::cout << timer;
     }
