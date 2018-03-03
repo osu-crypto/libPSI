@@ -41,5 +41,8 @@
     <ClCompile Include="BinOtPsi_TestsVS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EcdhPsi_TestsVS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

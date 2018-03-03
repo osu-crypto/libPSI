@@ -76,6 +76,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="PSI\ECDH\EcdhPsiReceiver.cpp" />
+    <ClCompile Include="PSI\ECDH\EcdhPsiSender.cpp" />
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
     <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
@@ -96,6 +98,8 @@
     <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PSI\ECDH\EcdhPsiReceiver.h" />
+    <ClInclude Include="PSI\ECDH\EcdhPsiSender.h" />
     <ClInclude Include="PSI\KkrtPsiReceiver.h" />
     <ClInclude Include="PSI\KkrtPsiSender.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />

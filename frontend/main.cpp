@@ -6,7 +6,7 @@
 //using namespace std;
 #include "UnitTests.h"
 #include "cryptoTools/Common/Defines.h"
-#include "cryptoTools/Common/Version.h"
+//#include "cryptoTools/Common/Version.h"
 
 //#if !defined(CRYPTO_TOOLS_VERSION_MAJOR) || CRYPTO_TOOLS_VERSION_MAJOR != 1 || CRYPTO_TOOLS_VERSION_MAJOR != 1
 //#error "Wrong crypto tools version."
@@ -19,6 +19,7 @@ using namespace osuCrypto;
 #include "bloomFilterMain.h"
 #include "dcwMain.h"
 #include "dktMain.h"
+#include "ecdhMain.h"
 #include "OtBinMain.h"
 #include "util.h"
 
@@ -48,6 +49,7 @@ rr17aSMTags{ "rr17a-sm" },
 rr17bTags{ "rr17b" },
 rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
+ecdhTags{ "ecdh" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -253,6 +255,7 @@ int main(int argc, char** argv)
 	run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
 	run(dktTags, cmd, DktRecv, DktSend);
 	run(kkrtTag, cmd, kkrtRecv, kkrtSend);
+	run(ecdhTags, cmd, EcdhRecv, EcdhSend);
 
 
 	if ((cmd.isSet(unitTestTags) == false &&
@@ -267,6 +270,7 @@ int main(int argc, char** argv)
 		cmd.isSet(rr17bSMTags) == false &&
 		cmd.isSet(kkrtTag) == false &&
 		cmd.isSet(dktTags) == false &&
+		cmd.isSet(ecdhTags) == false &&
 		cmd.isSet(pingTag) == false) ||
 		cmd.isSet(helpTags))
 	{
@@ -290,6 +294,7 @@ int main(int argc, char** argv)
             << "   -" << rr17bTags[0] << "   : RR17b   - Hash to bins & commit compare style (malicious secure)\n"
             << "   -" << rr17bSMTags[0] << ": RR17bsm - Hash to bins & commit compare style (standard model malicious secure)\n"
 			<< "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
+			<< "   -" << ecdhTags[0] << "     : ECHD   - Diffie-Hellma key exchange with Curve25519 (semihonest secure)\n"
 			<< "   -" << kkrtTag[0] << "    : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
 			<< std::endl;
 

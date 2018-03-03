@@ -108,12 +108,6 @@
     <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PIR\BgiPirClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PIR\BgiPirServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tools\CuckooHasher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -129,16 +123,10 @@
     <ClCompile Include="Tools\SimpleIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PSI\DrrnPsiServer.cpp">
+    <ClCompile Include="PSI\ECDH\EcdhPsiReceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PSI\DrrnPsiClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PSI\KeywordPsiServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PSI\KeywordPsiClient.cpp">
+    <ClCompile Include="PSI\ECDH\EcdhPsiSender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -185,12 +173,6 @@
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PIR\BgiPirServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PIR\BgiPirClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tools\CuckooHasher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -206,16 +188,10 @@
     <ClInclude Include="Tools\SimpleIndex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PSI\DrrnPsiServer.h">
+    <ClInclude Include="PSI\ECDH\EcdhPsiReceiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PSI\DrrnPsiClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PSI\KeywordPsiClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PSI\KeywordPsiServer.h">
+    <ClInclude Include="PSI\ECDH\EcdhPsiSender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
