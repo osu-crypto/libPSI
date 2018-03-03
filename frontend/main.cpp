@@ -379,6 +379,7 @@ int main(int argc, char** argv)
 			<< std::endl;
 
 
+        std::cout
             << "   -" << numItems[0]
             << ": Number of items each party has, white space delimited. (Default = " << cmd.get<std::string>(numItems) << ")\n"
 
