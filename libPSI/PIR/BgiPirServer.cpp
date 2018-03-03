@@ -1114,6 +1114,25 @@ namespace osuCrypto
 		}
 	}
 
+    void BgiPirServer::MultiKey::setKey(u64 i, span<block> kg)
+    {
+        if (mG.rows() + mK.rows() != kg.size())
+            throw std::runtime_error(LOCATION);
+        span<block> k(kg.data(), mK.rows());
+        span<block> g(kg.data() + mK.rows(), mG.rows());
+
+        setKey(i, k, g);
+    }
+
+    void BgiPirServer::MultiKey::setKeys(MatrixView<block> kg)
+    {
+        if (kg.rows() != mBuff.stride())
+            throw std::runtime_error(LOCATION);
+
+        for (u64 i = 0; i < kg.rows(); ++i)
+            setKey(i, kg[i]);
+    }
+
 	span<u8> BgiPirServer::MultiKey::yeild()
 	{
 

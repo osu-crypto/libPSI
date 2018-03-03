@@ -79,16 +79,16 @@ namespace osuCrypto
         otSend.init(mParams.numBins() + mParams.mStashSize, mPrng, chl);
 
         mOtSender = &otSend;
-        //gTimer.setTimePoint("s InitS.extFinished");
+        //setTimePoint("s InitS.extFinished");
 
-        gTimer.setTimePoint("KKRT_psi_S.offline.perm start");
+        setTimePoint("KKRT_psi_S.offline.perm start");
         mPermute.resize(mSenderSize);
         for (u64 i = 0; i < mSenderSize; ++i) mPermute[i] = i;
 
         //mPermute position
         std::shuffle(mPermute.begin(), mPermute.end(), mPrng);
 
-        gTimer.setTimePoint("KKRT_psi_S.offline.perm done");
+        setTimePoint("KKRT_psi_S.offline.perm done");
 
     }
 
@@ -324,7 +324,7 @@ namespace osuCrypto
         if (inputs.size() != mSenderSize)
             throw std::runtime_error("rt error at " LOCATION);
 
-        gTimer.setTimePoint("KKRT_psi_S.Online.online start");
+        setTimePoint("KKRT_psi_S.Online.online start");
 
 
 
@@ -375,7 +375,7 @@ namespace osuCrypto
         });
 
 
-        //gTimer.setTimePoint("KKRT_psi_S.Online.hashing start");
+        //setTimePoint("KKRT_psi_S.Online.hashing start");
 
         // hash the items to bins. Instead of inserting items into bins,
         // we will just keep track of a map mapping input index to bin indexs
@@ -385,7 +385,7 @@ namespace osuCrypto
         Matrix<u64> binIdxs(inputs.size(), mParams.mNumHashes);
         hashItems(inputs, binIdxs, mHashingSeed, numBins, mPrng, myMaskBuff, mPermute);
 
-        gTimer.setTimePoint("KKRT_psi_S.Online.hashDone");
+        setTimePoint("KKRT_psi_S.Online.hashDone");
 
         // Now we will look over the inputs and try to encode them. Not that not all
         // of the corrections have beed received. In the case that the current item
@@ -437,7 +437,7 @@ namespace osuCrypto
         }
 
 
-        gTimer.setTimePoint("KKRT_psi_S.Online.RecvDone");
+        setTimePoint("KKRT_psi_S.Online.RecvDone");
         auto encoding = myMaskBuff.data();
 
         // OK, all corrections have been recieved. It is now safe to start sending
@@ -492,7 +492,7 @@ namespace osuCrypto
 			else
 				chl.asyncSend(data, size);
         }
-        gTimer.setTimePoint("KKRT_psi_S.Online.encodeDone");
+        setTimePoint("KKRT_psi_S.Online.encodeDone");
 
         //// send one byte to make sure that we dont leave this scope before the masks
         //// have all been sent.

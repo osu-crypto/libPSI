@@ -4,6 +4,7 @@
 #include <cryptoTools/Network/Channel.h>
 #include <libPSI/PSI/KkrtPsiSender.h>
 #include <libOTe/NChooseOne/Kkrt/KkrtNcoOtSender.h>
+#include <memory>
 
 namespace osuCrypto
 {
@@ -24,7 +25,21 @@ namespace osuCrypto
 
         void send(Channel clientChl, Channel srvChl, u64 numThreads = 1);
 
-		std::vector<block> mCuckooData, mPiS1, mPi1SigmaRS;
+		std::vector<block> mPiS1, mPi1SigmaRS;
+
+
+        struct Item 
+        { 
+            block mVal;
+            u32 mCuckooIdx;
+            std::array<u32, 3> _padding;
+        };
+        static_assert(sizeof(Item) == 32, "");
+
+        span<Item> mCuckooData;
+        std::unique_ptr<Item[]> mCuckooDataPtr;
+
+        u64 find(u64 cuckooIdx);
 
         //CuckooParam mCuckooParams;
         CuckooIndex<NotThreadSafe> mIndex;

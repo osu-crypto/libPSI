@@ -71,7 +71,9 @@ namespace osuCrypto
 		{
 			void init(span<std::vector<block>> kk, span<std::vector<block>> gg);
 			void init(u64 numKeys, u64 kSize, u64 gSize);
-			void setKey(u64 i, span<block>k, span<block> g);
+            void setKey(u64 i, span<block>k, span<block> g);
+            void setKey(u64 i, span<block>kg);
+            void setKeys(MatrixView<block>kg);
 
 			span<u8> yeild();
 

@@ -37,9 +37,9 @@ namespace osuCrypto
 
 
     //template<unsigned int N = 16>
-    double getBinOverflowProb(u64 numBins, u64 numBalls, u64 binSize, double epsilon = 0.0001)
+    double getBinOverflowProb(u64 numBins, u64 numBalls, u64 getBinSize, double epsilon = 0.0001)
     {
-        if (numBalls <= binSize)
+        if (numBalls <= getBinSize)
             return std::numeric_limits<double>::max();
 
         if (numBalls > std::numeric_limits<i32>::max())
@@ -54,7 +54,7 @@ namespace osuCrypto
         T sum = 0.0;
         T sec = 0.0;// minSec + 1;
         T diff = 1;
-        u64 i = binSize + 1;
+        u64 i = getBinSize + 1;
 
 
         while (diff > T(epsilon) && numBalls >= i /*&& sec > minSec*/)
