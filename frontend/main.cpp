@@ -6,7 +6,7 @@
 //using namespace std;
 #include "UnitTests.h"
 #include "cryptoTools/Common/Defines.h"
-#include "cryptoTools/Common/Version.h"
+//#include "cryptoTools/Common/Version.h"
 
 //#if !defined(CRYPTO_TOOLS_VERSION_MAJOR) || CRYPTO_TOOLS_VERSION_MAJOR != 1 || CRYPTO_TOOLS_VERSION_MAJOR != 1
 //#error "Wrong crypto tools version."
@@ -19,6 +19,7 @@ using namespace osuCrypto;
 #include "bloomFilterMain.h"
 #include "dcwMain.h"
 #include "dktMain.h"
+#include "ecdhMain.h"
 #include "OtBinMain.h"
 #include "util.h"
 
@@ -52,6 +53,7 @@ rr17aSMTags{ "rr17a-sm" },
 rr17bTags{ "rr17b" },
 rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
+ecdhTags{ "ecdh" },
 dktTags{ "dkt" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
@@ -323,38 +325,43 @@ int main(int argc, char** argv)
     run(DcwRecv, DcwSend, DcwTags, cmd);
     run(DcwRRecv, DcwRSend, DcwrTags, cmd);
 #endif
-    run(rr16Tags, cmd, bfRecv, bfSend);
-    run(rr17aTags, cmd, rr17aRecv, rr17aSend);
-    run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
-    run(rr17bTags, cmd, rr17bRecv, rr17bSend);
-    run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
-    run(dktTags, cmd, DktRecv, DktSend);
-    run(kkrtTag, cmd, kkrtRecv, kkrtSend);
 
-    if ((cmd.isSet(unitTestTags) == false &&
+	run(rr16Tags, cmd, bfRecv, bfSend);
+	run(rr17aTags, cmd, rr17aRecv, rr17aSend);
+	run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
+	run(rr17bTags, cmd, rr17bRecv, rr17bSend);
+	run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
+	run(dktTags, cmd, DktRecv, DktSend);
+	run(kkrtTag, cmd, kkrtRecv, kkrtSend);
+	run(ecdhTags, cmd, EcdhRecv, EcdhSend);
+
+
+	if ((cmd.isSet(unitTestTags) == false &&
 #ifdef ENABLE_DCW
         cmd.isSet(DcwTags) == false &&
         cmd.isSet(DcwrTags) == false &&
 #endif
-        cmd.isSet(rr16Tags) == false &&
-        cmd.isSet(rr17aTags) == false &&
-        cmd.isSet(rr17aSMTags) == false &&
-        cmd.isSet(rr17bTags) == false &&
-        cmd.isSet(rr17bSMTags) == false &&
-        cmd.isSet(kkrtTag) == false &&
-        cmd.isSet(dktTags) == false &&
-        cmd.isSet(pingTag) == false) ||
-        cmd.isSet(helpTags))
-    {
-        std::cout
-            << "#######################################################\n"
-            << "#                      - libPSI -                     #\n"
-            << "#               A library for performing              #\n"
-            << "#               private set intersection              #\n"
-            << "#                     Peter Rindal                    #\n"
-            << "#######################################################\n" << std::endl;
+		cmd.isSet(rr16Tags) == false &&
+		cmd.isSet(rr17aTags) == false &&
+		cmd.isSet(rr17aSMTags) == false &&
+		cmd.isSet(rr17bTags) == false &&
+		cmd.isSet(rr17bSMTags) == false &&
+		cmd.isSet(kkrtTag) == false &&
+		cmd.isSet(dktTags) == false &&
+		cmd.isSet(ecdhTags) == false &&
+		cmd.isSet(pingTag) == false) ||
+		cmd.isSet(helpTags))
+	{
+		std::cout
+			<< "#######################################################\n"
+			<< "#                      - libPSI -                     #\n"
+			<< "#               A library for performing              #\n"
+			<< "#               private set intersection              #\n"
+			<< "#                      Peter Rindal                   #\n"
+			<< "#######################################################\n" << std::endl;
 
-        std::cout << "Protocols:\n"
+		std::cout << "Protocols:\n"
+
 
 #ifdef ENABLE_DCW
             << "   -" << DcwTags[0] << "  : DCW13  - Garbled Bloom Filter (semi-honest*)\n"
@@ -365,13 +372,12 @@ int main(int argc, char** argv)
             << "   -" << rr17aSMTags[0] << ": RR17sm  - Hash to bins & compare style (standard model malicious secure)\n"
             << "   -" << rr17bTags[0] << "   : RR17b   - Hash to bins & commit compare style (malicious secure)\n"
             << "   -" << rr17bSMTags[0] << ": RR17bsm - Hash to bins & commit compare style (standard model malicious secure)\n"
-            << "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
-            << "   -" << kkrtTag[0] << "    : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
-            << std::endl;
 
-        std::cout << "Parameters:\n"
-            << "   -" << roleTag[0]
-            << ": Two terminal mode. Value should be in { 0, 1 } where 0 means PSI sender and network server.\n"
+			<< "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
+			<< "   -" << ecdhTags[0] << "     : ECHD   - Diffie-Hellma key exchange with Curve25519 (semihonest secure)\n"
+			<< "   -" << kkrtTag[0] << "    : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
+			<< std::endl;
+
 
             << "   -" << numItems[0]
             << ": Number of items each party has, white space delimited. (Default = " << cmd.get<std::string>(numItems) << ")\n"

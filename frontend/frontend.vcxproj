@@ -89,6 +89,7 @@
     <ClCompile Include="cuckoo\cuckooTests.cpp" />
     <ClCompile Include="dcwMain.cpp" />
     <ClCompile Include="dktMain.cpp" />
+    <ClCompile Include="ecdhMain.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OtBinMain.cpp" />
     <ClCompile Include="util.cpp" />
@@ -99,6 +100,7 @@
     <ClInclude Include="cuckoo\SimpleCuckoo.h" />
     <ClInclude Include="dcwMain.h" />
     <ClInclude Include="dktMain.h" />
+    <ClInclude Include="ecdhMain.h" />
     <ClInclude Include="OtBinMain.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>

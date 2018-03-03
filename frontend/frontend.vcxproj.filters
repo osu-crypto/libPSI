@@ -39,6 +39,9 @@
     <ClCompile Include="cuckoo\cuckooTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ecdhMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dcwMain.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cuckoo\cuckooTests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecdhMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
