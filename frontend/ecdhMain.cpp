@@ -1,8 +1,8 @@
 
 #include "cryptoTools/Network/Endpoint.h" 
 
-#include "libPSI/PSI/Ecdh/EcdhPsiReceiver.h"
-#include "libPSI/PSI/Ecdh/EcdhPsiSender.h"
+#include "libPSI/PSI/ECDH/EcdhPsiReceiver.h"
+#include "libPSI/PSI/ECDH/EcdhPsiSender.h"
 
 
 
@@ -11,7 +11,7 @@
 #include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include <fstream>
-#include "EcdhMain.h"
+#include "ecdhMain.h"
 
 using namespace osuCrypto;
 

@@ -2,7 +2,7 @@
 #include "cryptoTools/Crypto/Curve.h"
 #include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
-
+#include <cryptoTools/Crypto/RandomOracle.h>
 #include <unordered_map>
 
 namespace osuCrypto
@@ -33,6 +33,7 @@ namespace osuCrypto
         for (u64 i = 0; i < thrdPrng.size(); i++)
             thrdPrng[i].SetSeed(mPrng.get<block>());
 
+        std::mutex mtx;
 
 		std::vector<block> thrdPrngBlock(chls.size());
 		std::vector<std::vector<u64>> localIntersections(chls.size() - 1);
@@ -44,6 +45,8 @@ namespace osuCrypto
 
 		std::unordered_map<u32, block> mapXab;
 		mapXab.reserve(inputs.size());
+
+        const bool isMultiThreaded = chls.size() > 1;
 
 		auto routine = [&](u64 t)
 		{
@@ -68,6 +71,8 @@ namespace osuCrypto
 
 			std::vector<u8> recvBuff(xa.sizeBytes() * subsetInputSize);
 			std::vector<u8> recvBuff2(xab.sizeBytes() * subsetInputSize);
+
+            std::vector<u8>temp(xab.sizeBytes());
 
 		//	std::cout << "send H(y)^b" << std::endl;
 
@@ -113,9 +118,13 @@ namespace osuCrypto
 				xa.fromBytes(recvIter); recvIter += xa.sizeBytes();
 				xab = xa*b;
 				
-				u8* temp = new u8[xab.sizeBytes()];
-				xab.toBytes(temp);
-				auto idx = *(u32*)&toBlock(temp);
+				xab.toBytes(temp.data());
+
+                RandomOracle ro(sizeof(block));
+                ro.Update(temp.data(), temp.size());
+                block blk;
+                ro.Final(blk);
+				auto idx = *(u32*)&blk;
 
 #ifdef PRINT
 				if (i == 0)
@@ -126,10 +135,15 @@ namespace osuCrypto
 #endif // PRINT
 
 				
-
-				std::cout << IoStream::lock;
-				mapXab.insert({ idx,toBlock(temp) });
-				std::cout << IoStream::unlock;
+                if (isMultiThreaded)
+                {
+                    std::lock_guard<std::mutex> lock(mtx);
+                    mapXab.insert({ idx, blk });
+                }
+                else
+                {
+                    mapXab.insert({ idx, blk });
+                }
 			}
 		};
 

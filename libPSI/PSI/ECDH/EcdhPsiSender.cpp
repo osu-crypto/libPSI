@@ -1,6 +1,6 @@
 #include "EcdhPsiSender.h"
 #include "cryptoTools/Crypto/Curve.h"
-#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Network/Channel.h"
 
@@ -49,11 +49,10 @@ namespace osuCrypto
 
             auto& chl = chls[t];
             auto& prng = thrdPrng[t];
-            u8 hashOut[SHA1::HashSize];
 
             EllipticCurve curve(curveParam, prng.get<block>());
           
-            SHA1 inputHasher;
+            RandomOracle inputHasher(sizeof(block));
 			EccNumber a(curve);
 			EccPoint xa(curve), point(curve), yb(curve), yba(curve);
             a.randomize(RsSeed);
@@ -64,16 +63,17 @@ namespace osuCrypto
 			auto sendIter2 = sendBuff2[t].data();
 
 			std::vector<u8> recvBuff(yb.sizeBytes() * subsetInputSize);
+            std::vector<u8> temp(yba.sizeBytes());
 
 			//send H(x)^a
             for (u64 i = inputStartIdx ; i < inputEndIdx; ++i)
             {
-
+                block seed;
                 inputHasher.Reset();
                 inputHasher.Update(inputs[i]);
-                inputHasher.Final(hashOut);
+                inputHasher.Final(seed);
 
-				point.randomize(toBlock(hashOut));
+				point.randomize(seed);
                 //std::cout << "sp  " << point << "  " << toBlock(hashOut) << std::endl;
 
 				xa = (point * a);
@@ -101,9 +101,14 @@ namespace osuCrypto
             {
 				yb.fromBytes(recvIter); recvIter += yb.sizeBytes();
 				yba = yb*a;
-				u8* temp = new u8[yba.sizeBytes()];
-				yba.toBytes(temp);
-				memcpy(sendIter2, &toBlock(temp), maskSizeByte);
+
+                
+                yba.toBytes(temp.data());
+                RandomOracle ro(sizeof(block));
+                ro.Update(temp.data(), temp.size());
+                block blk;
+                ro.Final(blk);
+                memcpy(sendIter2, &blk, maskSizeByte);
 #ifdef PRINT
 				if (i == 0)
 				{

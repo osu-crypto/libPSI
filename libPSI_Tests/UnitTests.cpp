@@ -8,7 +8,7 @@
 #include "ShamirSSScheme_Tests.h"
 #include "DcwBfPsi_Tests.h"
 #include "DktMPsi_Tests.h"
-
+#include "EcdhPsi_Tests.h"
 using namespace osuCrypto;
 namespace libPSI_Tests
 {
@@ -19,6 +19,11 @@ namespace libPSI_Tests
         t.add("Psi_kkrt_EmptySet_Test_Impl           ", Psi_kkrt_EmptySet_Test_Impl);
         t.add("Psi_kkrt_FullSet_Test_Impl            ", Psi_kkrt_FullSet_Test_Impl);
         t.add("Psi_kkrt_SingletonSet_Test_Impl       ", Psi_kkrt_SingletonSet_Test_Impl);
+
+        t.add("EcdhPsi_EmptrySet_Test_Impl           ", EcdhPsi_EmptrySet_Test_Impl);
+        t.add("EcdhPsi_FullSet_Test_Impl             ", EcdhPsi_FullSet_Test_Impl);
+        t.add("EcdhPsi_SingltonSet_Test_Impl         ", EcdhPsi_SingltonSet_Test_Impl);
+
 
         //t.add("DktPsi_EmptrySet_Test_Impl            ", DktMPsi_EmptrySet_Test_Impl);
         //t.add("DktPsi_FullSet_Test_Impl              ", DktMPsi_FullSet_Test_Impl);
