@@ -30,7 +30,7 @@ namespace osuCrypto
 
         u64 theirInputSize = inputs.size();
 
-		u64 maskSizeByte = (40 + log2(inputs.size())+7) / 8;
+		u64 maskSizeByte = (40 + 2*log2(inputs.size())+7) / 8;
 
         std::vector<PRNG> thrdPrng(chls.size());
         for (u64 i = 0; i < thrdPrng.size(); i++)
