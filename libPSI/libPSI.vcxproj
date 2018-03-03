@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(SolutionDir)thirdparty/win/boost;$(SolutionDir)thirdparty/win/NTL/include;$(SolutionDir)thirdparty/win/;$(SolutionDir)thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include;$(libOTeDir);$(libOTeDir)/cryptoTools;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\libs\sparsehash\src\windows;C:\libs\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -65,7 +65,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\Program Files %28x86%29\Visual Leak Detector\include;$(libOTeDir);$(libOTeDir)/cryptoTools</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\libs\sparsehash\src\windows;C:\libs\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501;NDEBUG</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -88,6 +88,7 @@
     <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.cpp" />
     <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.cpp" />
+    <ClCompile Include="Tools\RandomShuffle.cpp" />
     <ClCompile Include="Tools\SimpleHasher.cpp" />
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp" />
@@ -111,6 +112,7 @@
     <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h" />
     <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiSender.h" />
+    <ClInclude Include="Tools\RandomShuffle.h" />
     <ClInclude Include="Tools\SimpleHasher.h" />
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h" />
     <ClInclude Include="MPSI\DKT\DktMPsiSender.h" />

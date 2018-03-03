@@ -8,7 +8,7 @@ $RemoteWorkingDir='/scratch/repo/libPSI'
 $FileMasks='**.cpp;**.c;**.h;*CMakeLists.txt;*.bin;*.S;thirdparty/linux/**.get'
 
 # everything in these folders will be skipped
-$ExcludeDirs='.git/;thirdparty/;Debug/;Release/;x64/;ipch/;.vs/'
+$ExcludeDirs='.git/;thirdparty/;Debug/;Release/;x64/;ipch/;.vs/;frontend/My*/'
 
 C:\tools\WinSCP.com  /command `
     "open $RemoteUserName@$RemoteHostName -privatekey=""$PrivateKey"""`

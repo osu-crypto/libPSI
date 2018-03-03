@@ -6,6 +6,7 @@
 #include "libPSI/MPSI/Rr17/Rr17b/Rr17bMPsiReceiver.h"
 #include "libPSI/MPSI/Rr17/Rr17b/Rr17bMPsiSender.h"
 
+
 #include "libPSI/PSI/KkrtPsiReceiver.h"
 #include "libPSI/PSI/KkrtPsiSender.h"
 
@@ -124,7 +125,7 @@ void rr17aRecv(
                     KkrtNcoOtSender otSend;
 #endif
                     Rr17aMPsiReceiver recvPSIs;
-
+                    recvPSIs.setTimer(gTimer);
 
                     chls[0].recv(dummy, 1);
                     gTimer.reset();
@@ -187,6 +188,7 @@ void rr17aSend_StandardModel(
                     Rr17NcoOtSender otSend;
 
                     Rr17aMPsiSender sendPSIs;
+                    sendPSIs.setTimer(gTimer);
 
                     sendChls[0].asyncSend(dummy, 1);
                     sendChls[0].recv(dummy, 1);
@@ -247,6 +249,7 @@ void rr17aRecv_StandardModel(
                     Rr17NcoOtSender otSend;
 
                     Rr17aMPsiReceiver recvPSIs;
+                    recvPSIs.setTimer(gTimer);
 
 
                     chls[0].recv(dummy, 1);
@@ -311,6 +314,7 @@ void rr17bSend(
                     OosNcoOtSender   otSend;
 
                     Rr17bMPsiSender sendPSIs;
+                    sendPSIs.setTimer(gTimer);
 
                     sendChls[0].asyncSend(dummy, 1);
                     sendChls[0].recv(dummy, 1);
@@ -376,6 +380,7 @@ void rr17bRecv(
 
                     OosNcoOtReceiver otRecv;// (code, 40);
                     Rr17bMPsiReceiver recvPSIs;
+                    recvPSIs.setTimer(gTimer);
 
 
                     chls[0].recv(dummy, 1);
@@ -440,6 +445,7 @@ void rr17bSend_StandardModel(
                     Rr17NcoOtSender otSend;
 
                     Rr17bMPsiSender sendPSIs;
+                    sendPSIs.setTimer(gTimer);
 
                     sendChls[0].asyncSend(dummy, 1);
                     sendChls[0].recv(dummy, 1);
@@ -501,6 +507,7 @@ void rr17bRecv_StandardModel(
                     Rr17NcoOtReceiver otRecv;
 
                     Rr17bMPsiReceiver recvPSIs;
+                    recvPSIs.setTimer(gTimer);
 
 
                     chls[0].recv(dummy, 1);
@@ -563,6 +570,7 @@ void kkrtSend(
                 KkrtNcoOtSender otSend;
 
                 KkrtPsiSender sendPSIs;
+                sendPSIs.setTimer(gTimer);
 
                 sendChls[0].asyncSend(dummy, 1);
                 sendChls[0].recv(dummy, 1);
@@ -621,6 +629,7 @@ void kkrtRecv(
                 KkrtNcoOtReceiver otRecv;
 
                 KkrtPsiReceiver recvPSIs;
+                recvPSIs.setTimer(gTimer);
 
 
                 chls[0].recv(dummy, 1);
@@ -655,3 +664,4 @@ void kkrtRecv(
         }
     }
 }
+

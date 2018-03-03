@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cryptoTools/Common/Defines.h"
+#include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Network/Channel.h"
 #include "libOTe/NChooseOne/NcoOtExt.h"
 #include "libPSI/Tools/SimpleHasher.h"
@@ -8,7 +9,7 @@
 namespace osuCrypto
 {
 
-    class Rr17bMPsiReceiver
+    class Rr17bMPsiReceiver : public TimerAdapter
     {
     public:
         Rr17bMPsiReceiver();

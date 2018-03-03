@@ -1,6 +1,7 @@
 #pragma once
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Common/BitVector.h"
+#include "cryptoTools/Common/Matrix.h"
 
 
 namespace osuCrypto
@@ -21,14 +22,30 @@ namespace osuCrypto
         SimpleHasher();
         ~SimpleHasher();
 
-        typedef std::vector<u64> MtBin;
+        //typedef std::vector<u64> MtBin;
         //typedef std::vector<std::pair<u64, block>> MtBin;
 
-        u64 mBinCount , mMaxBinSize/*, mRepSize, mInputBitSize*/, mN;
+        u64 mBinCount , mMaxBinSize, mN;
 
-        std::unique_ptr<std::mutex[]> mMtx;
-        std::vector<MtBin> mBins;
+        Matrix<u64> mBins_;
+        std::unique_ptr<std::atomic<u8>[]> mBinSizes;
         block mHashSeed;
+
+        inline void push(u64 binIdx, u64 value)
+        {
+            auto pos = mBinSizes[binIdx].fetch_add(1,std::memory_order::memory_order_relaxed);
+            mBins_(binIdx, pos) = value;
+        }
+
+        inline span<u64> getBin(u64 binIdx)
+        {
+            return { mBins_.data(binIdx), getBinSize(binIdx) };
+        }
+
+        inline u8 getBinSize(u64 binIdx)
+        {
+            return mBinSizes[binIdx].load(std::memory_order::memory_order_relaxed);
+        }
 
         void print() const;
 

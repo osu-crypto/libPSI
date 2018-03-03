@@ -55,7 +55,7 @@ namespace osuCrypto
     {
         mStatSecParam = statSecParam;
         mN = n;
-        gTimer.setTimePoint("init.send.start");
+        setTimePoint("rr17b.init.send.start");
 
         // must be a multiple of 128...
         // = 128 * CodeWordSize;
@@ -100,14 +100,14 @@ namespace osuCrypto
 
         mHashingSeed = myHashSeed ^ theirHashingSeed;
 
-        gTimer.setTimePoint("init.send.hashSeed");
+        setTimePoint("rr17b.init.send.hashSeed");
 
 
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
 
         //mPsis.resize(mBins.mBinCount);
 
-        gTimer.setTimePoint("init.send.baseStart");
+        setTimePoint("rr17b.init.send.baseStart");
 
         if (otSend.hasBaseOts() == false)
         {
@@ -130,7 +130,7 @@ namespace osuCrypto
 
         }
 
-        gTimer.setTimePoint("init.send.extStart");
+        setTimePoint("rr17b.init.send.extStart");
 
         mOtSends.resize(chls.size());
 
@@ -173,7 +173,7 @@ namespace osuCrypto
         for (auto& thrd : thrds)
             thrd.join();
 
-        gTimer.setTimePoint("init.send.done");
+        setTimePoint("rr17b.init.send.done");
 
     }
 
@@ -245,7 +245,7 @@ namespace osuCrypto
         auto binsPerThread = (mBins.mBinCount + thrds.size() - 1) / thrds.size();
 
 
-        gTimer.setTimePoint("online.send.spaw");
+        setTimePoint("rr17b.online.send.spaw");
 
         for (u64 tIdx = 0; tIdx < thrds.size(); ++tIdx)
         {
@@ -253,7 +253,7 @@ namespace osuCrypto
             thrds[tIdx] = std::thread([&, tIdx, seed]() {
 
                 // timing information
-                if (tIdx == 0) gTimer.setTimePoint("online.send.thrdStart");
+                if (tIdx == 0) setTimePoint("rr17b.online.send.thrdStart");
 
                 // local randomness generator
                 PRNG prng(seed);
@@ -296,8 +296,7 @@ namespace osuCrypto
                         item = shiftRight(item, phaseShift);
 
                         // insert this item into its bin.
-                        std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
-                        mBins.mBins[addr].emplace_back(i);
+                        mBins.push(addr, i);
                     }
                 }
                 else
@@ -319,8 +318,7 @@ namespace osuCrypto
                         item = shiftRight(item, phaseShift);
 
                         // insert this item into its bin.
-                        std::lock_guard<std::mutex> lock(mBins.mMtx[addr]);
-                        mBins.mBins[addr].emplace_back(i);
+                        mBins.push(addr, i);
                     }
                 }
 
@@ -328,7 +326,7 @@ namespace osuCrypto
                 itemsInsertedBarrier.decrementWait();
 
 
-                if (tIdx == 0) gTimer.setTimePoint("online.send.insert");
+                if (tIdx == 0) setTimePoint("rr17b.online.send.insert");
 
                 // This will index the OT that we should use for the current bin.
                 // Each item used mBin.mMaxBinSize OT, where they are reused on items
@@ -338,7 +336,7 @@ namespace osuCrypto
 
                 // Block until the permutation over the order of the input items has been computed.
                 permDone.get();
-                if (tIdx == 0) gTimer.setTimePoint("online.send.permPromDone");
+                if (tIdx == 0) setTimePoint("rr17b.online.send.permPromDone");
 
                 // OK, now we will compute the common OT-encodings,  mBin.mMaxBinSize of them for each of our items.
                 // Will will first commit to our item and then use these common OT-encodings to decommit to our item.
@@ -357,7 +355,7 @@ namespace osuCrypto
                     // We are now ready to encode the next currentStepSize worth of bins.
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
-                        auto& bin = mBins.mBins[bIdx];
+                        auto bin = mBins.getBin(bIdx);
 
                         // For the current bin, loop over the items that are in it.
                         for (u64 i = 0; i < bin.size(); ++i)
@@ -432,7 +430,7 @@ namespace osuCrypto
                 }
                 if (tIdx == 0)
                 {
-                    gTimer.setTimePoint("online.send.sendMask");
+                    setTimePoint("rr17b.online.send.sendMask");
                     //std::cout << " start->mid  " << std::chrono::duration_cast<std::chrono::milliseconds>(midTime - startTime).count() << std::endl;
 
                 }
@@ -442,7 +440,7 @@ namespace osuCrypto
 
                 if (tIdx == 0)
                 {
-                    gTimer.setTimePoint("online.send.check");
+                    setTimePoint("rr17b.online.send.check");
                 }
 
                 // block until all masks are computed. the last to finish will set the promise...
@@ -472,7 +470,7 @@ namespace osuCrypto
                 }
 
 
-                if (tIdx == 0) gTimer.setTimePoint("online.send.finalMask");
+                if (tIdx == 0) setTimePoint("rr17b.online.send.finalMask");
 
             });
         }

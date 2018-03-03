@@ -79,16 +79,16 @@ namespace osuCrypto
         otSend.init(mParams.numBins() + mParams.mStashSize, mPrng, chl);
 
         mOtSender = &otSend;
-        //gTimer.setTimePoint("s InitS.extFinished");
+        //setTimePoint("kkrt.s InitS.extFinished");
 
-        gTimer.setTimePoint("S offline.perm start");
+        setTimePoint("kkrt.S offline.perm start");
         mPermute.resize(mSenderSize);
         for (u64 i = 0; i < mSenderSize; ++i) mPermute[i] = i;
 
         //mPermute position
         std::shuffle(mPermute.begin(), mPermute.end(), mPrng);
 
-        gTimer.setTimePoint("S offline.perm done");
+        setTimePoint("kkrt.S offline.perm done");
 
     }
 
@@ -324,7 +324,7 @@ namespace osuCrypto
         if (inputs.size() != mSenderSize)
             throw std::runtime_error("rt error at " LOCATION);
 
-        gTimer.setTimePoint("S Online.online start");
+        setTimePoint("kkrt.S Online.online start");
 
 
 
@@ -373,7 +373,7 @@ namespace osuCrypto
         });
 
 
-        gTimer.setTimePoint("S Online.hashing start");
+        setTimePoint("kkrt.S Online.hashing start");
 
         // hash the items to bins. Instead of inserting items into bins,
         // we will just keep track of a map mapping input index to bin indexs
@@ -383,7 +383,7 @@ namespace osuCrypto
         Matrix<u64> binIdxs(inputs.size(), mParams.mNumHashes);
         hashItems(inputs, binIdxs, mHashingSeed, numBins, mPrng, myMaskBuff, mPermute);
 
-        gTimer.setTimePoint("S Online.computeBucketMask start");
+        setTimePoint("kkrt.S Online.computeBucketMask start");
 
         // Now we will look over the inputs and try to encode them. Not that not all
         // of the corrections have beed received. In the case that the current item
@@ -435,7 +435,7 @@ namespace osuCrypto
         }
 
 
-        gTimer.setTimePoint("S Online.linear start");
+        setTimePoint("kkrt.S Online.linear start");
         auto encoding = myMaskBuff.data();
 
         // OK, all corrections have been recieved. It is now safe to start sending
@@ -478,7 +478,7 @@ namespace osuCrypto
             auto size = myMaskBuff.stride() * currentStepSize * mParams.mNumHashes;
             chl.asyncSend(data, size);
         }
-        gTimer.setTimePoint("S Online.done start");
+        setTimePoint("kkrt.S Online.done start");
 
         // send one byte to make sure that we dont leave this scope before the masks
         // have all been sent.

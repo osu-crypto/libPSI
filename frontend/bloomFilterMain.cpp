@@ -49,7 +49,6 @@ void bfSend(LaunchParams& params)
 
                 AknBfMPsiSender sendPSIs;
 
-                gTimer.reset();
                 sendPSIs.init(setSize, params.mStatSecParam, otSend, chls, prng.get<block>());
 
 
@@ -94,7 +93,6 @@ void bfRecv(LaunchParams& params)
 
                 AknBfMPsiReceiver recvPSIs;
 
-                gTimer.reset();
 
                 Timer timer;
                 auto start = timer.setTimePoint("start");

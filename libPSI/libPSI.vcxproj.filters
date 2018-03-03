@@ -127,6 +127,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PSI\ECDH\EcdhPsiSender.cpp">
+    <ClCompile Include="Tools\RandomShuffle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -192,6 +193,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PSI\ECDH\EcdhPsiSender.h">
+    <ClInclude Include="Tools\RandomShuffle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
