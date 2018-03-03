@@ -289,7 +289,7 @@ void printTimings(
 
 
         if (params.mVerbose > 1)
-            std::cout << _gTimer << std::endl;
+            std::cout << gTimer << std::endl;
     }
     else
     {

@@ -102,7 +102,6 @@
     <ClCompile Include="BinOtPsi_TestsVS.cpp" />
     <ClCompile Include="DcwBfPsi_TestsVS.cpp" />
     <ClCompile Include="DtkMPsi_TestsVS.cpp" />
-    <ClCompile Include="Grr18MPsi_testsVS.cpp" />
     <ClCompile Include="ShamirSSScheme_TestsVS.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -41,9 +41,3 @@ void kkrtRecv(
 void kkrtSend(
     LaunchParams& params);
 
-
-void grr18Recv(
-    LaunchParams& params);
-
-void grr18Send(
-    LaunchParams& params);

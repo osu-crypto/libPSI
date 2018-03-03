@@ -76,9 +76,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="MPSI\Grr18\Grr18Common.cpp" />
-    <ClCompile Include="MPSI\Grr18\Grr18MPsiReceiver.cpp" />
-    <ClCompile Include="MPSI\Grr18\Grr18MPsiSender.cpp" />
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
     <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
@@ -100,9 +97,6 @@
     <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MPSI\Grr18\Grr18Common.h" />
-    <ClInclude Include="MPSI\Grr18\Grr18MPsiReceiver.h" />
-    <ClInclude Include="MPSI\Grr18\Grr18MPsiSender.h" />
     <ClInclude Include="PSI\KkrtPsiReceiver.h" />
     <ClInclude Include="PSI\KkrtPsiSender.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />

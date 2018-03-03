@@ -81,7 +81,6 @@
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="DcwBfPsi_Tests.cpp" />
     <ClCompile Include="DktMPsi_Tests.cpp" />
-    <ClCompile Include="Grr18MPSI_Tests.cpp" />
     <ClCompile Include="OTOracleReceiver.cpp" />
     <ClCompile Include="OTOracleSender.cpp" />
     <ClCompile Include="ShamirSSScheme_Tests.cpp" />
@@ -93,7 +92,6 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="DcwBfPsi_Tests.h" />
     <ClInclude Include="DktMPsi_Tests.h" />
-    <ClInclude Include="Grr18MPSI_Tests.h" />
     <ClInclude Include="OTOracleReceiver.h" />
     <ClInclude Include="OTOracleSender.h" />
     <ClInclude Include="ShamirSSScheme_Tests.h" />

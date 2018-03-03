@@ -123,16 +123,7 @@
     <ClCompile Include="Tools\SimpleIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MPSI\Grr18\Grr18MPsiSender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MPSI\Grr18\Grr18MPsiReceiver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tools\RandomShuffle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MPSI\Grr18\Grr18Common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -194,16 +185,7 @@
     <ClInclude Include="Tools\SimpleIndex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MPSI\Grr18\Grr18MPsiSender.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPSI\Grr18\Grr18MPsiReceiver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tools\RandomShuffle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MPSI\Grr18\Grr18Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

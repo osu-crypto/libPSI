@@ -8,7 +8,6 @@
 #include "ShamirSSScheme_Tests.h"
 #include "DcwBfPsi_Tests.h"
 #include "DktMPsi_Tests.h"
-#include "Grr18MPSI_Tests.h"
 
 using namespace osuCrypto;
 namespace libPSI_Tests
@@ -55,11 +54,5 @@ namespace libPSI_Tests
         t.add("Rr17b_Oos_FullSet_Test_Impl           ", Rr17b_Oos_FullSet_Test_Impl);
         t.add("Rr17b_Oos_parallel_FullSet_Test_Impl  ", Rr17b_Oos_parallel_FullSet_Test_Impl);
         
-        Grr18_Oos_EmptrySet_Test_Impl;
-        t.add("Grr18_EmptrySet_Test_Impl          ", Grr18_Oos_EmptrySet_Test_Impl);
-        t.add("Grr18_SingltonSet_Test_Impl        ", Grr18_Oos_SingltonSet_Test_Impl);
-        t.add("Grr18_FullSet_Test_Impl            ", Grr18_Oos_FullSet_Test_Impl);
-        t.add("Grr18_parallel_FullSet_Test_Impl   ", Grr18_Oos_parallel_FullSet_Test_Impl);
-
     });
 }

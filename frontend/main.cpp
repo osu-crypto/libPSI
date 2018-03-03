@@ -53,7 +53,6 @@ rr17bTags{ "rr17b" },
 rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
 dktTags{ "dkt" },
-grr18Tags{ "grr18" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
 numItems{ "n","numItems" },
@@ -331,7 +330,6 @@ int main(int argc, char** argv)
     run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
     run(dktTags, cmd, DktRecv, DktSend);
     run(kkrtTag, cmd, kkrtRecv, kkrtSend);
-    run(grr18Tags, cmd, grr18Recv, grr18Send);
 
     if ((cmd.isSet(unitTestTags) == false &&
 #ifdef ENABLE_DCW
@@ -345,7 +343,6 @@ int main(int argc, char** argv)
         cmd.isSet(rr17bSMTags) == false &&
         cmd.isSet(kkrtTag) == false &&
         cmd.isSet(dktTags) == false &&
-        cmd.isSet(grr18Tags) == false &&
         cmd.isSet(pingTag) == false) ||
         cmd.isSet(helpTags))
     {
@@ -370,7 +367,6 @@ int main(int argc, char** argv)
             << "   -" << rr17bSMTags[0] << ": RR17bsm - Hash to bins & commit compare style (standard model malicious secure)\n"
             << "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
             << "   -" << kkrtTag[0] << "    : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
-            << "   -" << grr18Tags[0] << "    : GRR18  - ...\n"
             << std::endl;
 
         std::cout << "Parameters:\n"
@@ -412,6 +408,6 @@ int main(int argc, char** argv)
 
     std::ofstream f;
     f.open("./times.txt", std::ofstream::out | std::ofstream::app);
-    f << _gTimer << std::endl;
+    f << gTimer << std::endl;
     return 0;
 }
