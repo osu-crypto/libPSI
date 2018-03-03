@@ -9,6 +9,7 @@ Protocols:
  * Malicious Secure [RR16](https://eprint.iacr.org/2016/746) based on Bloom filters and OTs
  * Malicious Secure [DKT10](https://eprint.iacr.org/2010/469) based on public key crypto (ECC)
  * Semi-Honest Secure [KKRT16](https://eprint.iacr.org/2016/799) based on cuckoo hashing and OTs (fastest)
+ * Semi-Honest Secure [Mea86](http://ieeexplore.ieee.org/document/6234849/) base on public key crypto (ECC)
  
 ## Install
 
