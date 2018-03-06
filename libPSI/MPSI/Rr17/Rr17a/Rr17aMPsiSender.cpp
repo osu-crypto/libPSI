@@ -99,7 +99,7 @@ namespace osuCrypto
 
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
         
-        std::cout << "max bin size: " << mBins.mMaxBinSize << " #masks " << mN * mBins.mMaxBinSize<< std::endl;
+        //std::cout << "max bin size: " << mBins.mMaxBinSize << " #masks " << mN * mBins.mMaxBinSize<< std::endl;
         //mPsis.resize(mBins.mBinCount);
 
         setTimePoint("rr17a.init.send.baseStart");
@@ -394,7 +394,7 @@ namespace osuCrypto
                         max = std::max<u64>(max, mBins.getBinSize(i));
                     }
 
-                    std::cout << " true max: " << max << std::endl;
+                    //std::cout << " true max: " << max << std::endl;
                 }
 
                 //const u64 stepSize = 128;

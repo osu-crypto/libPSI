@@ -80,13 +80,18 @@ find_library(
     libOTe_LIB
     NAMES libOTe
     HINTS "${libOTe_Dirs}/lib/")
+	
+find_library(
+    SimplestOT_LIB
+    NAMES SimplestOT
+    HINTS "${libOTe_Dirs}/lib/")
 
 find_library(
     cryptoTools_LIB
     NAMES cryptoTools
     HINTS "${libOTe_Dirs}/lib/")
 
-
+	
 #############################################
 #              Build libPSI                 #
 #############################################
@@ -102,5 +107,5 @@ target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/linux/sp
 target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/libPSI) 
 target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/libPSI) 
 
-target_link_libraries(libPSI ${libOTe_LIB} ${cryptoTools_LIB} ${MIRACL_LIB}  ${Boost_LIBRARIES})
+target_link_libraries(libPSI ${libOTe_LIB} ${SimplestOT_LIB} ${cryptoTools_LIB} ${MIRACL_LIB}  ${Boost_LIBRARIES})
 
