@@ -5,7 +5,7 @@
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
 #include "libPSI/Tools/SimpleHasher.h"
-#include <libOTe/Base/naor-pinkas.h>
+#include <libOTe/Base/BaseOT.h>
 #include <unordered_map>
 #include "libOTe/TwoChooseOne/IknpOtExtSender.h"
 #include <iomanip>
@@ -74,7 +74,7 @@ namespace osuCrypto
         if (otRecv.hasBaseOts() == false)
         {
             setTimePoint("kkrt.recv.Init: BaseSSOT start");
-            NaorPinkas baseBase;
+            DefaultBaseOT baseBase;
             std::array<block, 128> baseBaseOT;
             BitVector baseBaseChoice(128);
             baseBaseChoice.randomize(prng);

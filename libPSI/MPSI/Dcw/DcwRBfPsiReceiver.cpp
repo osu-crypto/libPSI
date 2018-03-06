@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include "cryptoTools/Common/Timer.h"
 #include "ShamirSSScheme.h"
-#include "libOTe/Base/naor-pinkas.h"
+#include "libOTe/Base/BaseOT.h"
 #include <unordered_map>
 
 namespace osuCrypto
@@ -121,7 +121,7 @@ namespace osuCrypto
         {
             std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
 
-            NaorPinkas base;
+            DefaultBaseOT base;
             base.send(baseMsg, prng, chl, 2);
             otExt.setBaseOts(baseMsg);
         }

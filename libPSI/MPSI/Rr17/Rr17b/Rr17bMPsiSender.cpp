@@ -4,7 +4,7 @@
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Matrix.h"
 #include "cryptoTools/Common/Timer.h"
-#include "libOTe/Base/naor-pinkas.h"
+#include "libOTe/Base/BaseOT.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
@@ -113,7 +113,7 @@ namespace osuCrypto
         {
             // first do 128 public key OTs (expensive)
             std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
-            NaorPinkas base;
+            DefaultBaseOT base;
             base.send(baseMsg, mPrng, chl0, 2);
 
 

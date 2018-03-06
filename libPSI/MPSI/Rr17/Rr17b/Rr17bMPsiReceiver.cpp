@@ -7,7 +7,7 @@
 #include "libPSI/Tools/SimpleHasher.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
-#include "libOTe/Base/naor-pinkas.h"
+#include "libOTe/Base/BaseOT.h"
 #include <unordered_map>
 
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
@@ -131,7 +131,7 @@ namespace osuCrypto
             // first do 128 public key OTs (expensive)
             std::array<block, gOtExtBaseOtCount> kosSendBase;
             BitVector choices(gOtExtBaseOtCount); choices.randomize(prng);
-            NaorPinkas base;
+            DefaultBaseOT base;
             base.receive(choices, kosSendBase, prng, chl0, 2);
 
 

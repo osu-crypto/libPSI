@@ -2,7 +2,7 @@
 #include "cryptoTools/Crypto/Commit.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
-#include "libOTe/Base/naor-pinkas.h"
+#include "libOTe/Base/BaseOT.h"
 #include "libOTe/TwoChooseOne/IknpOtExtReceiver.h"
 #include <cryptoTools/Common/Matrix.h>
 #include "cryptoTools/Common/CuckooIndex.h"
@@ -57,7 +57,7 @@ namespace osuCrypto
         //do base OT
         if (otSend.hasBaseOts() == false)
         {
-            NaorPinkas baseBase;
+            DefaultBaseOT baseBase;
             std::array<std::array<block, 2>, 128> baseBaseOT;
             baseBase.send(baseBaseOT, mPrng, chl);
 
