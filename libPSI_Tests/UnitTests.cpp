@@ -9,12 +9,13 @@
 #include "DcwBfPsi_Tests.h"
 #include "DktMPsi_Tests.h"
 #include "EcdhPsi_Tests.h"
+#include "Grr18MPSI_Tests.h"
 using namespace osuCrypto;
 namespace libPSI_Tests
 {
 
     TestCollection Tests([](TestCollection& t) {
-    
+
 
         t.add("Psi_kkrt_EmptySet_Test_Impl           ", Psi_kkrt_EmptySet_Test_Impl);
         t.add("Psi_kkrt_FullSet_Test_Impl            ", Psi_kkrt_FullSet_Test_Impl);
@@ -58,6 +59,12 @@ namespace libPSI_Tests
         t.add("Rr17b_Oos_SingltonSet_Test_Impl       ", Rr17b_Oos_SingltonSet_Test_Impl);
         t.add("Rr17b_Oos_FullSet_Test_Impl           ", Rr17b_Oos_FullSet_Test_Impl);
         t.add("Rr17b_Oos_parallel_FullSet_Test_Impl  ", Rr17b_Oos_parallel_FullSet_Test_Impl);
-        
+
+
+        t.add("Grr18_Oos_EmptrySet_Test_Impl         ", Grr18_Oos_EmptrySet_Test_Impl);
+        t.add("Grr18_Oos_FullSet_Test_Impl           ", Grr18_Oos_FullSet_Test_Impl);
+        t.add("Grr18_Oos_parallel_FullSet_Test_Impl  ", Grr18_Oos_parallel_FullSet_Test_Impl);
+        t.add("Grr18_Oos_SingltonSet_Test_Impl       ", Grr18_Oos_SingltonSet_Test_Impl);
+
     });
 }
