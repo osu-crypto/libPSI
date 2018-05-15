@@ -22,7 +22,7 @@ namespace osuCrypto
         ~Grr18MPsiSender();
 
         bool mHashToSmallerDomain, mOneSided = true;
-        double mEps = 0.1;
+        double mEps = 1.0;
         u64 mN, mStatSecParam, mOtMsgBlkSize;//, mNumOTsUpperBound;
         block mHashingSeed;
         SimpleHasher mBins;
@@ -36,7 +36,7 @@ namespace osuCrypto
             OosNcoOtSender& ots,
             OosNcoOtReceiver& otRecv,
             block seed,
-            double binScaler = 1.0,
+            double binScaler = 4.0,
             u64 inputBitSize = -1);
 
         void init(u64 n, u64 statSecParam,
@@ -44,7 +44,7 @@ namespace osuCrypto
             OosNcoOtSender& ots,
             OosNcoOtReceiver& otRecv,
             block seed,
-            double binScaler = 1.0,
+            double binScaler = 4.0,
             u64 inputBitSize = -1);
 
         void sendInput(std::vector<block>& inputs, Channel& chl);

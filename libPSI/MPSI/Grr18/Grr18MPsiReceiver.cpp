@@ -451,8 +451,8 @@ namespace osuCrypto
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;
 
-                            ostreamLock oo(std::cout);
-                            oo << "r[" << inputIdx << "] encodes " << std::endl;
+                            //ostreamLock oo(std::cout);
+                            //oo << "r[" << inputIdx << "] encodes " << std::endl;
 
                             if (insertIter + binLoad > insertEnd)
                             {
@@ -481,10 +481,10 @@ namespace osuCrypto
                                     &ncoInputBuff[inputIdx],
                                     &sendMask);
 
-                                oo << "   " << sendMask << " ^ " << recvMasks[inputIdx];
+                                //oo << "   " << sendMask << " ^ " << recvMasks[inputIdx];
                                 sendMask = sendMask ^ recvMasks[inputIdx];
                                 key = (*(u64*)&sendMask) & keyMask;
-                                oo << " -> " << sendMask << "   ~  " << key << "  ~ " << innerOtIdx << std::endl;
+                                //oo << " -> " << sendMask << "   ~  " << key << "  ~ " << innerOtIdx << std::endl;
 
 
                                 memcpy(masks.data(inputIdx) + l * maskSize, &sendMask, maskSize);
@@ -540,19 +540,19 @@ namespace osuCrypto
 
                 totalMaskCountFutr.get();
 
-                if (tIdx == 0)
-                {
-                    ostreamLock oo(std::cout);
+                //if (tIdx == 0)
+                //{
+                //    ostreamLock oo(std::cout);
 
-                    for (auto m : maskMap)
-                    {
+                //    for (auto m : maskMap)
+                //    {
 
-                        auto idx = m.second / mBins.mMaxBinSize;
-                        auto offset = m.second % mBins.mMaxBinSize;
+                //        auto idx = m.second / mBins.mMaxBinSize;
+                //        auto offset = m.second % mBins.mMaxBinSize;
 
-                        oo << "idx " << idx << " " << offset << " " << m.first << std::endl;
-                    }
-                }
+                //        oo << "idx " << idx << " " << offset << " " << m.first << std::endl;
+                //    }
+                //}
 
 
                 u64 maxSendSize = 1ull << log2ceil(mN);
@@ -610,20 +610,21 @@ namespace osuCrypto
                             auto offset = ll->second % mBins.mMaxBinSize;
                             auto localMask = masks.data(idx) + offset * maskSize;
 
-                            ostreamLock o(std::cout);
-                            o << "match " << idx << " " << offset << " " << key << std::endl;
+                            //ostreamLock o(std::cout);
+                            //o << "match " << idx << " " << offset << " " << key << std::endl;
                             if (memcmp(theirMasksIter, localMask, maskSize) == 0)
                             {
-                                o << "full " << idx << " " << offset << std::endl;
+                                //o << "full " << idx << " " << offset << std::endl;
 
                                 localIntersection.push_back(idx);
                             }
                         }
-                        else
-                        {
-                            ostreamLock o(std::cout);
-                            o << "miss " << key << std::endl;
-                        }
+                        //else
+                        //{
+                        //    ostreamLock o(std::cout);
+                        //    o << "miss " << key << std::endl;
+                        //}
+
                         theirMasksIter += maskSize;
                     }
 
