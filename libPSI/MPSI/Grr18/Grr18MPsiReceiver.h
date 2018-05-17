@@ -21,7 +21,7 @@ namespace osuCrypto
         //static const u64 hasherStepSize;
 
         bool mHashToSmallerDomain, mOneSided = true;
-        double mEps = 1.0;
+        double mEpsBins = 0.9, mEpsMasks= 0.1;
         u64 mN, mStatSecParam;// , mNumOTsUpperBound;// , mOtMsgBlkSize;
         block mHashingSeed;
         std::vector<u64> mIntersection;

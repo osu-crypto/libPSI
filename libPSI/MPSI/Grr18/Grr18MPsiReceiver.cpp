@@ -337,7 +337,7 @@ namespace osuCrypto
 
 
                 PRNG prng(seed);
-                auto totalLoad = computeLoads(loads, prng, binStart, mOneSided, mN, mBins, mEps);
+                auto totalLoad = computeLoads(loads, prng, binStart, mOneSided, mN, mBins, mEpsBins);
 
                 chl.asyncSend(totalLoad);
                 chl.asyncSend(loads.data(), loads.size());
@@ -450,7 +450,7 @@ namespace osuCrypto
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;
-
+                            auto inBlock = recvMasks[inputIdx];
                             //ostreamLock oo(std::cout);
                             //oo << "r[" << inputIdx << "] encodes " << std::endl;
 
@@ -482,7 +482,7 @@ namespace osuCrypto
                                     &sendMask);
 
                                 //oo << "   " << sendMask << " ^ " << recvMasks[inputIdx];
-                                sendMask = sendMask ^ recvMasks[inputIdx];
+                                sendMask = sendMask ^ inBlock;
                                 key = (*(u64*)&sendMask) & keyMask;
                                 //oo << " -> " << sendMask << "   ~  " << key << "  ~ " << innerOtIdx << std::endl;
 

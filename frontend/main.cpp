@@ -55,6 +55,7 @@ rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
 ecdhTags{ "ecdh" },
 dktTags{ "dkt" },
+grrTags{ "grr" },
 helpTags{ "h", "help" },
 numThreads{ "t", "threads" },
 numItems{ "n","numItems" },
@@ -331,7 +332,8 @@ int main(int argc, char** argv)
 	run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
 	run(rr17bTags, cmd, rr17bRecv, rr17bSend);
 	run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
-	run(dktTags, cmd, DktRecv, DktSend);
+    run(dktTags, cmd, DktRecv, DktSend);
+    run(grrTags, cmd, grr18Recv, grr18Send);
 	run(kkrtTag, cmd, kkrtRecv, kkrtSend);
 	run(ecdhTags, cmd, EcdhRecv, EcdhSend);
 
@@ -347,7 +349,8 @@ int main(int argc, char** argv)
 		cmd.isSet(rr17bTags) == false &&
 		cmd.isSet(rr17bSMTags) == false &&
 		cmd.isSet(kkrtTag) == false &&
-		cmd.isSet(dktTags) == false &&
+        cmd.isSet(dktTags) == false &&
+        cmd.isSet(grrTags) == false &&
 		cmd.isSet(ecdhTags) == false &&
 		cmd.isSet(pingTag) == false) ||
 		cmd.isSet(helpTags))

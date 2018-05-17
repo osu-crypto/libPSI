@@ -221,7 +221,7 @@ namespace osuCrypto
         std::vector<u8> theirLoadsMaster(mBins.mBinCount);
 
 
-        auto expectedBinLoad = mN / mBins.mBinCount + 1.0 / mEps;
+        auto expectedBinLoad = mN / mBins.mBinCount + 1.0 / mEpsBins;
         //std::vector<u64> maskPerm(mNumOTsUpperBound * expectedBinLoad);
         //auto permSeed = mPrng.get<block>();
         //std::promise<void> permProm;
@@ -320,8 +320,8 @@ namespace osuCrypto
                 //const u64 stepSize = 128;
 
                 std::vector<u8> loads(binEnd - binStart);
-
-                auto totalLoad = computeLoads(loads, prng, binStart, mOneSided, mN, mBins, mEps);
+                PRNG binningPrng(sysRandomSeed());
+                auto totalLoad = computeLoads(loads, binningPrng, binStart, mOneSided, mN, mBins, mEpsBins);
                 chl.asyncSend(totalLoad);
                 chl.asyncSend(loads.data(), loads.size());
 
@@ -421,11 +421,11 @@ namespace osuCrypto
                 else
                 {
                     double max = *std::max_element(maxBinSizes.begin(), maxBinSizes.end());
-                    auto eps2 = 1;
-                    std::exponential_distribution<double> exp(max / eps2);
+                    
+                    std::exponential_distribution<double> exp(max / mEpsMasks);
                     auto lap = exp(prng) * (-1 + prng.get<bool>() * 2);
 
-                    auto buffer = computeBuffSize(40, eps2, max);
+                    auto buffer = computeBuffSize(40, mEpsMasks, max);
 
                     totalMaskCount_atomic += buffer + lap;
 
@@ -465,11 +465,11 @@ namespace osuCrypto
                         auto bin = mBins.getBin(bIdx);
                         auto binLoad = theirLoadsMaster[bIdx];
 
-
                         for (u64 i = 0; i < bin.size(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;
+                            auto inBlock = recvMasks[inputIdx];
 
                             //ostreamLock oo(std::cout);
                             //oo << "s[" << inputIdx << "] encodes "<< std::endl;
@@ -484,7 +484,7 @@ namespace osuCrypto
 
 
                                 //oo << "   " << sendMask << " ^ " << recvMasks[inputIdx];
-                                sendMask = sendMask ^ recvMasks[inputIdx];
+                                sendMask = sendMask ^ inBlock;
 
                                 // auto key = (*(u64*)&sendMask) & keyMask;
                                 //oo << " -> " << sendMask << " ~ " << key << "  ~ " << innerOtIdx << std::endl;
