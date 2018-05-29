@@ -726,6 +726,14 @@ void grr18Send(
 
                     for (u64 g = 0; g < sendChls.size(); ++g)
                         sendChls[g].resetStats();
+
+                    if (params.mVerbose)
+                    {
+                        ostreamLock o(std::cout);
+
+                        std::cout << sendPSIs.mReporting_totalMaskCount << " / " << sendPSIs.mReporting_totalRealMaskCount << " =  total / real masks" << std::endl;
+
+                    }
                 }
             }
         }
@@ -798,12 +806,15 @@ void grr18Recv(
                     auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
                     //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
-
+                    ostreamLock o(std::cout);
                     printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads, ss);
 
                     if (params.mVerbose)
                     {
                         std::cout << recvPSIs.getTimer() << std::endl;
+
+                        std::cout << "total noisy load: "<< recvPSIs.mTotalLoad->load() << " out of " << setSize << ". rr17a has " << recvPSIs.mBins.mMaxBinSize * recvPSIs.mBins.mBinCount<< std::endl;
+
                     }
                 }
             }

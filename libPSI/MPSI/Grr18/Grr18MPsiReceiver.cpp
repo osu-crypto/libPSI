@@ -76,7 +76,7 @@ namespace osuCrypto
 
         // this is the offline function for doing binning and then performing the OtPsi* between the bins.
 
-
+        mTotalLoad.reset(new std::atomic<u64>(0));
         mStatSecParam = statSecParam;
         mN = n;
 
@@ -344,6 +344,7 @@ namespace osuCrypto
 
                 Channel throwIfUsed;
                 otRecv.init(totalLoad, prng, throwIfUsed);
+                *mTotalLoad += totalLoad;
 
                 std::vector<u16> permutation(mBins.mMaxBinSize);
 

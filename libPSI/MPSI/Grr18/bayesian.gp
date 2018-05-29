@@ -1,4 +1,5 @@
 default(realprecision, 100);
+default(parisizemax, 800000000);
 
 bdist(n,k,p)    = 0.0+binomial(n,k)*(p^k)*(1-p)^(n-k);
 bdistleq(n,k,p) = sum(i=0,k, 0.0 + bdist(n,i,p));
@@ -69,18 +70,21 @@ createtable(mina, maxa, inc, prior, eps) =  \\exclusive of 'max' value
     print("error probability = " err);
     print("If estimated bin size is ____ then pad with dummies up to _____");
 
-    write1("C:/Users/Peter/repo/libPSI/libPSI/MPSI/Grr18/output.txt", n " " m " " eps " " mina);
+    write1("C:/Users/Peter/repo/libPSI/libPSI/MPSI/Grr18/output.txt","Lookup{" n ", " floor(m) ", " eps ", " mina ", {");
     while(est < maxa,
         post = posterior(prior, est, eps);
         needed = binsneeded(post);
         print(est ", " needed);
-        write1("C:/Users/Peter/repo/libPSI/libPSI/MPSI/Grr18/output.txt", " " needed);
+        write1("C:/Users/Peter/repo/libPSI/libPSI/MPSI/Grr18/output.txt", needed);
         est = est + inc;
+        if(est < maxa,
+            write1("C:/Users/Peter/repo/libPSI/libPSI/MPSI/Grr18/output.txt", ", ");
+        );
     );
 
-    write("C:/Users/Peter/repo/libPSI/libPSI/MPSI/Grr18//output.txt", " ");
+    write("C:/Users/Peter/repo/libPSI/libPSI/MPSI/Grr18//output.txt", "}},");
 };
-createtable(-10, 50, 1, prior, 1);
+createtable(-10, 50, 1, prior, eps);
 
 
 \\quit

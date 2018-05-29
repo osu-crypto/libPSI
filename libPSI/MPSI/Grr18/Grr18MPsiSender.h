@@ -51,7 +51,7 @@ namespace osuCrypto
         void sendInput(std::vector<block>& inputs, span<Channel> chls);
 
 
-
+        u64 mReporting_totalMaskCount, mReporting_totalRealMaskCount;
     };
 
 }

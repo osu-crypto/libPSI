@@ -25,7 +25,7 @@ namespace osuCrypto
         u64 mN, mStatSecParam;// , mNumOTsUpperBound;// , mOtMsgBlkSize;
         block mHashingSeed;
         std::vector<u64> mIntersection;
-
+        std::unique_ptr<std::atomic<u64>> mTotalLoad;
 
         std::vector<std::unique_ptr<OosNcoOtSender>> mOtSends;
         std::vector<std::unique_ptr<OosNcoOtReceiver>> mOtRecvs;

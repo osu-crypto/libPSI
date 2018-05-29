@@ -321,7 +321,7 @@ namespace osuCrypto
 
                 std::vector<u8> loads(binEnd - binStart);
                 PRNG binningPrng(sysRandomSeed());
-                auto totalLoad = computeLoads(loads, binningPrng, binStart, mOneSided, mN, mBins, mEpsBins);
+                auto totalLoad = computeLoads(loads, binningPrng, binStart, mOneSided, mN, mBins, mEpsBins, true); 
                 chl.asyncSend(totalLoad);
                 chl.asyncSend(loads.data(), loads.size());
 
@@ -422,15 +422,18 @@ namespace osuCrypto
                 {
                     double max = *std::max_element(maxBinSizes.begin(), maxBinSizes.end());
                     
-                    std::exponential_distribution<double> exp(max / mEpsMasks);
+                    std::exponential_distribution<double> exp(mEpsMasks/ max);
                     auto lap = exp(prng) * (-1 + prng.get<bool>() * 2);
 
                     auto buffer = computeBuffSize(40, mEpsMasks, max);
+                    mReporting_totalRealMaskCount = totalMaskCount_atomic;
 
                     totalMaskCount_atomic += buffer + lap;
 
                     masks->resize(totalMaskCount_atomic, maskSize, AllocType::Uninitialized);
                     numMaskProm.set_value();
+
+                    mReporting_totalMaskCount = totalMaskCount_atomic;
                 }
 
                 auto totalMasks = masks->size() / maskSize;

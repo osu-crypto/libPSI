@@ -240,6 +240,23 @@ void shuffle()
 
 }
 
+
+void BallsAndBins(CLP& cmd)
+{
+    auto Ns = cmd.getMany<int>("nn");
+    auto s = cmd.getMany<int>("s");
+    for (auto nn : Ns)
+    {
+        for (auto mm : s)
+        {
+            auto n = 1ull << nn;
+            auto m = n / mm;
+            std::cout << "n=" << n << " m=" << m << " -> binSize " << SimpleIndex::get_bin_size(m, n, 40) << std::endl;;
+            gTimer.setTimePoint("b" + ToString(nn) + " " + ToString(mm));
+        }
+    }
+}
+
 int main(int argc, char** argv)
 {
     LinearCode mCode;
@@ -315,7 +332,11 @@ int main(int argc, char** argv)
     if (cmd.isSet(pingTag))
         pingTest(cmd);
 
-
+    if (cmd.isSet("ballsBins"))
+    {
+        BallsAndBins(cmd);
+        return 0;
+    }
     //if ((cmd.isSet(roleTag) == false || cmd.hasValue(roleTag) && cmd.get<int>(roleTag)) &&
     //    (cmd.isSet(DcwTags) || cmd.isSet(DcwrTags) || cmd.isSet(rr16Tags) || cmd.isSet(rr17Tags) || cmd.isSet(dktTags)))
     //    printHeader();
