@@ -321,7 +321,7 @@ namespace osuCrypto
 
                 std::vector<u8> loads(binEnd - binStart);
                 PRNG binningPrng(sysRandomSeed());
-                auto totalLoad = computeLoads(loads, binningPrng, binStart, mOneSided, mN, mBins, mEpsBins, true); 
+                auto totalLoad = computeLoads(loads, binningPrng, binStart, mOneSided, mN, mBins, mEpsBins, mCWThreshold); 
                 chl.asyncSend(totalLoad);
                 chl.asyncSend(loads.data(), loads.size());
 

@@ -41,11 +41,27 @@ namespace osuCrypto
         u64 n,
         SimpleHasher& bins,
         double eps,
+        i64 cwThreshold,
         bool print)
     {
         auto totalLoad = 0ull;
 
-        if (oneSized)
+        if (cwThreshold != -1)
+        {
+            auto maxBinLoad = SimpleIndex::get_bin_size(bins.mBinCount, n, 40);
+
+            for (u64 i = 0; i < loads.size(); ++i)
+            {
+                auto binSize = bins.getBinSize(binStart + i);
+
+                loads[i] = (binSize > cwThreshold) ? maxBinLoad : cwThreshold;
+
+                totalLoad += loads[i];
+            }
+
+
+        }
+        else if (oneSized)
         {
             std::exponential_distribution<double> exp(eps);
 

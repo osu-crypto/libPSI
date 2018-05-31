@@ -16,6 +16,7 @@ namespace osuCrypto
         u64 n,
         SimpleHasher& bins,
         double eps,
+        i64 cwThreshold = -1,
         bool print = false);
 
 }

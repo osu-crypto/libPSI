@@ -23,7 +23,7 @@ namespace osuCrypto
 
         bool mHashToSmallerDomain, mOneSided = true;
         double mEpsBins = 0.9, mEpsMasks = 0.1;
-        u64 mN, mStatSecParam, mOtMsgBlkSize;//, mNumOTsUpperBound;
+        u64 mN, mStatSecParam, mOtMsgBlkSize, mCWThreshold = -1;//, mNumOTsUpperBound;
         block mHashingSeed;
         SimpleHasher mBins;
         PRNG mPrng;

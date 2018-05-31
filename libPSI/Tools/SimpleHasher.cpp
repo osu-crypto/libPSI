@@ -61,7 +61,7 @@ namespace osuCrypto
 
     void SimpleHasher::init(u64 n, u64 numBits, block hashSeed, u64 secParam, double binScaler)
     {
-        mBinCount = u64(n / binScaler);
+        mBinCount = std::max<u64>(1, n / binScaler);
         mN = n;
         mBinSizes.reset( new std::atomic<u8>[mBinCount]());
 

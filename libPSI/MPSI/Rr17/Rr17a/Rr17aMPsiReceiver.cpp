@@ -7,7 +7,7 @@
 #include <libPSI/Tools/SimpleHasher.h>
 #include <cryptoTools/Common/Log.h>
 #include <cryptoTools/Common/Timer.h>
-#include <libOTe/Base/BaseOT.h>
+#include <libOTe/Base/naor-pinkas.h>
 #include <unordered_map>
 
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
@@ -129,7 +129,7 @@ namespace osuCrypto
             // first do 128 public key OTs (expensive)
             std::array<block, gOtExtBaseOtCount> kosSendBase;
             BitVector choices(gOtExtBaseOtCount); choices.randomize(prng);
-            DefaultBaseOT base;
+            NaorPinkas base;
             base.receive(choices, kosSendBase, prng, chl0, 2);
 
 
@@ -337,7 +337,7 @@ namespace osuCrypto
 
                 u8 phaseShift = u8(log2ceil(mN));
                 //if (phaseShift > 3)
-                    //throw std::runtime_error(LOCATION);
+                //throw std::runtime_error(LOCATION);
 
                 for (u64 i = startIdx; i < endIdx; i += 128)
                 {
@@ -438,7 +438,7 @@ namespace osuCrypto
                                 &ncoInputBuff[inputIdx], // input
                                 &recvMasks[inputIdx]);   // output
 
-                            //std::cout << "input[" << inputIdx << "] = " << ncoInputBuff[inputIdx] << " -> " << recvMasks[inputIdx] << " r" << (otIdx + perm[i]) << std::endl;
+                                                         //std::cout << "input[" << inputIdx << "] = " << ncoInputBuff[inputIdx] << " -> " << recvMasks[inputIdx] << " r" << (otIdx + perm[i]) << std::endl;
                         }
 
                         for (u64 i = bin.size(); i < mBins.mMaxBinSize; ++i)
@@ -501,12 +501,12 @@ namespace osuCrypto
 
                                 //if (inputIdx == 11 )
                                 //{
-                                    //ostreamLock(std::cout)
-                                    //    << "r " << inputIdx << " "
-                                    //    << inputs[inputIdx] << " " << l << ": "
-                                    //    << (sendMask ^ recvMasks[inputIdx]) << " = "
-                                    //    << sendMask << " ^ " << recvMasks[inputIdx]
-                                    //    << " sendOtIdx " << innerOtIdx << std::endl;
+                                //ostreamLock(std::cout)
+                                //    << "r " << inputIdx << " "
+                                //    << inputs[inputIdx] << " " << l << ": "
+                                //    << (sendMask ^ recvMasks[inputIdx]) << " = "
+                                //    << sendMask << " ^ " << recvMasks[inputIdx]
+                                //    << " sendOtIdx " << innerOtIdx << std::endl;
                                 //}
 
                                 sendMask = sendMask ^ recvMasks[inputIdx];
@@ -584,7 +584,7 @@ namespace osuCrypto
                     {
                         if (maskIter > maskView.data() + curSize)
                             throw std::runtime_error(LOCATION);
-                        auto key = *(u64*)maskIter & keyMask; 
+                        auto key = *(u64*)maskIter & keyMask;
                         auto ll = maskMap.find(key);
 
 

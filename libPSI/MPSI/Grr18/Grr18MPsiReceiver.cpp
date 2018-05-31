@@ -337,10 +337,19 @@ namespace osuCrypto
 
 
                 PRNG prng(seed);
-                auto totalLoad = computeLoads(loads, prng, binStart, mOneSided, mN, mBins, mEpsBins);
+                computeLoads(loads, prng, binStart, mOneSided, mN, mBins, mEpsBins);
+
+                theirLoadsFut.get();
+                u64  totalLoad = 0;
+                for (u64 i = 0; i < loads.size(); ++i)
+                {
+                    loads[i] = std::max(loads[i], theirLoads[i]);
+                    totalLoad += loads[i];
+                }
 
                 chl.asyncSend(totalLoad);
                 chl.asyncSend(loads.data(), loads.size());
+
 
                 Channel throwIfUsed;
                 otRecv.init(totalLoad, prng, throwIfUsed);
@@ -408,7 +417,6 @@ namespace osuCrypto
 
                 otSend.init(theirTotalLoad, prng, throwIfUsed);
 
-                theirLoadsFut.get();
                 std::vector<std::future<void>> correctionFutrs((binEnd - binStart + stepSize - 1) / stepSize);
 
                 for (u64 bIdx = binStart, i = 0; bIdx < binEnd;)

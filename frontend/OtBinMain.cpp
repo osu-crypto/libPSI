@@ -686,53 +686,58 @@ void grr18Send(
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 
-    for (auto setSize : params.mNumItems)
+    auto es = params.mCmd->getMany<double>("epsBins");
+    for (auto e : es)
     {
-        for (auto cc : params.mNumThreads)
+        for (auto setSize : params.mNumItems)
         {
-            std::vector<Channel> sendChls = params.getChannels(cc);
-
-            for (auto ss : params.mBinScaler)
+            for (auto cc : params.mNumThreads)
             {
-                for (u64 jj = 0; jj < params.mTrials; jj++)
+                std::vector<Channel> sendChls = params.getChannels(cc);
+
+                for (auto ss : params.mBinScaler)
                 {
-                    std::vector<block> set(setSize);
-                    prng.get(set.data(), set.size());
-
-                    OosNcoOtReceiver otRecv;
-                    OosNcoOtSender   otSend;
-
-                    Grr18MPsiSender sendPSIs;
-                    //sendPSIs.setTimer(_gTimer);
-
-                    sendPSIs.mEpsBins = params.mCmd->getOr<double>("epsBins", 0.9);
-                    sendPSIs.mEpsMasks = params.mCmd->getOr<double>("epsMasks", 0.1);
-
-                    sendChls[0].asyncSend(dummy, 1);
-                    sendChls[0].recv(dummy, 1);
-
-                    sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), ss, params.mBitSize);
-
-                    //sendChls[0].asyncSend(dummy, 1);
-                    //sendChls[0].recv(dummy, 1);
-
-                    sendPSIs.sendInput(set, sendChls);
-
-                    u64 dataSent = 0;
-                    for (u64 g = 0; g < sendChls.size(); ++g)
+                    for (u64 jj = 0; jj < params.mTrials; jj++)
                     {
-                        dataSent += sendChls[g].getTotalDataSent();
-                    }
+                        std::vector<block> set(setSize);
+                        prng.get(set.data(), set.size());
 
-                    for (u64 g = 0; g < sendChls.size(); ++g)
-                        sendChls[g].resetStats();
+                        OosNcoOtReceiver otRecv;
+                        OosNcoOtSender   otSend;
 
-                    if (params.mVerbose)
-                    {
-                        ostreamLock o(std::cout);
+                        Grr18MPsiSender sendPSIs;
+                        //sendPSIs.setTimer(_gTimer);
 
-                        std::cout << sendPSIs.mReporting_totalMaskCount << " / " << sendPSIs.mReporting_totalRealMaskCount << " =  total / real masks" << std::endl;
+                        sendPSIs.mEpsBins = e;
+                        sendPSIs.mEpsMasks = params.mCmd->getOr<double>("epsMasks", 0.1);
+                        sendPSIs.mCWThreshold = params.mCmd->getOr<i64>("cw", -1);
 
+                        sendChls[0].asyncSend(dummy, 1);
+                        sendChls[0].recv(dummy, 1);
+
+                        sendPSIs.init(setSize, params.mStatSecParam, sendChls, otSend, otRecv, prng.get<block>(), ss, params.mBitSize);
+
+                        //sendChls[0].asyncSend(dummy, 1);
+                        //sendChls[0].recv(dummy, 1);
+
+                        sendPSIs.sendInput(set, sendChls);
+
+                        u64 dataSent = 0;
+                        for (u64 g = 0; g < sendChls.size(); ++g)
+                        {
+                            dataSent += sendChls[g].getTotalDataSent();
+                        }
+
+                        for (u64 g = 0; g < sendChls.size(); ++g)
+                            sendChls[g].resetStats();
+
+                        if (params.mVerbose)
+                        {
+                            ostreamLock o(std::cout);
+
+                            std::cout << sendPSIs.mReporting_totalMaskCount << " / " << sendPSIs.mReporting_totalRealMaskCount << " =  total / real masks" << std::endl;
+
+                        }
                     }
                 }
             }
@@ -751,70 +756,76 @@ void grr18Recv(
 
     if (params.mVerbose) std::cout << "\n";
 
-    for (auto setSize : params.mNumItems)
+    auto es = params.mCmd->getMany<double>("epsBins");
+    for (auto e : es)
     {
-        for (auto numThreads : params.mNumThreads)
+        std::cout << " e " << e << std::endl;
+        for (auto setSize : params.mNumItems)
         {
-            auto chls = params.getChannels(numThreads);
-
-
-            for (auto ss : params.mBinScaler)
+            for (auto numThreads : params.mNumThreads)
             {
-                for (u64 jj = 0; jj < params.mTrials; jj++)
+                auto chls = params.getChannels(numThreads);
+
+
+                for (auto ss : params.mBinScaler)
                 {
-                    std::string tag("grr18");
 
-                    std::vector<block> sendSet(setSize), recvSet(setSize);
-                    for (u64 i = 0; i < setSize; ++i)
+                    for (u64 jj = 0; jj < params.mTrials; jj++)
                     {
-                        sendSet[i] = recvSet[i] = prng.get<block>();
-                    }
+                        std::string tag("grr18");
+
+                        std::vector<block> sendSet(setSize), recvSet(setSize);
+                        for (u64 i = 0; i < setSize; ++i)
+                        {
+                            sendSet[i] = recvSet[i] = prng.get<block>();
+                        }
 
 
-                    OosNcoOtReceiver otRecv;
-                    OosNcoOtSender   otSend;
+                        OosNcoOtReceiver otRecv;
+                        OosNcoOtSender   otSend;
 
-                    Grr18MPsiReceiver recvPSIs;
-                    Timer timer;
-                    recvPSIs.setTimer(timer);
+                        Grr18MPsiReceiver recvPSIs;
+                        Timer timer;
+                        recvPSIs.setTimer(timer);
 
-                    recvPSIs.mEpsBins = params.mCmd->getOr<double>("epsBins", 0.9);
-                    recvPSIs.mEpsMasks = params.mCmd->getOr<double>("epsMasks", 0.1);
+                        recvPSIs.mEpsBins = e;
+                        recvPSIs.mEpsMasks = params.mCmd->getOr<double>("epsMasks", 0.1);
 
-                    chls[0].recv(dummy, 1);
+                        chls[0].recv(dummy, 1);
 
-                    chls[0].asyncSend(dummy, 1);
-
-
+                        chls[0].asyncSend(dummy, 1);
 
 
-                    auto start = timer.setTimePoint("start");
-
-                    recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), ss, params.mBitSize);
-
-                    //chls[0].asyncSend(dummy, 1);
-                    //chls[0].recv(dummy, 1);
-                    auto mid = timer.setTimePoint("init");
 
 
-                    recvPSIs.sendInput(recvSet, chls);
+                        auto start = timer.setTimePoint("start");
+
+                        recvPSIs.init(setSize, params.mStatSecParam, chls, otRecv, otSend, prng.get<block>(), ss, params.mBitSize);
+
+                        //chls[0].asyncSend(dummy, 1);
+                        //chls[0].recv(dummy, 1);
+                        auto mid = timer.setTimePoint("init");
 
 
-                    auto end = timer.setTimePoint("done");
+                        recvPSIs.sendInput(recvSet, chls);
 
-                    auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
-                    auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-                    //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
-                    ostreamLock o(std::cout);
-                    printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads, ss);
+                        auto end = timer.setTimePoint("done");
 
-                    if (params.mVerbose)
-                    {
-                        std::cout << recvPSIs.getTimer() << std::endl;
+                        auto offlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(mid - start).count();
+                        auto onlineTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - mid).count();
 
-                        std::cout << "total noisy load: "<< recvPSIs.mTotalLoad->load() << " out of " << setSize << ". rr17a has " << recvPSIs.mBins.mMaxBinSize * recvPSIs.mBins.mBinCount<< std::endl;
+                        //auto byteSent = chls[0]->getTotalDataSent() *chls.size();
+                        ostreamLock o(std::cout);
+                        printTimings(tag, chls, offlineTime, onlineTime, params, setSize, numThreads, ss);
 
+                        if (params.mVerbose)
+                        {
+                            std::cout << recvPSIs.getTimer() << std::endl;
+
+                            std::cout << "total noisy load: " << recvPSIs.mTotalLoad->load() << " out of " << setSize << ". rr17a has " << recvPSIs.mBins.mMaxBinSize * recvPSIs.mBins.mBinCount << std::endl;
+
+                        }
                     }
                 }
             }

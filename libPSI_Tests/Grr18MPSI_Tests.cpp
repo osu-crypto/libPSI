@@ -212,7 +212,7 @@ void Grr18_Oos_parallel_FullSet_Test_Impl()
 void Grr18_Oos_SingltonSet_Test_Impl()
 {
     setThreadName("Sender");
-    u64 setSize = 1, psiSecParam = 40;
+    u64 setSize = 10, psiSecParam = 40;
 
     PRNG prng(_mm_set_epi32(4253465, 34354565, 234435, 23987045));
 
