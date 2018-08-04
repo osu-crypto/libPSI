@@ -28,8 +28,8 @@ namespace osuCrypto
         SimpleHasher mBins;
         PRNG mPrng;
 
-        std::vector<std::unique_ptr<OosNcoOtSender>> mOtSends;
-        std::vector<std::unique_ptr<OosNcoOtReceiver>> mOtRecvs;
+        std::vector<OosNcoOtSender> mOtSends;
+        std::vector<OosNcoOtReceiver> mOtRecvs;
 
         void init(u64 n, u64 statSecParam,
             span<Channel> chls,

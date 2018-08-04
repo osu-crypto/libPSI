@@ -27,8 +27,8 @@ namespace osuCrypto
         std::vector<u64> mIntersection;
         std::unique_ptr<std::atomic<u64>> mTotalLoad;
 
-        std::vector<std::unique_ptr<OosNcoOtSender>> mOtSends;
-        std::vector<std::unique_ptr<OosNcoOtReceiver>> mOtRecvs;
+        std::vector<OosNcoOtSender> mOtSends;
+        std::vector<OosNcoOtReceiver> mOtRecvs;
 
         SimpleHasher mBins;
         PRNG mPrng;

@@ -181,8 +181,8 @@ namespace osuCrypto
         // now make the threads that will to the extension
         for (u64 i = 0; i < chls.size(); ++i)
         {
-            mOtRecvs[i] = std::move(otRecv.oosSplit());
-            mOtSends[i] = std::move(otSend.oosSplit());
+            mOtRecvs[i] = std::move(otRecv.splitBase());
+            mOtSends[i] = std::move(otSend.splitBase());
         }
 
         setTimePoint("grr.recv.Init.done");
@@ -259,8 +259,8 @@ namespace osuCrypto
 
                 if (tIdx == 0) setTimePoint("grr.recv.online.thrdStart");
 
-                auto& otRecv = *mOtRecvs[tIdx];
-                auto& otSend = *mOtSends[tIdx];
+                auto& otRecv = mOtRecvs[tIdx];
+                auto& otSend = mOtSends[tIdx];
 
 
                 auto startIdx = tIdx * mN / thrds.size();
