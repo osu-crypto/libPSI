@@ -131,11 +131,11 @@ void Psi_drrn_SingletonSet_Test_Impl()
 	s1thrd.join();
 
 	if (client.mIntersection.size() != 1 || *client.mIntersection.begin() != intersectIdx) {
-        std::cout << "size " << client.mIntersection.size() << std::endl;
-        if (client.mIntersection.size())
-        {
-            std::cout << *client.mIntersection.begin() << " != " << intersectIdx << std::endl;
-        }
+        //std::cout << "size " << client.mIntersection.size() << std::endl;
+        //if (client.mIntersection.size())
+        //{
+        //    std::cout << *client.mIntersection.begin() << " != " << intersectIdx << std::endl;
+        //}
 		throw UnitTestFail();
 	}
 }
@@ -198,7 +198,7 @@ void Psi_drrn_FullSet_Test_Impl()
     bool failed = false;
 
 	if (client.mIntersection.size() != clientSetSize) {
-		std::cout << "wrong size " << client.mIntersection.size() << std::endl;
+		//std::cout << "wrong size " << client.mIntersection.size() << std::endl;
 		//throw UnitTestFail();
         failed = true;
 	}
@@ -209,7 +209,7 @@ void Psi_drrn_FullSet_Test_Impl()
 		bool b = client.mIntersection.find(i) == client.mIntersection.end();
 		if (b)
 		{
-			std::cout << "missing " << i << std::endl;
+			//std::cout << "missing " << i << std::endl;
 			//throw UnitTestFail();
             failed = true;
 		}
