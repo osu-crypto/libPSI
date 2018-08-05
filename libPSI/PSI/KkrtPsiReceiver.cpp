@@ -239,7 +239,7 @@ namespace osuCrypto
         }
         setTimePoint("kkrt.R Online.Bucket done");
 
-        u8 dummy[1];
-        chl.recv(dummy, 1);
+        //u8 dummy[1];
+        //chl.recv(dummy, 1);
     }
 }

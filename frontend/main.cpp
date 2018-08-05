@@ -34,6 +34,8 @@ using namespace osuCrypto;
 #include "libPSI_Tests/UnitTests.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
+#include "libPSI/PIR/BgiPirClient.h"
+#include "libPSI/PIR/BgiPirServer.h"
 
 #include "cuckoo/cuckooTests.h"
 #include "cryptoTools/Common/CLP.h"
@@ -53,6 +55,7 @@ rr17aSMTags{ "rr17a-sm" },
 rr17bTags{ "rr17b" },
 rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
+drrnTag{ "drrt" },
 ecdhTags{ "ecdh" },
 dktTags{ "dkt" },
 grrTags{ "grr" },
@@ -69,23 +72,148 @@ hostNameTag{ "ip" },
 pingTag{ "ping" },
 bitSizeTag{ "b","bitSize" },
 binScalerTag{ "s", "binScaler" },
+statSecParamTag{ "ssp" },
 numHashTag{ "nh" },
-statSecParamTag{ "ssp" };
+bigBlockTag{ "bigBlock" };
 
 bool firstRun(true);
 
 std::function<void(LaunchParams&)> NoOp;
 
 
-void run(
-    std::vector<std::string> tag,
-    CLP& cmd,
-    std::function<void(LaunchParams&)> recvProtol,
-    std::function<void(LaunchParams&)> sendProtol)
+
+void Drrn17Send(
+    LaunchParams& params);
+
+void Drrn17Recv(
+    LaunchParams& params);
+
+void runPir(
+	std::vector<std::string> tag,
+	CLP& cmd,
+	std::function<void(LaunchParams&)> recvProtol,
+	std::function<void(LaunchParams&)> sendProtol)
 {
-    if (cmd.isSet(tag))
-    {
-        LaunchParams params;
+
+	if (cmd.isSet(tag))
+	{
+		LaunchParams params;
+		params.mCmd = &cmd;
+		params.mNumThreads = cmd.getMany<u64>(numThreads);
+		params.mVerbose = cmd.get<u64>(verboseTags);
+		params.mTrials = cmd.get<u64>(trialsTags);
+		params.mHostName = cmd.get<std::string>(hostNameTag);
+		params.mBitSize = cmd.get<u64>(bitSizeTag);
+		params.mBinScaler = cmd.getMany<double>(binScalerTag);
+		params.mNumHash = cmd.get<u64>(numHashTag);
+
+		if (cmd.isSet(powNumItems)) {
+			params.mNumItems = cmd.getMany<u64>(powNumItems);
+			std::transform(
+				params.mNumItems.begin(),
+				params.mNumItems.end(),
+				params.mNumItems.begin(),
+				[](u64 v) { return 1 << v; });
+		}
+		else {
+			params.mNumItems = cmd.getMany<u64>(numItems);
+		}
+		if (cmd.isSet(powNumItems2)) {
+			params.mNumItems2 = cmd.getMany<u64>(powNumItems2);
+			std::transform(
+				params.mNumItems2.begin(),
+				params.mNumItems2.end(),
+				params.mNumItems2.begin(),
+				[](u64 v) { return 1 << v; });
+		}
+		else {
+			params.mNumItems2 = cmd.getMany<u64>(numItems2);
+		}
+
+		IOService ios(0);
+
+		auto go = [&](LaunchParams& params)
+		{
+			EpMode m1, m2;
+			std::string n1, n2;
+			if (params.mIdx == 0)
+			{
+				m1 = m2 = EpMode::Client;
+				n1 = "01";
+				n2 = "02";
+			}
+			else if (params.mIdx == 1) {
+				m1 = EpMode::Server;
+				m2 = EpMode::Client;
+				n1 = "01";
+				n2 = "12";
+			}
+			else {
+				m1 = m2 = EpMode::Server;
+				n1 = "02";
+				n2 = "12";
+			}
+
+			Endpoint ep1(ios, "localhost", 1213, m1, n1);
+			Endpoint ep2(ios, "localhost", 1213, m2, n2);
+			params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
+			params.mChls2.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
+
+			for (u64 i = 0; i < params.mChls.size(); ++i) {
+				params.mChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+				params.mChls2[i] = ep2.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+			}
+
+			if (params.mIdx == 0) {
+				if (firstRun) printHeader();
+				recvProtol(params);
+			}
+			else sendProtol(params);
+
+			params.mChls.clear();
+			params.mChls2.clear();
+		};
+
+		if (cmd.hasValue(roleTag))
+		{
+			params.mIdx = cmd.get<u32>(roleTag);
+			go(params);
+
+		}
+		else
+		{
+			auto srv0 = std::thread([&]() {
+				auto params2 = params;
+				params2.mIdx = 1;
+				go(params2);
+			});
+			auto srv1 = std::thread([&]() {
+				auto params2 = params;
+				params2.mIdx = 2;
+				go(params2);
+			});
+
+			params.mIdx = 0;
+			go(params);
+			srv0.join();
+			srv1.join();
+		}
+
+		firstRun = false;
+		//ios.stop();
+	}
+}
+
+
+void run(
+	std::vector<std::string> tag,
+	CLP& cmd,
+	std::function<void(LaunchParams&)> recvProtol,
+	std::function<void(LaunchParams&)> sendProtol)
+{
+	if (cmd.isSet(tag))
+	{
+		LaunchParams params;
 
         params.mNumThreads = cmd.getMany<u64>(numThreads);
         params.mVerbose = cmd.get<u64>(verboseTags);
@@ -96,48 +224,48 @@ void run(
         params.mStatSecParam = cmd.get<u64>(statSecParamTag);
         params.mCmd = &cmd;
 
-        if (cmd.isSet(powNumItems))
-        {
-            params.mNumItems = cmd.getMany<u64>(powNumItems);
-            std::transform(
-                params.mNumItems.begin(),
-                params.mNumItems.end(),
-                params.mNumItems.begin(),
-                [](u64 v) { return 1 << v; });
-        }
-        else
-        {
-            params.mNumItems = cmd.getMany<u64>(numItems);
-        }
+		if (cmd.isSet(powNumItems))
+		{
+			params.mNumItems = cmd.getMany<u64>(powNumItems);
+			std::transform(
+				params.mNumItems.begin(),
+				params.mNumItems.end(),
+				params.mNumItems.begin(),
+				[](u64 v) { return 1 << v; });
+		}
+		else
+		{
+			params.mNumItems = cmd.getMany<u64>(numItems);
+		}
 
-        IOService ios(0);
+		IOService ios(0);
 
-        auto go = [&](LaunchParams& params)
-        {
-            auto mode = params.mIdx ? EpMode::Server : EpMode::Client;
-            Endpoint ep(ios, "localhost", 1213, mode, "none");
-            params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
+		auto go = [&](LaunchParams& params)
+		{
+			auto mode = params.mIdx ? EpMode::Server : EpMode::Client;
+			Endpoint ep(ios, "localhost", 1213, mode, "none");
+			params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
-            for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+			for (u64 i = 0; i < params.mChls.size(); ++i)
+				params.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
 
             if (params.mIdx == 0)
             {
                 if (firstRun) printHeader();
                 firstRun = false;
 
-                recvProtol(params);
-            }
-            else
-            {
-                sendProtol(params);
-            }
+				recvProtol(params);
+			}
+			else
+			{
+				sendProtol(params);
+			}
 
-            for (u64 i = 0; i < params.mChls.size(); ++i)
-                params.mChls[i].close();
+			for (u64 i = 0; i < params.mChls.size(); ++i)
+				params.mChls[i].close();
 
-            ep.stop();
-        };
+			ep.stop();
+		};
 
         if (cmd.hasValue(roleTag))
         {
@@ -164,47 +292,47 @@ void run(
 void pingTest(CLP& cmd)
 {
 
-    IOService ios(0);
+	IOService ios(0);
 
-    if (cmd.hasValue(roleTag))
-    {
-        if (cmd.get<bool>(roleTag))
-        {
-            Endpoint sendEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Server, "pringTest");
-            auto chl = sendEP.addChannel("test");
-            senderGetLatency(chl);
-            chl.close();
-            sendEP.stop();
-        }
-        else
-        {
-            Endpoint recvEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Client, "pringTest");
-            auto chl = recvEP.addChannel("test");
-            recverGetLatency(chl);
-            chl.close();
-            recvEP.stop();
-        }
-    }
-    else
-    {
-        auto thrd = std::thread([&]()
-        {
-            Endpoint sendEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Server, "pringTest");
-            auto chl = sendEP.addChannel("test");
-            senderGetLatency(chl);
-            chl.close();
-            sendEP.stop();
-        });
+	if (cmd.hasValue(roleTag))
+	{
+		if (cmd.get<bool>(roleTag))
+		{
+			Endpoint sendEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Server, "pringTest");
+			auto chl = sendEP.addChannel("test");
+			senderGetLatency(chl);
+			chl.close();
+			sendEP.stop();
+		}
+		else
+		{
+			Endpoint recvEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Client, "pringTest");
+			auto chl = recvEP.addChannel("test");
+			recverGetLatency(chl);
+			chl.close();
+			recvEP.stop();
+		}
+	}
+	else
+	{
+		auto thrd = std::thread([&]()
+		{
+			Endpoint sendEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Server, "pringTest");
+			auto chl = sendEP.addChannel("test");
+			senderGetLatency(chl);
+			chl.close();
+			sendEP.stop();
+		});
 
-        Endpoint recvEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Client, "pringTest");
-        auto chl = recvEP.addChannel("test");
-        recverGetLatency(chl);
-        chl.close();
-        recvEP.stop();
-        thrd.join();
-    }
+		Endpoint recvEP(ios, cmd.get<std::string>(hostNameTag), EpMode::Client, "pringTest");
+		auto chl = recvEP.addChannel("test");
+		recverGetLatency(chl);
+		chl.close();
+		recvEP.stop();
+		thrd.join();
+	}
 
-    ios.stop();
+	ios.stop();
 }
 
 
@@ -257,55 +385,41 @@ void BallsAndBins(CLP& cmd)
     }
 }
 
+
 int main(int argc, char** argv)
 {
-    LinearCode mCode;
-    mCode.load(bch511_binary, sizeof(bch511_binary));
-
-    u8 in[100], out[100];
-    mCode.encode(in, out);
-    //for (auto nn : { 8, 12, 16, 20 })
-    //{
-    //    for (auto mm : { 4, 10 })
-    //    {
-    //        auto n = 1ull << nn;
-    //        auto m = n / mm;
-    //        std::cout << "n=" << n << " m=" << m << " -> binSize " << SimpleIndex::get_bin_size(m, n, 40) << std::endl;;
-    //        gTimer.setTimePoint("b" + ToString(nn) + " " + ToString(mm));
-    //    }
-    //}
-    //std::cout << gTimer << std::endl;
-
-    ////ttt22();
-    //shuffle();
-    //return 0;
-    //hhhh();
-    //return 0;
+	//std::cout << "20: " << SimpleIndex::get_bin_size(1 << 14, (1 << 24) * 3, 20) << std::endl;;
+	//std::cout << "40: " << SimpleIndex::get_bin_size(1 << 14, (1 << 24) * 3, 40) << std::endl;;
+	////ttt22();
+	//return 0;
+	//hhhh();
+	//return 0;
 
 
 
     CLP cmd;
     cmd.parse(argc, argv);
 
-    if (cmd.isSet("cuckoo"))
-    {
-        simpleTest(argc, argv);
-        return 0;
-    }
-    //cmd.setDefault(rr17Tags, "");
+	if (cmd.isSet("cuckoo"))
+	{
+		simpleTest(argc, argv);
+		return 0;
+	}
+	//cmd.setDefault(rr17Tags, "");
 
-    cmd.setDefault(numThreads, "1");
-    cmd.setDefault(numItems, std::to_string(1 << 8));
-    cmd.setDefault(numItems2, std::to_string(1 << 8));
-    //cmd.setDefault(verboseTags, "0");
-    cmd.setDefault(trialsTags, "1");
-    cmd.setDefault(bitSizeTag, "-1");
-    cmd.setDefault(binScalerTag, "1");
-    cmd.setDefault(hostNameTag, "127.0.0.1:1212");
-    cmd.setDefault(numHashTag, "3");
+	cmd.setDefault(numThreads, "1");
+	cmd.setDefault(numItems, std::to_string(1 << 8));
+	cmd.setDefault(numItems2, std::to_string(1 << 8));
+	//cmd.setDefault(verboseTags, "0");
+	cmd.setDefault(trialsTags, "1");
+	cmd.setDefault(bitSizeTag, "-1");
+	cmd.setDefault(binScalerTag, "1");
+	cmd.setDefault(hostNameTag, "127.0.0.1:1212");
+	cmd.setDefault(numHashTag, "3");
+	cmd.setDefault(bigBlockTag, "16");
     cmd.setDefault(statSecParamTag, 40);
     cmd.setDefault("eps", "0.1");
-    cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
+	cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
 
     if (cmd.isSet(unitTestTags))
     {
@@ -329,8 +443,8 @@ int main(int argc, char** argv)
         }
     }
 
-    if (cmd.isSet(pingTag))
-        pingTest(cmd);
+	if (cmd.isSet(pingTag))
+		pingTest(cmd);
 
     if (cmd.isSet("ballsBins"))
     {
@@ -344,25 +458,24 @@ int main(int argc, char** argv)
     bool hasProtocolTag = false;
 
 #ifdef ENABLE_DCW
-    run(DcwRecv, DcwSend, DcwTags, cmd);
-    run(DcwRRecv, DcwRSend, DcwrTags, cmd);
+	run(DcwRecv, DcwSend, DcwTags, cmd);
+	run(DcwRRecv, DcwRSend, DcwrTags, cmd);
 #endif
-
 	run(rr16Tags, cmd, bfRecv, bfSend);
 	run(rr17aTags, cmd, rr17aRecv, rr17aSend);
 	run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
 	run(rr17bTags, cmd, rr17bRecv, rr17bSend);
 	run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
-    run(dktTags, cmd, DktRecv, DktSend);
-    run(grrTags, cmd, grr18Recv, grr18Send);
+	run(dktTags, cmd, DktRecv, DktSend);
 	run(kkrtTag, cmd, kkrtRecv, kkrtSend);
-	run(ecdhTags, cmd, EcdhRecv, EcdhSend);
+	runPir(drrnTag, cmd, Drrn17Recv, Drrn17Send);
+    run(ecdhTags, cmd, EcdhRecv, EcdhSend);
 
 
 	if ((cmd.isSet(unitTestTags) == false &&
 #ifdef ENABLE_DCW
-        cmd.isSet(DcwTags) == false &&
-        cmd.isSet(DcwrTags) == false &&
+		cmd.isSet(DcwTags) == false &&
+		cmd.isSet(DcwrTags) == false &&
 #endif
 		cmd.isSet(rr16Tags) == false &&
 		cmd.isSet(rr17aTags) == false &&
@@ -370,6 +483,7 @@ int main(int argc, char** argv)
 		cmd.isSet(rr17bTags) == false &&
 		cmd.isSet(rr17bSMTags) == false &&
 		cmd.isSet(kkrtTag) == false &&
+        cmd.isSet(drrnTag) == false &&
         cmd.isSet(dktTags) == false &&
         cmd.isSet(grrTags) == false &&
 		cmd.isSet(ecdhTags) == false &&
@@ -388,8 +502,8 @@ int main(int argc, char** argv)
 
 
 #ifdef ENABLE_DCW
-            << "   -" << DcwTags[0] << "  : DCW13  - Garbled Bloom Filter (semi-honest*)\n"
-            << "   -" << DcwrTags[0] << " : PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
+			<< "   -" << DcwTags[0] << "  : DCW13  - Garbled Bloom Filter (semi-honest*)\n"
+			<< "   -" << DcwrTags[0] << " : PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
 #endif
             << "   -" << rr16Tags[0] << "    : RR16    - Random Garbled Bloom Filter (malicious secure)\n"
             << "   -" << rr17aTags[0] << "   : RR17    - Hash to bins & compare style (malicious secure, fastest)\n"
@@ -400,45 +514,44 @@ int main(int argc, char** argv)
 			<< "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
 			<< "   -" << ecdhTags[0] << "     : ECHD   - Diffie-Hellma key exchange with Curve25519 (semihonest secure)\n"
 			<< "   -" << kkrtTag[0] << "    : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
+            << "   -" << drrnTag[0] << "  : DRRN17  - Two server PIR style (semi-honest secure)\n" 
 			<< std::endl;
 
+		std::cout << "Parameters:\n"
+			<< "   -" << roleTag[0]
+			<< ": Two terminal mode. Value should be in { 0, 1 } where 0 means PSI sender and network server.\n"
 
-        std::cout
-            << "   -" << numItems[0]
-            << ": Number of items each party has, white space delimited. (Default = " << cmd.get<std::string>(numItems) << ")\n"
+			<< "   -" << numItems[0]
+			<< ": Number of items each party has, white space delimited. (Default = " << cmd.get<std::string>(numItems) << ")\n"
 
-            << "   -" << powNumItems[0]
-            << ": 2^n number of items each party has, white space delimited.\n"
+			<< "   -" << powNumItems[0]
+			<< ": 2^n number of items each party has, white space delimited.\n"
 
-            << "   -" << numThreads[0]
-            << ": Number of theads each party has, white space delimited. (Default = " << cmd.get<std::string>(numThreads) << ")\n"
+			<< "   -" << numThreads[0]
+			<< ": Number of theads each party has, white space delimited. (Default = " << cmd.get<std::string>(numThreads) << ")\n"
 
-            << "   -" << trialsTags[0]
-            << ": Number of trials performed. (Default = " << cmd.get<std::string>(trialsTags) << ")\n"
+			<< "   -" << trialsTags[0]
+			<< ": Number of trials performed. (Default = " << cmd.get<std::string>(trialsTags) << ")\n"
 
-            << "   -" << verboseTags[0]
-            << ": print extra information. (Default = " << cmd.get<std::string>(verboseTags) << ")\n"
+			<< "   -" << verboseTags[0]
+			<< ": print extra information. (Default = " << cmd.get<std::string>(verboseTags) << ")\n"
 
-            << "   -" << hostNameTag[0]
-            << ": The server's address (Default = " << cmd.get<std::string>(hostNameTag) << ")\n"
+			<< "   -" << hostNameTag[0]
+			<< ": The server's address (Default = " << cmd.get<std::string>(hostNameTag) << ")\n"
 
-            << "   -" << pingTag[0]
-            << ": Perform a ping and bandwidth test (Default = " << cmd.isSet(pingTag) << ")\n"
+			<< "   -" << pingTag[0]
+			<< ": Perform a ping and bandwidth test (Default = " << cmd.isSet(pingTag) << ")\n"
 
-            << "   -" << bitSizeTag[0]
-            << ":  Bit size for protocols that depend on it.\n"
+			<< "   -" << bitSizeTag[0]
+			<< ":  Bit size for protocols that depend on it.\n"
 
-            << "   -" << binScalerTag[0]
-            << ":  Have the Hash to bin type protocols use n / " << binScalerTag[0] << " number of bins (Default = 1)\n" << std::endl;
+			<< "   -" << binScalerTag[0]
+			<< ":  Have the Hash to bin type protocols use n / " << binScalerTag[0] << " number of bins (Default = 1)\n" << std::endl;
 
 
-        std::cout << "Unit Tests:\n"
-            << "   -" << unitTestTags[0] << ": Run all unit tests\n" << std::endl;
+		std::cout << "Unit Tests:\n"
+			<< "   -" << unitTestTags[0] << ": Run all unit tests\n" << std::endl;
 
-    }
-
-    std::ofstream f;
-    f.open("./times.txt", std::ofstream::out | std::ofstream::app);
-    f << gTimer << std::endl;
-    return 0;
+	}
+	return 0;
 }

@@ -77,10 +77,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AknBfPsi_Tests.cpp" />
+    <ClCompile Include="BgiPirTests.cpp" />
     <ClCompile Include="BinOtPsi_Tests.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="DcwBfPsi_Tests.cpp" />
     <ClCompile Include="DktMPsi_Tests.cpp" />
+    <ClCompile Include="DrrnPsi_Tests.cpp" />
     <ClCompile Include="EcdhPsi_Tests.cpp" />
     <ClCompile Include="Grr18MPSI_Tests.cpp" />
     <ClCompile Include="OTOracleReceiver.cpp" />

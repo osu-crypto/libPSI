@@ -89,6 +89,7 @@
     <ClCompile Include="cuckoo\cuckooTests.cpp" />
     <ClCompile Include="dcwMain.cpp" />
     <ClCompile Include="dktMain.cpp" />
+    <ClCompile Include="DrrnPSIMain.cpp" />
     <ClCompile Include="ecdhMain.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OtBinMain.cpp" />

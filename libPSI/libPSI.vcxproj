@@ -79,6 +79,10 @@
     <ClCompile Include="MPSI\Grr18\Grr18Common.cpp" />
     <ClCompile Include="MPSI\Grr18\Grr18MPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Grr18\Grr18MPsiSender.cpp" />
+    <ClCompile Include="PIR\BgiPirClient.cpp" />
+    <ClCompile Include="PIR\BgiPirServer.cpp" />
+    <ClCompile Include="PSI\DrrnPsiClient.cpp" />
+    <ClCompile Include="PSI\DrrnPsiServer.cpp" />
     <ClCompile Include="PSI\ECDH\EcdhPsiReceiver.cpp" />
     <ClCompile Include="PSI\ECDH\EcdhPsiSender.cpp" />
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
@@ -105,6 +109,10 @@
     <ClInclude Include="MPSI\Grr18\Grr18Common.h" />
     <ClInclude Include="MPSI\Grr18\Grr18MPsiReceiver.h" />
     <ClInclude Include="MPSI\Grr18\Grr18MPsiSender.h" />
+    <ClInclude Include="PIR\BgiPirClient.h" />
+    <ClInclude Include="PIR\BgiPirServer.h" />
+    <ClInclude Include="PSI\DrrnPsiClient.h" />
+    <ClInclude Include="PSI\DrrnPsiServer.h" />
     <ClInclude Include="PSI\ECDH\EcdhPsiReceiver.h" />
     <ClInclude Include="PSI\ECDH\EcdhPsiSender.h" />
     <ClInclude Include="PSI\KkrtPsiReceiver.h" />
