@@ -562,10 +562,10 @@ void Rr17a_SM_parallel_FullSet_Test_Impl()
     }
 
     std::shuffle(sendSet.begin(), sendSet.end(), prng);
-    for (u64 i = 0; i < setSize; ++i)
-    {
-        std::cout << i << " " << sendSet[i] << "  " << recvSet[i] << std::endl;
-    }
+    //for (u64 i = 0; i < setSize; ++i)
+    //{
+    //    std::cout << i << " " << sendSet[i] << "  " << recvSet[i] << std::endl;
+    //}
 
     std::string name("psi");
 
