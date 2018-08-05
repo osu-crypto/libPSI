@@ -89,6 +89,12 @@
     <ClInclude Include="Grr18MPSI_Tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BgiPirTests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DrrnPsi_Tests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

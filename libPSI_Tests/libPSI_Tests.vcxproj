@@ -92,10 +92,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AknBfPsi_Tests.h" />
+    <ClInclude Include="BgiPirTests.h" />
     <ClInclude Include="BinOtPsi_Tests.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="DcwBfPsi_Tests.h" />
     <ClInclude Include="DktMPsi_Tests.h" />
+    <ClInclude Include="DrrnPsi_Tests.h" />
     <ClInclude Include="EcdhPsi_Tests.h" />
     <ClInclude Include="Grr18MPSI_Tests.h" />
     <ClInclude Include="OTOracleReceiver.h" />

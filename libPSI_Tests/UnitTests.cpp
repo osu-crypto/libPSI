@@ -10,6 +10,8 @@
 #include "DktMPsi_Tests.h"
 #include "EcdhPsi_Tests.h"
 #include "Grr18MPSI_Tests.h"
+#include "BgiPirTests.h"
+#include "DrrnPsi_Tests.h"
 using namespace osuCrypto;
 namespace libPSI_Tests
 {
@@ -25,6 +27,18 @@ namespace libPSI_Tests
         t.add("EcdhPsi_FullSet_Test_Impl             ", EcdhPsi_FullSet_Test_Impl);
         t.add("EcdhPsi_SingltonSet_Test_Impl         ", EcdhPsi_SingltonSet_Test_Impl);
 
+
+        t.add("BgiPir_keyGen_128_test                ", BgiPir_keyGen_128_test);
+        t.add("BgiPir_keyGen_test();                 ", BgiPir_keyGen_test);
+        t.add("BgiPir_PIR_test();                    ", BgiPir_PIR_test);
+        t.add("BgiPir_FullDomain_test();             ", BgiPir_FullDomain_test);
+        t.add("BgiPir_FullDomain_iterator_test();    ", BgiPir_FullDomain_iterator_test);
+        t.add("BgiPir_FullDomain_multikey_test();    ", BgiPir_FullDomain_multikey_test);
+
+
+        t.add("Psi_drrn_SingletonSet_Test_Impl       ", Psi_drrn_SingletonSet_Test_Impl);
+        t.add("Psi_drrn_FullSet_Test_Impl            ", Psi_drrn_FullSet_Test_Impl);
+        t.add("Psi_drrn_EmptySet_Test_Impl           ", Psi_drrn_EmptySet_Test_Impl);
 
         //t.add("DktPsi_EmptrySet_Test_Impl            ", DktMPsi_EmptrySet_Test_Impl);
         //t.add("DktPsi_FullSet_Test_Impl              ", DktMPsi_FullSet_Test_Impl);
