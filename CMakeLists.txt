@@ -38,7 +38,7 @@ endif()
 
 
 # Select flags.
-SET(CMAKE_CXX_FLAGS_RELEASE "-Ofast -march=native -frename-registers -DNDEBUG")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG")
 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g -ggdb -rdynamic")
 SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g3 -ggdb -rdynamic")
 
