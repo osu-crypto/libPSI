@@ -443,7 +443,9 @@ namespace osuCrypto
             Lookup non{ 1, 1, 0, 0,{ 0 } };
             if (lookup_ptr == nullptr)
             {
+#ifndef NDEBUG
                 std::cout << Color::Red << "=========================================\n             warning. no bin padding\n=========================================" << ColorDefault << std::endl;
+#endif
                 lookup_ptr = &non;
             }
             auto& lookup = *lookup_ptr;
