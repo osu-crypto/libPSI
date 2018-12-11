@@ -20,6 +20,8 @@ extern u8 dummy[];
 
 void DktSend(LaunchParams& params)
 {
+#ifdef ENABLE_MIRACL
+
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     for (auto setSize : params.mNumItems)
@@ -45,11 +47,15 @@ void DktSend(LaunchParams& params)
             }
         }
     }
+#else
+    std::cout <<Color::Red << "DKT requires miracl " << std::endl << Color::Default;
+#endif
 }
 
 
 void DktRecv(LaunchParams& params)
 {
+#ifdef ENABLE_MIRACL
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -87,6 +93,9 @@ void DktRecv(LaunchParams& params)
             }
         }
     }
+#else
+    std::cout << Color::Red << "DKT requires miracl " << std::endl << Color::Default;
+#endif
 }
 
 

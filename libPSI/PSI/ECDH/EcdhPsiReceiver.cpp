@@ -1,10 +1,12 @@
 #include "EcdhPsiReceiver.h"
+#include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/Curve.h"
 #include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
 #include <cryptoTools/Crypto/RandomOracle.h>
 #include <unordered_map>
 
+#ifdef ENABLE_ECDH_PSI_R
 namespace osuCrypto
 {
 
@@ -40,7 +42,6 @@ namespace osuCrypto
 
 		u64 maskSizeByte = (40 + 2*log2(inputs.size()) + 7) / 8;
 
-		auto curveParam = Curve25519;
         auto RcSeed = mPrng.get<block>();
 
 		std::unordered_map<u32, block> mapXab;
@@ -58,12 +59,26 @@ namespace osuCrypto
 			auto& chl = chls[t];
 			auto& prng = thrdPrng[t];
 			u8 hashOut[SHA1::HashSize];
+#ifdef ENABLE_RELIC
+            using Curve = REllipticCurve;
+            using Point = REccPoint;
+            using Brick = REccPoint;
+            using Number = REccNumber;
+            Curve curve;
 
-			EllipticCurve curve(curveParam, prng.get<block>());
+#else    
+            using Curve = EllipticCurve;
+            using Point = EccPoint;
+            using Brick = EccBrick;
+            using Number = EccNumber;
+            auto curveParam = Curve25519;
+            Curve curve(curveParam, prng.get<block>());
+#endif
+			//EllipticCurve curve(curveParam, prng.get<block>());
 
 			SHA1 inputHasher;
-			EccNumber b(curve);
-			EccPoint yb(curve), yba(curve), point(curve), xa(curve), xab(curve);
+			Number b(curve);
+			Point yb(curve), yba(curve), point(curve), xa(curve), xab(curve);
 			 b.randomize(RcSeed);
 
 			std::vector<u8> sendBuff(yb.sizeBytes() * subsetInputSize);
@@ -240,3 +255,4 @@ namespace osuCrypto
     }
 
 }
+#endif

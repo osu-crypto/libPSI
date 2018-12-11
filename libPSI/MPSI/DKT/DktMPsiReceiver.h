@@ -4,6 +4,7 @@
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Crypto/PRNG.h"
 
+#ifdef ENABLE_MIRACL
 namespace osuCrypto
 {
 
@@ -25,5 +26,5 @@ namespace osuCrypto
         void sendInput(span<block> inputs, span<Channel> chl0);
 
     };
-
 }
+#endif

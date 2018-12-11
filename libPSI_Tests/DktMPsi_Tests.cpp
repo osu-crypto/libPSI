@@ -8,7 +8,9 @@
 #include "OTOracleReceiver.h"
 #include "OTOracleSender.h"
 #include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/TestCollection.h"
 #include "cryptoTools/Network/IOService.h"
+
 //
 //#include "cryptopp/aes.h"
 //#include "cryptopp/modes.h"
@@ -17,7 +19,7 @@
 
 using namespace osuCrypto;
 
-
+#ifdef ENABLE_MIRACL
 
 void DktMPsi_EmptrySet_Test_Impl()
 {
@@ -188,3 +190,19 @@ void DktMPsi_SingltonSet_Test_Impl()
     }
 
 }
+#else
+
+void DktMPsi_EmptrySet_Test_Impl()
+{
+    throw UnitTestSkipped("requires miracl");
+}
+void DktMPsi_FullSet_Test_Impl()
+{
+    throw UnitTestSkipped("requires miracl");
+}
+void DktMPsi_SingltonSet_Test_Impl()
+{
+    throw UnitTestSkipped("requires miracl");
+}
+
+#endif

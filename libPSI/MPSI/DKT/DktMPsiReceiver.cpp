@@ -4,6 +4,7 @@
 #include "cryptoTools/Common/Log.h"
 
 #include <unordered_map>
+#ifdef ENABLE_MIRACL
 
 namespace osuCrypto
 {
@@ -546,3 +547,4 @@ namespace osuCrypto
 
     }
 }
+#endif

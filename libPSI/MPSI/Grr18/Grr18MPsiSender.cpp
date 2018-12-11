@@ -246,7 +246,7 @@ namespace osuCrypto
             auto seed = mPrng.get<block>();
             thrds[tIdx] = std::thread([&, tIdx, seed]() {
 
-                setThreadName("send_thrd_" + ToString(tIdx));
+                setThreadName("send_thrd_" + std::to_string(tIdx));
 
                 PRNG prng(seed);
 

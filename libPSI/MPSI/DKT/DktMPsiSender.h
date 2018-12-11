@@ -7,6 +7,9 @@
 
 namespace osuCrypto
 {
+#ifdef ENABLE_MIRACL
+
+
     class DktMPsiSender
     {
     public:
@@ -24,5 +27,7 @@ namespace osuCrypto
         void sendInput(std::vector<block>& inputs, span<Channel> chl);
         //void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl);
     };
+
+#endif
 
 }

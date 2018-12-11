@@ -26,7 +26,7 @@ void InitDebugPrinting(std::string filePath)
     file->open(filePath, std::ios::trunc | std::ofstream::out);
 
     if (!file->is_open())
-        throw UnitTestFail();
+        throw std::runtime_error("failed to open: " + filePath);
 
     //time_t now = time(0);
 

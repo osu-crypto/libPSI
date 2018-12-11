@@ -255,7 +255,7 @@ namespace osuCrypto
             auto seed = mPrng.get<block>();
             thrds[tIdx] = std::thread([&, tIdx, seed]()
             {
-                setThreadName("recv_thrd_" + ToString(tIdx));
+                setThreadName("recv_thrd_" + std::to_string(tIdx));
 
                 if (tIdx == 0) setTimePoint("grr.recv.online.thrdStart");
 

@@ -6,6 +6,7 @@
 #include "libPSI/PSI/ECDH/EcdhPsiReceiver.h"
 #include "libPSI/PSI/ECDH/EcdhPsiSender.h"
 #include "cryptoTools/Common/Log.h"
+#include "cryptoTools/Common/TestCollection.h"
 #include "cryptoTools/Network/IOService.h"
 //
 //#include "cryptopp/aes.h"
@@ -16,9 +17,10 @@
 using namespace osuCrypto;
 
 
-
+#ifdef ENABLE_ECDH_PSI
 void EcdhPsi_EmptrySet_Test_Impl()
 {
+
 	u64 setSize = 8, psiSecParam = 40;
 	PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -170,8 +172,25 @@ void EcdhPsi_SingltonSet_Test_Impl()
 	if (recv.mIntersection.size() != 1 ||
 		recv.mIntersection[0] != 0)
 	{
-
+        
 		throw UnitTestFail();
 	}
 
 }
+
+#else
+
+void EcdhPsi_EmptrySet_Test_Impl()
+{
+    throw UnitTestSkipped("Requires Relic or Miracl");
+}
+void EcdhPsi_FullSet_Test_Impl()
+{
+    throw UnitTestSkipped("Requires Relic or Miracl");
+}
+void EcdhPsi_SingltonSet_Test_Impl()
+{
+    throw UnitTestSkipped("Requires Relic or Miracl");
+}
+
+#endif

@@ -4,9 +4,9 @@
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Network/Channel.h"
 
+#ifdef ENABLE_MIRACL
 namespace osuCrypto
 {
-
     DktMPsiSender::DktMPsiSender()
     {
     }
@@ -415,3 +415,4 @@ namespace osuCrypto
 
     }
 }
+#endif

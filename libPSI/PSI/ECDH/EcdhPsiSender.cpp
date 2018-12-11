@@ -1,11 +1,15 @@
 #include "EcdhPsiSender.h"
 #include "cryptoTools/Crypto/Curve.h"
+#include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Network/Channel.h"
 
+#ifdef ENABLE_ECDH_PSI
+
 namespace osuCrypto
 {
+
 
     EcdhPsiSender::EcdhPsiSender()
     {
@@ -26,7 +30,6 @@ namespace osuCrypto
     void EcdhPsiSender::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
 
-        auto curveParam = Curve25519;
 
         u64 theirInputSize = inputs.size();
 
@@ -50,11 +53,25 @@ namespace osuCrypto
             auto& chl = chls[t];
             auto& prng = thrdPrng[t];
 
-            EllipticCurve curve(curveParam, prng.get<block>());
+#ifdef ENABLE_RELIC
+            using Curve = REllipticCurve;
+            using Point = REccPoint;
+            using Brick = REccPoint;
+            using Number = REccNumber;
+            Curve curve;
+
+#else    
+            using Curve = EllipticCurve;
+            using Point = EccPoint;
+            using Brick = EccBrick;
+            using Number = EccNumber;
+            auto curveParam = Curve25519;
+            Curve curve(curveParam, prng.get<block>());
+#endif
           
             RandomOracle inputHasher(sizeof(block));
-			EccNumber a(curve);
-			EccPoint xa(curve), point(curve), yb(curve), yba(curve);
+			Number a(curve);
+			Point xa(curve), point(curve), yb(curve), yba(curve);
             a.randomize(RsSeed);
 
 			std::vector<u8> sendBuff(xa.sizeBytes() * subsetInputSize);
@@ -152,3 +169,5 @@ namespace osuCrypto
 
     }
 }
+
+#endif

@@ -409,7 +409,7 @@ namespace osuCrypto
 
                                 //block c;
                                 auto enc = toBlock(iter) ^ itemDecomm;
-                                auto encPtr = ByteArray(enc);
+                                auto encPtr = (u8*)(&enc);
                                 //*iter = 0;
                                 //memcpy(&c, ByteArray(enc), sizeof(block));
                                 memcpy(iter, encPtr, sizeof(block));

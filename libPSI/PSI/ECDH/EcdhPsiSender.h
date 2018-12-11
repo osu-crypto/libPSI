@@ -5,6 +5,10 @@
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Crypto/PRNG.h"
 
+
+#if defined ENABLE_RELIC  || defined ENABLE_MIRACL
+#define ENABLE_ECDH_PSI
+
 namespace osuCrypto
 {
     class EcdhPsiSender
@@ -26,3 +30,5 @@ namespace osuCrypto
     };
 
 }
+
+#endif

@@ -8,6 +8,7 @@
 
 #include "libPSI/MPSI/Grr18/Grr18MPsiReceiver.h"
 #include "libPSI/MPSI/Grr18/Grr18MPsiSender.h"
+#include "cryptoTools/Common/TestCollection.h"
 
 #include "libOTe/NChooseOne/Oos/OosNcoOtReceiver.h"
 #include "libOTe/NChooseOne/Oos/OosNcoOtSender.h"

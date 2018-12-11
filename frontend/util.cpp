@@ -295,7 +295,7 @@ void printTimings(
     {
         std::cout << std::dec << std::setw(6) << tag
             << std::setw(8) << (std::to_string(setSize) + (n2 == -1? "" : "vs"+std::to_string(n2)))
-            << std::setw(10) << (ToString(numThreads) + " " + ToString(s))
+            << std::setw(10) << (std::to_string(numThreads) + " " + std::to_string(s))
             << std::setw(14) << (offlineTime + onlineTime)
             << std::setw(14) << onlineTime
             << std::setw(18) << (string_format("%4.2f", (dataRecv + dataSent) / std::pow(2.0, 20)))

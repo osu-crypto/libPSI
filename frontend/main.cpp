@@ -380,7 +380,7 @@ void BallsAndBins(CLP& cmd)
             auto n = 1ull << nn;
             auto m = n / mm;
             std::cout << "n=" << n << " m=" << m << " -> binSize " << SimpleIndex::get_bin_size(m, n, 40) << std::endl;;
-            gTimer.setTimePoint("b" + ToString(nn) + " " + ToString(mm));
+            gTimer.setTimePoint("b" + std::to_string(nn) + " " + std::to_string(mm));
         }
     }
 }
@@ -524,8 +524,11 @@ int main(int argc, char** argv)
 			<< "   -" << numItems[0]
 			<< ": Number of items each party has, white space delimited. (Default = " << cmd.get<std::string>(numItems) << ")\n"
 
-			<< "   -" << powNumItems[0]
-			<< ": 2^n number of items each party has, white space delimited.\n"
+            << "   -" << powNumItems[0]
+            << ": 2^n number of items each party has, white space delimited.\n"
+
+            << "   -" << powNumItems2[0]
+            << ": 2^n number of items the server in PIR PSI has, white space delimited.\n"
 
 			<< "   -" << numThreads[0]
 			<< ": Number of theads each party has, white space delimited. (Default = " << cmd.get<std::string>(numThreads) << ")\n"
@@ -545,8 +548,13 @@ int main(int argc, char** argv)
 			<< "   -" << bitSizeTag[0]
 			<< ":  Bit size for protocols that depend on it.\n"
 
-			<< "   -" << binScalerTag[0]
-			<< ":  Have the Hash to bin type protocols use n / " << binScalerTag[0] << " number of bins (Default = 1)\n" << std::endl;
+            << "   -" << binScalerTag[0]
+            << ":  Have the Hash to bin type protocols use n / " << binScalerTag[0] << " number of bins (Default = 1)\n"
+
+            << "   -bigBlock"
+            << ":  The number of entries from the PSI-PSI server database each PIR contributes to the PSI. Larger=smaller PIR queries but larger PSI (Default = 16)\n"
+
+            << std::endl;
 
 
 		std::cout << "Unit Tests:\n"
