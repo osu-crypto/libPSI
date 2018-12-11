@@ -59,22 +59,12 @@ namespace osuCrypto
 			auto& chl = chls[t];
 			auto& prng = thrdPrng[t];
 			u8 hashOut[SHA1::HashSize];
-#ifdef ENABLE_RELIC
             using Curve = REllipticCurve;
             using Point = REccPoint;
             using Brick = REccPoint;
             using Number = REccNumber;
             Curve curve;
 
-#else    
-            using Curve = EllipticCurve;
-            using Point = EccPoint;
-            using Brick = EccBrick;
-            using Number = EccNumber;
-            auto curveParam = Curve25519;
-            Curve curve(curveParam, prng.get<block>());
-#endif
-			//EllipticCurve curve(curveParam, prng.get<block>());
 
 			SHA1 inputHasher;
 			Number b(curve);

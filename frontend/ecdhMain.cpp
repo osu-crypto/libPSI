@@ -19,6 +19,8 @@ extern u8 dummy[];
 
 void EcdhSend(LaunchParams& params)
 {
+#ifdef ENABLE_ECDH_PSI
+
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     for (auto setSize : params.mNumItems)
@@ -45,11 +47,15 @@ void EcdhSend(LaunchParams& params)
             }
         }
     }
+#else
+    std::cout << Color::Red << "ECDH requires relic " << std::endl << Color::Default;
+#endif
 }
 
 
 void EcdhRecv(LaunchParams& params)
 {
+#ifdef ENABLE_ECDH_PSI
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -89,7 +95,9 @@ void EcdhRecv(LaunchParams& params)
             }
         }
     }
+#else
+std::cout << Color::Red << "ECDH requires relic " << std::endl << Color::Default;
+#endif
 }
-
 
 

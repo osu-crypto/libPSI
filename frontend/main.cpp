@@ -466,10 +466,13 @@ int main(int argc, char** argv)
 	run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
 	run(rr17bTags, cmd, rr17bRecv, rr17bSend);
 	run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
-	run(dktTags, cmd, DktRecv, DktSend);
 	run(kkrtTag, cmd, kkrtRecv, kkrtSend);
 	runPir(drrnTag, cmd, Drrn17Recv, Drrn17Send);
+
+#ifdef ENABLE_RELIC
+	run(dktTags, cmd, DktRecv, DktSend);
     run(ecdhTags, cmd, EcdhRecv, EcdhSend);
+#endif
 
 
 	if ((cmd.isSet(unitTestTags) == false &&
@@ -484,9 +487,11 @@ int main(int argc, char** argv)
 		cmd.isSet(rr17bSMTags) == false &&
 		cmd.isSet(kkrtTag) == false &&
         cmd.isSet(drrnTag) == false &&
-        cmd.isSet(dktTags) == false &&
         cmd.isSet(grrTags) == false &&
+#ifdef ENABLE_RELIC
+        cmd.isSet(dktTags) == false &&
 		cmd.isSet(ecdhTags) == false &&
+#endif
 		cmd.isSet(pingTag) == false) ||
 		cmd.isSet(helpTags))
 	{
@@ -512,7 +517,8 @@ int main(int argc, char** argv)
             << "   -" << rr17bSMTags[0] << ": RR17bsm - Hash to bins & commit compare style (standard model malicious secure)\n"
 
 			<< "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
-			<< "   -" << ecdhTags[0] << "     : ECHD   - Diffie-Hellma key exchange with Curve25519 (semihonest secure)\n"
+			<< "   -" << ecdhTags[0] << "     : ECHD   - Diffie-Hellma key exchange (semihonest secure)\n"
+
 			<< "   -" << kkrtTag[0] << "    : KKRT16  - Hash to Bin & compare style (semi-honest secure, fastest)\n"
             << "   -" << drrnTag[0] << "  : DRRN17  - Two server PIR style (semi-honest secure)\n" 
 			<< std::endl;

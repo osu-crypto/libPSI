@@ -6,7 +6,7 @@
 #include "cryptoTools/Crypto/PRNG.h"
 
 
-#if defined ENABLE_RELIC  || defined ENABLE_MIRACL
+#if defined ENABLE_RELIC
 #define ENABLE_ECDH_PSI
 
 namespace osuCrypto

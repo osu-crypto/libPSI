@@ -53,21 +53,13 @@ namespace osuCrypto
             auto& chl = chls[t];
             auto& prng = thrdPrng[t];
 
-#ifdef ENABLE_RELIC
             using Curve = REllipticCurve;
             using Point = REccPoint;
             using Brick = REccPoint;
             using Number = REccNumber;
             Curve curve;
 
-#else    
-            using Curve = EllipticCurve;
-            using Point = EccPoint;
-            using Brick = EccBrick;
-            using Number = EccNumber;
-            auto curveParam = Curve25519;
-            Curve curve(curveParam, prng.get<block>());
-#endif
+
           
             RandomOracle inputHasher(sizeof(block));
 			Number a(curve);

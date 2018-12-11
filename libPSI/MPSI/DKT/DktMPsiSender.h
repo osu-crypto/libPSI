@@ -7,7 +7,7 @@
 
 namespace osuCrypto
 {
-#ifdef ENABLE_MIRACL
+#ifdef ENABLE_RELIC
 
 
     class DktMPsiSender

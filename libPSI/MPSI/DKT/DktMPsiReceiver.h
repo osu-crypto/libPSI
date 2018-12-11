@@ -4,7 +4,7 @@
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Crypto/PRNG.h"
 
-#ifdef ENABLE_MIRACL
+#ifdef ENABLE_RELIC
 namespace osuCrypto
 {
 

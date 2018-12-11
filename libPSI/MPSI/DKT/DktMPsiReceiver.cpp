@@ -1,10 +1,10 @@
 #include "DktMPsiReceiver.h"
-#include "cryptoTools/Crypto/Curve.h"
+#include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
 
 #include <unordered_map>
-#ifdef ENABLE_MIRACL
+#ifdef ENABLE_RELIC
 
 namespace osuCrypto
 {
@@ -62,10 +62,10 @@ namespace osuCrypto
         std::promise<void> mergedHashTableProm;
         std::shared_future<void> mergedHashTableFutr = mergedHashTableProm.get_future().share();
 
-        std::promise<std::array<EccNumber*, 2>> sigmaValsProm;
-        std::shared_future<std::array<EccNumber*, 2>> sigmaValsFutr(sigmaValsProm.get_future().share());
-        std::promise<std::tuple<EccNumber*, EccNumber*, EccPoint*>> sigma2ValsProm;
-        std::shared_future<std::tuple<EccNumber*, EccNumber*, EccPoint*>> sigma2ValsFutr(sigma2ValsProm.get_future().share());
+        std::promise<std::array<REccNumber*, 2>> sigmaValsProm;
+        std::shared_future<std::array<REccNumber*, 2>> sigmaValsFutr(sigmaValsProm.get_future().share());
+        std::promise<std::tuple<REccNumber*, REccNumber*, REccPoint*>> sigma2ValsProm;
+        std::shared_future<std::tuple<REccNumber*, REccNumber*, REccPoint*>> sigma2ValsFutr(sigma2ValsProm.get_future().share());
         std::vector<std::vector<u64>> localIntersections(chls.size()-1);
         std::unordered_map<u64, InputHash> hashs;
 
@@ -93,7 +93,10 @@ namespace osuCrypto
             u8 hashOut[SHA1::HashSize];
 
             // curve must be prime order...
-            EllipticCurve curve(Curve25519, prng.get<block>());
+            REllipticCurve curve;
+            
+            if (curve.getOrder().isPrime() == false)
+                throw std::runtime_error("must be prime");
 
             if (curve.getGenerators().size() < 3)
             {
@@ -101,22 +104,22 @@ namespace osuCrypto
                 throw std::runtime_error("DktMPsi require at least 3 generators");
             }
 
-            const auto& g = curve.getGenerators()[0];
-            const auto& gg = curve.getGenerators()[1];
-            const auto& ggg = curve.getGenerators()[2];
+            const auto g = curve.getGenerator();
+            REccPoint gg; gg.randomize(ZeroBlock);
+            REccPoint ggg; gg.randomize(OneBlock);
             auto g2 = gg + ggg;
 
-            typedef EccBrick BRICK;
+            typedef REccPoint BRICK;
 
             BRICK gBrick(g);
             BRICK ggBrick(gg);
             BRICK gggBrick(ggg);
 
 
-            std::vector<EccPoint> inputPoints;
+            std::vector<REccPoint> inputPoints;
             inputPoints.reserve(inputs.size());
 
-            EccPoint pch(curve);
+            REccPoint pch(curve);
 
 
             for (u64 i = myInputStartIdx; i < myInputEndIdx; ++i)
@@ -137,13 +140,13 @@ namespace osuCrypto
                     pch = pch + point;
             }
 
-            EccNumber Rc(curve);
-            EccNumber sigmaD(curve);
+            REccNumber Rc(curve);
+            REccNumber sigmaD(curve);
             Rc.randomize(RcSeed);
             sigmaD.randomize(prng);
 
 
-            EccPoint X(curve), sigmaA(curve);
+            REccPoint X(curve), sigmaA(curve);
             auto gRc = gBrick * Rc;
             X = pch + gRc;
 
@@ -163,14 +166,14 @@ namespace osuCrypto
             }
 
 
-            std::vector<EccPoint> pchs, Ms, Ns, sigmaBs, sigma2As;
+            std::vector<REccPoint> pchs, Ms, Ns, sigmaBs, sigma2As;
             pchs.reserve(subsetInputSize);
             Ms.reserve(subsetInputSize);
             Ns.reserve(subsetInputSize);
             sigmaBs.reserve(subsetInputSize);
             sigma2As.reserve(subsetInputSize);
 
-            std::vector<EccNumber> Rcs, sigmaDs, sigmaPhis;
+            std::vector<REccNumber> Rcs, sigmaDs, sigmaPhis;
             Rcs.reserve(subsetInputSize);
             sigmaDs.reserve(subsetInputSize);
             sigmaPhis.reserve(subsetInputSize);
@@ -224,7 +227,7 @@ namespace osuCrypto
 
 
 
-            EccNumber sigmaE(curve), sigmaPhi(curve);
+            REccNumber sigmaE(curve), sigmaPhi(curve);
             if (t == 0)
             {
                 for (auto& fut : sigmaHashsFutures)
@@ -260,8 +263,8 @@ namespace osuCrypto
 
 
 
-            EccNumber one(curve, 1);
-            EccNumber zero(curve, 0);
+            REccNumber one(curve, 1);
+            REccNumber zero(curve, 0);
 
             //std::cout << "r g^z      " << sigmaGZ << std::endl;
 
@@ -312,8 +315,8 @@ namespace osuCrypto
                 chl.asyncSend(std::move(sendBuff));
             }
 
-            EccPoint Z(curve), Mpi(curve), Kci(curve), sigma2A(curve);
-            EccNumber sigma2Phi(curve), sigma2C(curve);
+            REccPoint Z(curve), Mpi(curve), Kci(curve), sigma2A(curve);
+            REccNumber sigma2Phi(curve), sigma2C(curve);
 
 
             SHA1 sigma2Hasher;
@@ -364,7 +367,7 @@ namespace osuCrypto
                 sigma2Phi.fromBytes(buff.data() + Z.sizeBytes());
                 //EccBrick ZBrick(Z);
 
-                sigma2ValsProm.set_value(std::tuple<EccNumber*, EccNumber*, EccPoint*>{&sigma2C, &sigma2Phi, &Z });
+                sigma2ValsProm.set_value(std::tuple<REccNumber*, REccNumber*, REccPoint*>{&sigma2C, &sigma2Phi, &Z });
 
                 auto sigma2ggPhiExpected = sigma2A + Z * sigma2C;
                 auto sigma2ggPhi = gg * sigma2Phi;
@@ -415,7 +418,7 @@ namespace osuCrypto
 
                     Mpi.fromBytes(iter); iter += Mpi.sizeBytes();
 
-                    //EccPoint expectedMpi(curve);
+                    //REccPoint expectedMpi(curve);
 
                     //expectedMpi = Ms[i] * Rs;
 

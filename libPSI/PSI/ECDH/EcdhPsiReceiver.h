@@ -6,7 +6,7 @@
 
 
 
-#if defined ENABLE_RELIC  || defined ENABLE_MIRACL
+#if defined ENABLE_RELIC 
 #define ENABLE_ECDH_PSI_R
 
 namespace osuCrypto

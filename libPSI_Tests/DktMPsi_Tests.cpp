@@ -19,7 +19,7 @@
 
 using namespace osuCrypto;
 
-#ifdef ENABLE_MIRACL
+#ifdef ENABLE_RELIC
 
 void DktMPsi_EmptrySet_Test_Impl()
 {
@@ -194,15 +194,15 @@ void DktMPsi_SingltonSet_Test_Impl()
 
 void DktMPsi_EmptrySet_Test_Impl()
 {
-    throw UnitTestSkipped("requires miracl");
+    throw UnitTestSkipped("requires relic");
 }
 void DktMPsi_FullSet_Test_Impl()
 {
-    throw UnitTestSkipped("requires miracl");
+    throw UnitTestSkipped("requires relic");
 }
 void DktMPsi_SingltonSet_Test_Impl()
 {
-    throw UnitTestSkipped("requires miracl");
+    throw UnitTestSkipped("requires relic");
 }
 
 #endif
