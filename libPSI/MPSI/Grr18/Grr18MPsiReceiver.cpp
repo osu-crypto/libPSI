@@ -136,15 +136,17 @@ namespace osuCrypto
         if (otRecv.hasBaseOts() == false ||
             otSend.hasBaseOts() == false)
         {
+#ifdef LIBOTE_HAS_BASE_OT
+
             // first do 128 public key OTs (expensive)
             std::array<block, gOtExtBaseOtCount> kosSendBase;
             BitVector choices(gOtExtBaseOtCount); choices.randomize(prng);
-            NaorPinkas base;
+            DefaultBaseOT base;
             base.receive(choices, kosSendBase, prng, chl0, 2);
 
 
             KosOtExtSender kosSend;
-            kosSend.setBaseOts(kosSendBase, choices);
+            kosSend.setBaseOts(kosSendBase, choices, chl0);
             std::vector<std::array<block, 2>> sendBaseMsg(baseOtCount + gOtExtBaseOtCount);
             kosSend.send(sendBaseMsg, prng, chl0);
 
@@ -157,23 +159,26 @@ namespace osuCrypto
                 sendBaseMsg.begin() + baseOtCount,
                 sendBaseMsg.end());
 
+            // now set these ~800 OTs as the base of our N choose 1 OTs.
+            otRecv.setBaseOts(kcoRecvBase, mPrng, chl0);
+
             BitVector recvChoice(baseOtCount); recvChoice.randomize(prng);
             std::vector<block> kcoSendBase(baseOtCount);
             KosOtExtReceiver kos;
-            kos.setBaseOts(kosRecvBase);
-            kos.receive(recvChoice, kcoSendBase, prng, chl0);
+            kos.setBaseOts(kosRecvBase, mPrng, chl0);
+            kos.receive(recvChoice, kcoSendBase, prng, chl0); 
 
             // now set these ~800 OTs as the base of our N choose 1 OTs.
-            otSend.setBaseOts(kcoSendBase, recvChoice);
+            otSend.setBaseOts(kcoSendBase, recvChoice, chl0);
 
-            // now set these ~800 OTs as the base of our N choose 1 OTs.
-            otRecv.setBaseOts(kcoRecvBase);
+#else
+            throw std::runtime_error("base OTs must be set. " LOCATION);
+#endif
         }
 
 
         setTimePoint("grr.recv.Init.ExtStart");
 
-        mOneSided = false;
 
         mOtRecvs.resize(chls.size());
         mOtSends.resize(chls.size());
@@ -337,7 +342,7 @@ namespace osuCrypto
 
 
                 PRNG prng(seed);
-                computeLoads(loads, prng, binStart, mOneSided, mN, mBins, mEpsBins);
+                computeLoads(loads, prng, binStart, mOneSided, mLapPlusBuff, mN, mBins, mEpsBins);
 
                 theirLoadsFut.get();
                 u64  totalLoad = 0;

@@ -5,7 +5,7 @@
 #include "cryptoTools/Common/Log.h"
 #include <unordered_map>
 #include "cryptoTools/Common/Timer.h"
-
+#include "cryptoTools/Crypto/sha1.h"
 
 namespace osuCrypto
 {

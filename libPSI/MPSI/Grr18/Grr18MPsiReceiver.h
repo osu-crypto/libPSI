@@ -20,7 +20,7 @@ namespace osuCrypto
         //static const u64 CodeWordSize = 7;
         //static const u64 hasherStepSize;
 
-        bool mHashToSmallerDomain, mOneSided = true;
+        bool mHashToSmallerDomain, mOneSided = false, mLapPlusBuff = false;
         double mEpsBins = 0.9, mEpsMasks= 0.1;
         u64 mN, mStatSecParam;// , mNumOTsUpperBound;// , mOtMsgBlkSize;
         block mHashingSeed;

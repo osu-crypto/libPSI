@@ -12,15 +12,15 @@ using namespace osuCrypto;
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 
-#include "libOTe/TwoChooseOne/LzKosOtExtReceiver.h"
-#include "libOTe/TwoChooseOne/LzKosOtExtSender.h"
+//#include "libOTe/TwoChooseOne/LzKosOtExtReceiver.h"
+//#include "libOTe/TwoChooseOne/LzKosOtExtSender.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include <numeric>
 
 extern u8 dummy[];
-#define LAZY_OT
+//#define LAZY_OT
 
 void bfSend(LaunchParams& params)
 {
@@ -81,7 +81,6 @@ void bfRecv(LaunchParams& params)
                 std::vector<block> set(setSize);
                 prng.get(set.data(), set.size());
 
-#define LAZY_OT
 #ifdef LAZY_OT
                 LzKosOtExtReceiver otRecv;
                 LzKosOtExtSender otSend;

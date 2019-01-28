@@ -85,8 +85,6 @@
     <ClCompile Include="DrrnPsi_Tests.cpp" />
     <ClCompile Include="EcdhPsi_Tests.cpp" />
     <ClCompile Include="Grr18MPSI_Tests.cpp" />
-    <ClCompile Include="OTOracleReceiver.cpp" />
-    <ClCompile Include="OTOracleSender.cpp" />
     <ClCompile Include="ShamirSSScheme_Tests.cpp" />
     <ClCompile Include="UnitTests.cpp" />
   </ItemGroup>
@@ -100,8 +98,6 @@
     <ClInclude Include="DrrnPsi_Tests.h" />
     <ClInclude Include="EcdhPsi_Tests.h" />
     <ClInclude Include="Grr18MPSI_Tests.h" />
-    <ClInclude Include="OTOracleReceiver.h" />
-    <ClInclude Include="OTOracleSender.h" />
     <ClInclude Include="ShamirSSScheme_Tests.h" />
     <ClInclude Include="UnitTests.h" />
   </ItemGroup>

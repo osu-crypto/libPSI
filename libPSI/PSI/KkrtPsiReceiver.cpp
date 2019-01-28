@@ -2,6 +2,7 @@
 #include <future>
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
+#include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
 #include "libPSI/Tools/SimpleHasher.h"
@@ -73,6 +74,7 @@ namespace osuCrypto
         //do base OT
         if (otRecv.hasBaseOts() == false)
         {
+#ifdef LIBOTE_HAS_BASE_OT            
             setTimePoint("kkrt.recv.Init: BaseSSOT start");
             DefaultBaseOT baseBase;
             std::array<block, 128> baseBaseOT;
@@ -82,11 +84,14 @@ namespace osuCrypto
 
             IknpOtExtSender base;
             std::vector<std::array<block, 2>> baseOT(otRecv.getBaseOTCount());
-            base.setBaseOts(baseBaseOT, baseBaseChoice);
+            base.setBaseOts(baseBaseOT, baseBaseChoice, chl0);
             base.send(baseOT, prng, chl0);
 
-            otRecv.setBaseOts(baseOT);
+            otRecv.setBaseOts(baseOT, prng, chl0);
             setTimePoint("kkrt.Kkrt PSI Init: BaseSSOT done");
+#else
+throw std::runtime_error("base OTs must be set. " LOCATION);
+#endif
         }
 
         fu.get();

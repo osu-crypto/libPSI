@@ -468,11 +468,9 @@ int main(int argc, char** argv)
 	run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
 	run(kkrtTag, cmd, kkrtRecv, kkrtSend);
 	runPir(drrnTag, cmd, Drrn17Recv, Drrn17Send);
-
-#ifdef ENABLE_RELIC
+    run(grrTags, cmd, grr18Recv, grr18Send);
 	run(dktTags, cmd, DktRecv, DktSend);
     run(ecdhTags, cmd, EcdhRecv, EcdhSend);
-#endif
 
 
 	if ((cmd.isSet(unitTestTags) == false &&
@@ -488,10 +486,8 @@ int main(int argc, char** argv)
 		cmd.isSet(kkrtTag) == false &&
         cmd.isSet(drrnTag) == false &&
         cmd.isSet(grrTags) == false &&
-#ifdef ENABLE_RELIC
         cmd.isSet(dktTags) == false &&
 		cmd.isSet(ecdhTags) == false &&
-#endif
 		cmd.isSet(pingTag) == false) ||
 		cmd.isSet(helpTags))
 	{

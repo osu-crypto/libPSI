@@ -21,7 +21,7 @@ namespace osuCrypto
         Grr18MPsiSender();
         ~Grr18MPsiSender();
 
-        bool mHashToSmallerDomain, mOneSided = true;
+        bool mHashToSmallerDomain, mOneSided = false, mLapPlusBuff = false;
         double mEpsBins = 0.9, mEpsMasks = 0.1;
         u64 mN, mStatSecParam, mOtMsgBlkSize, mCWThreshold = -1;//, mNumOTsUpperBound;
         block mHashingSeed;

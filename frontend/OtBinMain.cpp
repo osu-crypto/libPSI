@@ -711,6 +711,7 @@ void grr18Send(
                         sendPSIs.mEpsBins = e;
                         sendPSIs.mEpsMasks = params.mCmd->getOr<double>("epsMasks", 0.1);
                         sendPSIs.mCWThreshold = params.mCmd->getOr<i64>("cw", -1);
+                        sendPSIs.mLapPlusBuff = params.mCmd->isSet("lapPlusBuff");
 
                         sendChls[0].asyncSend(dummy, 1);
                         sendChls[0].recv(dummy, 1);
@@ -790,6 +791,7 @@ void grr18Recv(
 
                         recvPSIs.mEpsBins = e;
                         recvPSIs.mEpsMasks = params.mCmd->getOr<double>("epsMasks", 0.1);
+                        recvPSIs.mLapPlusBuff = params.mCmd->isSet("lapPlusBuff");
 
                         chls[0].recv(dummy, 1);
 
@@ -823,9 +825,12 @@ void grr18Recv(
                         {
                             std::cout << recvPSIs.getTimer() << std::endl;
 
-                            std::cout << "total noisy load: " << recvPSIs.mTotalLoad->load() << " out of " << setSize << ". rr17a has " << recvPSIs.mBins.mMaxBinSize * recvPSIs.mBins.mBinCount << std::endl;
 
                         }
+                        auto load = recvPSIs.mTotalLoad->load() / double(recvPSIs.mBins.mBinCount);
+                        auto real = setSize / recvPSIs.mBins.mBinCount;
+
+                            std::cout << "total noisy load: " << load << " vs " << real << ". rr17a has " << recvPSIs.mBins.mMaxBinSize << std::endl;
                     }
                 }
             }

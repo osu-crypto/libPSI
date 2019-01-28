@@ -4,10 +4,10 @@
 #include <cryptoTools/Network/IOService.h>
 #include "Common.h"
 #include "cryptoTools/Common/Defines.h"
+#include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
+#include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include "libPSI/MPSI/Rr16/AknBfMPsiReceiver.h"
 #include "libPSI/MPSI/Rr16/AknBfMPsiSender.h"
-#include "OTOracleReceiver.h"
-#include "OTOracleSender.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/TestCollection.h"
 //
@@ -43,10 +43,13 @@ void AknBfPsi_EmptrySet_Test_Impl()
     std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
 
 
-    OTOracleReceiver otRecv(ZeroBlock);
-    OTOracleSender otSend(ZeroBlock);
+    
+    KosOtExtReceiver otRecv;
+    KosOtExtSender otSend;
 
-
+    auto async = std::async([&]() {PRNG prng(ZeroBlock); otRecv.genBaseOts(prng, recvChl[0]); });
+    otSend.genBaseOts(prng, sendChl[0]);
+    async.get();
 
     AknBfMPsiSender send;
     AknBfMPsiReceiver recv;
@@ -99,9 +102,12 @@ void AknBfPsi_FullSet_Test_Impl()
         sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
         recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
-    OTOracleReceiver otRecv(ZeroBlock);
-    OTOracleSender otSend(ZeroBlock);
+    KosOtExtReceiver otRecv;
+    KosOtExtSender otSend;
 
+    auto async = std::async([&]() {PRNG prng(ZeroBlock); otRecv.genBaseOts(prng, recvChls[0]); });
+    otSend.genBaseOts(prng, sendChls[0]);
+    async.get();
 
     AknBfMPsiSender send;
     AknBfMPsiReceiver recv;
@@ -162,10 +168,12 @@ void AknBfPsi_SingltonSet_Test_Impl()
     Channel sendChl = ep0.addChannel(name, name);
 
 
-    OTOracleReceiver otRecv(ZeroBlock);
-    OTOracleSender otSend(ZeroBlock);
+    KosOtExtReceiver otRecv;
+    KosOtExtSender otSend;
 
-
+    auto async = std::async([&]() {PRNG prng(ZeroBlock); otRecv.genBaseOts(prng, recvChl); });
+    otSend.genBaseOts(prng, sendChl);
+    async.get();
 
     AknBfMPsiSender send;
     AknBfMPsiReceiver recv;

@@ -5,8 +5,6 @@
 #include "cryptoTools/Common/Defines.h"
 #include "libPSI/MPSI/DKT/DktMPsiReceiver.h"
 #include "libPSI/MPSI/DKT/DktMPsiSender.h"
-#include "OTOracleReceiver.h"
-#include "OTOracleSender.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/TestCollection.h"
 #include "cryptoTools/Network/IOService.h"
@@ -42,10 +40,6 @@ void DktMPsi_EmptrySet_Test_Impl()
 
     std::vector<Channel> recvChl{ ep1.addChannel(name, name) };
     std::vector<Channel> sendChl{ ep0.addChannel(name, name) };
-
-
-    OTOracleReceiver otRecv(ZeroBlock);
-    OTOracleSender otSend(ZeroBlock);
 
 
 
@@ -99,8 +93,6 @@ void DktMPsi_FullSet_Test_Impl()
         sendChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
         recvChls[i] = ep0.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
     }
-    OTOracleReceiver otRecv(ZeroBlock);
-    OTOracleSender otSend(ZeroBlock);
 
 
 

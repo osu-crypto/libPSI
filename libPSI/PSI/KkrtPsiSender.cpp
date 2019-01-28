@@ -57,6 +57,7 @@ namespace osuCrypto
         //do base OT
         if (otSend.hasBaseOts() == false)
         {
+#ifdef LIBOTE_HAS_BASE_OT
             DefaultBaseOT baseBase;
             std::array<std::array<block, 2>, 128> baseBaseOT;
             baseBase.send(baseBaseOT, mPrng, chl);
@@ -65,10 +66,13 @@ namespace osuCrypto
             BitVector baseChoice(otSend.getBaseOTCount());
             baseChoice.randomize(mPrng);
             std::vector<block> baseOT(otSend.getBaseOTCount());
-            base.setBaseOts(baseBaseOT);
+            base.setBaseOts(baseBaseOT, mPrng, chl);
             base.receive(baseChoice, baseOT, mPrng, chl);
 
-            otSend.setBaseOts(baseOT, baseChoice);
+            otSend.setBaseOts(baseOT, baseChoice, chl);
+#else
+            throw std::runtime_error("base OTs must be set. " LOCATION);
+#endif
         }
 
         fu.get();

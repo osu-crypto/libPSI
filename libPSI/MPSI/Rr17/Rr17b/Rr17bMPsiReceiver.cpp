@@ -1,6 +1,7 @@
 #include "Rr17bMPsiReceiver.h"
 #include <future>
 
+#include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
 
@@ -128,6 +129,8 @@ namespace osuCrypto
 
         if (otRecv.hasBaseOts() == false)
         {
+#ifdef LIBOTE_HAS_BASE_OT
+
             // first do 128 public key OTs (expensive)
             std::array<block, gOtExtBaseOtCount> kosSendBase;
             BitVector choices(gOtExtBaseOtCount); choices.randomize(prng);
@@ -136,13 +139,17 @@ namespace osuCrypto
 
 
             KosOtExtSender kosSend;
-            kosSend.setBaseOts(kosSendBase, choices);
+            kosSend.setBaseOts(kosSendBase, choices, chl0);
             std::vector<std::array<block, 2>> sendBaseMsg(baseOtCount);
             kosSend.send(sendBaseMsg, prng, chl0);
 
 
             // now set these ~800 OTs as the base of our N choose 1 OTs.
-            otRecv.setBaseOts(sendBaseMsg);
+            otRecv.setBaseOts(sendBaseMsg, prng, chl0);
+      
+#else
+            throw std::runtime_error("base OTs must be set. " LOCATION);
+#endif
         }
 
 

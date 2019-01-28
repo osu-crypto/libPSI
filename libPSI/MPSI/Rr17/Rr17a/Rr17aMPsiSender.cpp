@@ -107,6 +107,8 @@ namespace osuCrypto
         if (otSend.hasBaseOts() == false ||
             otRecv.hasBaseOts() == false)
         {
+#ifdef LIBOTE_HAS_BASE_OT
+
             // first do 128 public key OTs (expensive)
             std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
             DefaultBaseOT base;
@@ -117,7 +119,7 @@ namespace osuCrypto
             BitVector recvChoice(baseOtCount + gOtExtBaseOtCount); recvChoice.randomize(mPrng);
             std::vector<block> recvBaseMsg(baseOtCount + gOtExtBaseOtCount);
             KosOtExtReceiver kosRecv;
-            kosRecv.setBaseOts(baseMsg);
+            kosRecv.setBaseOts(baseMsg, mPrng, chl0);
             kosRecv.receive(recvChoice, recvBaseMsg, mPrng, chl0);
 
 
@@ -128,7 +130,7 @@ namespace osuCrypto
                 recvBaseMsg.begin(),
                 recvBaseMsg.begin() + baseOtCount);
 
-            otSend.setBaseOts(kcoSendBase, kcoSendBaseChoice);
+            otSend.setBaseOts(kcoSendBase, kcoSendBaseChoice, chl0);
 
 
             // now lets extend these recv OTs in the other direction
@@ -138,14 +140,17 @@ namespace osuCrypto
                 recvBaseMsg.begin() + baseOtCount,
                 recvBaseMsg.end());
             KosOtExtSender kos;
-            kos.setBaseOts(kosSendBase, kosSendBaseChoice);
+            kos.setBaseOts(kosSendBase, kosSendBaseChoice, chl0);
 
             // these send OTs will be stored here
             std::vector<std::array<block, 2>> sendBaseMsg(baseOtCount);
             kos.send(sendBaseMsg, mPrng, chl0);
 
             // now set these ~800 OTs as the base of our N choose 1 OTs NcoOtExtReceiver
-            otRecv.setBaseOts(sendBaseMsg);
+            otRecv.setBaseOts(sendBaseMsg, mPrng, chl0);
+#else
+            throw std::runtime_error("base OTs must be set. " LOCATION);
+#endif
         }
 
         setTimePoint("rr17a.init.send.extStart");

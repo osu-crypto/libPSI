@@ -58,7 +58,7 @@ namespace osuCrypto
 
 			auto& chl = chls[t];
 			auto& prng = thrdPrng[t];
-			u8 hashOut[SHA1::HashSize];
+			u8 hashOut[RandomOracle::HashSize];
             using Curve = REllipticCurve;
             using Point = REccPoint;
             using Brick = REccPoint;
@@ -66,7 +66,7 @@ namespace osuCrypto
             Curve curve;
 
 
-			SHA1 inputHasher;
+            RandomOracle inputHasher;
 			Number b(curve);
 			Point yb(curve), yba(curve), point(curve), xa(curve), xab(curve);
 			 b.randomize(RcSeed);

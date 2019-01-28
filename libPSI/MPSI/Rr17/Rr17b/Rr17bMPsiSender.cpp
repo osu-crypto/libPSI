@@ -1,6 +1,7 @@
 #include "Rr17bMPsiSender.h"
 
 #include "cryptoTools/Crypto/Commit.h"
+#include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Matrix.h"
 #include "cryptoTools/Common/Timer.h"
@@ -110,6 +111,7 @@ namespace osuCrypto
 
         if (otSend.hasBaseOts() == false)
         {
+#ifdef LIBOTE_HAS_BASE_OT
             // first do 128 public key OTs (expensive)
             std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
             DefaultBaseOT base;
@@ -120,13 +122,15 @@ namespace osuCrypto
             BitVector recvChoice(baseOtCount); recvChoice.randomize(mPrng);
             std::vector<block> recvBaseMsg(baseOtCount);
             KosOtExtReceiver kosRecv;
-            kosRecv.setBaseOts(baseMsg);
+            kosRecv.setBaseOts(baseMsg, mPrng, chl0);
             kosRecv.receive(recvChoice, recvBaseMsg, mPrng, chl0);
 
 
 
-            otSend.setBaseOts(recvBaseMsg, recvChoice);
-
+            otSend.setBaseOts(recvBaseMsg, recvChoice, chl0);
+#else
+            throw std::runtime_error("base OTs must be set. " LOCATION);
+#endif
         }
 
         setTimePoint("rr17b.init.send.extStart");
