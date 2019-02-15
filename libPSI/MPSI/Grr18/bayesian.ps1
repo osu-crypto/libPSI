@@ -12,9 +12,9 @@ Start-Sleep -s 2 #wait 2 seconds so that the process can be up and running
 
 
 		
-For($nn = 8; $nn -lt 21; $nn= $nn + 4)
+For($nn = 16; $nn -lt 21; $nn= $nn + 4)
 {
-	for($mm = 8; $mm -lt 16; $mm = $mm + 2)
+	for($mm = 12; $mm -lt 13; $mm = $mm + 2)
 	{
 		$n=  [math]::pow(2, $nn)
 		$m = $n/$mm
