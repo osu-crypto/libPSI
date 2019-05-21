@@ -23,11 +23,6 @@ find_library(
     HINTS "${libOTe_Dirs}/lib/")
 	
 find_library(
-    SimplestOT_LIB
-    NAMES SimplestOT
-    HINTS "${libOTe_Dirs}/lib/")
-
-find_library(
     cryptoTools_LIB
     NAMES cryptoTools
     HINTS "${libOTe_Dirs}/lib/")
@@ -38,16 +33,37 @@ target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/linux/sp
 target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/libPSI) 
 target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/libPSI) 
 
-target_link_libraries(libPSI ${libOTe_LIB} ${SimplestOT_LIB} ${cryptoTools_LIB})
+target_link_libraries(libPSI ${libOTe_LIB} ${cryptoTools_LIB})
 
 
 
 
-option(ENABLE_MIRACL "use the miracl library" OFF)
-option(ENABLE_RELIC "use the relic library" OFF)
+option(ENABLE_MIRACL     "use the miracl library" OFF)
+option(ENABLE_RELIC      "use the relic library" OFF)
+option(ENABLE_SIMPLESTOT "use the simplest OT library" OFF)
 
 message(STATUS "Option: ENABLE_MIRACL     = ${ENABLE_MIRACL}")
 message(STATUS "Option: ENABLE_RELIC      = ${ENABLE_RELIC}")
+message(STATUS "Option: ENABLE_SIMPLESTOT = ${ENABLE_SIMPLESTOT}")
+
+
+if(${ENABLE_SIMPLESTOT})
+
+	find_library(
+	    SimplestOT_LIB
+	    NAMES SimplestOT
+	    HINTS "${libOTe_Dirs}/lib/")
+
+    if(NOT SimplestOT_LIB)
+      	message(FATAL_ERROR "Failed to find libSimplestOT.a at: ${libOTe_Dirs}/lib/")
+  	else()
+      	message(STATUS "Found libSimplestOT.a at: ${libOTe_Dirs}/lib/")  	
+    endif()
+
+	target_link_libraries(libPSI ${SimplestOT_LIB})
+
+endif()
+
 
 #############################################
 #                 Link Boost                #
