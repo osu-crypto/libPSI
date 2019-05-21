@@ -28,7 +28,6 @@ find_library(
     HINTS "${libOTe_Dirs}/lib/")
 
 
-target_include_directories(libPSI PUBLIC ${Boost_INCLUDE_DIR}) 
 target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/linux/sparsehash/src/) 
 target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/libPSI) 
 target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/libPSI) 
@@ -83,6 +82,7 @@ else()
 endif()
 
  
+target_include_directories(libPSI PUBLIC ${Boost_INCLUDE_DIR}) 
 target_link_libraries(libPSI ${Boost_LIBRARIES})
 
 #############################################
