@@ -7,6 +7,8 @@
 namespace osuCrypto
 {
 
+
+    bool mGrr18PrintWarning = true;
     struct Lookup
     {
         u64 mN, mM;
@@ -67,7 +69,7 @@ namespace osuCrypto
                 if (prng.getBit())
                     lap = -lap;
 
-                loads[i] = std::min<u64>(maxBinLoad, binSize + bufferSize + lap + 0.9999);
+                loads[i] = std::min<u64>(maxBinLoad, static_cast<u64>(binSize + bufferSize + lap + 0.9999));
 
                 if (binSize > loads[i])
                     throw std::runtime_error(LOCATION);
@@ -280,7 +282,8 @@ Lookup{ 1048576, 87381, 0.01, -10, {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 
             if (lookup_ptr == nullptr)
             {
 //#ifndef NDEBUG
-                std::cout << Color::Red << "=========================================\n             warning. no bin padding\n=========================================" << ColorDefault << std::endl;
+                if(mGrr18PrintWarning)
+                    std::cout << Color::Red << "=========================================\n             warning. no bin padding\n=========================================" << ColorDefault << std::endl;
 //#endif
                 lookup_ptr = &non;
             }

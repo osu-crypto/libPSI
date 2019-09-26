@@ -432,7 +432,7 @@ namespace osuCrypto
                     auto buffer = computeBuffSize(40, mEpsMasks, max);
                     mReporting_totalRealMaskCount = totalMaskCount_atomic;
 
-                    totalMaskCount_atomic += buffer + lap;
+                    totalMaskCount_atomic += static_cast<u64>(buffer + lap);
 
                     masks->resize(totalMaskCount_atomic, maskSize, AllocType::Uninitialized);
                     numMaskProm.set_value();
@@ -569,7 +569,8 @@ namespace osuCrypto
 
                     if (last)
                     {
-                        chl.asyncSend(src, step * maskSize, [masks] {
+                        auto chunk = span<u8>(src, step * maskSize);
+                        chl.asyncSend(std::move(chunk), [masks] {
                             // no op, just need to call deref on masks.
                         });
                     }

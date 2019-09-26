@@ -24,7 +24,7 @@ namespace osuCrypto
 
 
         u64 numBalls = clientSetSize * mIndex.mParams.mNumHashes;
-        mNumSimpleBins = std::max<u64>(1, (numBalls / log2floor(numBalls)) * binScaler);
+        mNumSimpleBins = std::max<u64>(1, static_cast<u64>((numBalls / log2floor(numBalls)) * binScaler));
 
         if (mServerId == 0) gTimer.setTimePoint("Drrn_Srv balls_bins start");
         mBinSize = SimpleIndex::get_bin_size(mNumSimpleBins, numBalls, ssp);
@@ -130,7 +130,7 @@ namespace osuCrypto
             if (empty == false)
             {
                 auto idx = item.idx();
-                iter->mCuckooIdx = i;
+                iter->mCuckooIdx = static_cast<u32>(i);
                 iter->mVal = inputs[idx];
                 ++iter;
             }
@@ -161,7 +161,7 @@ namespace osuCrypto
 
         inline u32 getBinSize() const
         {
-            return mKeys.rows();
+            return static_cast<u32>(mKeys.rows());
         }
 
         void init(u32 binSize, u32 kDepth, u32 groupSize, u32 binIdx, u32 bigBlockSize, u32 serverId)
@@ -355,7 +355,14 @@ namespace osuCrypto
 
         for (u64 i = 0; i < bins.size(); ++i)
         {
-            bins[i].init(mBinSize, kDepth, groupSize, i, mBigBlockSize, mServerId);
+            bins[i].init(
+                static_cast<u32>(mBinSize), 
+                static_cast<u32>(kDepth), 
+                static_cast<u32>(groupSize), 
+                static_cast<u32>(i), 
+                static_cast<u32>(mBigBlockSize), 
+                static_cast<u32>(mServerId));
+
             bins[i].asyncRecv(clientChl);
         }
 
@@ -383,7 +390,7 @@ namespace osuCrypto
                 span<block> dest(shares.begin() + shareIdx, shares.begin() + shareEnd);
                 mIndex.mBins[cuckooIdx];
 
-                bins[binIdx].eval(items, dest, cuckooEnd - cuckooIdx);
+                bins[binIdx].eval(items, dest, static_cast<u32>(cuckooEnd - cuckooIdx));
             }
         };
 

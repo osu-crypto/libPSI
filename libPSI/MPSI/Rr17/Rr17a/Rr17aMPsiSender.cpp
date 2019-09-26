@@ -573,8 +573,8 @@ namespace osuCrypto
                     for (u64 i = tIdx; i < numChunks; i += chls.size())
                     {
                         auto curSize = std::min(masksPer, numMasks - i * masksPer) * maskSize;
-
-                        chl.asyncSend(sendMaskBuff->data() + i * masksPer * maskSize, curSize, [=]()
+                        auto chunk = span<u8>(sendMaskBuff->data() + i * masksPer * maskSize, curSize);
+                        chl.asyncSend(std::move(chunk), [=]()
                         {
                             // no op, just make sure it lives this long.
                             //sendMaskBuff.get();

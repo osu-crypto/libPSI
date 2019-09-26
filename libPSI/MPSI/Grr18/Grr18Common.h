@@ -7,6 +7,7 @@
 namespace osuCrypto
 {
 
+    extern bool mGrr18PrintWarning;
 
     u64 computeLoads(
         std::vector<u8>& loads,

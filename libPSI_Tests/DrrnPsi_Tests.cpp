@@ -137,7 +137,7 @@ void Psi_drrn_SingletonSet_Test_Impl()
         //{
         //    std::cout << *client.mIntersection.begin() << " != " << intersectIdx << std::endl;
         //}
-		throw UnitTestFail("Known issue with incorrect result. Safe to ignore.");
+		throw UnitTestFail("Known issue with incorrect result. Ok to ignore for benchmarking...");
 	}
 }
 
@@ -216,5 +216,5 @@ void Psi_drrn_FullSet_Test_Impl()
 		}
 	}
 
-    if (failed) throw UnitTestFail("Known issue with incorrect result. Safe to ignore.");
+    if (failed) throw UnitTestFail("Known issue with incorrect result. Ok to ignore for benchmarking...");
 }

@@ -12,6 +12,7 @@
 
 #include "libOTe/NChooseOne/Oos/OosNcoOtReceiver.h"
 #include "libOTe/NChooseOne/Oos/OosNcoOtSender.h"
+#include "libPSI/MPSI/Grr18/Grr18Common.h"
 
 using namespace oc;
 
@@ -63,6 +64,7 @@ void Grr18_Oos_EmptrySet_Test_Impl()
 
 
     Grr18MPsiReceiver recv;
+    mGrr18PrintWarning = false;
     std::thread thrd([&]() {
 
         Grr18MPsiSender send;
@@ -119,6 +121,8 @@ void Grr18_Oos_FullSet_Test_Impl()
 
     Grr18MPsiSender send;
     Grr18MPsiReceiver recv;
+    mGrr18PrintWarning = false;
+
     std::thread thrd([&]() {
 
         send.init(setSize, psiSecParam, sendChls, otSend0, otRecv0, prng.get<block>());
@@ -186,6 +190,8 @@ void Grr18_Oos_parallel_FullSet_Test_Impl()
 
     Grr18MPsiSender send;
     Grr18MPsiReceiver recv;
+    mGrr18PrintWarning = false;
+
     std::thread thrd([&]() {
 
         send.init(setSize, psiSecParam, sendChls, otSend0, otRecv0, prng.get<block>());
@@ -240,6 +246,8 @@ void Grr18_Oos_SingltonSet_Test_Impl()
 
     Grr18MPsiSender send;
     Grr18MPsiReceiver recv;
+    mGrr18PrintWarning = false;
+
     std::thread thrd([&]() {
 
         send.init(setSize, psiSecParam, sendChl, otSend0, otRecv0, prng.get<block>());

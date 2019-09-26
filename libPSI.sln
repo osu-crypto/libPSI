@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libPSI", "libPSI\libPSI.vcxproj", "{4B3D93AF-B008-452D-B1BC-CACC67C3DC27}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -20,11 +20,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libPSI_Tests", "libPSI_Test
 		{4B3D93AF-B008-452D-B1BC-CACC67C3DC27} = {4B3D93AF-B008-452D-B1BC-CACC67C3DC27}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libPSI_TestsVS", "libPSI_TestsVS\libPSI_TestsVS.vcxproj", "{65381340-EC08-45B1-928E-74A4C5D46985}"
-	ProjectSection(ProjectDependencies) = postProject
-		{08B0C0C5-7884-4AFA-A3BF-771C81D6FCB8} = {08B0C0C5-7884-4AFA-A3BF-771C81D6FCB8}
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{5280458E-A3DB-4965-9A35-5FB0A9F9124D}"
 	ProjectSection(SolutionItems) = preProject
 		CMakeLists.txt = CMakeLists.txt
@@ -36,11 +31,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libOTe", "..\libOTe\libOTe\libOTe.vcxproj.vcxproj", "{D159E2F9-226C-4B19-905E-CC1EA0EB013F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cryptoTools", "..\libOTe\cryptoTools\cryptoTools\cryptoTools.vcxproj", "{B707F703-490A-447F-9737-C6A70B8D7A61}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libOTe_TestsVS", "..\libOTe\libOTe_TestsVS\libOTe_TestsVS.vcxproj", "{3EC91167-3C50-4271-988F-0F774FFA8ACC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{294C00B6-949E-4A45-AFA8-45D53590FC11} = {294C00B6-949E-4A45-AFA8-45D53590FC11}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libOTe_Tests", "..\libOTe\libOTe_Tests\libOTe_Tests.vcxproj.vcxproj", "{294C00B6-949E-4A45-AFA8-45D53590FC11}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -65,9 +55,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "frontend_cryptoTools", "..\
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
@@ -93,12 +80,6 @@ Global
 		{08B0C0C5-7884-4AFA-A3BF-771C81D6FCB8}.Release|x64.ActiveCfg = Release|x64
 		{08B0C0C5-7884-4AFA-A3BF-771C81D6FCB8}.Release|x64.Build.0 = Release|x64
 		{08B0C0C5-7884-4AFA-A3BF-771C81D6FCB8}.Release|x86.ActiveCfg = Release|x64
-		{65381340-EC08-45B1-928E-74A4C5D46985}.Debug|x64.ActiveCfg = Debug|x64
-		{65381340-EC08-45B1-928E-74A4C5D46985}.Debug|x64.Build.0 = Debug|x64
-		{65381340-EC08-45B1-928E-74A4C5D46985}.Debug|x86.ActiveCfg = Debug|x64
-		{65381340-EC08-45B1-928E-74A4C5D46985}.Release|x64.ActiveCfg = Release|x64
-		{65381340-EC08-45B1-928E-74A4C5D46985}.Release|x64.Build.0 = Release|x64
-		{65381340-EC08-45B1-928E-74A4C5D46985}.Release|x86.ActiveCfg = Release|x64
 		{D159E2F9-226C-4B19-905E-CC1EA0EB013F}.Debug|x64.ActiveCfg = Debug|x64
 		{D159E2F9-226C-4B19-905E-CC1EA0EB013F}.Debug|x64.Build.0 = Debug|x64
 		{D159E2F9-226C-4B19-905E-CC1EA0EB013F}.Debug|x86.ActiveCfg = Debug|x64
@@ -111,12 +92,6 @@ Global
 		{B707F703-490A-447F-9737-C6A70B8D7A61}.Release|x64.ActiveCfg = Release|x64
 		{B707F703-490A-447F-9737-C6A70B8D7A61}.Release|x64.Build.0 = Release|x64
 		{B707F703-490A-447F-9737-C6A70B8D7A61}.Release|x86.ActiveCfg = Release|x64
-		{3EC91167-3C50-4271-988F-0F774FFA8ACC}.Debug|x64.ActiveCfg = Debug|x64
-		{3EC91167-3C50-4271-988F-0F774FFA8ACC}.Debug|x64.Build.0 = Debug|x64
-		{3EC91167-3C50-4271-988F-0F774FFA8ACC}.Debug|x86.ActiveCfg = Debug|x64
-		{3EC91167-3C50-4271-988F-0F774FFA8ACC}.Release|x64.ActiveCfg = Release|x64
-		{3EC91167-3C50-4271-988F-0F774FFA8ACC}.Release|x64.Build.0 = Release|x64
-		{3EC91167-3C50-4271-988F-0F774FFA8ACC}.Release|x86.ActiveCfg = Release|x64
 		{294C00B6-949E-4A45-AFA8-45D53590FC11}.Debug|x64.ActiveCfg = Debug|x64
 		{294C00B6-949E-4A45-AFA8-45D53590FC11}.Debug|x64.Build.0 = Debug|x64
 		{294C00B6-949E-4A45-AFA8-45D53590FC11}.Debug|x86.ActiveCfg = Debug|x64
@@ -149,6 +124,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A53A2F0A-8B08-4936-B721-9D21934F9D32}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

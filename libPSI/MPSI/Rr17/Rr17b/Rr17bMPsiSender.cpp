@@ -460,7 +460,8 @@ namespace osuCrypto
                     auto curSize = std::min(sendSize, endSendIdx - i) * encodingSetSize;
 
                     ++*outstandingSendCount;
-                    chl.asyncSend(sendMaskBuff->data() + i * encodingSetSize, curSize, [=]()
+                    auto chunk = span<u8>(sendMaskBuff->data() + i * encodingSetSize, curSize);
+                    chl.asyncSend(std::move(chunk), [=]()
                     {
                         // when outstandingSendCount hits zero, all messages have completed and we should
                         // clean up the data.
