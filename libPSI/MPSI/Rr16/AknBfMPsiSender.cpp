@@ -127,8 +127,8 @@ namespace osuCrypto {
             std::set<u64> idxs;
 
             std::vector<block> myMasks((end - start));
-            SHA1 hash;
-            u8 hashOut[SHA1::HashSize];
+            RandomOracle hash;
+            u8 hashOut[RandomOracle::HashSize];
 
             if (t == 0)
                 setTimePoint("AknPSI.sender.online.masksStart");

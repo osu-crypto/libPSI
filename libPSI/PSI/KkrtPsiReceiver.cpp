@@ -2,7 +2,6 @@
 #include <future>
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
-#include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
 #include "libPSI/Tools/SimpleHasher.h"
@@ -118,8 +117,6 @@ throw std::runtime_error("base OTs must be set. " LOCATION);
         setTimePoint("kkrt.R Online.Start");
 
         auto& chl = chls[0];
-
-        SHA1 sha1;
 
         //u64 codeWordSize = get_codeword_size(std::max<u64>(mSenderSize, mRecverSize)); //by byte
         u64 maskByteSize = static_cast<u64>(mStatSecParam + std::log2(mSenderSize * mRecverSize) + 7) / 8;//by byte

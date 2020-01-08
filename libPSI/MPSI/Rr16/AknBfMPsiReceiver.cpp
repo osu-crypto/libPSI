@@ -5,7 +5,7 @@
 #include "cryptoTools/Common/Log.h"
 #include <unordered_map>
 #include "cryptoTools/Common/Timer.h"
-#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Crypto/RandomOracle.h"
 
 namespace osuCrypto
 {
@@ -136,12 +136,12 @@ namespace osuCrypto
             auto & chl = chls[t];
             auto start = inputs.size() * t / chls.size();
             auto end = inputs.size() * (t + 1) / chls.size();
-            SHA1 hash;
+            RandomOracle hash;
 
 
             std::vector<u64> idxs((end - start)* mNumHashFunctions);
             auto idxIter = idxs.begin();
-            u8 hashOut[SHA1::HashSize];
+            u8 hashOut[RandomOracle::HashSize];
 
             //std::cout << IoStream::lock;
 

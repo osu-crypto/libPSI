@@ -1,6 +1,6 @@
 #include "DktMPsiSender.h"
 #include "cryptoTools/Crypto/RCurve.h"
-#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Network/Channel.h"
 
@@ -68,7 +68,7 @@ namespace osuCrypto
 
             auto& chl = chls[t];
             auto& prng = thrdPrng[t];
-            u8 hashOut[SHA1::HashSize];
+            u8 hashOut[RandomOracle::HashSize];
 
             REllipticCurve curve;
             const auto g = curve.getGenerator();
@@ -80,7 +80,7 @@ namespace osuCrypto
             BRICK gBrick(g);
 
             REccPoint pch(curve);
-            SHA1 inputHasher,sigmaHasher, sigma2Hasher;
+            RandomOracle inputHasher,sigmaHasher, sigma2Hasher;
             std::vector<REccPoint> inputPoints;
             inputPoints.reserve(myInputEndIdx - myInputStartIdx);
 
@@ -359,7 +359,7 @@ namespace osuCrypto
             }
 
 
-            SHA1 outputHasher;
+            RandomOracle outputHasher;
             REccPoint Ksj(curve);
 
             for (u64 i = myInputStartIdx, ii = 0; i < myInputEndIdx;)

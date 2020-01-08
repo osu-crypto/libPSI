@@ -1,6 +1,6 @@
 #include "DktMPsiReceiver.h"
 #include "cryptoTools/Crypto/RCurve.h"
-#include "cryptoTools/Crypto/sha1.h"
+//#include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
 
 #include <unordered_map>
@@ -90,7 +90,7 @@ namespace osuCrypto
             auto& chl = chls[t];
             auto& prng = thrdPrng[t];
 
-            u8 hashOut[SHA1::HashSize];
+            u8 hashOut[RandomOracle::HashSize];
 
             // curve must be prime order...
             REllipticCurve curve;
@@ -125,7 +125,7 @@ namespace osuCrypto
             for (u64 i = myInputStartIdx; i < myInputEndIdx; ++i)
             {
 
-                SHA1 inputHasher;
+                RandomOracle inputHasher;
                 inputHasher.Update(inputs[i]);
                 inputHasher.Final(hashOut);
 
@@ -152,7 +152,7 @@ namespace osuCrypto
 
 
             sigmaA = gBrick * sigmaD;
-            SHA1 sigmaHasher;
+            RandomOracle sigmaHasher;
 
             if (t == 0)
             {
@@ -319,7 +319,7 @@ namespace osuCrypto
             REccNumber sigma2Phi(curve), sigma2C(curve);
 
 
-            SHA1 sigma2Hasher;
+            RandomOracle sigma2Hasher;
             if (t == 0)
             {
 
@@ -427,7 +427,7 @@ namespace osuCrypto
                     Kci = ZRcsi + Mpi;
                     //std::cout << "Kc[" << i << "] " << Kci << std::endl;
 
-                    SHA1 sha;
+                    RandomOracle sha;
                     Kci.toBytes(buff2.data());
                     //std::cout << "buff " << buff << std::endl;
 

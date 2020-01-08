@@ -1,7 +1,6 @@
 #include "EcdhPsiReceiver.h"
 #include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/Curve.h"
-#include "cryptoTools/Crypto/sha1.h"
 #include "cryptoTools/Common/Log.h"
 #include <cryptoTools/Crypto/RandomOracle.h>
 #include <unordered_map>

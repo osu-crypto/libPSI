@@ -2,7 +2,6 @@
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Network/Channel.h"
-#include "cryptoTools/Crypto/sha1.h"
 #include "libOTe/NChooseK/AknOtSender.h"
 
 namespace osuCrypto {
@@ -24,7 +23,6 @@ namespace osuCrypto {
         u64 mN, mStatSecParam, mBfBitCount, mNumHashFunctions;
         AknOtSender mAknOt;
         block mHashingSeed, mSeed;
-        //std::vector<SHA1> mHashs;
 
         void init(u64 n, u64 statSecParam, OtExtSender& otExt, Channel& chl, block seed);
         void init(u64 n, u64 statSecParam, OtExtSender& otExt, span<Channel>chl, block seed);

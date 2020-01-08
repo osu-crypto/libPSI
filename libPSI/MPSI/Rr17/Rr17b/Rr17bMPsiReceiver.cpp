@@ -1,7 +1,7 @@
 #include "Rr17bMPsiReceiver.h"
 #include <future>
 
-#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
 
@@ -295,7 +295,7 @@ namespace osuCrypto
                     for (u64 i = startIdx; i < endIdx; ++i)
                     {
                         // hash to smaller domain using the RO
-                        SHA1 sha(sizeof(block));
+                        RandomOracle sha(sizeof(block));
                         sha.Update(mHashingSeed);
                         sha.Update(inputs[i]);
                         sha.Final(hashedInputBuffer[i]);
@@ -370,7 +370,7 @@ namespace osuCrypto
                             std::swap(perm[i], perm[swapIdx]);
 
 
-                            std::array<u8, SHA1::HashSize> buff;
+                            std::array<u8, RandomOracle::HashSize> buff;
 
                             //block encoding;
                             otRecv.encode(
@@ -423,7 +423,7 @@ namespace osuCrypto
                 localIntersection.reserve(mBins.mMaxBinSize);
 
 
-                const auto encodingSetSize = SHA1::HashSize * mBins.mMaxBinSize + sizeof(Commit);
+                const auto encodingSetSize = RandomOracle::HashSize * mBins.mMaxBinSize + sizeof(Commit);
                 const auto itemsPerThread = (mN + thrds.size() - 1) / thrds.size();
                 const auto startSendIdx = itemsPerThread * tIdx;
                 const auto endSendIdx = std::min<u64>(itemsPerThread * (tIdx + 1), mN);
@@ -441,11 +441,11 @@ namespace osuCrypto
 
                     for (u64 j = 0; j < curSize; ++j)
                     {
-                        auto& comm = *(std::array<u8, SHA1::HashSize>*)iter;
-                        iter += SHA1::HashSize;
+                        auto& comm = *(std::array<u8, RandomOracle::HashSize>*)iter;
+                        iter += RandomOracle::HashSize;
 
                         //span<std::pair<u32, block>> decomms((std::pair<u32, block>*) iter, mBins.mMaxBinSize);
-                        //iter += SHA1::HashSize * mBins.mMaxBinSize;
+                        //iter += RandomOracle::HashSize * mBins.mMaxBinSize;
 
 
                         //if (iter > buff.data() + buff.size())
@@ -469,9 +469,9 @@ namespace osuCrypto
                                 auto inputIdx = tagIter->second.first;
                                 auto decommitmentKey = tagIter->second.second ^ enc;
 
-                                std::array<u8, SHA1::HashSize> hash;
+                                std::array<u8, RandomOracle::HashSize> hash;
 
-                                SHA1 sha;
+                                RandomOracle sha;
                                 sha.Update(inputs[inputIdx]);
                                 sha.Update(decommitmentKey);
                                 sha.Final(hash.data());
@@ -483,7 +483,7 @@ namespace osuCrypto
                                     localIntersection.push_back(inputIdx);
 
 
-                                    iter += (mBins.mMaxBinSize - k - 1) * SHA1::HashSize;
+                                    iter += (mBins.mMaxBinSize - k - 1) * RandomOracle::HashSize;
 
                                     k = mBins.mMaxBinSize;
 

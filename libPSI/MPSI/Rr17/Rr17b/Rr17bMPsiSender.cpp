@@ -1,7 +1,7 @@
 #include "Rr17bMPsiSender.h"
 
 #include "cryptoTools/Crypto/Commit.h"
-#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Matrix.h"
 #include "cryptoTools/Common/Timer.h"
@@ -235,7 +235,7 @@ namespace osuCrypto
 
         //std::atomic<u64> maskIdx(0);
 
-        const auto pairSize = SHA1::HashSize;// tagSize + sizeof(block);
+        const auto pairSize = RandomOracle::HashSize;// tagSize + sizeof(block);
         const auto encodingSetSize = pairSize * mBins.mMaxBinSize + sizeof(Commit);
         std::vector<u8>* sendMaskBuff(new std::vector<u8>(mN * encodingSetSize));
 
@@ -285,7 +285,7 @@ namespace osuCrypto
                     for (u64 i = startIdx; i < endIdx; ++i)
                     {
                         // hash to smaller domain using the RO
-                        SHA1 sha(sizeof(block));
+                        RandomOracle sha(sizeof(block));
                         sha.Update(mHashingSeed);
                         sha.Update(inputs[i]);
                         sha.Final(hashedInputBuffer[i]);
@@ -368,7 +368,7 @@ namespace osuCrypto
 
                             // First we compute the commitment to our value. Each of the common OT-encodings that we
                             // generate for this items will be used to encrypt the decommitment value.
-                            SHA1 sha;
+                            RandomOracle sha;
 
                             // sample a random decommitment value
                             auto itemDecomm = prng.get<block>();
@@ -392,7 +392,7 @@ namespace osuCrypto
                             sha.Update(inputs[inputIdx]);
                             sha.Update(itemDecomm);
                             sha.Final(iter);
-                            iter += SHA1::HashSize;
+                            iter += RandomOracle::HashSize;
 
                             // Compute the i'th
                             for (u64 l = 0, innerOtIdx = otIdx; l < mBins.mMaxBinSize; ++l)
@@ -402,7 +402,7 @@ namespace osuCrypto
                                     innerOtIdx,
                                     &otInputs[inputIdx],
                                     iter,
-                                    SHA1::HashSize);
+                                    RandomOracle::HashSize);
 
                                 //std::cout << "inp[" << inputs[inputIdx] << "] " << innerOtIdx << "  " << otInputs[inputIdx] << std::endl;
                                 //std::cout << "tag[" << inputs[inputIdx] << "] " << innerOtIdx << "  " << *(u32*)iter << std::endl;
