@@ -30,9 +30,10 @@ libOTe and libPSI should share the same parent directory.
 [libOTe clone build steps](https://github.com/osu-crypto/libOTe)
 git clone https://github.com/osu-crypto/libPSI.git
 cd libPSI
-cmake .
+cmake . -DENABLE_XXXX=ON
 make
 ```
+here, `-DENABLE_XXXX` should refer to the public key library used with libOTe, i.e. `-DENABLE_RELIC`, `-DENABLE_MIRACL`, or `-DENABLE_SIMPLESTOT`. 
 
 
 Unit tests can be run by executing the program.
