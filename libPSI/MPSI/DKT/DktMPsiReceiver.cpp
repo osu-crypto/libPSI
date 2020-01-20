@@ -1,6 +1,6 @@
 #include "DktMPsiReceiver.h"
 #include "cryptoTools/Crypto/RCurve.h"
-//#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 
 #include <unordered_map>
