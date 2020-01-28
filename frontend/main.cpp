@@ -215,6 +215,7 @@ void run(
 	{
 		LaunchParams params;
 
+		params.mIP = cmd.get<std::string>(hostNameTag);
         params.mNumThreads = cmd.getMany<u64>(numThreads);
         params.mVerbose = cmd.get<u64>(verboseTags);
         params.mTrials = cmd.get<u64>(trialsTags);
@@ -223,6 +224,7 @@ void run(
         params.mBinScaler = cmd.getMany<double>(binScalerTag);
         params.mStatSecParam = cmd.get<u64>(statSecParamTag);
         params.mCmd = &cmd;
+
 
 		if (cmd.isSet(powNumItems))
 		{
@@ -243,7 +245,7 @@ void run(
 		auto go = [&](LaunchParams& params)
 		{
 			auto mode = params.mIdx ? EpMode::Server : EpMode::Client;
-			Endpoint ep(ios, "localhost", 1213, mode, "none");
+			Endpoint ep(ios, params.mIP, mode);
 			params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
 			for (u64 i = 0; i < params.mChls.size(); ++i)
@@ -524,6 +526,8 @@ int main(int argc, char** argv)
 		std::cout << "Parameters:\n"
 			<< "   -" << roleTag[0]
 			<< ": Two terminal mode. Value should be in { 0, 1 } where 0 means PSI sender and network server.\n"
+
+			<< "   -ip: IP address and port of the server = PSI receiver. (Default = localhost:1212)\n"
 
 			<< "   -" << numItems[0]
 			<< ": Number of items each party has, white space delimited. (Default = " << cmd.get<std::string>(numItems) << ")\n"
