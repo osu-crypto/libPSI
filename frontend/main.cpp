@@ -264,6 +264,8 @@ void run(
 			for (u64 i = 0; i < params.mChls.size(); ++i)
 				params.mChls[i].close();
 
+
+			params.mChls.clear();
 			ep.stop();
 		};
 

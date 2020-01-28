@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\libs\sparsehash\src\windows;C:\libs\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools;;C:\libs\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\libs\sparsehash\src\;$(ProjectDir)..\thirdparty\linux\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools;C:\libs\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -65,7 +65,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\libs\sparsehash\src\windows;C:\libs\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools;;C:\libs\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\libs\sparsehash\src\;$(ProjectDir)..\thirdparty\linux\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools;C:\libs\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501;NDEBUG</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
