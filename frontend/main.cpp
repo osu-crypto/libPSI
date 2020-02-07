@@ -527,7 +527,7 @@ int main(int argc, char** argv)
 
 
 		std::cout << "Unit Tests:\n"
-			<< "   -" << unitTestTags[0] << ": Run all unit tests\n" << std::endl;
+			<< "   -u: Run all unit tests\n" << std::endl;
 
 	}
 	return 0;

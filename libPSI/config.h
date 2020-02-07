@@ -2,6 +2,10 @@
 #include <cryptoTools/Common/config.h>
 #include <libOTe/config.h>
 
+#if LIBOTE_VERSION < 10000
+Config ERROR : libOTe is too old.
+#endif
+
 #define ON 1
 
 
@@ -13,13 +17,14 @@ Config ERROR: ENABLE_RELIC flag does not match with libOTe
 Config ERROR: ENABLE_MIRACL flag does not match with libOTe
 #endif
 
-#if ENABLE_SIMPLESTOT !=  ON
+#if !defined(_MSC_VER) &&  (ENABLE_SIMPLESTOT !=  ON)
 Config ERROR: ENABLE_SIMPLESTOT flag does not match with libOTe
 #endif
 
-#if ENABLE_MR_KYBER !=  ON
+#if !defined(_MSC_VER) && (ENABLE_MR_KYBER !=  ON)
 Config ERROR: ENABLE_MR_KYBER flag does not match with libOTe
 #endif
+
 
 
 // build the library with DCW PSI enabled
