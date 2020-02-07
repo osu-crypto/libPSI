@@ -1,4 +1,4 @@
-#ifdef ENABLE_DCW
+#ifdef ENABLE_DCW_PSI
 #include "DcwBfPsi_Tests.h"
 
 #include "Common.h"

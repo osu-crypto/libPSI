@@ -19,6 +19,7 @@ using namespace osuCrypto;
 void Drrn17Send(
     LaunchParams& params)
 {
+#ifdef ENABLE_DRRN_PSI
     setThreadName("CP_Test_Thread");
     u8 dummy[1];
 
@@ -81,11 +82,15 @@ void Drrn17Send(
             }
         }
     }
+#else
+    std::cout << Color::Red << "DRRN is not enabled " << std::endl << Color::Default;
+#endif
 }
 
 void Drrn17Recv(
     LaunchParams& params)
 {
+#ifdef ENABLE_DRRN_PSI
     setThreadName("CP_Test_Thread");
     u8 dummy[1];
 
@@ -141,5 +146,8 @@ void Drrn17Recv(
             }
         }
     }
+#else
+    std::cout << Color::Red << "DRRN is not enabled " << std::endl << Color::Default;
+#endif
 }
 

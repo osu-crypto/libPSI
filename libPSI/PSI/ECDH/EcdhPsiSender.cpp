@@ -1,11 +1,16 @@
 #include "EcdhPsiSender.h"
+#ifdef ENABLE_ECDH_PSI
+
+#ifndef ENABLE_RELIC
+#pragma error("ENABLE_RELIC must be defined in libOTe")
+#endif
+
 #include "cryptoTools/Crypto/Curve.h"
 #include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Network/Channel.h"
 
-#ifdef ENABLE_ECDH_PSI
 
 namespace osuCrypto
 {

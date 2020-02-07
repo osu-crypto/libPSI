@@ -48,7 +48,7 @@ void EcdhSend(LaunchParams& params)
         }
     }
 #else
-    std::cout << Color::Red << "ECDH requires relic " << std::endl << Color::Default;
+    std::cout << Color::Red << "ECDH PSI is not enabled" << std::endl << Color::Default;
 #endif
 }
 
@@ -96,7 +96,7 @@ void EcdhRecv(LaunchParams& params)
         }
     }
 #else
-std::cout << Color::Red << "ECDH requires relic " << std::endl << Color::Default;
+std::cout << Color::Red << "ECDH PSI is not enabled" << std::endl << Color::Default;
 #endif
 }
 

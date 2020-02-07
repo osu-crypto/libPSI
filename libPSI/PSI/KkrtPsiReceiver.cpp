@@ -1,3 +1,6 @@
+
+#include "libPSI/config.h"
+#ifdef ENABLE_KKRT_PSI
 #include "KkrtPsiReceiver.h"
 #include <future>
 #include "cryptoTools/Crypto/PRNG.h"
@@ -73,7 +76,7 @@ namespace osuCrypto
         //do base OT
         if (otRecv.hasBaseOts() == false)
         {
-#ifdef LIBOTE_HAS_BASE_OT            
+#if defined(LIBOTE_HAS_BASE_OT) && defined(ENABLE_IKNP)
             setTimePoint("kkrt.recv.Init: BaseSSOT start");
             DefaultBaseOT baseBase;
             std::array<block, 128> baseBaseOT;
@@ -89,7 +92,7 @@ namespace osuCrypto
             otRecv.setBaseOts(baseOT, prng, chl0);
             setTimePoint("kkrt.Kkrt PSI Init: BaseSSOT done");
 #else
-throw std::runtime_error("base OTs must be set. " LOCATION);
+throw std::runtime_error("base OTs must be set or enable base OTs and IKNP in libOTe. " LOCATION);
 #endif
         }
 
@@ -245,3 +248,4 @@ throw std::runtime_error("base OTs must be set. " LOCATION);
         //chl.recv(dummy, 1);
     }
 }
+#endif

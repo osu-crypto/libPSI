@@ -1,3 +1,6 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_RR16_PSI
+
 #include "AknBfMPsiReceiver.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
@@ -738,3 +741,4 @@ namespace osuCrypto
 
 
 }
+#endif

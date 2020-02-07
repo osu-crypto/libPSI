@@ -1,4 +1,7 @@
 #pragma once
+#include "libPSI/config.h"
+#ifdef ENABLE_GRR_PSI
+
 #include <cryptoTools/Common/Defines.h>
 #include <vector>
 #include <cryptoTools/Crypto/PRNG.h>
@@ -22,3 +25,4 @@ namespace osuCrypto
         bool print = false);
 
 }
+#endif

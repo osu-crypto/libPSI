@@ -5,11 +5,14 @@
 #include <cryptoTools/Network/Endpoint.h>
 #include <cryptoTools/Crypto/PRNG.h>
 #include <cryptoTools/Common/BitVector.h>
+#include <cryptoTools/Common/TestCollection.h>
 
 using namespace osuCrypto;
 
 void BgiPir_keyGen_128_test()
 {
+#ifdef ENABLE_DRRN_PSI
+
 	std::vector<block> vv{ CCBlock, OneBlock, AllOneBlock, AllOneBlock };
 
 	u64 depth = 128 - 7;
@@ -39,10 +42,15 @@ void BgiPir_keyGen_128_test()
 
 		target = prng.get<block>();
 	}
+
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 void BgiPir_keyGen_test()
 {
+#ifdef ENABLE_DRRN_PSI
 	std::vector<block> vv{ CCBlock, OneBlock, AllOneBlock, AllOneBlock };
 
 	u64 depth = 3;
@@ -76,10 +84,14 @@ void BgiPir_keyGen_test()
 			}
 		}
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 void BgiPir_PIR_test()
 {
+#ifdef ENABLE_DRRN_PSI
 
 	BgiPirClient client;
 	BgiPirServer s0, s1;
@@ -139,10 +151,14 @@ void BgiPir_PIR_test()
 			throw std::runtime_error(LOCATION);
 		}
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 void BgiPir_FullDomain_test()
 {
+#ifdef ENABLE_DRRN_PSI
 	std::vector<std::array<u64, 2>> params{ {2,1}, {2, 6}, {5, 1}, {5, 5 }, {5,8} };
 
 	for (auto param : params)
@@ -188,6 +204,9 @@ void BgiPir_FullDomain_test()
 			}
 		}
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 
@@ -195,6 +214,7 @@ void BgiPir_FullDomain_test()
 
 void BgiPir_FullDomain_iterator_test()
 {
+#ifdef ENABLE_DRRN_PSI
 	std::vector<std::array<u64, 2>> params{ { 2,1 },{ 2, 6 },{ 5, 1 },{ 5, 5 } };
 
 	for (auto param : params)
@@ -294,6 +314,9 @@ void BgiPir_FullDomain_iterator_test()
 			}
 		}
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 
@@ -301,6 +324,7 @@ void BgiPir_FullDomain_iterator_test()
 
 void BgiPir_FullDomain_multikey_test()
 {
+#ifdef ENABLE_DRRN_PSI
 	std::vector<std::array<u64, 2>> params{ { 2,1 },{ 2, 6 },{ 5, 1 },{ 5, 5 } };
 
 	for (auto param : params)
@@ -382,6 +406,9 @@ void BgiPir_FullDomain_multikey_test()
 		}
 
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 

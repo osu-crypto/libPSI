@@ -1,4 +1,6 @@
 #pragma once
+#include "libPSI/config.h"
+#ifdef ENABLE_RR17B_PSI
 
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Common/Timer.h"
@@ -40,3 +42,4 @@ namespace osuCrypto
 
 
 }
+#endif

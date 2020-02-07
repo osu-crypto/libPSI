@@ -1,10 +1,11 @@
 #pragma once
+#include "libPSI/config.h"
+#ifdef ENABLE_DKT_PSI
 
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Crypto/PRNG.h"
 
-#ifdef ENABLE_RELIC
 namespace osuCrypto
 {
 

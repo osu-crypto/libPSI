@@ -1,3 +1,7 @@
+
+#include "libPSI/config.h"
+#ifdef ENABLE_DRRN_PSI
+
 #include "DrrnPsiServer.h"
 #include <libOTe/TwoChooseOne/IknpOtExtReceiver.h>
 #include <libPSI/PIR/BgiPirServer.h>
@@ -501,3 +505,4 @@ namespace osuCrypto
         return ret;
     }
 }
+#endif

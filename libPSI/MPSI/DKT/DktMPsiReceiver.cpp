@@ -1,10 +1,15 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_DKT_PSI
+#ifndef ENABLE_RELIC
+#pragma error("ENABLE_RELIC must be defined in libOTe")
+#endif
+
 #include "DktMPsiReceiver.h"
 #include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 
 #include <unordered_map>
-#ifdef ENABLE_RELIC
 
 namespace osuCrypto
 {

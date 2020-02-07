@@ -1,3 +1,6 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_GRR_PSI
+
 #include "Grr18MPsiReceiver.h"
 #include <future>
 #include <unordered_map>
@@ -679,3 +682,4 @@ namespace osuCrypto
         //std::cout << gTimer;
     }
 }
+#endif

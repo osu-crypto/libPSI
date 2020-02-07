@@ -1,4 +1,8 @@
 #pragma once
+
+#include "libPSI/config.h"
+#ifdef ENABLE_DRRN_PSI
+
 #include <cryptoTools/Network/Channel.h>
 #include <cryptoTools/Common/BitVector.h>
 #include <cryptoTools/Common/Matrix.h>
@@ -94,3 +98,4 @@ namespace osuCrypto
 	};
 
 }
+#endif

@@ -1,3 +1,6 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_RR17_PSI
+
 #include "Rr17aMPsiSender.h"
 
 #include <cryptoTools/Crypto/Commit.h>
@@ -6,8 +9,7 @@
 #include "libOTe/Base/BaseOT.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
-#include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
-#include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
+
 #include "libPSI/MPSI/Rr17/Rr17MPsiDefines.h"
 #include <atomic>
 
@@ -107,7 +109,7 @@ namespace osuCrypto
         if (otSend.hasBaseOts() == false ||
             otRecv.hasBaseOts() == false)
         {
-#ifdef LIBOTE_HAS_BASE_OT
+#if defined(LIBOTE_HAS_BASE_OT) && defined(ENABLE_KOS)
 
             // first do 128 public key OTs (expensive)
             std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
@@ -149,7 +151,7 @@ namespace osuCrypto
             // now set these ~800 OTs as the base of our N choose 1 OTs NcoOtExtReceiver
             otRecv.setBaseOts(sendBaseMsg, mPrng, chl0);
 #else
-            throw std::runtime_error("base OTs must be set. " LOCATION);
+            throw std::runtime_error("base OTs must be set or enable base OTs and KOS in libOTe. " LOCATION);
 #endif
         }
 
@@ -603,3 +605,4 @@ namespace osuCrypto
 }
 
 
+#endif

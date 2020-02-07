@@ -1,4 +1,11 @@
 #pragma once
+#include "libPSI/config.h"
+#ifdef ENABLE_RR16_PSI
+
+#ifndef ENABLE_AKN
+#pragma error("ENABLE_AKN must be defined in libOTe")
+#endif
+
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Common/Timer.h"
 #include "cryptoTools/Network/Channel.h"
@@ -33,3 +40,4 @@ namespace osuCrypto {
     };
 
 }
+#endif

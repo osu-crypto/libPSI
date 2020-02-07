@@ -1,3 +1,6 @@
+
+#include "libPSI/config.h"
+#ifdef ENABLE_KKRT_PSI
 #include "KkrtPsiSender.h"
 #include "cryptoTools/Crypto/Commit.h"
 #include "cryptoTools/Common/Log.h"
@@ -57,7 +60,7 @@ namespace osuCrypto
         //do base OT
         if (otSend.hasBaseOts() == false)
         {
-#ifdef LIBOTE_HAS_BASE_OT
+#if defined(LIBOTE_HAS_BASE_OT) && defined(ENABLE_IKNP)
             DefaultBaseOT baseBase;
             std::array<std::array<block, 2>, 128> baseBaseOT;
             baseBase.send(baseBaseOT, mPrng, chl);
@@ -71,7 +74,7 @@ namespace osuCrypto
 
             otSend.setBaseOts(baseOT, baseChoice, chl);
 #else
-            throw std::runtime_error("base OTs must be set. " LOCATION);
+            throw std::runtime_error("base OTs must be set or enable base OTs and IKNP in libOTe. " LOCATION);
 #endif
         }
 
@@ -496,3 +499,4 @@ namespace osuCrypto
 }
 
 
+#endif

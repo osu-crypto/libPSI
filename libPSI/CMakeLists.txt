@@ -37,15 +37,6 @@ target_link_libraries(libPSI ${libOTe_LIB} ${cryptoTools_LIB})
 
 
 
-option(ENABLE_MIRACL     "use the miracl library" OFF)
-option(ENABLE_RELIC      "use the relic library" OFF)
-option(ENABLE_SIMPLESTOT "use the simplest OT library" OFF)
-
-message(STATUS "Option: ENABLE_MIRACL     = ${ENABLE_MIRACL}")
-message(STATUS "Option: ENABLE_RELIC      = ${ENABLE_RELIC}")
-message(STATUS "Option: ENABLE_SIMPLESTOT = ${ENABLE_SIMPLESTOT}")
-
-
 if(${ENABLE_SIMPLESTOT})
 
 	find_library(
@@ -60,6 +51,25 @@ if(${ENABLE_SIMPLESTOT})
     endif()
 
 	target_link_libraries(libPSI ${SimplestOT_LIB})
+
+endif()
+
+
+
+if(${ENABLE_MR_KYBER})
+
+	find_library(
+	    KyberOT_LIB
+	    NAMES KyberOT
+	    HINTS "${libOTe_Dirs}/lib/")
+
+    if(NOT KyberOT_LIB)
+      	message(FATAL_ERROR "Failed to find libKyberOT.a at: ${libOTe_Dirs}/lib/")
+  	else()
+      	message(STATUS "Found libKyberOT.a at: ${libOTe_Dirs}/lib/")  	
+    endif()
+
+	target_link_libraries(libPSI ${KyberOT_LIB})
 
 endif()
 

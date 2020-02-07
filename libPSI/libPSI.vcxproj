@@ -99,13 +99,12 @@
     <ClCompile Include="Tools\SimpleHasher.cpp" />
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp" />
-    <ClCompile Include="MPSI\Dcw\DcwBfPsiReceiver.cpp" />
-    <ClCompile Include="MPSI\Dcw\DcwBfPsiSender.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Dcw\DcwRBfPsiSender.cpp" />
     <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config.h" />
     <ClInclude Include="MPSI\Grr18\Grr18Common.h" />
     <ClInclude Include="MPSI\Grr18\Grr18MPsiReceiver.h" />
     <ClInclude Include="MPSI\Grr18\Grr18MPsiSender.h" />
@@ -130,14 +129,15 @@
     <ClInclude Include="Tools\SimpleHasher.h" />
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h" />
     <ClInclude Include="MPSI\DKT\DktMPsiSender.h" />
-    <ClInclude Include="MPSI\Dcw\DcwBfPsiReceiver.h" />
-    <ClInclude Include="MPSI\Dcw\DcwBfPsiSender.h" />
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiReceiver.h" />
     <ClInclude Include="MPSI\Dcw\DcwRBfPsiSender.h" />
     <ClInclude Include="Tools\SimpleIndex.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config.h.in" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

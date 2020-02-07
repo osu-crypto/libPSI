@@ -1,4 +1,4 @@
-#ifdef ENABLE_DCW
+#ifdef ENABLE_DCW_PSI
 #pragma once
 //#include "NTL/ZZ_pEX.h"
 #include <vector> 

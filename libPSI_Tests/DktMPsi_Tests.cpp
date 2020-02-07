@@ -17,7 +17,7 @@
 
 using namespace osuCrypto;
 
-#ifdef ENABLE_RELIC
+#ifdef ENABLE_DKT_PSI
 
 void DktMPsi_EmptrySet_Test_Impl()
 {
@@ -186,15 +186,15 @@ void DktMPsi_SingltonSet_Test_Impl()
 
 void DktMPsi_EmptrySet_Test_Impl()
 {
-    throw UnitTestSkipped("requires relic");
+    throw UnitTestSkipped("not enabled");
 }
 void DktMPsi_FullSet_Test_Impl()
 {
-    throw UnitTestSkipped("requires relic");
+    throw UnitTestSkipped("not enabled");
 }
 void DktMPsi_SingltonSet_Test_Impl()
 {
-    throw UnitTestSkipped("requires relic");
+    throw UnitTestSkipped("not enabled");
 }
 
 #endif

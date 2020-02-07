@@ -1,3 +1,7 @@
+
+#include "libPSI/config.h"
+#ifdef ENABLE_DRRN_PSI
+
 #include "DrrnPsiClient.h"
 #include <unordered_map>
 #include <libPSI/PIR/BgiPirClient.h>
@@ -241,3 +245,4 @@ namespace osuCrypto
 
     }
 }
+#endif

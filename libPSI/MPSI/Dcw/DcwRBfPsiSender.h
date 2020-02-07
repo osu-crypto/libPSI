@@ -1,4 +1,4 @@
-#ifdef ENABLE_DCW
+#ifdef ENABLE_DCW_PSI
 #pragma once
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Network/Channel.h"

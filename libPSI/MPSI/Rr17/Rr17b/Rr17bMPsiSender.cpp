@@ -1,3 +1,6 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_RR17B_PSI
+
 #include "Rr17bMPsiSender.h"
 
 #include "cryptoTools/Crypto/Commit.h"
@@ -488,4 +491,4 @@ namespace osuCrypto
 
 }
 
-
+#endif

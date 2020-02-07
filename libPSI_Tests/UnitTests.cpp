@@ -45,7 +45,7 @@ namespace libPSI_Tests
         //t.add("DktPsi_SingltonSet_Test_Imp           ", DktMPsi_SingltonSet_Test_Impl);
 
 
-#ifdef ENABLE_DCW
+#ifdef ENABLE_DCW_PSI
         t.add("DcwPsi_EmptrySet_Test_Impl            ", DcwBfPsi_EmptrySet_Test_Impl);
         t.add("DcwPsi_FullSet_Test_Impl              ", DcwBfPsi_FullSet_Test_Impl);
         t.add("DcwPsi_SingltonSet_Test_Imp           ", DcwBfPsi_SingltonSet_Test_Impl);

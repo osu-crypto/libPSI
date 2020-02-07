@@ -22,6 +22,8 @@ using namespace osuCrypto;
 
 void AknBfPsi_EmptrySet_Test_Impl()
 {
+#ifdef ENABLE_RR16_PSI
+
     u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -70,11 +72,16 @@ void AknBfPsi_EmptrySet_Test_Impl()
     ep0.stop();
     ep1.stop();
     ios.stop();
+#else
+    throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 
 void AknBfPsi_FullSet_Test_Impl()
 {
+#ifdef ENABLE_RR16_PSI
+
     setThreadName("CP_Test_Thread");
     u64 setSize = 8, psiSecParam = 40, numThreads(1);
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -138,10 +145,14 @@ void AknBfPsi_FullSet_Test_Impl()
     if (recv.mIntersection.size() != setSize)
         throw UnitTestFail("Bad intersection size.");
 
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 void AknBfPsi_SingltonSet_Test_Impl()
 {
+#ifdef ENABLE_RR16_PSI
     //Timer& t = gTimer;
 
     setThreadName("Sender");
@@ -201,4 +212,7 @@ void AknBfPsi_SingltonSet_Test_Impl()
         recv.mIntersection[0] != 0)
         throw UnitTestFail("Bad intersection size");
 
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }

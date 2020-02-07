@@ -1,4 +1,8 @@
 #pragma once
+
+#include "libPSI/config.h"
+#ifdef ENABLE_KKRT_PSI
+
 #include <cryptoTools/Common/Defines.h>
 #include <cryptoTools/Common/Timer.h>
 #include <cryptoTools/Network/Channel.h>
@@ -36,3 +40,4 @@ namespace osuCrypto
 	};
 
 }
+#endif

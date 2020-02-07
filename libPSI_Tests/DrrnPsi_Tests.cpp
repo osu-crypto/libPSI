@@ -1,18 +1,19 @@
 #include "BinOtPsi_Tests.h"
 
+#include "libPSI/PSI/DrrnPsiClient.h"
+#include "libPSI/PSI/DrrnPsiServer.h"
+#include "cryptoTools/Common/TestCollection.h"
+using namespace osuCrypto;
+
+#ifdef ENABLE_DRRN_PSI
 #include "Common.h"
 #include "cryptoTools/Network/Endpoint.h"
 #include "cryptoTools/Network/IOService.h"
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Common/Log.h"
-#include "cryptoTools/Common/TestCollection.h"
-
-#include "libPSI/PSI/DrrnPsiClient.h"
-#include "libPSI/PSI/DrrnPsiServer.h"
 
 #include <array>
 
-using namespace osuCrypto;
 
 void Psi_drrn_EmptySet_Test_Impl()
 {
@@ -218,3 +219,9 @@ void Psi_drrn_FullSet_Test_Impl()
 
     if (failed) throw UnitTestFail("Known issue with incorrect result. Ok to ignore for benchmarking...");
 }
+#else
+
+void Psi_drrn_SingletonSet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
+void Psi_drrn_FullSet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
+void Psi_drrn_EmptySet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
+#endif

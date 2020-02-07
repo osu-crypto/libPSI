@@ -1,4 +1,16 @@
 #pragma once
+
+#include "libPSI/config.h"
+#ifdef ENABLE_DRRN_PSI
+
+#ifndef ENABLE_KKRT_PSI
+#pragma error("ENABLE_KKRT_PSI must be defined.");
+#endif
+
+#ifndef ENABLE_KKRT
+#pragma error("ENABLE_KKRT must be defined in libOTe.");
+#endif
+
 #include <cryptoTools/Common/Defines.h>
 #include <cryptoTools/Common/CuckooIndex.h>
 #include <cryptoTools/Network/Channel.h>
@@ -66,3 +78,4 @@ namespace osuCrypto
     };
 
 }
+#endif

@@ -1,4 +1,4 @@
-#ifdef ENABLE_DCW
+#ifdef ENABLE_DCW_PSI
 #include "DcwRBfPsiSender.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include "cryptoTools/Crypto/PRNG.h"

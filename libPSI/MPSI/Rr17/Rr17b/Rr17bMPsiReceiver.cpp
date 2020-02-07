@@ -1,3 +1,6 @@
+
+#include "libPSI/config.h"
+#ifdef ENABLE_RR17B_PSI
 #include "Rr17bMPsiReceiver.h"
 #include <future>
 
@@ -530,3 +533,4 @@ namespace osuCrypto
         //std::cout << gTimer;
     }
 }
+#endif

@@ -182,15 +182,15 @@ void EcdhPsi_SingltonSet_Test_Impl()
 
 void EcdhPsi_EmptrySet_Test_Impl()
 {
-    throw UnitTestSkipped("Requires Relic");
+    throw UnitTestSkipped("not enabled");
 }
 void EcdhPsi_FullSet_Test_Impl()
 {
-    throw UnitTestSkipped("Requires Relic");
+    throw UnitTestSkipped("not enabled");
 }
 void EcdhPsi_SingltonSet_Test_Impl()
 {
-    throw UnitTestSkipped("Requires Relic");
+    throw UnitTestSkipped("not enabled");
 }
 
 #endif

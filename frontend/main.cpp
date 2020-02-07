@@ -44,16 +44,11 @@ using namespace osuCrypto;
 #include "libOTe/Tools/LinearCode.h"
 #include "libOTe/Tools/bch511.h"
 std::vector<std::string>
-unitTestTags{ "u", "unitTest" },
-#ifdef ENABLE_DCW
-DcwTags{ "dcw" },
 DcwrTags{ "dcwr" },
-#endif
 rr16Tags{ "rr16" },
 rr17aTags{ "rr17a" },
 rr17aSMTags{ "rr17a-sm" },
 rr17bTags{ "rr17b" },
-rr17bSMTags{ "rr17b-sm" },
 kkrtTag{ "kkrt" },
 drrnTag{ "drrt" },
 ecdhTags{ "ecdh" },
@@ -392,29 +387,34 @@ void BallsAndBins(CLP& cmd)
 
 int main(int argc, char** argv)
 {
-	//std::cout << "20: " << SimpleIndex::get_bin_size(1 << 14, (1 << 24) * 3, 20) << std::endl;;
-	//std::cout << "40: " << SimpleIndex::get_bin_size(1 << 14, (1 << 24) * 3, 40) << std::endl;;
-	////ttt22();
-	//return 0;
-	//hhhh();
-	//return 0;
-
-
-
     CLP cmd;
     cmd.parse(argc, argv);
 
+	// run cuckoo analysis
 	if (cmd.isSet("cuckoo"))
 	{
 		simpleTest(argc, argv);
 		return 0;
 	}
-	//cmd.setDefault(rr17Tags, "");
 
+	// compute the ping.
+	if (cmd.isSet(pingTag))
+	{
+		pingTest(cmd);
+		return 0;
+	}
+
+	// run the balls-in-bins analysis
+	if (cmd.isSet("ballsBins"))
+	{
+		BallsAndBins(cmd);
+		return 0;
+	}
+
+	// default parameters for various things
 	cmd.setDefault(numThreads, "1");
 	cmd.setDefault(numItems, std::to_string(1 << 8));
 	cmd.setDefault(numItems2, std::to_string(1 << 8));
-	//cmd.setDefault(verboseTags, "0");
 	cmd.setDefault(trialsTags, "1");
 	cmd.setDefault(bitSizeTag, "-1");
 	cmd.setDefault(binScalerTag, "1");
@@ -425,51 +425,19 @@ int main(int argc, char** argv)
     cmd.setDefault("eps", "0.1");
 	cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
 
-    if (cmd.isSet(unitTestTags))
-    {
-        auto tests = tests_cryptoTools::Tests;
-        tests += tests_libOTe::Tests;
-        tests += libPSI_Tests::Tests;
-
-        if (cmd.isSet("list"))
-        {
-            tests.list();
-        }
-        else
-        {
-            cmd.setDefault("loop", 1);
-            auto loop = cmd.get<u64>("loop");
-
-            if (cmd.hasValue(unitTestTags))
-                tests.run(cmd.getMany<u64>(unitTestTags), loop);
-            else
-                tests.runAll(loop);
-        }
-    }
-
-	if (cmd.isSet(pingTag))
-		pingTest(cmd);
-
-    if (cmd.isSet("ballsBins"))
-    {
-        BallsAndBins(cmd);
-        return 0;
-    }
-    //if ((cmd.isSet(roleTag) == false || cmd.hasValue(roleTag) && cmd.get<int>(roleTag)) &&
-    //    (cmd.isSet(DcwTags) || cmd.isSet(DcwrTags) || cmd.isSet(rr16Tags) || cmd.isSet(rr17Tags) || cmd.isSet(dktTags)))
-    //    printHeader();
-
+	// Unit tests.
+    auto tests = tests_cryptoTools::Tests;
+    tests += tests_libOTe::Tests;
+    tests += libPSI_Tests::Tests;
+	auto result = tests.runIf(cmd);
+	
+	// main protocols, they run if the flag is set.
     bool hasProtocolTag = false;
-
-#ifdef ENABLE_DCW
-	run(DcwRecv, DcwSend, DcwTags, cmd);
-	run(DcwRRecv, DcwRSend, DcwrTags, cmd);
-#endif
+	run(DcwrTags, cmd, DcwRRecv, DcwRSend);
 	run(rr16Tags, cmd, bfRecv, bfSend);
 	run(rr17aTags, cmd, rr17aRecv, rr17aSend);
 	run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
 	run(rr17bTags, cmd, rr17bRecv, rr17bSend);
-	run(rr17bSMTags, cmd, rr17bRecv_StandardModel, rr17bSend_StandardModel);
 	run(kkrtTag, cmd, kkrtRecv, kkrtSend);
 	runPir(drrnTag, cmd, Drrn17Recv, Drrn17Send);
     run(grrTags, cmd, grr18Recv, grr18Send);
@@ -477,16 +445,12 @@ int main(int argc, char** argv)
     run(ecdhTags, cmd, EcdhRecv, EcdhSend);
 
 
-	if ((cmd.isSet(unitTestTags) == false &&
-#ifdef ENABLE_DCW
-		cmd.isSet(DcwTags) == false &&
+	if ((result != TestCollection::Result::skipped &&
 		cmd.isSet(DcwrTags) == false &&
-#endif
 		cmd.isSet(rr16Tags) == false &&
 		cmd.isSet(rr17aTags) == false &&
 		cmd.isSet(rr17aSMTags) == false &&
 		cmd.isSet(rr17bTags) == false &&
-		cmd.isSet(rr17bSMTags) == false &&
 		cmd.isSet(kkrtTag) == false &&
         cmd.isSet(drrnTag) == false &&
         cmd.isSet(grrTags) == false &&
@@ -506,15 +470,12 @@ int main(int argc, char** argv)
 		std::cout << "Protocols:\n"
 
 
-#ifdef ENABLE_DCW
-			<< "   -" << DcwTags[0] << "  : DCW13  - Garbled Bloom Filter (semi-honest*)\n"
-			<< "   -" << DcwrTags[0] << " : PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
-#endif
+			<< "   -" << DcwrTags[0] << " : DCW13+PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
             << "   -" << rr16Tags[0] << "    : RR16    - Random Garbled Bloom Filter (malicious secure)\n"
             << "   -" << rr17aTags[0] << "   : RR17    - Hash to bins & compare style (malicious secure, fastest)\n"
             << "   -" << rr17aSMTags[0] << ": RR17sm  - Hash to bins & compare style (standard model malicious secure)\n"
             << "   -" << rr17bTags[0] << "   : RR17b   - Hash to bins & commit compare style (malicious secure)\n"
-            << "   -" << rr17bSMTags[0] << ": RR17bsm - Hash to bins & commit compare style (standard model malicious secure)\n"
+			<< "   -" << grrTags[0] << ": GRR19   - Hash to bins & commit compare style (differential private & malicious secure)\n"
 
 			<< "   -" << dktTags[0] << "     : DKT12   - Public key style (malicious secure)\n"
 			<< "   -" << ecdhTags[0] << "     : ECHD   - Diffie-Hellma key exchange (semihonest secure)\n"

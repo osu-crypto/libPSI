@@ -1,4 +1,4 @@
-#ifdef ENABLE_DCW
+#ifdef ENABLE_DCW_PSI
 #include "DcwRBfPsiReceiver.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"

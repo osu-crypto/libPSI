@@ -37,6 +37,7 @@ using namespace oc;
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef ENABLE_GRR_PSI
 
 void Grr18_Oos_EmptrySet_Test_Impl()
 {
@@ -272,3 +273,10 @@ void Grr18_Oos_SingltonSet_Test_Impl()
         recv.mIntersection[0] != 0)
         throw UnitTestFail();
 }
+#else
+
+void Grr18_Oos_EmptrySet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
+void Grr18_Oos_FullSet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
+void Grr18_Oos_parallel_FullSet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
+void Grr18_Oos_SingltonSet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
+#endif

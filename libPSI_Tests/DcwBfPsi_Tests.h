@@ -1,5 +1,5 @@
 #pragma once
-#ifdef ENABLE_DCW
+#ifdef ENABLE_DCW_PSI
 
 void DcwBfPsi_EmptrySet_Test_Impl();
 void DcwBfPsi_FullSet_Test_Impl();

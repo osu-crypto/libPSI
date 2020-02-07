@@ -1,3 +1,5 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_DRRN_PSI
 #include "BgiPirServer.h"
 #include <cryptoTools/Crypto/PRNG.h>
 #include <cryptoTools/Common/Matrix.h>
@@ -1353,3 +1355,4 @@ namespace osuCrypto
 		return ret;
 	}
 }
+#endif
