@@ -103,11 +103,11 @@ namespace osuCrypto
             if (curve.getOrder().isPrime() == false)
                 throw std::runtime_error("must be prime");
 
-            if (curve.getGenerators().size() < 3)
-            {
-                std::cout << ("DktMPsi require at least 3 generators") << std::endl;
-                throw std::runtime_error("DktMPsi require at least 3 generators");
-            }
+            //if (curve.getGenerators().size() < 3)
+            //{
+            //    std::cout << ("DktMPsi require at least 3 generators") << std::endl;
+            //    throw std::runtime_error("DktMPsi require at least 3 generators");
+            //}
 
             const auto g = curve.getGenerator();
             REccPoint gg; gg.randomize(ZeroBlock);

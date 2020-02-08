@@ -36,6 +36,7 @@ using namespace osuCrypto;
 #include "cryptoTools/Common/Timer.h"
 #include "libPSI/PIR/BgiPirClient.h"
 #include "libPSI/PIR/BgiPirServer.h"
+#include "cryptoTools/Crypto/RandomOracle.h"
 
 #include "cuckoo/cuckooTests.h"
 #include "cryptoTools/Common/CLP.h"
@@ -83,7 +84,7 @@ void Drrn17Send(
 void Drrn17Recv(
     LaunchParams& params);
 
-void runPir(
+void banchmarkPIR(
 	std::vector<std::string> tag,
 	CLP& cmd,
 	std::function<void(LaunchParams&)> recvProtol,
@@ -130,33 +131,26 @@ void runPir(
 		auto go = [&](LaunchParams& params)
 		{
 			EpMode m1, m2;
-			std::string n1, n2;
 			if (params.mIdx == 0)
 			{
 				m1 = m2 = EpMode::Client;
-				n1 = "01";
-				n2 = "02";
 			}
 			else if (params.mIdx == 1) {
 				m1 = EpMode::Server;
 				m2 = EpMode::Client;
-				n1 = "01";
-				n2 = "12";
 			}
 			else {
 				m1 = m2 = EpMode::Server;
-				n1 = "02";
-				n2 = "12";
 			}
 
-			Endpoint ep1(ios, "localhost", 1213, m1, n1);
-			Endpoint ep2(ios, "localhost", 1213, m2, n2);
+			Endpoint ep1(ios, params.mHostName, m1);
+			Endpoint ep2(ios, params.mHostName, m2);
 			params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 			params.mChls2.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
 			for (u64 i = 0; i < params.mChls.size(); ++i) {
-				params.mChls[i] = ep1.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
-				params.mChls2[i] = ep2.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+				params.mChls[i] = ep1.addChannel();
+				params.mChls2[i] = ep2.addChannel();
 			}
 
 			if (params.mIdx == 0) {
@@ -200,7 +194,7 @@ void runPir(
 }
 
 
-void run(
+void benchmark(
 	std::vector<std::string> tag,
 	CLP& cmd,
 	std::function<void(LaunchParams&)> recvProtol,
@@ -244,7 +238,7 @@ void run(
 			params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
 			for (u64 i = 0; i < params.mChls.size(); ++i)
-				params.mChls[i] = ep.addChannel("chl" + std::to_string(i), "chl" + std::to_string(i));
+				params.mChls[i] = ep.addChannel();
 
             if (params.mIdx == 0)
             {
@@ -367,7 +361,6 @@ void shuffle()
 
 }
 
-
 void BallsAndBins(CLP& cmd)
 {
     auto Ns = cmd.getMany<int>("nn");
@@ -384,6 +377,9 @@ void BallsAndBins(CLP& cmd)
     }
 }
 
+void doFilePSI(const CLP& cmd);
+
+void padSmallSet(std::vector<osuCrypto::block>& set, osuCrypto::u64& theirSize, osuCrypto::CLP& cmd);
 
 int main(int argc, char** argv)
 {
@@ -433,19 +429,28 @@ int main(int argc, char** argv)
 	
 	// main protocols, they run if the flag is set.
     bool hasProtocolTag = false;
-	run(DcwrTags, cmd, DcwRRecv, DcwRSend);
-	run(rr16Tags, cmd, bfRecv, bfSend);
-	run(rr17aTags, cmd, rr17aRecv, rr17aSend);
-	run(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
-	run(rr17bTags, cmd, rr17bRecv, rr17bSend);
-	run(kkrtTag, cmd, kkrtRecv, kkrtSend);
-	runPir(drrnTag, cmd, Drrn17Recv, Drrn17Send);
-    run(grrTags, cmd, grr18Recv, grr18Send);
-	run(dktTags, cmd, DktRecv, DktSend);
-    run(ecdhTags, cmd, EcdhRecv, EcdhSend);
+	if (cmd.isSet("in"))
+	{
+		hasProtocolTag = true;
+		doFilePSI(cmd);
+	}
+	else
+	{
+		benchmark(DcwrTags, cmd, DcwRRecv, DcwRSend);
+		benchmark(rr16Tags, cmd, bfRecv, bfSend);
+		benchmark(rr17aTags, cmd, rr17aRecv, rr17aSend);
+		benchmark(rr17aSMTags, cmd, rr17aRecv_StandardModel, rr17aSend_StandardModel);
+		benchmark(rr17bTags, cmd, rr17bRecv, rr17bSend);
+		benchmark(kkrtTag, cmd, kkrtRecv, kkrtSend);
+		benchmark(grrTags, cmd, grr18Recv, grr18Send);
+		benchmark(dktTags, cmd, DktRecv, DktSend);
+		benchmark(ecdhTags, cmd, EcdhRecv, EcdhSend);
+		banchmarkPIR(drrnTag, cmd, Drrn17Recv, Drrn17Send);
+	}
 
 
-	if ((result != TestCollection::Result::skipped &&
+	if ((result == TestCollection::Result::skipped &&
+		hasProtocolTag == false &&
 		cmd.isSet(DcwrTags) == false &&
 		cmd.isSet(rr16Tags) == false &&
 		cmd.isSet(rr17aTags) == false &&
@@ -459,7 +464,7 @@ int main(int argc, char** argv)
 		cmd.isSet(pingTag) == false) ||
 		cmd.isSet(helpTags))
 	{
-		std::cout
+		std::cout << Color::Red 
 			<< "#######################################################\n"
 			<< "#                      - libPSI -                     #\n"
 			<< "#               A library for performing              #\n"
@@ -467,7 +472,7 @@ int main(int argc, char** argv)
 			<< "#                      Peter Rindal                   #\n"
 			<< "#######################################################\n" << std::endl;
 
-		std::cout << "Protocols:\n"
+		std::cout << Color::Green << "Protocols:\n" << Color::Default
 
 
 			<< "   -" << DcwrTags[0] << " : DCW13+PSZ14  - Random Garbled Bloom Filter (semi-honest*)\n"
@@ -484,7 +489,23 @@ int main(int argc, char** argv)
             << "   -" << drrnTag[0] << "  : DRRN17  - Two server PIR style (semi-honest secure)\n" 
 			<< std::endl;
 
-		std::cout << "Parameters:\n"
+		std::cout << Color::Green << "File based PSI Parameters: " << Color::Default
+			<< "Should be combined with one of the protocol flags above.\n"
+			<< "   -in: The path to the party's set. Should either be a binary file containing 16 byte elements with a .bin extension. "
+			<< "Otherwise the path should have a .csv extension and have one element per row, 32 char hex rows are prefered. \n"
+
+			<< "   -r:  Value should be in { 0, 1 } where 0 means PSI sender.\n"
+
+			<< "   -out: The output file path. Will be writen in the same format as the input. (Default = in || \".out\")\n"
+			<< "   -ip: IP address and port of the server = PSI receiver. (Default = localhost:1212)\n"
+			<< "   -server: Value should be in {0, 1} and indicates if this party should be the IP server. (Default = r)\n"
+
+			<< "   -bin: Optional flag to always interpret the input file as binary.\n"
+			<< "   -csv: Optional flag to always interpret the input file as a CSV.\n"
+			<< "   -receiverSize: An optional parameter to specify the receiver's set size.\n"
+			<< "   -senderSize: An optional parameter to specify the sender's set size.\n\n"
+			;
+		std::cout << Color::Green << "Benchmark Parameters:\n" << Color::Default
 			<< "   -" << roleTag[0]
 			<< ": Two terminal mode. Value should be in { 0, 1 } where 0 means PSI sender and network server.\n"
 
@@ -526,7 +547,7 @@ int main(int argc, char** argv)
             << std::endl;
 
 
-		std::cout << "Unit Tests:\n"
+		std::cout << Color::Green << "Unit Tests:\n" << Color::Default
 			<< "   -u: Run all unit tests\n" << std::endl;
 
 	}

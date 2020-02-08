@@ -9,19 +9,19 @@ Config ERROR: libOTe is too old.
 #define ON 1
 
 #if ENABLE_RELIC !=  @ENABLE_RELIC@
-Config ERROR: ENABLE_RELIC flag does not match with libOTe
+static_assert(0,"ENABLE_RELIC flag does not match with libOTe");
 #endif
 
 #if ENABLE_MIRACL !=  @ENABLE_MIRACL@
-Config ERROR: ENABLE_MIRACL flag does not match with libOTe
+static_assert(0,"ENABLE_MIRACL flag does not match with libOTe");
 #endif
 
 #if !defined(_MSC_VER) && (ENABLE_SIMPLESTOT !=  @ENABLE_SIMPLESTOT@)
-Config ERROR: ENABLE_SIMPLESTOT flag does not match with libOTe
+static_assert(0,"ENABLE_SIMPLESTOT flag does not match with libOTe");
 #endif
 
 #if !defined(_MSC_VER) && (ENABLE_MR_KYBER !=  @ENABLE_MR_KYBER@)
-Config ERROR: ENABLE_MR_KYBER flag does not match with libOTe
+static_assert(0,"ENABLE_MR_KYBER flag does not match with libOTe");
 #endif
 
 // build the library with DCW PSI enabled
