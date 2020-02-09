@@ -1,5 +1,5 @@
 # libPSI
-A repository for private set intersection. 
+A repository for private set intersection. Most protocols were written just for benchmarking them while (RR17,KKRT,Mea86=ECDH) can be run from the command line and take a dile as input. Run the program for details.
 
 
 ## Introduction
