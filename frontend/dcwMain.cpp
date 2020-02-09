@@ -5,8 +5,8 @@
 #include "cryptoTools/Network/Endpoint.h" 
 
 
-#include "libPSI/MPSI/Dcw/DcwRBfPsiReceiver.h"
-#include "libPSI/MPSI/Dcw/DcwRBfPsiSender.h"
+#include "libPSI/PSI/Dcw/DcwRBfPsiReceiver.h"
+#include "libPSI/PSI/Dcw/DcwRBfPsiSender.h"
 
 
 

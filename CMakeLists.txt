@@ -106,6 +106,7 @@ option(ENABLE_SIMPLESTOT "use the simplest OT library" OFF)
 option(ENABLE_MR_KYBER   "use the kyber OT library" OFF)
 
 message(STATUS "General Options\n=======================================================")
+message(STATUS "Option: CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}\n\tRelease\n\tDebug\n\tRELWITHDEBINFO")
 message(STATUS "Option: ENABLE_ALL_PSI         = ON/OFF\n\n")
 
 message(STATUS "PSI protocols\n=======================================================")

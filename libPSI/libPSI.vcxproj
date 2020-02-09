@@ -88,7 +88,6 @@
     <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
     <ClCompile Include="PSI\KkrtPsiSender.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
-    <ClCompile Include="MPSI\Dcw\ShamirSSScheme.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp" />
     <ClCompile Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.cpp" />
@@ -120,7 +119,6 @@
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
     <ClInclude Include="MPSI\Rr17\Rr17MPsiDefines.h" />
-    <ClInclude Include="MPSI\Dcw\ShamirSSScheme.h" />
     <ClInclude Include="MPSI\Rr16\AknBfMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr16\AknBfMPsiSender.h" />
     <ClInclude Include="MPSI\Rr17\Rr17a\Rr17aMPsiReceiver.h" />

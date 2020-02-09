@@ -45,13 +45,10 @@ namespace libPSI_Tests
         //t.add("DktPsi_SingltonSet_Test_Imp           ", DktMPsi_SingltonSet_Test_Impl);
 
 
-#ifdef ENABLE_DCW_PSI
-        t.add("DcwPsi_EmptrySet_Test_Impl            ", DcwBfPsi_EmptrySet_Test_Impl);
-        t.add("DcwPsi_FullSet_Test_Impl              ", DcwBfPsi_FullSet_Test_Impl);
-        t.add("DcwPsi_SingltonSet_Test_Imp           ", DcwBfPsi_SingltonSet_Test_Impl);
+        t.add("DcwPsi_EmptrySet_Test_Impl            ", DcwRBfPsi_EmptrySet_Test_Impl);
+        t.add("DcwPsi_FullSet_Test_Impl              ", DcwRBfPsi_FullSet_Test_Impl);
+        t.add("DcwPsi_SingltonSet_Test_Imp           ", DcwRBfPsi_SingltonSet_Test_Impl);
 
-        t.add("ShamirSSScheme_GF2X_Test              ", ShamirSSScheme_Test);
-#endif
         t.add("RR16_EmptrySet_Test_Impl              ", AknBfPsi_EmptrySet_Test_Impl);
         t.add("RR16_FullSet_Test_Impl                ", AknBfPsi_FullSet_Test_Impl);
         t.add("RR16_SingltonSet_Test_Impl            ", AknBfPsi_SingltonSet_Test_Impl);

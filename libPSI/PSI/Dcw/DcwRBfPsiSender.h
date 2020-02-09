@@ -1,8 +1,10 @@
-#ifdef ENABLE_DCW_PSI
 #pragma once
+#include "libPSI/config.h"
+#ifdef ENABLE_DCW_PSI
+
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Network/Channel.h"
-#include "cryptoTools/Crypto/sha1.h"
+#include "cryptoTools/Crypto/RandomOracle.h"
 #include "libOTe/TwoChooseOne/OTExtInterface.h"
 
 namespace osuCrypto {
@@ -12,25 +14,14 @@ namespace osuCrypto {
     class DcwRBfPsiSender
     {
     public:
-        DcwRBfPsiSender();
-        ~DcwRBfPsiSender();
 
-        //void computeParameters(u64 n, u64 statSecParam, u64& totalOtCount, u64& cncOnesThreshold, double& cncProb, u64& numHashFunctions, u64& bfBitCount);
-
-        u64 mN, mStatSecParam, mBfBitCount;
-        //DcwOtSender mDcwOt;
-        block mHashingSeed;
-        std::vector<SHA1> mHashs;
+        u64 mN, mBfBitCount, mNumHashFunctions;
 
         std::vector<std::array<block, 2>> mSendOtMessages;
-        block computeSecureSharing(span<block> shares);
-        block mEncSeed, mSeed;
+        block mSeed, mHashSeed;
 
-        std::vector<block>mShares;
-        block mSharesPrime;
         void init(u64 n, u64 statSecParam, OtExtSender& otExt, Channel& chl, block seed);
         void init(u64 n, u64 statSecParam, OtExtSender& otExt, span<Channel> chl, block seed);
-
 
         void sendInput(std::vector<block>& inputs, Channel& chl);
         void sendInput(std::vector<block>& inputs, span<Channel> chl);

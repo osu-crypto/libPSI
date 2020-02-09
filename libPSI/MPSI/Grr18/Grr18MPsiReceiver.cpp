@@ -25,15 +25,16 @@
 namespace osuCrypto
 {
 
-
-    template<typename T>
-    struct NoHash
-    {
-        inline size_t operator()(const T& v) const
+    namespace {
+        template<typename T>
+        struct NoHash
         {
-            return v;
-        }
-    };
+            inline size_t operator()(const T& v) const
+            {
+                return v;
+            }
+        };
+    }
 
 
     inline block shiftRight(block v, u8 n)

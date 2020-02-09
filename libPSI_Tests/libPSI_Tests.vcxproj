@@ -49,7 +49,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/libPSI_Tests;$(SolutionDir);;C:\libs\include;$(libOTeDir)/thirdparty\win\;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;$(SolutionDir)/thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;$(libOTeDir)/cryptoTools/;$(libOTeDir)/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/libPSI_Tests;$(SolutionDir);C:\libs\include;$(libOTeDir)/thirdparty\win\;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;$(SolutionDir)thirdparty/linux/sparsehash\src;$(SolutionDir)/thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;$(libOTeDir)/cryptoTools/;$(libOTeDir)/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
@@ -64,7 +64,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)/libPSI_Tests;$(SolutionDir);;C:\libs\include;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;$(SolutionDir)/thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;$(libOTeDir)/cryptoTools/;$(libOTeDir)/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/libPSI_Tests;$(SolutionDir);C:\libs\include;$(libOTeDir)/thirdparty\win\;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;$(SolutionDir)thirdparty/linux/sparsehash\src;$(SolutionDir)/thirdparty/win/NTL/include;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;$(libOTeDir)/cryptoTools/;$(libOTeDir)/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_WIN32_WINNT=0x0501;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>

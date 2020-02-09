@@ -383,8 +383,8 @@ namespace osuCrypto
                                 buff.size());              // output
 
 
-                            u32& tag = *(u32*)buff.data();
-                            block& key = *(block*)(buff.data() + sizeof(u32));
+                            u32 tag = *(u32*)buff.data();
+                            block key = toBlock(buff.data() + sizeof(u32));
 
 
                             //std::cout << "inp[" << inputs[inputIdx] << "] " << (otIdx + perm[i]) << "  " << otInputs[i] << std::endl;

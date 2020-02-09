@@ -407,6 +407,13 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
+	// Unit tests.
+	auto tests = tests_cryptoTools::Tests;
+	tests += tests_libOTe::Tests;
+	tests += libPSI_Tests::Tests;
+	auto result = tests.runIf(cmd);
+
+
 	// default parameters for various things
 	cmd.setDefault(numThreads, "1");
 	cmd.setDefault(numItems, std::to_string(1 << 8));
@@ -421,12 +428,6 @@ int main(int argc, char** argv)
     cmd.setDefault("eps", "0.1");
 	cmd.setDefault(verboseTags, std::to_string(1 & (u8)cmd.isSet(verboseTags)));
 
-	// Unit tests.
-    auto tests = tests_cryptoTools::Tests;
-    tests += tests_libOTe::Tests;
-    tests += libPSI_Tests::Tests;
-	auto result = tests.runIf(cmd);
-	
 	// main protocols, they run if the flag is set.
     bool hasProtocolTag = false;
 	if (cmd.isSet("in"))
