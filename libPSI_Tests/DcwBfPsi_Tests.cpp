@@ -225,4 +225,19 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
     recvThrd.join();
 
 }
-#endif 
+#else
+
+void DcwRBfPsi_EmptrySet_Test_Impl()
+{
+    throw UnitTestSkipped("not enabled");
+}
+void DcwRBfPsi_FullSet_Test_Impl()
+{
+    throw UnitTestSkipped("not enabled");
+}
+void DcwRBfPsi_SingltonSet_Test_Impl()
+{
+    throw UnitTestSkipped("not enabled");
+}
+
+#endif

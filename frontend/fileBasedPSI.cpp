@@ -271,6 +271,7 @@ void doFilePSI(const CLP& cmd)
 		}
 		else if (cmd.isSet("ecdh"))
 		{
+#ifdef ENABLE_ECDH_PSI
 			padSmallSet(set, theirSize, cmd);
 
 			if (r == Role::Sender)
@@ -286,6 +287,9 @@ void doFilePSI(const CLP& cmd)
 				recver.sendInput(set, span<Channel>{&chl, 1});
 				writeOutput(outPath, ft, recver.mIntersection);
 			}
+#else
+            throw std::runtime_error("ECDH not enabled.");
+#endif
 		}
 		//else if (cmd.isSet("dkt"))
 		//{
