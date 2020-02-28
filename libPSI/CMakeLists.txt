@@ -141,3 +141,28 @@ if (ENABLE_RELIC)
 
 endif (ENABLE_RELIC)
 
+## WolfSSL
+###########################################################################
+
+if(ENABLE_WOLFSSL)
+
+    if(NOT DEFINED WolfSSL_DIR)
+        set(WolfSSL_DIR "/usr/local/")
+    endif()
+
+
+    find_library(WOLFSSL_LIB NAMES wolfssl  HINTS "${WolfSSL_DIR}")
+    set(WOLFSSL_LIB_INCLUDE_DIRS "${WolfSSL_DIR}include/")
+
+    # if we cant fint it, throw an error
+    if(NOT WOLFSSL_LIB)
+        message(FATAL_ERROR "Failed to find WolfSSL at " ${WolfSSL_DIR})
+    endif()
+
+    message(STATUS "WOLFSSL_LIB:  ${WOLFSSL_LIB}")
+    message(STATUS "WOLFSSL_INC:  ${WOLFSSL_LIB_INCLUDE_DIRS}\n")
+
+    target_include_directories(libPSI PUBLIC "${WOLFSSL_LIB_INCLUDE_DIRS}")
+    target_link_libraries(libPSI ${WOLFSSL_LIB})
+
+endif(ENABLE_WOLFSSL)

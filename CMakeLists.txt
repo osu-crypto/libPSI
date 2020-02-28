@@ -71,6 +71,9 @@ include_directories("${Miracl_Dirs}")
 # default location for Boost
 set(BOOST_ROOT "${libOTe_Dirs}/cryptoTools/thirdparty/linux/boost/")
 
+# default location for Wolfssl
+set(WolfSSL_DIR "/usr/local/")
+
 
 #############################################
 #                CONFIGURE                  #
@@ -104,6 +107,7 @@ option(ENABLE_MIRACL     "use the miracl library" OFF)
 option(ENABLE_RELIC      "use the relic library" OFF)
 option(ENABLE_SIMPLESTOT "use the simplest OT library" OFF)
 option(ENABLE_MR_KYBER   "use the kyber OT library" OFF)
+option(ENABLE_WOLFSSL     "use the wolfssl library" OFF)
 
 message(STATUS "General Options\n=======================================================")
 message(STATUS "Option: CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}\n\tRelease\n\tDebug\n\tRELWITHDEBINFO")
@@ -125,7 +129,8 @@ message(STATUS "libOTe & cryptoTools options\n==================================
 message(STATUS "Option: ENABLE_MIRACL     = ${ENABLE_MIRACL}")
 message(STATUS "Option: ENABLE_RELIC      = ${ENABLE_RELIC}")
 message(STATUS "Option: ENABLE_SIMPLESTOT = ${ENABLE_SIMPLESTOT}")
-message(STATUS "Option: ENABLE_MR_KYBER   = ${ENABLE_MR_KYBER}\n\n")
+message(STATUS "Option: ENABLE_MR_KYBER   = ${ENABLE_MR_KYBER}")
+message(STATUS "Option: ENABLE_WOLFSSL     = ${ENABLE_WOLFSSL}\n\n")
 
 configure_file(libPSI/config.h.in libPSI/config.h)
 
