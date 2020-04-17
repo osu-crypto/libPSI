@@ -33,7 +33,7 @@ cd libPSI
 cmake . -DENABLE_XXXX=ON
 make
 ```
-here, `-DENABLE_XXXX` should refer to the public key library used with libOTe, i.e. `-DENABLE_RELIC`, `-DENABLE_MIRACL`, or `-DENABLE_SIMPLESTOT`. 
+here, `-DENABLE_XXXX` should refer to the public key library used with libOTe, i.e. `-DENABLE_RELIC`, `-DENABLE_MIRACL`, or `-DENABLE_SIMPLESTOT_ASM`. 
 
 
 Unit tests can be run by executing the program.
