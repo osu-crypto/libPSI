@@ -37,7 +37,7 @@ target_link_libraries(libPSI ${libOTe_LIB} ${cryptoTools_LIB})
 
 
 
-if(${ENABLE_SIMPLESTOT})
+if(${ENABLE_SIMPLESTOT_ASM})
 
 	find_library(
 	    SimplestOT_LIB
@@ -133,11 +133,13 @@ if (ENABLE_RELIC)
   if (NOT Relic_FOUND)
     message(FATAL_ERROR "Failed to find Relic")
   endif (NOT Relic_FOUND)
+  
+  message(STATUS "Relic_LIB:  ${RELIC_LIBRARIES} ${RLC_LIBRARY}")
+  message(STATUS "Relic_inc:  ${RELIC_INCLUDE_DIR} ${RLC_INCLUDE_DIR}\n")
 
-  message(STATUS "Relic_LIB:  ${RELIC_LIBRARIES}")
+  target_include_directories(libPSI PUBLIC ${RELIC_INCLUDE_DIR} ${RLC_INCLUDE_DIR}) 
+  target_link_libraries(libPSI ${RELIC_LIBRARIES} ${RLC_LIBRARY})
 
-  target_include_directories(libPSI PUBLIC ${RELIC_INCLUDE_DIR}) 
-  target_link_libraries(libPSI ${RELIC_LIBRARIES})
 
 endif (ENABLE_RELIC)
 

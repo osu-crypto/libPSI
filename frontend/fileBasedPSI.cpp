@@ -5,6 +5,7 @@
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
+#include "cryptoTools/Crypto/PRNG.h"
 #include <string>
 #include <vector>
 #include <assert.h>
@@ -14,8 +15,8 @@
 #include "libOTe/NChooseOne/Oos/OosNcoOtReceiver.h"
 #include "libOTe/NChooseOne/Oos/OosNcoOtSender.h"
 
-#include "libPSI/PSI/KkrtPsiReceiver.h"
-#include "libPSI/PSI/KkrtPsiSender.h"
+#include "libPSI/PSI/Kkrt/KkrtPsiReceiver.h"
+#include "libPSI/PSI/Kkrt/KkrtPsiSender.h"
 #include "libOTe/NChooseOne/Kkrt/KkrtNcoOtReceiver.h"
 #include "libOTe/NChooseOne/Kkrt/KkrtNcoOtSender.h"
 
@@ -230,6 +231,7 @@ void doFilePSI(const CLP& cmd)
 
 		if (cmd.isSet("kkrt"))
 		{
+#if defined(ENABLE_KKRT) && defined(ENABLE_KKRT_PSI)
 			if (r == Role::Sender)
 			{
 				KkrtNcoOtSender ot;
@@ -246,9 +248,13 @@ void doFilePSI(const CLP& cmd)
 				recver.sendInput(set, chl);
 				writeOutput(outPath, ft, recver.mIntersection);
 			}
+#else 
+			throw std::runtime_error("ENABLE_KKRT_PSI not defined.");
+#endif
 		}
 		else if (cmd.isSet("rr17a"))
 		{
+#if defined(ENABLE_OOS) && defined(ENABLE_RR17_PSI)
 			padSmallSet(set, theirSize, cmd);
 
 			if (r == Role::Sender)
@@ -268,9 +274,13 @@ void doFilePSI(const CLP& cmd)
 				recver.sendInput(set, chl);
 				writeOutput(outPath, ft, recver.mIntersection);
 			}
+#else 
+			throw std::runtime_error("ENABLE_RR17_PSI not defined.");
+#endif
 		}
 		else if (cmd.isSet("ecdh"))
 		{
+#ifdef ENABLE_ECDH_PSI
 			padSmallSet(set, theirSize, cmd);
 
 			if (r == Role::Sender)
@@ -286,6 +296,9 @@ void doFilePSI(const CLP& cmd)
 				recver.sendInput(set, span<Channel>{&chl, 1});
 				writeOutput(outPath, ft, recver.mIntersection);
 			}
+#else 
+			throw std::runtime_error("ENABLE_ECDH_PSI not defined.");
+#endif
 		}
 		//else if (cmd.isSet("dkt"))
 		//{

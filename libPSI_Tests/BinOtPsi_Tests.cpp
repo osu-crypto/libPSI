@@ -20,8 +20,8 @@
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
 #include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
 
-#include "libPSI/PSI/KkrtPsiSender.h"
-#include "libPSI/PSI/KkrtPsiReceiver.h"
+#include "libPSI/PSI/Kkrt/KkrtPsiSender.h"
+#include "libPSI/PSI/Kkrt/KkrtPsiReceiver.h"
 
 #include "libPSI/Tools/CuckooHasher.h"
 

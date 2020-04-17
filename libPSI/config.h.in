@@ -16,8 +16,8 @@ static_assert(0,"ENABLE_RELIC flag does not match with libOTe");
 static_assert(0,"ENABLE_MIRACL flag does not match with libOTe");
 #endif
 
-#if !defined(_MSC_VER) && (ENABLE_SIMPLESTOT !=  @ENABLE_SIMPLESTOT@)
-static_assert(0,"ENABLE_SIMPLESTOT flag does not match with libOTe");
+#if !defined(_MSC_VER) && (ENABLE_SIMPLESTOT_ASM !=  @ENABLE_SIMPLESTOT_ASM@)
+static_assert(0,"ENABLE_SIMPLESTOT_ASM flag does not match with libOTe");
 #endif
 
 #if !defined(_MSC_VER) && (ENABLE_MR_KYBER !=  @ENABLE_MR_KYBER@)
@@ -50,6 +50,9 @@ static_assert(0,"ENABLE_MR_KYBER flag does not match with libOTe");
 
 // build the library with DRRN PSI enabled
 #cmakedefine ENABLE_DRRN_PSI  @ENABLE_DRRN_PSI@
+
+// build the library with PRTY PSI enabled
+#cmakedefine ENABLE_PRTY_PSI  @ENABLE_PRTY_PSI@
 
 
 #undef ON

@@ -1,8 +1,8 @@
 #include "bloomFilterMain.h"
 #include "cryptoTools/Network/Endpoint.h"
 
-#include "libPSI/PSI/DrrnPsiClient.h"
-#include "libPSI/PSI/DrrnPsiServer.h"
+#include "libPSI/PSI/Drrn/DrrnPsiClient.h"
+#include "libPSI/PSI/Drrn/DrrnPsiServer.h"
 
 #include <fstream>
 using namespace osuCrypto;

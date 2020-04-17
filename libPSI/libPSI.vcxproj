@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\libs\sparsehash\src\;$(ProjectDir)..\thirdparty\linux\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools;C:\libs\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;$(ProjectDir)..\thirdparty\linux\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools;C:\libs\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -65,7 +65,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;C:\libs\sparsehash\src\;$(ProjectDir)..\thirdparty\linux\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools;C:\libs\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/..;$(libOTeDir)/cryptoTools/thirdparty/win/boost;$(libOTeDir)/cryptoTools/thirdparty/win/NTL/include;$(libOTeDir)/cryptoTools/thirdparty/win/;$(libOTeDir)/cryptoTools/thirdparty/win/miracl;C:/libs/boost;C:/libs/;C:/libs/NTL/include;C:/libs/miracl;$(ProjectDir)..\thirdparty\linux\sparsehash\src;$(libOTeDir);$(libOTeDir)/cryptoTools;C:\libs\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SOLUTION_DIR=R"**($(SolutionDir))**";_MBCS;%(PreprocessorDefinitions);_WIN32_WINNT=0x0501;NDEBUG</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -81,12 +81,18 @@
     <ClCompile Include="MPSI\Grr18\Grr18MPsiSender.cpp" />
     <ClCompile Include="PIR\BgiPirClient.cpp" />
     <ClCompile Include="PIR\BgiPirServer.cpp" />
-    <ClCompile Include="PSI\DrrnPsiClient.cpp" />
-    <ClCompile Include="PSI\DrrnPsiServer.cpp" />
+    <ClCompile Include="PSI\Drrn\DrrnPsiClient.cpp" />
+    <ClCompile Include="PSI\Drrn\DrrnPsiServer.cpp" />
     <ClCompile Include="PSI\ECDH\EcdhPsiReceiver.cpp" />
     <ClCompile Include="PSI\ECDH\EcdhPsiSender.cpp" />
-    <ClCompile Include="PSI\KkrtPsiReceiver.cpp" />
-    <ClCompile Include="PSI\KkrtPsiSender.cpp" />
+    <ClCompile Include="PSI\Kkrt\KkrtPsiReceiver.cpp" />
+    <ClCompile Include="PSI\Kkrt\KkrtPsiSender.cpp" />
+    <ClCompile Include="PSI\Prty\Poly\polyFFT.cpp" />
+    <ClCompile Include="PSI\Prty\Poly\polyFFT2.cpp" />
+    <ClCompile Include="PSI\Prty\Poly\polyNTL.cpp" />
+    <ClCompile Include="PSI\Prty\PrtyReceiver.cpp" />
+    <ClCompile Include="PSI\Prty\PrtySender.cpp" />
+    <ClCompile Include="Tools\BalancedIndex.cpp" />
     <ClCompile Include="Tools\CuckooHasher.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\Rr16\AknBfMPsiSender.cpp" />
@@ -98,8 +104,8 @@
     <ClCompile Include="Tools\SimpleHasher.cpp" />
     <ClCompile Include="MPsi\DKT\DktMPsiReceiver.cpp" />
     <ClCompile Include="MPSI\DKT\DktMPsiSender.cpp" />
-    <ClCompile Include="MPSI\Dcw\DcwRBfPsiReceiver.cpp" />
-    <ClCompile Include="MPSI\Dcw\DcwRBfPsiSender.cpp" />
+    <ClCompile Include="PSI\Dcw\DcwRBfPsiReceiver.cpp" />
+    <ClCompile Include="PSI\Dcw\DcwRBfPsiSender.cpp" />
     <ClCompile Include="Tools\SimpleIndex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -109,12 +115,19 @@
     <ClInclude Include="MPSI\Grr18\Grr18MPsiSender.h" />
     <ClInclude Include="PIR\BgiPirClient.h" />
     <ClInclude Include="PIR\BgiPirServer.h" />
-    <ClInclude Include="PSI\DrrnPsiClient.h" />
-    <ClInclude Include="PSI\DrrnPsiServer.h" />
+    <ClInclude Include="PSI\Drrn\DrrnPsiClient.h" />
+    <ClInclude Include="PSI\Drrn\DrrnPsiServer.h" />
     <ClInclude Include="PSI\ECDH\EcdhPsiReceiver.h" />
     <ClInclude Include="PSI\ECDH\EcdhPsiSender.h" />
-    <ClInclude Include="PSI\KkrtPsiReceiver.h" />
-    <ClInclude Include="PSI\KkrtPsiSender.h" />
+    <ClInclude Include="PSI\Kkrt\KkrtPsiReceiver.h" />
+    <ClInclude Include="PSI\Kkrt\KkrtPsiSender.h" />
+    <ClInclude Include="PSI\Prty\Poly\polyFFT.h" />
+    <ClInclude Include="PSI\Prty\Poly\polyFFT2.h" />
+    <ClInclude Include="PSI\Prty\Poly\polyNTL.h" />
+    <ClInclude Include="PSI\Prty\PrtyDefines.h" />
+    <ClInclude Include="PSI\Prty\PrtyReceiver.h" />
+    <ClInclude Include="PSI\Prty\PrtySender.h" />
+    <ClInclude Include="Tools\BalancedIndex.h" />
     <ClInclude Include="Tools\CuckooHasher.h" />
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiReceiver.h" />
     <ClInclude Include="MPSI\Rr17\Rr17b\Rr17bMPsiSender.h" />
@@ -127,8 +140,8 @@
     <ClInclude Include="Tools\SimpleHasher.h" />
     <ClInclude Include="MPsi\DKT\DktMPsiReceiver.h" />
     <ClInclude Include="MPSI\DKT\DktMPsiSender.h" />
-    <ClInclude Include="MPSI\Dcw\DcwRBfPsiReceiver.h" />
-    <ClInclude Include="MPSI\Dcw\DcwRBfPsiSender.h" />
+    <ClInclude Include="PSI\Dcw\DcwRBfPsiReceiver.h" />
+    <ClInclude Include="PSI\Dcw\DcwRBfPsiSender.h" />
     <ClInclude Include="Tools\SimpleIndex.h" />
   </ItemGroup>
   <ItemGroup>

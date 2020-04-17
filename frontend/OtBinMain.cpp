@@ -10,8 +10,8 @@
 #include "libPSI/MPSI/Grr18/Grr18MPsiReceiver.h"
 #include "libPSI/MPSI/Grr18/Grr18MPsiSender.h"
 
-#include "libPSI/PSI/KkrtPsiReceiver.h"
-#include "libPSI/PSI/KkrtPsiSender.h"
+#include "libPSI/PSI/Kkrt/KkrtPsiReceiver.h"
+#include "libPSI/PSI/Kkrt/KkrtPsiSender.h"
 
 #include <fstream>
 using namespace osuCrypto;

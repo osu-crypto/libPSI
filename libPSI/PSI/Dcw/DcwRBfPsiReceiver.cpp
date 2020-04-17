@@ -9,11 +9,12 @@
 #include "libOTe/Base/BaseOT.h"
 //#include <unordered_map>
 #include <sparsehash/dense_hash_map>
+#include "libOTe/TwoChooseOne/SilentOtExtReceiver.h"
 
 namespace osuCrypto
 {
 
-    void DcwRBfPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, Channel & chl, block seed)
+    void DcwRBfPsiReceiver::init(u64 n, u64 statSecParam, OtExtReceiver& otExt, Channel& chl, block seed)
     {
         std::vector<Channel> cc{ chl };
 
@@ -31,8 +32,8 @@ namespace osuCrypto
         mSeed = prng.get<block>();
         auto myHashSeed = prng.get<block>();
 
-        auto & chl = chls[0];
-        
+        auto& chl = chls[0];
+
         chl.asyncSendCopy(myHashSeed);
         block theirHashingSeed;
         chl.recv(theirHashingSeed);
@@ -41,101 +42,116 @@ namespace osuCrypto
         gTimer.setTimePoint("Init.params");
 
         mNumHashFunctions = 128;
-        mBfBitCount = mNumHashFunctions * 2 * n;
+        mBfBitCount = mNumHashFunctions * 1.5 * n;
 
         mRandChoices.resize(mBfBitCount);
-        mRandChoices.randomize(prng);
         mMessages.resize(mBfBitCount);
 
 
 
-        if (otExt.hasBaseOts() == false)
+
+        if (dynamic_cast<SilentOtExtReceiver*>(&otExt))
         {
-            otExt.genBaseOts(prng, chl);
+            auto& ot = dynamic_cast<SilentOtExtReceiver&>(otExt);
+            ot.silentReceive(mRandChoices, mMessages, prng, chls);
+
+            char c;
+            chls[0].send(c);
+            chls[0].recv(c);
         }
-
-
-        // this is a lambda function that does part of the OT extension where i am the receiver.
-        auto recvOtRountine = [this](u64 i, u64 total, OtExtReceiver& ots, block seed, Channel& chl)
+        else
         {
-            // compute the region of the OTs im going to do
-            u64 start = std::min(roundUpTo(i *     mMessages.size() / total, 128), mMessages.size());
-            u64 end = std::min(roundUpTo((i + 1) * mMessages.size() / total, 128), mMessages.size());
-            //std::cout << IoStream::lock << "recv Chl " << chl.getName() << " get " << start << " - " << end << std::endl << IoStream::unlock;
 
-            if (end - start)
+            mRandChoices.randomize(prng);
+
+            if (otExt.hasBaseOts() == false)
             {
-
-                // copy the bits that this regeion will use. We should find a way to avoid this copy
-                BitVector choices;
-                choices.copy(mRandChoices, start, end - start);
-                //TODO("avoid this copy. need BitView...");
-
-                // compute the region of the OTs im going to do
-                span<block> range(
-                    mMessages.begin() + start,
-                    mMessages.begin() + end);
-                PRNG prng(seed);
-
-                // do the extension
-                ots.receive(choices, range, prng, chl);
+                otExt.genBaseOts(prng, chl);
             }
 
-        };
-
-
-        // compute how amny threads we want to do for each direction.
-        // the current thread will do one of the OT receives so -1 for that.
-        u64 numRecvThreads = chls.size() - 1;
-
-        // create locals for doing the extension in parallel.
-        std::vector<std::unique_ptr<OtExtReceiver>> recvOts(numRecvThreads);
-
-        // where we will store the threads that are doing the extension
-        std::vector<std::thread> thrds(numRecvThreads);
-
-        // some iters to help giving out resources.
-        auto thrdIter = thrds.begin();
-        auto chlIter = chls.begin() + 1;
-
-        // now make the threads that will to the extension
-        for (u64 i = 0; i < numRecvThreads; ++i)
-        {
-            // each need a seed.
-            auto seed = prng.get<block>();
-
-            // the split function allows us to create a new extension that has
-            // more or less the same base. This allows us to do only 128 base OTs
-            recvOts[i] = std::move(otExt.split());
-
-            // spawn the thread and call the routine.
-            *thrdIter++ = std::thread([&, i, chlIter]()
+            // this is a lambda function that does part of the OT extension where i am the receiver.
+            auto recvOtRountine = [this](u64 i, u64 total, OtExtReceiver& ots, block seed, Channel& chl)
             {
-                //std::cout<< IoStream::lock << "r recvOt " <<i << "  "<< (**chlIter).getName() << std::endl << IoStream::unlock;
-                recvOtRountine(i + 1, numRecvThreads + 1, *recvOts[i].get(), seed, *chlIter);
-            });
+                // compute the region of the OTs im going to do
+                u64 start = std::min(roundUpTo(i * mMessages.size() / total, 128), mMessages.size());
+                u64 end = std::min(roundUpTo((i + 1) * mMessages.size() / total, 128), mMessages.size());
+                //std::cout << IoStream::lock << "recv Chl " << chl.getName() << " get " << start << " - " << end << std::endl << IoStream::unlock;
 
-            ++chlIter;
+                if (end - start)
+                {
+
+                    // copy the bits that this regeion will use. We should find a way to avoid this copy
+                    BitVector choices;
+                    choices.copy(mRandChoices, start, end - start);
+                    //TODO("avoid this copy. need BitView...");
+
+                    // compute the region of the OTs im going to do
+                    span<block> range(
+                        mMessages.begin() + start,
+                        mMessages.begin() + end);
+                    PRNG prng(seed);
+
+                    // do the extension
+                    ots.receive(choices, range, prng, chl);
+                }
+
+            };
+
+
+            // compute how amny threads we want to do for each direction.
+            // the current thread will do one of the OT receives so -1 for that.
+            u64 numRecvThreads = chls.size() - 1;
+
+            // create locals for doing the extension in parallel.
+            std::vector<std::unique_ptr<OtExtReceiver>> recvOts(numRecvThreads);
+
+            // where we will store the threads that are doing the extension
+            std::vector<std::thread> thrds(numRecvThreads);
+
+            // some iters to help giving out resources.
+            auto thrdIter = thrds.begin();
+            auto chlIter = chls.begin() + 1;
+
+            // now make the threads that will to the extension
+            for (u64 i = 0; i < numRecvThreads; ++i)
+            {
+                // each need a seed.
+                auto seed = prng.get<block>();
+
+                // the split function allows us to create a new extension that has
+                // more or less the same base. This allows us to do only 128 base OTs
+                recvOts[i] = std::move(otExt.split());
+
+                // spawn the thread and call the routine.
+                *thrdIter++ = std::thread([&, i, chlIter]()
+                    {
+                        //std::cout<< IoStream::lock << "r recvOt " <<i << "  "<< (**chlIter).getName() << std::endl << IoStream::unlock;
+                        recvOtRountine(i + 1, numRecvThreads + 1, *recvOts[i].get(), seed, *chlIter);
+                    });
+
+                ++chlIter;
+            }
+
+
+            // now use this thread to do a recv routine.
+            seed = prng.get<block>();
+            recvOtRountine(0, numRecvThreads + 1, otExt, seed, chl);
+
+
+
+
+            // join any threads that we created.
+            for (auto& thrd : thrds)
+                thrd.join();
+
+            //std::cout << timer;
         }
-
-
-        // now use this thread to do a recv routine.
-        seed = prng.get<block>();
-        recvOtRountine(0, numRecvThreads + 1, otExt, seed, chl);
-
-
-
-
-        // join any threads that we created.
-        for (auto& thrd : thrds)
-            thrd.join();
-
         gTimer.setTimePoint("Init.done");
-        //std::cout << timer;
+
     }
 
 
-    void DcwRBfPsiReceiver::sendInput(std::vector<block>& inputs, Channel & chl)
+    void DcwRBfPsiReceiver::sendInput(std::vector<block>& inputs, Channel& chl)
     {
         std::vector<Channel> cc{ chl };
 

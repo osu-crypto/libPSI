@@ -99,10 +99,11 @@ option(ENABLE_RR17B_PSI    "Build the RR17B PSI protocol" OFF)
 option(ENABLE_KKRT_PSI     "Build the KKRT PSI protocol" OFF)
 option(ENABLE_ECDH_PSI     "Build the EC DH PSI protocol" OFF)
 option(ENABLE_DRRN_PSI     "Build the DRRN PSI protocol" OFF)
+option(ENABLE_PRTY_PSI     "Build the PRTY PSI protocol" OFF)
 
 option(ENABLE_MIRACL     "use the miracl library" OFF)
 option(ENABLE_RELIC      "use the relic library" OFF)
-option(ENABLE_SIMPLESTOT "use the simplest OT library" OFF)
+option(ENABLE_SIMPLESTOT_ASM "use the simplest OT library" OFF)
 option(ENABLE_MR_KYBER   "use the kyber OT library" OFF)
 
 message(STATUS "General Options\n=======================================================")
@@ -119,13 +120,14 @@ message(STATUS "Option: ENABLE_RR17B_PSI  = ${ENABLE_RR17B_PSI}")
 message(STATUS "Option: ENABLE_KKRT_PSI   = ${ENABLE_KKRT_PSI}")
 message(STATUS "Option: ENABLE_ECDH_PSI   = ${ENABLE_ECDH_PSI}")
 message(STATUS "Option: ENABLE_DRRN_PSI   = ${ENABLE_DRRN_PSI}\n")
+#message(STATUS "Option: ENABLE_PRTY_PSI   = ${ENABLE_PRTY_PSI}\n")
 
 
 message(STATUS "libOTe & cryptoTools options\n=======================================================")
-message(STATUS "Option: ENABLE_MIRACL     = ${ENABLE_MIRACL}")
-message(STATUS "Option: ENABLE_RELIC      = ${ENABLE_RELIC}")
-message(STATUS "Option: ENABLE_SIMPLESTOT = ${ENABLE_SIMPLESTOT}")
-message(STATUS "Option: ENABLE_MR_KYBER   = ${ENABLE_MR_KYBER}\n\n")
+message(STATUS "Option: ENABLE_MIRACL         = ${ENABLE_MIRACL}")
+message(STATUS "Option: ENABLE_RELIC          = ${ENABLE_RELIC}")
+message(STATUS "Option: ENABLE_SIMPLESTOT_ASM = ${ENABLE_SIMPLESTOT_ASM}")
+message(STATUS "Option: ENABLE_MR_KYBER       = ${ENABLE_MR_KYBER}\n\n")
 
 configure_file(libPSI/config.h.in libPSI/config.h)
 

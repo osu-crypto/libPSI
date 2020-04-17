@@ -15,7 +15,7 @@
 #include <cryptoTools/Common/CuckooIndex.h>
 #include <cryptoTools/Network/Channel.h>
 #include <libOTe/NChooseOne/Kkrt/KkrtNcoOtReceiver.h>
-#include <libPSI/PSI/KkrtPsiReceiver.h>
+#include <libPSI/PSI/Kkrt/KkrtPsiReceiver.h>
 #include <unordered_set>
 #include <libPSI/Tools/SimpleIndex.h>
 

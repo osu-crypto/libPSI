@@ -14,7 +14,7 @@
 #include <cryptoTools/Common/Defines.h>
 #include <cryptoTools/Common/CuckooIndex.h>
 #include <cryptoTools/Network/Channel.h>
-#include <libPSI/PSI/KkrtPsiSender.h>
+#include <libPSI/PSI/Kkrt/KkrtPsiSender.h>
 #include <libOTe/NChooseOne/Kkrt/KkrtNcoOtSender.h>
 #include <memory>
 

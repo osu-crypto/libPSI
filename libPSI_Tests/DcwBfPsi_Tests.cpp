@@ -225,4 +225,11 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
     recvThrd.join();
 
 }
+#else
+
+
+void DcwRBfPsi_EmptrySet_Test_Impl() { throw oc::UnitTestSkipped("ENABLE_DCW_PSI not defined"); }
+void DcwRBfPsi_FullSet_Test_Impl() { throw oc::UnitTestSkipped("ENABLE_DCW_PSI not defined"); }
+void DcwRBfPsi_SingltonSet_Test_Impl() { throw oc::UnitTestSkipped("ENABLE_DCW_PSI not defined"); }
+
 #endif 

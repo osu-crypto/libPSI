@@ -1,7 +1,7 @@
 #include "BinOtPsi_Tests.h"
 
-#include "libPSI/PSI/DrrnPsiClient.h"
-#include "libPSI/PSI/DrrnPsiServer.h"
+#include "libPSI/PSI/Drrn/DrrnPsiClient.h"
+#include "libPSI/PSI/Drrn/DrrnPsiServer.h"
 #include "cryptoTools/Common/TestCollection.h"
 using namespace osuCrypto;
 

@@ -11,8 +11,10 @@
 
 
 #include "cryptoTools/Common/Defines.h"
-#include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
-#include "libOTe/TwoChooseOne/KosOtExtSender.h"
+#include "libOTe/TwoChooseOne/IknpOtExtReceiver.h"
+#include "libOTe/TwoChooseOne/IknpOtExtSender.h"
+#include "libOTe/TwoChooseOne/SilentOtExtReceiver.h"
+#include "libOTe/TwoChooseOne/SilentOtExtSender.h"
 
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Common/Timer.h"
@@ -49,9 +51,13 @@ void DcwRSend(
                 for (u64 i = 0; i < setSize; ++i)
                     set[i] = prng.get<block>();
 
-
-                KosOtExtReceiver otRecv;
-                KosOtExtSender otSend;
+                SilentOtExtReceiver sRecv;
+                SilentOtExtSender sSend;
+                IknpOtExtReceiver iRecv;
+                IknpOtExtSender iSend;
+                bool silent = params.mCmd->isSet("silent");
+                OtExtReceiver& otRecv = silent ? (OtExtReceiver&)sRecv : iRecv;
+                OtExtSender& otSend = silent ? (OtExtSender&)sSend : iSend;
                 DcwRBfPsiSender sendPSIs;
 
                 gTimer.reset();
@@ -91,8 +97,13 @@ void DcwRRecv(
                 for (u64 i = 0; i < setSize; ++i)
                     set[i] =prng.get<block>();
 
-                KosOtExtReceiver otRecv;
-                KosOtExtSender otSend;
+                SilentOtExtReceiver sRecv;
+                SilentOtExtSender sSend;
+                IknpOtExtReceiver iRecv;
+                IknpOtExtSender iSend;
+                bool silent = params.mCmd->isSet("silent");
+                OtExtReceiver& otRecv = silent ? (OtExtReceiver&)sRecv : iRecv;
+                OtExtSender& otSend = silent ? (OtExtSender&)sSend : iSend;
                 DcwRBfPsiReceiver recvPSIs;
 
 
@@ -101,7 +112,7 @@ void DcwRRecv(
                 Timer timer;
                 auto start = timer.setTimePoint("start");
 
-                recvPSIs.init(setSize, params.mStatSecParam, otRecv, chls, ZeroBlock);
+                recvPSIs.init(setSize, params.mStatSecParam, otRecv, chls, sysRandomSeed());
 
                 chls[0].recv(dummy, 1);
                 auto mid = timer.setTimePoint("init");

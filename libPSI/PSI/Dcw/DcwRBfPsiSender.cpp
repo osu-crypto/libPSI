@@ -6,6 +6,7 @@
 #include "cryptoTools/Common/Log.h" 
 //#include "cryptoTools/Crypto/ShamirSSScheme2.h"  
 #include "libOTe/Base/BaseOT.h"
+#include "libOTe/TwoChooseOne/SilentOtExtSender.h"
 
 
 namespace osuCrypto {
@@ -27,7 +28,7 @@ namespace osuCrypto {
         auto& chl0 = chls[0];
 
         mNumHashFunctions = 128;
-        mBfBitCount = n * mNumHashFunctions * 2;
+        mBfBitCount = n * mNumHashFunctions * 1.5;
 
         mSendOtMessages.resize(mBfBitCount);
 
@@ -38,75 +39,100 @@ namespace osuCrypto {
 
         mHashSeed = myHashSeed ^ theirHashingSeed;
 
-
-        if (otExt.hasBaseOts() == false)
+        if (dynamic_cast<SilentOtExtSender*>(&otExt))
         {
-            otExt.genBaseOts(prng, chl0);
+            auto rBefore = chls[0].getTotalDataRecv();
+            auto sBefore = chls[0].getTotalDataSent();
+
+            //std::cout << "silent" << std::endl;
+            auto& ot = dynamic_cast<SilentOtExtSender&>(otExt);
+            ot.silentSend(mSendOtMessages, prng, chls);
+
+            char c;
+            chls[0].send(c);
+            chls[0].recv(c);
+
+            auto rAfter = chls[0].getTotalDataRecv();
+            auto sAfter = chls[0].getTotalDataSent();
+
+            std::cout << "1 before sent " << sBefore << std::endl;
+            std::cout << "1 before recv " << rBefore << std::endl;
+
+            std::cout << "1 after sent " << sAfter << std::endl;
+            std::cout << "1 after recv " << rAfter << std::endl;
         }
-
-        // this is a lambda function that does part of the OT extension where i am the sender. Again
-        // malicious PSI does OTs in both directions.
-        auto sendOtRountine = [this](u64 i, u64 total, OtExtSender& ots, block seed, Channel& chl)
+        else
         {
-            // compute the region of the OTs im going to do
-            u64 start = std::min(roundUpTo(i *     mSendOtMessages.size() / total, 128), mSendOtMessages.size());
-            u64 end = std::min(roundUpTo((i + 1) * mSendOtMessages.size() / total, 128), mSendOtMessages.size());
 
-            //std::cout << IoStream::lock << "send Chl " << chl.getName() <<" "<< i << "/"<< total << " get " << start << " - " << end << std::endl << IoStream::unlock;
-
-            if (end - start)
+            if (otExt.hasBaseOts() == false)
             {
-
-                // get a view of where the messages should be stored.
-                span<std::array<block, 2>> range(
-                    mSendOtMessages.begin() + start,
-                    mSendOtMessages.begin() + end);
-                PRNG prng(seed);
-
-                // do the extension.
-                ots.send(range, prng, chl);
+                otExt.genBaseOts(prng, chl0);
             }
 
-        };
-
-
-        // compute how many threads we want to do for each direction.
-        // the current thread will do one of the OT receives so -1 for that.
-        u64 numSendThreads = chls.size() - 1;
-
-        std::vector<std::unique_ptr<OtExtSender>> sendOts(numSendThreads);
-
-        // where we will store the threads that are doing the extension
-        std::vector<std::thread> thrds(numSendThreads);
-
-        // some iters to help giving out resources.
-        auto thrdIter = thrds.begin();
-        auto chlIter = chls.begin() + 1;
-
-
-        // do the same thing but for the send OT extensions
-        for (u64 i = 0; i < numSendThreads; ++i)
-        {
-            auto seed = prng.get<block>();
-            sendOts[i] = std::move(otExt.split());
-
-            *thrdIter++ = std::thread([&, i, chlIter]()
+            // this is a lambda function that does part of the OT extension where i am the sender. Again
+            // malicious PSI does OTs in both directions.
+            auto sendOtRountine = [this](u64 i, u64 total, OtExtSender& ots, block seed, Channel& chl)
             {
-                //std::cout << IoStream::lock << "r sendOt " << i << "  " << (**chlIter).getName() << std::endl << IoStream::unlock;
-                sendOtRountine(i + 1, numSendThreads + 1, *sendOts[i].get(), seed, *chlIter);
-            });
+                // compute the region of the OTs im going to do
+                u64 start = std::min(roundUpTo(i * mSendOtMessages.size() / total, 128), mSendOtMessages.size());
+                u64 end = std::min(roundUpTo((i + 1) * mSendOtMessages.size() / total, 128), mSendOtMessages.size());
 
-            ++chlIter;
+                //std::cout << IoStream::lock << "send Chl " << chl.getName() <<" "<< i << "/"<< total << " get " << start << " - " << end << std::endl << IoStream::unlock;
+
+                if (end - start)
+                {
+
+                    // get a view of where the messages should be stored.
+                    span<std::array<block, 2>> range(
+                        mSendOtMessages.begin() + start,
+                        mSendOtMessages.begin() + end);
+                    PRNG prng(seed);
+
+                    // do the extension.
+                    ots.send(range, prng, chl);
+                }
+
+            };
+
+
+            // compute how many threads we want to do for each direction.
+            // the current thread will do one of the OT receives so -1 for that.
+            u64 numSendThreads = chls.size() - 1;
+
+            std::vector<std::unique_ptr<OtExtSender>> sendOts(numSendThreads);
+
+            // where we will store the threads that are doing the extension
+            std::vector<std::thread> thrds(numSendThreads);
+
+            // some iters to help giving out resources.
+            auto thrdIter = thrds.begin();
+            auto chlIter = chls.begin() + 1;
+
+
+            // do the same thing but for the send OT extensions
+            for (u64 i = 0; i < numSendThreads; ++i)
+            {
+                auto seed = prng.get<block>();
+                sendOts[i] = std::move(otExt.split());
+
+                *thrdIter++ = std::thread([&, i, chlIter]()
+                    {
+                        //std::cout << IoStream::lock << "r sendOt " << i << "  " << (**chlIter).getName() << std::endl << IoStream::unlock;
+                        sendOtRountine(i + 1, numSendThreads + 1, *sendOts[i].get(), seed, *chlIter);
+                    });
+
+                ++chlIter;
+            }
+
+            seed = prng.get<block>();
+            sendOtRountine(0, numSendThreads + 1, otExt, seed, chl0);
+
+
+            gTimer.setTimePoint("init.OtExtDone");
+
+            for (auto& thrd : thrds)
+                thrd.join();
         }
-
-        seed = prng.get<block>();
-        sendOtRountine(0, numSendThreads + 1, otExt, seed, chl0);
-
-
-        gTimer.setTimePoint("init.OtExtDone");
-
-        for (auto& thrd : thrds)
-            thrd.join();
 
         gTimer.setTimePoint("init.Done");
 
