@@ -44,4 +44,4 @@ Unit tests can be run by executing the program.
 Other options can be seen by executing with no arguments.
 ## Help
 
-Contact Peter Rindal `rindalp@oregonstate.edu` for any assistance on building or running the library.
+Contact Peter Rindal `peterrindal@gmail.com` for any assistance on building or running the library.
