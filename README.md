@@ -1,5 +1,5 @@
 # libPSI
-A repository for private set intersection. Most protocols were written just for benchmarking them while (RR17,KKRT,Mea86=ECDH) can be run from the command line and take a dile as input. Run the program for details.
+A repository for private set intersection. Most protocols were written just for benchmarking them while (RR17,KKRT,Mea86=ECDH) can be run from the command line and take a file as input. Run the program for details.
 
 
 ## Introduction
@@ -33,7 +33,7 @@ cd libPSI
 cmake . -DENABLE_XXXX=ON
 make
 ```
-here, `-DENABLE_XXXX` should refer to the public key library used with libOTe, i.e. `-DENABLE_RELIC`, `-DENABLE_MIRACL`, or `-DENABLE_SIMPLESTOT`. 
+here, `-DENABLE_XXXX` should refer to the public key library used with libOTe, i.e. `-DENABLE_RELIC`, `-DENABLE_MIRACL`, or `-DENABLE_SIMPLESTOT_ASM`. 
 
 
 Unit tests can be run by executing the program.
@@ -44,4 +44,4 @@ Unit tests can be run by executing the program.
 Other options can be seen by executing with no arguments.
 ## Help
 
-Contact Peter Rindal `rindalp@oregonstate.edu` for any assistance on building or running the library.
+Contact Peter Rindal `peterrindal@gmail.com` for any assistance on building or running the library.
