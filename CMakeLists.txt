@@ -94,7 +94,7 @@ if(DEFINED ENABLE_ALL_PSI)
 endif()
 
 option(ENABLE_DCW_PSI      "Build the DCW PSI protocol" OFF)
-option(ENABLE_DKT_PSI      "Build the DKR PSI protocol" OFF)
+option(ENABLE_DKT_PSI      "Build the DKT PSI protocol" OFF)
 option(ENABLE_GRR_PSI      "Build the GRR PSI protocol" OFF)
 option(ENABLE_RR16_PSI     "Build the RR16 PSI protocol" OFF)
 option(ENABLE_RR17_PSI     "Build the RR17 PSI protocol" OFF)
