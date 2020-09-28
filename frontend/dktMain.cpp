@@ -20,7 +20,7 @@ extern u8 dummy[];
 
 void DktSend(LaunchParams& params)
 {
-#ifdef ENABLE_DKT
+#ifdef ENABLE_DKT_PSI
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -55,7 +55,7 @@ void DktSend(LaunchParams& params)
 
 void DktRecv(LaunchParams& params)
 {
-#ifdef ENABLE_DKT
+#ifdef ENABLE_DKT_PSI
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
