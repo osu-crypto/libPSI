@@ -475,7 +475,7 @@ namespace osuCrypto
                 auto insertEnd = insertBuffer.data() + insertBuffer.size();
 
 
-                auto keySize = std::min<u64>(sizeof(u64), maskSize);                
+                auto keySize = std::min<u64>(sizeof(u64), maskSize);
                 u64 keyMask = (~0ull) >> ((sizeof(u64) - keySize) * 8);
                 std::unordered_map<u64, std::pair<i64, block>> maskMap;maskMap.reserve(mN * mBins.mMaxBinSize);
 
