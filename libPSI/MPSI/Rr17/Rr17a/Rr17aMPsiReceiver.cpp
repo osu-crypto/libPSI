@@ -569,7 +569,7 @@ namespace osuCrypto
 
                 u64 numMasks = mN * mBins.mMaxBinSize;
                 u64 chunkSize = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
-                u64 numChunks = numMasks / chunkSize;
+                u64 numChunks = (numMasks + (chunkSize - 1)) / chunkSize;
 
 
                 //std::array<block, 32> tempMaskBuff;
