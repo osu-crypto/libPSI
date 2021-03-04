@@ -312,7 +312,7 @@ namespace osuCrypto
         auto maskView = MatrixView<u8>(sendMaskBuff->begin(), sendMaskBuff->end(), maskSize);
 
         u64 masksPer = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
-        u64 numChunks = numMasks / masksPer;
+        u64 numChunks = (numMasks + (masksPer - 1)) / masksPer;
         auto sendMaskBuffFreeCounter = new std::atomic<u32>;
         *sendMaskBuffFreeCounter = u32(numChunks);
 

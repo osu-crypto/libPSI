@@ -476,7 +476,7 @@ namespace osuCrypto
 
 
                 auto keySize = std::min<u64>(sizeof(u64), maskSize);
-                u64 keyMask = (1ull << (keySize * 8)) - 1;// (~0ull) >> ((sizeof(u64) - keySize) * 8);
+                u64 keyMask = (~0ull) >> ((sizeof(u64) - keySize) * 8);
                 std::unordered_map<u64, std::pair<i64, block>> maskMap;maskMap.reserve(mN * mBins.mMaxBinSize);
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
@@ -569,7 +569,7 @@ namespace osuCrypto
 
                 u64 numMasks = mN * mBins.mMaxBinSize;
                 u64 chunkSize = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
-                u64 numChunks = numMasks / chunkSize;
+                u64 numChunks = (numMasks + (chunkSize - 1)) / chunkSize;
 
 
                 //std::array<block, 32> tempMaskBuff;
