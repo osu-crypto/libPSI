@@ -73,6 +73,7 @@ namespace osuCrypto
         // the index of the input item is stored in the bin,
         // not the actual item itself.
         Matrix<Item> mBins;
+        u64 mNumBins;
 
         // numBalls x mNumHashFunctions matrix, (i,j) contains the i'th items
         // hash value under hash index j.

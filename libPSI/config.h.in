@@ -12,10 +12,6 @@ Config ERROR: libOTe is too old.
 static_assert(0,"ENABLE_RELIC flag does not match with libOTe");
 #endif
 
-#if ENABLE_MIRACL !=  @ENABLE_MIRACL@
-static_assert(0,"ENABLE_MIRACL flag does not match with libOTe");
-#endif
-
 #if !defined(_MSC_VER) && (ENABLE_SIMPLESTOT_ASM !=  @ENABLE_SIMPLESTOT_ASM@)
 static_assert(0,"ENABLE_SIMPLESTOT_ASM flag does not match with libOTe");
 #endif

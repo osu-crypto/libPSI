@@ -3,9 +3,13 @@
 #include <cryptoTools/Common/CuckooIndex.h>
 using namespace osuCrypto;
 #include "cryptoTools/Common/CLP.h"
+#include "cryptoTools/Common/Timer.h"
 #include <fstream>
 #include "cuckooTests.h"
 #include <iomanip>
+#include "CuckooIndex2.h"
+
+#include "encrypto/cuckoo_hashing/cuckoo_hashing.h"
 
 void tt()
 {
@@ -60,7 +64,7 @@ void runOne(
 	bool varyCuckooSize,
 	const osuCrypto::u64 &stashSize,
 	std::fstream &out,
-	bool simple)
+	bool simple,bool encrypto, bool rand,u64 seed)
 {
 	u64 cuckooSize = setSize * e;
 
@@ -77,9 +81,9 @@ void runOne(
 	//std::atomic<u64> completed(0);
 	max = 0;
 
-	auto routine = [tries, &counts, setSize, h, e, numThrds, simple](u64 tIdx)
+	auto routine = [tries, &counts, setSize, h, e, numThrds, rand, simple, encrypto, seed](u64 tIdx)
 	{
-		PRNG prng(_mm_set1_epi64x(tIdx));
+		PRNG prng(block(seed, tIdx));
 
 		std::vector<block> hashs(setSize);
 		std::vector<u64> idxs(setSize);
@@ -115,6 +119,26 @@ void runOne(
 				cc.init();
 				cc.insert(idxs, hashs);
 				stashSize = cc.stashUtilization();
+			}
+			else if (encrypto)
+			{
+				ENCRYPTO::CuckooTable c(e);
+
+				if (rand)
+				{
+					prng.get(idxs.data(), idxs.size());
+					//std::set<u64> ss;
+					//while (ss.size() != setSize)
+					//	ss.insert(prng.get<u64>());
+
+					//idxs.clear();
+					//idxs.insert(idxs.end(), ss.begin(), ss.end());
+				}
+
+				c.Insert(idxs);
+
+				c.MapElements();
+				stashSize = c.GetStashSize();
 			}
 			else
 			{
@@ -155,6 +179,8 @@ void runOne(
 	u64 total = (u64(1) << t);
 	while ((u64)curTotal != total)
 	{
+		// the number of times we have seen
+		// a stash with a given size.
 		std::array<u64, 400> count;
 		for (u64 i = 0; i < count.size(); ++i)
 			count[i] = 0;
@@ -176,8 +202,17 @@ void runOne(
 		u64 good = 0;
 		for (u64 i = 0; i < stashSize; ++i)
 		{
+			// the number of instances with stash size
+			// at most i.
 			good += count[i];
+
+			// the number of instances with stash size 
+			// greater than i.
 			u64 bad = curTotal - good;
+
+			// technically this should be log2(curTotal) - log2(bad) but then 
+			// the linear growth we see for large secLevel does not continue
+			// as it nears 0. Instead we will allow sec level to go negative.
 			double secLevel = std::log2(std::max(u64(1), good)) - std::log2(std::max(u64(1), bad));
 
 			if (bad == 0) {
@@ -249,8 +284,57 @@ void runOne(
 	}
 
 }
+ 
+void perf(u64 setSize, double e, bool both)
+{
+	PRNG prng(ZeroBlock);
+
+	std::vector<block> hashs(setSize);
+	std::vector<u64> idxs(setSize);
+		//if (i % step == 0)std::cout << "\r" << (i / step) << "%" << flush;
+		prng.mAes.ecbEncCounterMode(prng.mBlockIdx, setSize, (block*)hashs.data());
+		prng.mBlockIdx += setSize;
+
+		for (u64 i = 0; i < setSize; ++i) {
+			idxs[i] = i;
+		}
 
 
+		{
+			CuckooIndex<> c;
+			//throw std::runtime_error(LOCATION);
+			c.mParams.mBinScaler = e;
+			c.mParams.mNumHashes = 3;
+			c.mParams.mStashSize = 400;
+			c.mParams.mN = setSize;
+
+			c.init(c.mParams);
+
+			Timer timer;
+			auto b = timer.setTimePoint("b");
+			c.insert(idxs, hashs);
+			auto e = timer.setTimePoint("b");
+			std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(e - b).count() << "ms" << std::endl;
+		}
+
+		if(both)
+		{
+			CuckooIndex2<> c;
+			//throw std::runtime_error(LOCATION);
+			c.mParams.mBinScaler = e;
+			c.mParams.mNumHashes = 3;
+			c.mParams.mStashSize = 400;
+			c.mParams.mN = setSize;
+
+			c.init(c.mParams);
+
+			Timer timer;
+			auto b = timer.setTimePoint("b");
+			c.insert(idxs, hashs);
+			auto e = timer.setTimePoint("b");
+			std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(e - b).count() << "ms" << std::endl;
+		}
+}
 
 void simpleTest(int argc, char** argv)
 {
@@ -262,7 +346,13 @@ void simpleTest(int argc, char** argv)
 
 	CLP cmd;
 	cmd.parse(argc, argv);
-	cmd.setDefault("n", "1024");
+
+
+	if(cmd.hasValue("nn"))
+		cmd.setDefault("n", std::to_string(1ull<<cmd.get<u64>("nn")));
+	else
+		cmd.setDefault("n", "1024");
+
 	cmd.setDefault("h", "3");
 	cmd.setDefault("e", "1.35");
 	cmd.setDefault("t", "12");
@@ -274,10 +364,12 @@ void simpleTest(int argc, char** argv)
 	// a parameter that shows the security level up to a stash size stashSize. Does not
 	// effect performance.
 	u64 stashSize = cmd.get<u64>("ss");;
-
+	u64 seed = cmd.getOr("seed", 0);
 
 	// the expension factor. see N.
 	const double e = cmd.get<double>("e");
+
+	bool rand = cmd.isSet("rand");
 
 	// N is the size of the hash table. n = N / e items will be inserted...
 	// if varyN, we change N and keep the #items fixed at n
@@ -301,6 +393,14 @@ void simpleTest(int argc, char** argv)
 	u64 nStep = cmd.get<u64>("nStep");
 
 	auto simple = cmd.isSet("simple");
+	auto encrypto = cmd.isSet("encrypto");
+
+
+	if (cmd.isSet("perf"))
+	{
+		perf(n, e, cmd.isSet("both"));
+		return;
+	}
 
 	// the number of threads
 	u64 numThrds = cmd.get<u64>("x");
@@ -316,7 +416,7 @@ void simpleTest(int argc, char** argv)
 
 			runOne(curSetSize, h, curE,
 				t, numThrds, varyCuckooSize,
-				stashSize, out, simple);
+				stashSize, out, simple, encrypto, rand, seed);
 			curE += eStep;
 		}
 

@@ -37,6 +37,7 @@ using namespace osuCrypto;
 #include "libPSI/PIR/BgiPirClient.h"
 #include "libPSI/PIR/BgiPirServer.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
+#include "libPSI/Tools/LDPC/Test.h"
 
 #include "cuckoo/cuckooTests.h"
 #include "cryptoTools/Common/CLP.h"
@@ -385,6 +386,9 @@ int main(int argc, char** argv)
 {
     CLP cmd;
     cmd.parse(argc, argv);
+
+	//ldpcMain(cmd);
+	//return 0;
 
 	// run cuckoo analysis
 	if (cmd.isSet("cuckoo"))
