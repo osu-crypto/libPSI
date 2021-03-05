@@ -12,7 +12,6 @@
 #include "Grr18MPSI_Tests.h"
 #include "BgiPirTests.h"
 #include "DrrnPsi_Tests.h"
-#include "Paxos_Tests.h"
 
 
 using namespace osuCrypto;
@@ -21,8 +20,6 @@ namespace libPSI_Tests
 
     TestCollection Tests([](TestCollection& t) {
 
-
-        t.add("Paxos_Triangulate_Test                ", Paxos_Triangulate_Test);
 
         t.add("Psi_kkrt_EmptySet_Test_Impl           ", Psi_kkrt_EmptySet_Test_Impl);
         t.add("Psi_kkrt_FullSet_Test_Impl            ", Psi_kkrt_FullSet_Test_Impl);

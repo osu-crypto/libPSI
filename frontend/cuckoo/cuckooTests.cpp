@@ -9,7 +9,7 @@ using namespace osuCrypto;
 #include <iomanip>
 #include "CuckooIndex2.h"
 
-#include "encrypto/cuckoo_hashing/cuckoo_hashing.h"
+//#include "encrypto/cuckoo_hashing/cuckoo_hashing.h"
 
 void tt()
 {
@@ -122,23 +122,23 @@ void runOne(
 			}
 			else if (encrypto)
 			{
-				ENCRYPTO::CuckooTable c(e);
+				//ENCRYPTO::CuckooTable c(e);
 
-				if (rand)
-				{
-					prng.get(idxs.data(), idxs.size());
-					//std::set<u64> ss;
-					//while (ss.size() != setSize)
-					//	ss.insert(prng.get<u64>());
+				//if (rand)
+				//{
+				//	prng.get(idxs.data(), idxs.size());
+				//	//std::set<u64> ss;
+				//	//while (ss.size() != setSize)
+				//	//	ss.insert(prng.get<u64>());
 
-					//idxs.clear();
-					//idxs.insert(idxs.end(), ss.begin(), ss.end());
-				}
+				//	//idxs.clear();
+				//	//idxs.insert(idxs.end(), ss.begin(), ss.end());
+				//}
 
-				c.Insert(idxs);
+				//c.Insert(idxs);
 
-				c.MapElements();
-				stashSize = c.GetStashSize();
+				//c.MapElements();
+				//stashSize = c.GetStashSize();
 			}
 			else
 			{

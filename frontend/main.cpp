@@ -37,7 +37,6 @@ using namespace osuCrypto;
 #include "libPSI/PIR/BgiPirClient.h"
 #include "libPSI/PIR/BgiPirServer.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
-#include "libPSI/Tools/LDPC/Test.h"
 
 #include "cuckoo/cuckooTests.h"
 #include "cryptoTools/Common/CLP.h"
