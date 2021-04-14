@@ -72,7 +72,7 @@ namespace osuCrypto
                 if (prng.getBit())
                     lap = -lap;
 
-                loads[i] = std::min<u64>(maxBinLoad, static_cast<u64>(binSize + bufferSize + lap + 0.9999));
+                loads[i] = (u8)std::min<u64>(maxBinLoad, static_cast<u64>(binSize + bufferSize + lap + 0.9999));
 
                 if (binSize > loads[i])
                     throw std::runtime_error(LOCATION);
@@ -91,7 +91,7 @@ namespace osuCrypto
             {
                 auto binSize = bins.getBinSize(binStart + i);
 
-                loads[i] = (binSize > cwThreshold) ? maxBinLoad : cwThreshold;
+                loads[i] = (u8)((binSize > cwThreshold) ? maxBinLoad : cwThreshold);
 
                 totalLoad += loads[i];
             }
@@ -107,13 +107,13 @@ namespace osuCrypto
             {
                 auto noise = exp(prng);
                 auto binSize = bins.getBinSize(binStart + i);
-                auto ss = std::min<u64>(binSize + noise, bins.mMaxBinSize);
+                auto ss = std::min<u64>((u64)(binSize + noise), bins.mMaxBinSize);
                 if (ss > 255)
                     throw std::runtime_error(LOCATION);
 
                 avg += ss - binSize;
 
-                loads[i] = ss;
+                loads[i] = (u8)ss;
 
                 totalLoad += loads[i];
             }
@@ -249,7 +249,7 @@ Lookup{ 1048576, 87381, 0.01, -10, {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 
 
             i64 maxBinLoad = 0;
             Lookup* lookup_ptr = nullptr;
-            for (auto i = 0; i < lookups.size(); ++i)
+            for (u64 i = 0; i < lookups.size(); ++i)
             {
                 auto& l = lookups[i];
                 if (l.mEps == eps && l.mN == n && l.mM == bins.mBinCount)
@@ -268,7 +268,7 @@ Lookup{ 1048576, 87381, 0.01, -10, {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 
                         //lout << i << " = t[" << i64(i + l.mStart) << "] = "
                         //    << l.mLookups[i] << " " << l[i64(i + l.mStart)] << std::endl;
 
-                        if (l.mLookups[i] > maxBinLoad)
+                        if (l.mLookups[i] > u64(maxBinLoad))
                         {
                             l.mLookups.resize(i);
                             break;
@@ -314,10 +314,10 @@ Lookup{ 1048576, 87381, 0.01, -10, {50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 
                 auto noise = exp(prng) * (prng.getBit() * 2 - 1);
                 auto estimate =
                     std::max<i32>(
-                        std::min<i32>(max, load + noise)
-                        , lookup.mStart);
+                        std::min<i32>((i32)max, (i32)(load + noise))
+                        , (i32)lookup.mStart);
 
-                loads[i] = std::max<u8>(lookup[estimate], load);
+                loads[i] = std::max<u8>((u8)lookup[estimate], load);
 
 
                 totalLoad += loads[i];

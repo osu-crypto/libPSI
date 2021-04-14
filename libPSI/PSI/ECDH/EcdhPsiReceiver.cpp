@@ -36,16 +36,16 @@ namespace osuCrypto
         span<block> inputs,
         span<Channel> chls)
     {
-        std::vector<PRNG> thrdPrng(chls.size());
-        for (u64 i = 0; i < thrdPrng.size(); i++)
-            thrdPrng[i].SetSeed(mPrng.get<block>());
+        //std::vector<PRNG> thrdPrng(chls.size());
+        //for (u64 i = 0; i < thrdPrng.size(); i++)
+        //    thrdPrng[i].SetSeed(mPrng.get<block>());
 
         std::mutex mtx;
 
 		std::vector<block> thrdPrngBlock(chls.size());
 		std::vector<std::vector<u64>> localIntersections(chls.size() - 1);
 
-		u64 maskSizeByte = (40 + 2*log2(inputs.size()) + 7) / 8;
+		u64 maskSizeByte = u64(40 + 2*log2(inputs.size()) + 7) / 8;
 
         auto RcSeed = mPrng.get<block>();
 
@@ -62,11 +62,11 @@ namespace osuCrypto
 
 
 			auto& chl = chls[t];
-			auto& prng = thrdPrng[t];
+			//auto& prng = thrdPrng[t];
 			u8 hashOut[RandomOracle::HashSize];
             using Curve = REllipticCurve;
             using Point = REccPoint;
-            using Brick = REccPoint;
+            //using Brick = REccPoint;
             using Number = REccNumber;
             Curve curve;
 
@@ -134,7 +134,7 @@ namespace osuCrypto
                 ro.Update(temp.data(), temp.size());
                 block blk;
                 ro.Final(blk);
-				auto idx = *(u32*)&blk;
+				auto idx = blk.as<u32>()[0];
 
 #ifdef PRINT
 				if (i == 0)

@@ -35,7 +35,9 @@ namespace osuCrypto
         {
             Item() :mVal(-1) {}
 
-            bool isEmpty() const { return mVal == -1; }
+            Item& operator=(const Item&) = default;
+
+            bool isEmpty() const { return mVal == u64(-1); }
 
             // The index is the index of the input that currently
             // occupies this bin position. The index is encode in the

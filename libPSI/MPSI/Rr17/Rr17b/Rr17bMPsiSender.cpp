@@ -69,7 +69,7 @@ namespace osuCrypto
 
 
         // hash to smaller domain size?
-        if (inputBitSize == -1)
+        if (inputBitSize == u64(-1))
         {
             inputBitSize = statSecParam + log2ceil(n) - 1;
             mHashToSmallerDomain = true;
@@ -318,7 +318,7 @@ namespace osuCrypto
                         block item = inputHasher.ecbEncBlock(inputs[i]);
 
                         // compute the bin index as the low bits mod #bins
-                        u64 addr = *(u64*)&item % mBins.mBinCount;
+                        u64 addr = item.as<u64>()[0] % mBins.mBinCount;
 
                         // phase the item by removing log( #bin ) low bits. High bits just get ignored.
                         item = shiftRight(item, phaseShift);
@@ -364,7 +364,7 @@ namespace osuCrypto
                         auto bin = mBins.getBin(bIdx);
 
                         // For the current bin, loop over the items that are in it.
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             // bin[i] denotes the index if them input item that is stored at that location.
                             u64 inputIdx = bin[i];

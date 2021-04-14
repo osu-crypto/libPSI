@@ -49,7 +49,7 @@ bool isHexBlock(const std::string& buff)
 		return false;
 	auto ret = true;
 	for (u64 i = 0; i < 32; ++i)
-		ret &= std::isxdigit(buff[i]);
+		ret &= (bool)std::isxdigit(buff[i]);
 	return ret;
 }
 block hexToBlock(const std::string& buff)
@@ -227,11 +227,11 @@ void doFilePSI(const CLP& cmd)
 		if (theirSize != cmd.getOr((r != Role::Sender) ? "senderSize" : "receiverSize", theirSize))
 			throw std::runtime_error("Other party's set size does not match.");
 
-		u64 statSetParam = cmd.getOr("ssp", 40);
 
 		if (cmd.isSet("kkrt"))
 		{
 #if defined(ENABLE_KKRT) && defined(ENABLE_KKRT_PSI)
+			u64 statSetParam = cmd.getOr("ssp", 40);
 			if (r == Role::Sender)
 			{
 				KkrtNcoOtSender ot;
@@ -255,6 +255,7 @@ void doFilePSI(const CLP& cmd)
 		else if (cmd.isSet("rr17a"))
 		{
 #if defined(ENABLE_OOS) && defined(ENABLE_RR17_PSI)
+			u64 statSetParam = cmd.getOr("ssp", 40);
 			padSmallSet(set, theirSize, cmd);
 
 			if (r == Role::Sender)
@@ -282,6 +283,7 @@ void doFilePSI(const CLP& cmd)
 		{
 #ifdef ENABLE_ECDH_PSI
 			padSmallSet(set, theirSize, cmd);
+			u64 statSetParam = cmd.getOr("ssp", 40);
 
 			if (r == Role::Sender)
 			{

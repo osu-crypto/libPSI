@@ -203,7 +203,7 @@ namespace osuCrypto
 						mBins[idxBin].blks.push_back(items[it->second[idx].mIdx]^OneBlock);
 				
 					mBins[idxBin].idxs.push_back(it->second[idx].mIdx);
-					mBins[idxBin].hashIdxs.push_back(it->second[idx].mHashIdx);
+					mBins[idxBin].hashIdxs.push_back((u8)it->second[idx].mHashIdx);
 
 				}
 			}

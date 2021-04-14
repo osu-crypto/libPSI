@@ -98,7 +98,7 @@ void DcwRBfPsi_FullSet_Test_Impl()
 {
     setThreadName("CP_Test_Thread");
     u64 repeatCount = 1;
-    u64 setSize = 8, psiSecParam = 40, numThreads(1);
+    u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
 

@@ -18,7 +18,7 @@ using namespace osuCrypto;
 void Psi_drrn_EmptySet_Test_Impl()
 {
 	setThreadName("client");
-	u64 psiSecParam = 40;
+	//u64 psiSecParam = 40;
 	u64 clientSetSize = 128;
 	u64 srvSetSize = 1 << 12;
 	u64 numThread = 2;
@@ -79,7 +79,7 @@ void Psi_drrn_EmptySet_Test_Impl()
 void Psi_drrn_SingletonSet_Test_Impl()
 {
 	setThreadName("client");
-	u64 psiSecParam = 40;
+	//u64 psiSecParam = 40;
 	u64 clientSetSize = 16;
 	u64 srvSetSize = 1 << 6;
 
@@ -146,7 +146,7 @@ void Psi_drrn_SingletonSet_Test_Impl()
 void Psi_drrn_FullSet_Test_Impl()
 {
 	setThreadName("client");
-	u64 psiSecParam = 40;
+	//u64 psiSecParam = 40;
 	u64 clientSetSize = 128;
 	u64 srvSetSize = 128;
     u64 numHash = 2;

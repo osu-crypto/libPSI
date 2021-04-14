@@ -42,7 +42,7 @@ namespace osuCrypto
         gTimer.setTimePoint("Init.params");
 
         mNumHashFunctions = 128;
-        mBfBitCount = mNumHashFunctions * 1.5 * n;
+        mBfBitCount = (u64)(mNumHashFunctions * 1.5 * n);
 
         mRandChoices.resize(mBfBitCount);
         mMessages.resize(mBfBitCount);
@@ -50,16 +50,16 @@ namespace osuCrypto
 
 
 
-        if (dynamic_cast<SilentOtExtReceiver*>(&otExt))
-        {
-            auto& ot = dynamic_cast<SilentOtExtReceiver&>(otExt);
-            ot.silentReceive(mRandChoices, mMessages, prng, chls);
+        //if (dynamic_cast<SilentOtExtReceiver*>(&otExt))
+        //{
+        //    auto& ot = dynamic_cast<SilentOtExtReceiver&>(otExt);
+        //    ot.silentReceive(mRandChoices, mMessages, prng, chls);
 
-            char c;
-            chls[0].send(c);
-            chls[0].recv(c);
-        }
-        else
+        //    char c;
+        //    chls[0].send(c);
+        //    chls[0].recv(c);
+        //}
+        //else
         {
 
             mRandChoices.randomize(prng);
@@ -190,13 +190,13 @@ namespace osuCrypto
 
         for (u64 i = 0; i < inputs.size(); ++i)
         {
-            auto& item = inputs[i];
+            //auto& item = inputs[i];
             block encoding = ZeroBlock;
 
             for (u64 j = 0; j < mHasher.size(); ++j)
             {
                 auto hashOut = mHasher[j].ecbEncBlock(inputs[i]) ^ inputs[i];
-                auto idx = (std::array<u64, 2>&)hashOut;
+                auto idx = hashOut.as<u64>();
                 idx[0] %= mBfBitCount;
                 idx[1] %= mBfBitCount;
 
@@ -207,7 +207,7 @@ namespace osuCrypto
                 encoding = encoding ^ mMessages[idx[1]];
             }
 
-            auto res = maskMap.insert(std::make_pair((u64&)encoding, i));
+            auto res = maskMap.insert(std::make_pair(encoding.as<u64>()[0], i));
             if (res.second == false)
                 throw std::runtime_error("correctness error, collision on the 64-bit hash within my set");
             myMasks[i] = encoding;

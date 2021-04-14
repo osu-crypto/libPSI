@@ -13,7 +13,6 @@
 #include "BgiPirTests.h"
 #include "DrrnPsi_Tests.h"
 
-
 using namespace osuCrypto;
 namespace libPSI_Tests
 {

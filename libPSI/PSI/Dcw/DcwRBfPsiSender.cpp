@@ -28,7 +28,7 @@ namespace osuCrypto {
         auto& chl0 = chls[0];
 
         mNumHashFunctions = 128;
-        mBfBitCount = n * mNumHashFunctions * 1.5;
+        mBfBitCount = (u64)(n * mNumHashFunctions * 1.5);
 
         mSendOtMessages.resize(mBfBitCount);
 
@@ -39,29 +39,29 @@ namespace osuCrypto {
 
         mHashSeed = myHashSeed ^ theirHashingSeed;
 
-        if (dynamic_cast<SilentOtExtSender*>(&otExt))
-        {
-            auto rBefore = chls[0].getTotalDataRecv();
-            auto sBefore = chls[0].getTotalDataSent();
+        //if (dynamic_cast<SilentOtExtSender*>(&otExt))
+        //{
+        //    auto rBefore = chls[0].getTotalDataRecv();
+        //    auto sBefore = chls[0].getTotalDataSent();
 
-            //std::cout << "silent" << std::endl;
-            auto& ot = dynamic_cast<SilentOtExtSender&>(otExt);
-            ot.silentSend(mSendOtMessages, prng, chls);
+        //    //std::cout << "silent" << std::endl;
+        //    auto& ot = dynamic_cast<SilentOtExtSender&>(otExt);
+        //    ot.silentSend(mSendOtMessages, prng, chls);
 
-            char c;
-            chls[0].send(c);
-            chls[0].recv(c);
+        //    char c;
+        //    chls[0].send(c);
+        //    chls[0].recv(c);
 
-            auto rAfter = chls[0].getTotalDataRecv();
-            auto sAfter = chls[0].getTotalDataSent();
+        //    auto rAfter = chls[0].getTotalDataRecv();
+        //    auto sAfter = chls[0].getTotalDataSent();
 
-            std::cout << "1 before sent " << sBefore << std::endl;
-            std::cout << "1 before recv " << rBefore << std::endl;
+        //    std::cout << "1 before sent " << sBefore << std::endl;
+        //    std::cout << "1 before recv " << rBefore << std::endl;
 
-            std::cout << "1 after sent " << sAfter << std::endl;
-            std::cout << "1 after recv " << rAfter << std::endl;
-        }
-        else
+        //    std::cout << "1 after sent " << sAfter << std::endl;
+        //    std::cout << "1 after recv " << rAfter << std::endl;
+        //}
+        //else
         {
 
             if (otExt.hasBaseOts() == false)
@@ -181,7 +181,7 @@ namespace osuCrypto {
             for (u64 j = 0; j < mHashs.size(); ++j)
             {
                 auto hashOut = mHashs[j].ecbEncBlock(inputs[i]) ^ inputs[i];
-                auto idx = (std::array<u64,2>&)hashOut;
+                auto idx = hashOut.as<u64>();
                 idx[0] %= mBfBitCount;
                 idx[1] %= mBfBitCount;
 

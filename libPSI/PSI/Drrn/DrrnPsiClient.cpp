@@ -31,7 +31,7 @@ namespace osuCrypto
 
 
         u64 numBalls = clientSetSize * mCuckooParams.mNumHashes;
-        mNumSimpleBins = std::max<u64>(1, (numBalls / log2floor(numBalls)) * binScaler);
+        mNumSimpleBins = std::max<u64>(1, (u64)((numBalls / log2floor(numBalls)) * binScaler));
         mBinSize = SimpleIndex::get_bin_size(mNumSimpleBins, numBalls, ssp);
 
         // i think these are the right set sizes for the final PSI
@@ -42,7 +42,7 @@ namespace osuCrypto
 
     void DrrnPsiClient::recv(Channel s0, Channel s1, span<block> inputs)
     {
-        if (inputs.size() != mClientSetSize)
+        if (inputs.usize() != mClientSetSize)
             throw std::runtime_error(LOCATION);
 
         Matrix<u64> bins(mNumSimpleBins, mBinSize);
@@ -63,7 +63,7 @@ namespace osuCrypto
                 hashs[i] = hashs[i] ^ inputs[i];
                 for (u64 j = 0; j < mCuckooParams.mNumHashes; ++j)
                 {
-                    u64 idx = CuckooIndex<>::getHash(hashs[i], j, numCuckooBins) * mNumSimpleBins / mCuckooParams.numBins();
+                    u64 idx = CuckooIndex<>::getHash(hashs[i], (u8)j, numCuckooBins) * mNumSimpleBins / mCuckooParams.numBins();
 
                     // insert this item in this bin. pack together the hash index and input index
                     bins(idx, binSizes[idx]++) = (j << 56) | i;
@@ -160,7 +160,7 @@ namespace osuCrypto
 
 
                 // the index of the mask that will mask this item
-                auto rIdx = *piIter = itemIdx * mCuckooParams.mNumHashes + hashIdx * mBigBlockSize + bigBlockoffset;
+                auto rIdx = *piIter = (u32)(itemIdx * mCuckooParams.mNumHashes + hashIdx * mBigBlockSize + bigBlockoffset);
 
                 // the masked value that will be inputted into the PSI
                 *shareIter = r[rIdx] ^ inputs[itemIdx];
@@ -187,7 +187,7 @@ namespace osuCrypto
             binIter += rem;
             for (u64 i = 0; i < rem; ++i)
             {
-                *piIter++ = dummyPermIdx++;
+                *piIter++ = (u32)dummyPermIdx++;
             }
 
             //s0.asyncSendCopy(k0);
@@ -212,7 +212,7 @@ namespace osuCrypto
             //auto pi1i = pi1[i];
             //pi1RS[i] = r[pi1i] ^ s[pi1i];
 
-            pi1Inv[pi1[i]] = i;
+            pi1Inv[pi1[i]] = (u32)i;
             //std::cout << "pi1(r + s)[" << i << "] " << pi1RS[i] << std::endl;
         }
         std::vector<block> piS0(r.size());

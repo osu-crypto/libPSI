@@ -76,7 +76,7 @@ namespace osuCrypto
 
 
         // hash to smaller domain size?
-        if (inputBitSize == -1)
+        if (inputBitSize == u64(-1))
         {
             //std::cout << " inputBitSize = 128*" << std::endl;
             inputBitSize = statSecParam + log2ceil(n) - 1;
@@ -328,7 +328,7 @@ namespace osuCrypto
                         block item = inputHasher.ecbEncBlock(inputs[i]);
 
                         // compute the bin index as the low bits mod #bins
-                        u64 addr = *(u64*)&item % mBins.mBinCount;
+                        u64 addr =item.as<u64>()[0] % mBins.mBinCount;
 
                         // phase the item by removing log( #bin ) low bits. High bits just get ignored.
                         item = shiftRight(item, phaseShift);
@@ -366,7 +366,7 @@ namespace osuCrypto
 
                         auto bin = mBins.getBin(bIdx);
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u16 swapIdx = u16((prng.get<u16>() % (mBins.mMaxBinSize - i)) + i);

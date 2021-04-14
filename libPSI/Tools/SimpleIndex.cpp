@@ -126,7 +126,6 @@ namespace osuCrypto
 
         std::array<block, 8> hashs;
         AES hasher(hashingSeed);
-        auto numBins = mBins.bounds()[0];
 
         auto mainSteps = items.size() / hashs.size();
         auto remSteps = items.size() % hashs.size();
@@ -271,7 +270,7 @@ namespace osuCrypto
                 std::vector<u64> bIdxs(mNumHashFunctions);
                 for (u64 h = 0; h < mNumHashFunctions; ++h)
                 {
-                    auto bIdx = CuckooIndex<>::getHash(hashs[i], h, mNumBins);
+                    auto bIdx = CuckooIndex<>::getHash(hashs[i], (u8)h, mNumBins);
                     bool collision = false;
 
                     bIdxs[h] = bIdx;
@@ -298,7 +297,7 @@ namespace osuCrypto
 
                     for (u64 h = 0; h < mNumHashFunctions; ++h)
                     {
-                        auto bIdx = CuckooIndex<>::getHash(hashs[j], h, mNumBins);
+                        auto bIdx = CuckooIndex<>::getHash(hashs[j], (u8)h, mNumBins);
                         bool collision = false;
 
                         bIdxs[h] = bIdx;

@@ -115,7 +115,7 @@ throw std::runtime_error("base OTs must be set or enable base OTs and IKNP in li
     void KkrtPsiReceiver::sendInput(span<block> inputs, span<Channel> chls)
     {
         // check that the number of inputs is as expected.
-        if (inputs.size() != mRecverSize)
+        if (inputs.usize() != mRecverSize)
             throw std::runtime_error("inputs.size() != mN");
         setTimePoint("kkrt.R Online.Start");
 
@@ -138,14 +138,10 @@ throw std::runtime_error("base OTs must be set or enable base OTs and IKNP in li
         //store the masks of elements that map to bin by h2
         localMasks[2].reserve(mIndex.mBins.size());
 
-        //std::unique_ptr<ByteStream> locaStashlMasks(new ByteStream());
-        //locaStashlMasks->resize(mNumStash* maskSize);
-
 
         //======================Bucket BINs (not stash)==========================
 
         //pipelining the execution of the online phase (i.e., OT correction step) into multiple batches
-        TODO("run in parallel");
         auto binStart = 0;
         auto binEnd = mIndex.mBins.size();
         setTimePoint("kkrt.R Online.computeBucketMask start");
@@ -180,7 +176,7 @@ throw std::runtime_error("base OTs must be set or enable base OTs and IKNP in li
                     //std::cout << "r input[" << idx << "] = " << inputs[idx] << " h = " << (int)hIdx << " bIdx = " << bIdx << " -> " << *(u64*)&encoding << std::endl;
 
                     //store my mask into corresponding buff at the permuted position
-                    localMasks[hIdx].emplace(*(u64*)&encoding, std::pair<block, u64>(encoding, idx));
+                    localMasks[hIdx].emplace(encoding.as<u64>()[0], std::pair<block, u64>(encoding, idx));
                 }
                 else
                 {

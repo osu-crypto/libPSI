@@ -16,8 +16,8 @@ add_library(libPSI ${SRCS})
 target_include_directories(libPSI PUBLIC ${libOTe_INC}) 
 target_link_libraries(libPSI ${libOTe_LIB})
 
-target_include_directories(libPSI PUBLIC "${CMAKE_SOURCE_DIR}/..;${CMAKE_CURRENT_BINARY_DIR}/..;") 
-target_include_directories(libPSI PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/linux/sparsehash/src/) 
+
+target_include_directories(libPSI PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/..;${CMAKE_CURRENT_SOURCE_DIR}/..;${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty/linux/sparsehash/src") 
 
 #set(libOTe_BIN_DIR "${libOTe_Dirs}/out/build/x64-${CMAKE_BUILD_TYPE}")
 #

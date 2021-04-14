@@ -392,7 +392,7 @@ namespace osuCrypto
                 auto shareIdx = (binIdx + 0) * mBinSize * mBigBlockSize;
                 auto shareEnd = (binIdx + 1) * mBinSize * mBigBlockSize;
                 span<block> dest(shares.begin() + shareIdx, shares.begin() + shareEnd);
-                mIndex.mBins[cuckooIdx];
+                //mIndex.mBins[cuckooIdx];
 
                 bins[binIdx].eval(items, dest, static_cast<u32>(cuckooEnd - cuckooIdx));
             }
@@ -492,14 +492,14 @@ namespace osuCrypto
             }
         }
 
-        if (ret == -1)
+        if (ret == u64(-1))
             ret = left;
 
 
         if (ret)
             Expects(mCuckooData[ret - 1].mCuckooIdx < cuckooIdx);
 
-        if (ret != mCuckooData.size())
+        if (ret != mCuckooData.usize())
             Expects(mCuckooData[ret].mCuckooIdx >= cuckooIdx);
 
         return ret;

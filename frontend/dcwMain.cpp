@@ -56,7 +56,7 @@ void DcwRSend(
                 IknpOtExtReceiver iRecv;
                 IknpOtExtSender iSend;
                 bool silent = params.mCmd->isSet("silent");
-                OtExtReceiver& otRecv = silent ? (OtExtReceiver&)sRecv : iRecv;
+                //OtExtReceiver& otRecv = silent ? (OtExtReceiver&)sRecv : iRecv;
                 OtExtSender& otSend = silent ? (OtExtSender&)sSend : iSend;
                 DcwRBfPsiSender sendPSIs;
 
@@ -103,7 +103,7 @@ void DcwRRecv(
                 IknpOtExtSender iSend;
                 bool silent = params.mCmd->isSet("silent");
                 OtExtReceiver& otRecv = silent ? (OtExtReceiver&)sRecv : iRecv;
-                OtExtSender& otSend = silent ? (OtExtSender&)sSend : iSend;
+                //OtExtSender& otSend = silent ? (OtExtSender&)sSend : iSend;
                 DcwRBfPsiReceiver recvPSIs;
 
 

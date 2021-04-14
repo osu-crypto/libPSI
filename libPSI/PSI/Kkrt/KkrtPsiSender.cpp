@@ -271,7 +271,7 @@ namespace osuCrypto
                 std::vector<u64> bIdxs(mNumHashFunctions);
                 for (u64 h = 0; h < mNumHashFunctions; ++h)
                 {
-                    auto bIdx = CuckooIndex<>::getHash(hashs[i], h, numBins);
+                    auto bIdx = CuckooIndex<>::getHash(hashs[i], (u8)h, numBins);
                     bool collision = false;
 
                     bIdxs[h] = bIdx;
@@ -288,7 +288,7 @@ namespace osuCrypto
         {
             // general proceedure for when numHashes != 3
             std::vector<u64> bIdxs(mNumHashFunctions);
-            for (u64 i = 0; i < items.size(); i += hashs.size())
+            for (u64 i = 0; i < items.usize(); i += hashs.size())
             {
                 auto min = std::min<u64>(items.size() - i, hashs.size());
 
@@ -300,7 +300,7 @@ namespace osuCrypto
 
                     for (u64 h = 0; h < mNumHashFunctions; ++h)
                     {
-                        auto bIdx = CuckooIndex<>::getHash(hashs[j], h, numBins);
+                        auto bIdx = CuckooIndex<>::getHash(hashs[j], (u8)h, numBins);
                         bool collision = false;
 
                         bIdxs[h] = bIdx;
@@ -328,7 +328,7 @@ namespace osuCrypto
 
     void KkrtPsiSender::sendInput(span<block> inputs, span<Channel> chls)
     {
-        if (inputs.size() != mSenderSize)
+        if (inputs.usize() != mSenderSize)
             throw std::runtime_error("rt error at " LOCATION);
 
         setTimePoint("kkrt.S Online.online start");
@@ -455,7 +455,7 @@ namespace osuCrypto
         // Also note that we can start sending them before all have been
         // encoded. This will allow us to start communicating data back to the
         // reciever almost right after all the corrections have been recieved.
-        for (u64 i = 0; i < inputs.size();)
+        for (u64 i = 0; i < inputs.usize();)
         {
             auto start = i;
             auto currentStepSize = std::min(stepSize, inputs.size() - i);
@@ -472,7 +472,7 @@ namespace osuCrypto
                     auto bIdx = binIdxs(inputIdx, h);
 
                     // see if we have alreadt encoded this items
-                    if (bIdx != -1)
+                    if (bIdx != u64(-1))
                     {
                         mOtSender->encode(bIdx, &inputs[inputIdx], encoding, myMaskBuff.stride());
                     }

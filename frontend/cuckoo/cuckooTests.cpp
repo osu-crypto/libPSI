@@ -7,7 +7,7 @@ using namespace osuCrypto;
 #include <fstream>
 #include "cuckooTests.h"
 #include <iomanip>
-#include "CuckooIndex2.h"
+//#include "CuckooIndex2.h"
 
 //#include "encrypto/cuckoo_hashing/cuckoo_hashing.h"
 
@@ -66,7 +66,7 @@ void runOne(
 	std::fstream &out,
 	bool simple,bool encrypto, bool rand,u64 seed)
 {
-	u64 cuckooSize = setSize * e;
+	u64 cuckooSize = (u64)(setSize * e);
 
 	//std::cout << "|set|=" << setSize << " |Cuckoo|=" << cuckooSize << "  h=" << h << "  e=" << e << "  t=" << t << std::endl;
 
@@ -317,23 +317,7 @@ void perf(u64 setSize, double e, bool both)
 			std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(e - b).count() << "ms" << std::endl;
 		}
 
-		if(both)
-		{
-			CuckooIndex2<> c;
-			//throw std::runtime_error(LOCATION);
-			c.mParams.mBinScaler = e;
-			c.mParams.mNumHashes = 3;
-			c.mParams.mStashSize = 400;
-			c.mParams.mN = setSize;
 
-			c.init(c.mParams);
-
-			Timer timer;
-			auto b = timer.setTimePoint("b");
-			c.insert(idxs, hashs);
-			auto e = timer.setTimePoint("b");
-			std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(e - b).count() << "ms" << std::endl;
-		}
 }
 
 void simpleTest(int argc, char** argv)

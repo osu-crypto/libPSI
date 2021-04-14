@@ -2,7 +2,7 @@
 #include "libPSI/config.h"
 #ifdef ENABLE_GRR_PSI
 #ifndef ENABLE_OOS
-#pragma error("ENABLE_OOS must be defined in libOTe")
+static_assert(0, "ENABLE_OOS must be defined in libOTe");
 #endif
 
 #include <cryptoTools/Common/Defines.h>

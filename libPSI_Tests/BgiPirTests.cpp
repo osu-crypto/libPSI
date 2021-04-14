@@ -264,7 +264,7 @@ void BgiPir_FullDomain_iterator_test()
 					for (auto& p : r0)
 					{
 						dd += p.second.size();
-						for (u64 j = 0; j < p.second.size(); ++j)
+						for (u64 j = 0; j < p.second.usize(); ++j)
 						{
 							s0 = s0 ^ (data[p.first + j] & zeroAndAllOne[p.second[j]]);
 						}
@@ -275,7 +275,7 @@ void BgiPir_FullDomain_iterator_test()
 					auto r1 = gen1.yeild();
 					for (auto& p : r1) memcpy(d1.data() + p.first, p.second.data(), p.second.size());
 					for (auto& p : r1)
-						for (u64 j = 0; j < p.second.size(); ++j)
+						for (u64 j = 0; j < p.second.usize(); ++j)
 							s1 = s1 ^ (data[p.first + j] & zeroAndAllOne[p.second[j]]);
 
 
@@ -371,13 +371,13 @@ void BgiPir_FullDomain_multikey_test()
 				auto r0 = gen0.yeild();
 				for (auto& p : r0) memcpy(d0[k].data() + p.first, p.second.data(), p.second.size());
 				for (auto& p : r0)
-					for (u64 j = 0; j < p.second.size(); ++j)
+					for (u64 j = 0; j < p.second.usize(); ++j)
 						s0 = s0 ^ (data[p.first + j] & zeroAndAllOne[p.second[j]]);
 
 				auto r1 = gen1.yeild();
 				for (auto& p : r1) memcpy(d1[k].data() + p.first, p.second.data(), p.second.size());
 				for (auto& p : r1)
-					for (u64 j = 0; j < p.second.size(); ++j)
+					for (u64 j = 0; j < p.second.usize(); ++j)
 						s1 = s1 ^ (data[p.first + j] & zeroAndAllOne[p.second[j]]);
 			}
 
@@ -395,8 +395,8 @@ void BgiPir_FullDomain_multikey_test()
 			auto bits0 = mk0.yeild();
 			auto bits1 = mk1.yeild();
 
-			if (bits0.size() != numKeys) throw std::runtime_error(LOCATION);
-			if (bits1.size() != numKeys) throw std::runtime_error(LOCATION);
+			if (bits0.usize() != numKeys) throw std::runtime_error(LOCATION);
+			if (bits1.usize() != numKeys) throw std::runtime_error(LOCATION);
 
 			for (u64 k = 0; k < numKeys; ++k)
 			{

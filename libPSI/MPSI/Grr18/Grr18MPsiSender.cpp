@@ -63,7 +63,7 @@ namespace osuCrypto
 
 
         // hash to smaller domain size?
-        if (inputBitSize == -1)
+        if (inputBitSize == u64(-1))
         {
             inputBitSize = statSecParam + log2ceil(n) - 1;
             mHashToSmallerDomain = true;
@@ -164,7 +164,7 @@ namespace osuCrypto
         mOtSends.resize(chls.size());
         mOtRecvs.resize(chls.size());
 
-        for (u64 i = 0; i < chls.size(); ++i)
+        for (u64 i = 0; i < chls.usize(); ++i)
         {
             mOtSends[i] = std::move(otSend.splitBase());
             mOtRecvs[i] = std::move(otRecv.splitBase());
@@ -226,7 +226,7 @@ namespace osuCrypto
         std::vector<u8> theirLoadsMaster(mBins.mBinCount);
 
 
-        auto expectedBinLoad = mN / mBins.mBinCount + 1.0 / mEpsBins;
+        //auto expectedBinLoad = mN / mBins.mBinCount + 1.0 / mEpsBins;
         //std::vector<u64> maskPerm(mNumOTsUpperBound * expectedBinLoad);
         //auto permSeed = mPrng.get<block>();
         //std::promise<void> permProm;
@@ -473,7 +473,7 @@ namespace osuCrypto
                         auto bin = mBins.getBin(bIdx);
                         auto binLoad = theirLoadsMaster[bIdx];
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;

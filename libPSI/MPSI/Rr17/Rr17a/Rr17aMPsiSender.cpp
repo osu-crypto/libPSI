@@ -60,7 +60,7 @@ namespace osuCrypto
 
 
         // hash to smaller domain size?
-        if (inputBitSize == -1)
+        if (inputBitSize == u64(-1))
         {
             inputBitSize = statSecParam + log2ceil(n) - 1;
             mHashToSmallerDomain = true;
@@ -484,7 +484,7 @@ namespace osuCrypto
                         auto mm = maskIdx.fetch_add(bin.size(), std::memory_order::memory_order_relaxed);
 
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
 
                             u64 inputIdx = bin[i];

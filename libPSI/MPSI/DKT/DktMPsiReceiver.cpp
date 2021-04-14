@@ -447,7 +447,7 @@ namespace osuCrypto
                     sha.Final(hashOut);
 
                     auto blk = toBlock(hashOut);
-                    auto idx = *(u64*)&blk;
+                    auto idx = blk.as<u64>()[0];
                     //std::cout << "r " << blk << "  " << idx << std::endl;
                     
                     if (t == 0)
@@ -478,7 +478,7 @@ namespace osuCrypto
                     auto* inputHashs = fut.get();
                     for (auto& inputHash : *inputHashs)
                     {
-                        auto idx = *(u64*)&inputHash.mHash;
+                        auto idx = inputHash.mHash.as<u64>()[0];
                         hashs.insert({ idx , inputHash });
                     }
                 }

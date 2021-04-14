@@ -177,7 +177,7 @@ namespace osuCrypto
     {
 
         u64 width = mHashesView.bounds()[1];
-        u64 remaining = inputIdxs.size();
+        u64 remaining = inputIdxs.usize();
         u64 tryCount = 0;
 
 #ifndef  NDEBUG
@@ -186,7 +186,7 @@ namespace osuCrypto
 #endif // ! NDEBUG
 
 
-        for (u64 i = 0; i < inputIdxs.size(); ++i)
+        for (u64 i = 0; i < inputIdxs.usize(); ++i)
         {
             for (u64 j = 0; j < mParams.mNumHashes; ++j)
             {

@@ -75,7 +75,7 @@ namespace osuCrypto
 
 
         // hash to smaller domain size?
-        if (inputBitSize == -1)
+        if (inputBitSize == u64(-1))
         {
             inputBitSize = statSecParam + log2ceil(n) - 1;
             mHashToSmallerDomain = true;
@@ -435,7 +435,7 @@ namespace osuCrypto
 
                         auto bin = mBins.getBin(bIdx);
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u16 swapIdx = u16((prng.get<u16>() % (mBins.mMaxBinSize - i)) + i);
@@ -488,7 +488,7 @@ namespace osuCrypto
                     {
                         auto bin = mBins.getBin(bIdx);
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;
@@ -543,7 +543,7 @@ namespace osuCrypto
 
 
                 {
-                    auto size = insertIter - insertBuffer.data();
+                    u64 size = insertIter - insertBuffer.data();
                     std::lock_guard<std::mutex> lock(mInsertMtx);
                     for (u64 i = 0; i < size; ++i)
                         maskMap.insert(insertBuffer[i]);
