@@ -24,4 +24,4 @@ add_executable(frontend.exe ${SRC_FRONTEND})
 #                 Link libOTe               #
 #############################################
 
-target_link_libraries(frontend.exe PUBLIC libPSI libPSI_Tests ${libOTe_TESTS_LIB})
+target_link_libraries(frontend.exe PUBLIC libPSI libPSI_Tests oc::libOTe_Tests oc::tests_cryptoTools)

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.15)
 
 project("libPSI")
 
@@ -8,8 +8,8 @@ if("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_SOURCE_DIR}")
 	############################################
 	#          If top level cmake              #
 	############################################
-	if(${CMAKE_VERSION} VERSION_LESS "3.12.0") 
-		message("Please consider updating CMake to 3.12+")
+	if(${CMAKE_VERSION} VERSION_LESS "3.15.0") 
+		message("Please consider updating CMake to 3.15+")
 	endif()
 	
 
@@ -58,11 +58,10 @@ include_directories("${CMAKE_SOURCE_DIR}")
 
 # default location for libOTe
 set(libOTe_Dirs "${CMAKE_SOURCE_DIR}/../libOTe/")
-include_directories("${libOTe_Dirs}/") 
-include_directories("${libOTe_Dirs}/cryptoTools") 
+find_package(libOTe REQUIRED HINTS ${libOTe_Dirs})
 
-# default location for Boost
-set(BOOST_ROOT "${libOTe_Dirs}/cryptoTools/thirdparty/linux/boost/")
+message(STATUS "\n\ncryptoTools_INCLUDE_DIRS=${cryptoTools_INCLUDE_DIRS}")
+message(STATUS "\n\nlibOTe_INCLUDE_DIRS=${libOTe_INCLUDE_DIRS}")
 
 # default location for Wolfssl
 set(WolfSSL_DIR "/usr/local/")
@@ -97,11 +96,6 @@ option(ENABLE_ECDH_PSI     "Build the EC DH PSI protocol" OFF)
 option(ENABLE_DRRN_PSI     "Build the DRRN PSI protocol" OFF)
 option(ENABLE_PRTY_PSI     "Build the PRTY PSI protocol" OFF)
 
-option(ENABLE_MIRACL     "use the miracl library" OFF)
-option(ENABLE_RELIC      "use the relic library" OFF)
-option(ENABLE_SIMPLESTOT_ASM "use the simplest OT library" OFF)
-option(ENABLE_MR_KYBER   "use the kyber OT library" OFF)
-option(ENABLE_WOLFSSL     "use the wolfssl library" OFF)
 
 message(STATUS "General Options\n=======================================================")
 message(STATUS "Option: CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}\n\tRelease\n\tDebug\n\tRELWITHDEBINFO")
@@ -120,8 +114,6 @@ message(STATUS "Option: ENABLE_DRRN_PSI   = ${ENABLE_DRRN_PSI}\n")
 #message(STATUS "Option: ENABLE_PRTY_PSI   = ${ENABLE_PRTY_PSI}\n")
 
 
-include("${libOTe_Dirs}/cmake/loadCacheVar.cmake")
-
 if(NOT ${ENABLE_BOOST})
 	message(FATAL_ERROR "ENABLE_BOOST is not defined in cryptoTools.")
 endif()
@@ -133,8 +125,6 @@ message(STATUS "        ENABLE_SIMPLESTOT_ASM = ${ENABLE_SIMPLESTOT_ASM}")
 message(STATUS "        ENABLE_MR_KYBER       = ${ENABLE_MR_KYBER}")
 message(STATUS "        ENABLE_WOLFSSL        = ${ENABLE_WOLFSSL}\n\n")
 
-
-include("${libOTe_Dirs}/cmake/libOTeHelper.cmake")
 
 
 configure_file(libPSI/config.h.in libPSI/config.h)

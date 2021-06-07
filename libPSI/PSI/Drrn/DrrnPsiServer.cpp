@@ -146,11 +146,6 @@ namespace osuCrypto
 
     }
 
-    inline u64 divCeil(u64 n, u64 d)
-    {
-        return (n + d - 1) / d;
-    }
-
     struct DrrnBin
     {
 
