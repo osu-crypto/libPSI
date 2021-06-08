@@ -60,8 +60,10 @@ include_directories("${CMAKE_SOURCE_DIR}")
 set(libOTe_Dirs "${CMAKE_SOURCE_DIR}/../libOTe/")
 find_package(libOTe REQUIRED HINTS ${libOTe_Dirs})
 
-message(STATUS "\n\ncryptoTools_INCLUDE_DIRS=${cryptoTools_INCLUDE_DIRS}")
-message(STATUS "\n\nlibOTe_INCLUDE_DIRS=${libOTe_INCLUDE_DIRS}")
+message(STATUS "cryptoTools_INC=${cryptoTools_INC}")
+message(STATUS "cryptoTools_LIB=${cryptoTools_LIB}")
+message(STATUS "libOTe_INC=${libOTe_INC}")
+message(STATUS "libOTe_LIB=${libOTe_LIB}")
 
 # default location for Wolfssl
 set(WolfSSL_DIR "/usr/local/")

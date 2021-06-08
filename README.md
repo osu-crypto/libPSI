@@ -17,29 +17,19 @@ Protocols:
 Our library is cross platform and has been tested on both Windows and Linux. The library should work on Mac but it has not been tested. There are several library dependencies including [libOTe](https://github.com/osu-crypto/libOte), Boost, Miracl. First follow the instructions at libOTe. 
 
 
-### Windows
-
-First clone and build libOTe. libOTe and libPSI should share the same parent directory. Then clone this library and open the solution in Visaul Studio.
-
-### Linux
-
-
-libOTe and libPSI should share the same parent directory.
+libOTe and libPSI should share the same parent directory or libOTe should be installed, or similar.
 
 ```
 [libOTe clone build steps](https://github.com/osu-crypto/libOTe)
 git clone https://github.com/osu-crypto/libPSI.git
 cd libPSI
-cmake . -DENABLE_XXXX=ON
-make
+bash build.sh
 ```
-here, `-DENABLE_XXXX` should refer to the public key library used with libOTe, i.e. `-DENABLE_RELIC`, `-DENABLE_MIRACL`, or `-DENABLE_SIMPLESTOT_ASM`. 
-
 
 Unit tests can be run by executing the program.
 
 ```
-./bin/frontend.exe -u
+frontend.exe -u
 ```
 Other options can be seen by executing with no arguments.
 ## Help
