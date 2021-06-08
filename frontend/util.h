@@ -44,6 +44,7 @@ struct LaunchParams
     u64 mIdx;
 	u64 mNumHash;
 
+    std::string mIP;
 	CLP* mCmd;
 };
 

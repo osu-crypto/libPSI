@@ -1,3 +1,6 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_GRR_PSI
+
 #include "Grr18MPsiReceiver.h"
 #include <future>
 #include <unordered_map>
@@ -22,15 +25,16 @@
 namespace osuCrypto
 {
 
-
-    template<typename T>
-    struct NoHash
-    {
-        inline size_t operator()(const T& v) const
+    namespace {
+        template<typename T>
+        struct NoHash
         {
-            return v;
-        }
-    };
+            inline size_t operator()(const T& v) const
+            {
+                return v;
+            }
+        };
+    }
 
 
     inline block shiftRight(block v, u8 n)
@@ -82,7 +86,7 @@ namespace osuCrypto
 
 
         // hash to smaller domain size?
-        if (inputBitSize == -1)
+        if (inputBitSize == u64(-1))
         {
             inputBitSize = statSecParam + log2ceil(n) - 1;
             mHashToSmallerDomain = true;
@@ -184,7 +188,7 @@ namespace osuCrypto
         mOtSends.resize(chls.size());
 
         // now make the threads that will to the extension
-        for (u64 i = 0; i < chls.size(); ++i)
+        for (u64 i = 0; i < chls.usize(); ++i)
         {
             mOtRecvs[i] = std::move(otRecv.splitBase());
             mOtSends[i] = std::move(otSend.splitBase());
@@ -460,7 +464,7 @@ namespace osuCrypto
                         auto binLoad = theirLoads[bIdx - binStart];
 
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;
@@ -497,7 +501,7 @@ namespace osuCrypto
 
                                 //oo << "   " << sendMask << " ^ " << recvMasks[inputIdx];
                                 sendMask = sendMask ^ inBlock;
-                                key = (*(u64*)&sendMask) & keyMask;
+                                key = (sendMask.as<u64>()[0]) & keyMask;
                                 //oo << " -> " << sendMask << "   ~  " << key << "  ~ " << innerOtIdx << std::endl;
 
 
@@ -579,7 +583,7 @@ namespace osuCrypto
                 auto futrIter = maskFutrs.begin();
 
                 {
-                    int i = 0;
+
                     //ostreamLock oo(std::cout);
                     //oo << "r " << curRow << " -> " << endRow << std::endl;
                     while (curRow != endRow)
@@ -601,7 +605,7 @@ namespace osuCrypto
                 theirMasksIter = theirMasks.data();
 
                 futrIter = maskFutrs.begin();
-                int i = 0;
+                //int i = 0;
                 while (curRow != endRow)
                 {
                     auto step = std::min(maxSendSize, endRow - curRow);
@@ -679,3 +683,4 @@ namespace osuCrypto
         //std::cout << gTimer;
     }
 }
+#endif

@@ -1,10 +1,15 @@
+
+#include "libPSI/config.h"
+#ifdef ENABLE_DKT_PSI
+#ifndef ENABLE_RELIC
+#pragma error("ENABLE_RELIC must be defined in libOTe")
+#endif
 #include "DktMPsiSender.h"
 #include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Network/Channel.h"
 
-#ifdef ENABLE_RELIC
 namespace osuCrypto
 {
     DktMPsiSender::DktMPsiSender()
@@ -40,9 +45,9 @@ namespace osuCrypto
             sigmaHashsFutures[i] = sigmaHashsProms[i].get_future();
         }
 
-        std::vector<PRNG> thrdPrng(chls.size());
-        for (u64 i = 0; i < thrdPrng.size(); i++)
-            thrdPrng[i].SetSeed(mPrng.get<block>());
+        //std::vector<PRNG> thrdPrng(chls.size());
+        //for (u64 i = 0; i < thrdPrng.size(); i++)
+        //    thrdPrng[i].SetSeed(mPrng.get<block>());
 
         std::promise<std::array<REccPoint*,3>> pchProm;
         std::shared_future<std::array<REccPoint*,3>> pchFuture(pchProm.get_future().share());
@@ -67,7 +72,7 @@ namespace osuCrypto
             u64 theirInputEndIdx = theirInputSize * (t + 1) / chls.size();
 
             auto& chl = chls[t];
-            auto& prng = thrdPrng[t];
+            //auto& prng = thrdPrng[t];
             u8 hashOut[RandomOracle::HashSize];
 
             REllipticCurve curve;

@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-#ifdef ENABLE_DCW
+#ifdef ENABLE_DCW_PSI
 #include <thread>
 #include <vector>
 #include <memory>

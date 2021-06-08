@@ -1,3 +1,6 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_RR16_PSI
+
 #include "AknBfMPsiReceiver.h"
 #include "cryptoTools/Crypto/PRNG.h"
 #include "cryptoTools/Crypto/Commit.h"
@@ -326,7 +329,7 @@ namespace osuCrypto
                     mask = mask ^ mAknOt.mMessages[pIdx];
                 }
 
-                localMasks.emplace(*(u64*)&mask, std::pair<block, u64>(mask, i));
+                localMasks.emplace(mask.as<u64>()[0], std::pair<block, u64>(mask, i));
             }
             //std::cout << IoStream::unlock;
 
@@ -738,3 +741,4 @@ namespace osuCrypto
 
 
 }
+#endif

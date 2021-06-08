@@ -1,4 +1,6 @@
 #include "Grr18MPsiSender.h"
+#include "libPSI/config.h"
+#ifdef ENABLE_GRR_PSI
 
 #include <cryptoTools/Crypto/Commit.h>
 #include <cryptoTools/Common/Log.h>
@@ -7,8 +9,7 @@
 #include "libOTe/Base/naor-pinkas.h"
 #include "libOTe/TwoChooseOne/KosOtExtReceiver.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
-#include "libOTe/NChooseOne/RR17/Rr17NcoOtReceiver.h"
-#include "libOTe/NChooseOne/RR17/Rr17NcoOtSender.h"
+
 #include "libPSI/MPSI/Rr17/Rr17MPsiDefines.h"
 #include <atomic>
 #include <random>
@@ -62,7 +63,7 @@ namespace osuCrypto
 
 
         // hash to smaller domain size?
-        if (inputBitSize == -1)
+        if (inputBitSize == u64(-1))
         {
             inputBitSize = statSecParam + log2ceil(n) - 1;
             mHashToSmallerDomain = true;
@@ -112,7 +113,7 @@ namespace osuCrypto
         if (otSend.hasBaseOts() == false ||
             otRecv.hasBaseOts() == false)
         {
-#ifdef LIBOTE_HAS_BASE_OT
+#if defined(LIBOTE_HAS_BASE_OT) && defined(ENABLE_KOS)
 
             // first do 128 public key OTs (expensive)
             std::array<std::array<block, 2>, gOtExtBaseOtCount> baseMsg;
@@ -154,7 +155,7 @@ namespace osuCrypto
             // now set these ~800 OTs as the base of our N choose 1 OTs NcoOtExtReceiver
             otRecv.setBaseOts(sendBaseMsg, mPrng, chl0);
 #else
-            throw std::runtime_error("base OTs must be set. " LOCATION);
+            throw std::runtime_error("base OTs must be set or enable base OTs and KOS. " LOCATION);
 #endif
         }
 
@@ -163,7 +164,7 @@ namespace osuCrypto
         mOtSends.resize(chls.size());
         mOtRecvs.resize(chls.size());
 
-        for (u64 i = 0; i < chls.size(); ++i)
+        for (u64 i = 0; i < chls.usize(); ++i)
         {
             mOtSends[i] = std::move(otSend.splitBase());
             mOtRecvs[i] = std::move(otRecv.splitBase());
@@ -225,7 +226,7 @@ namespace osuCrypto
         std::vector<u8> theirLoadsMaster(mBins.mBinCount);
 
 
-        auto expectedBinLoad = mN / mBins.mBinCount + 1.0 / mEpsBins;
+        //auto expectedBinLoad = mN / mBins.mBinCount + 1.0 / mEpsBins;
         //std::vector<u64> maskPerm(mNumOTsUpperBound * expectedBinLoad);
         //auto permSeed = mPrng.get<block>();
         //std::promise<void> permProm;
@@ -472,7 +473,7 @@ namespace osuCrypto
                         auto bin = mBins.getBin(bIdx);
                         auto binLoad = theirLoadsMaster[bIdx];
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;
@@ -608,3 +609,4 @@ namespace osuCrypto
 }
 
 
+#endif

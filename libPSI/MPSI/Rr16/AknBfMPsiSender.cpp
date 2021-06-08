@@ -1,4 +1,6 @@
-#include "AknBfMPsiSender.h"
+#include "libPSI/config.h"
+#ifdef ENABLE_RR16_PSI
+
 #include "AknBfMPsiSender.h"
 #include "libOTe/TwoChooseOne/KosOtExtSender.h"
 #include "cryptoTools/Crypto/PRNG.h"
@@ -259,3 +261,4 @@ namespace osuCrypto {
         //}
     }
 }
+#endif

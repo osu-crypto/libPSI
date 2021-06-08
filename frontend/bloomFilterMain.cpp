@@ -24,6 +24,7 @@ extern u8 dummy[];
 
 void bfSend(LaunchParams& params)
 {
+#ifdef ENABLE_RR16_PSI
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
     for (auto setSize : params.mNumItems)
@@ -59,11 +60,16 @@ void bfSend(LaunchParams& params)
             }
         }
     }
+
+#else
+    std::cout << Color::Red << "RR16 PSI is not enabled" << std::endl << Color::Default;
+#endif
 }
 
 
 void bfRecv(LaunchParams& params)
 {
+#ifdef ENABLE_RR16_PSI
     for (u64 g = 0; g < params.mChls.size(); ++g)
         params.mChls[g].resetStats();
 
@@ -116,6 +122,10 @@ void bfRecv(LaunchParams& params)
             }
         }
     }
+
+#else
+    std::cout << Color::Red << "RR16 PSI is not enabled" << std::endl << Color::Default;
+#endif
 }
 
 

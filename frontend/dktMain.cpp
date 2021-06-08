@@ -20,7 +20,7 @@ extern u8 dummy[];
 
 void DktSend(LaunchParams& params)
 {
-#ifdef ENABLE_RELIC
+#ifdef ENABLE_DKT_PSI
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -48,14 +48,14 @@ void DktSend(LaunchParams& params)
         }
     }
 #else
-    std::cout <<Color::Red << "DKT requires relic " << std::endl << Color::Default;
+    std::cout <<Color::Red << "DKT is not enabled " << std::endl << Color::Default;
 #endif
 }
 
 
 void DktRecv(LaunchParams& params)
 {
-#ifdef ENABLE_RELIC
+#ifdef ENABLE_DKT_PSI
 
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
 
@@ -94,7 +94,7 @@ void DktRecv(LaunchParams& params)
         }
     }
 #else
-    std::cout << Color::Red << "DKT requires relic " << std::endl << Color::Default;
+    std::cout << Color::Red << "DKT is not enabled " << std::endl << Color::Default;
 #endif
 }
 

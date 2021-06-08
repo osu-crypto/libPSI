@@ -1,3 +1,5 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_DRRN_PSI
 #include "BgiPirClient.h"
 #include <cryptoTools/Crypto/PRNG.h>
 #include <cryptoTools/Common/BitVector.h>
@@ -212,3 +214,4 @@ namespace osuCrypto
         memcpy(g1.data(), u8View, g1.size() * sizeof(block));
     }
 }
+#endif

@@ -1,11 +1,16 @@
 #include "EcdhPsiSender.h"
+#ifdef ENABLE_ECDH_PSI
+
+#ifndef ENABLE_RELIC
+#pragma error("ENABLE_RELIC must be defined in libOTe")
+#endif
+
 #include "cryptoTools/Crypto/Curve.h"
 #include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 #include "cryptoTools/Network/Channel.h"
 
-#ifdef ENABLE_ECDH_PSI
 
 namespace osuCrypto
 {
@@ -31,13 +36,13 @@ namespace osuCrypto
     {
 
 
-        u64 theirInputSize = inputs.size();
+        //u64 theirInputSize = inputs.size();
 
-		u64 maskSizeByte = (40 + 2*log2(inputs.size())+7) / 8;
+		u64 maskSizeByte = u64(40 + 2*log2(inputs.size())+7) / 8;
 
-        std::vector<PRNG> thrdPrng(chls.size());
-        for (u64 i = 0; i < thrdPrng.size(); i++)
-            thrdPrng[i].SetSeed(mPrng.get<block>());
+        //std::vector<PRNG> thrdPrng(chls.size());
+        //for (u64 i = 0; i < thrdPrng.size(); i++)
+        //    thrdPrng[i].SetSeed(mPrng.get<block>());
 
         auto RsSeed = mPrng.get<block>();
 
@@ -51,11 +56,11 @@ namespace osuCrypto
 
 
             auto& chl = chls[t];
-            auto& prng = thrdPrng[t];
+            //auto& prng = thrdPrng[t];
 
             using Curve = REllipticCurve;
             using Point = REccPoint;
-            using Brick = REccPoint;
+            //using Brick = REccPoint;
             using Number = REccNumber;
             Curve curve;
 

@@ -1,4 +1,9 @@
 #pragma once
+#include "libPSI/config.h"
+#ifdef ENABLE_GRR_PSI
+#ifndef ENABLE_OOS
+static_assert(0, "ENABLE_OOS must be defined in libOTe");
+#endif
 
 #include <cryptoTools/Common/Defines.h>
 #include <cryptoTools/Common/Timer.h>
@@ -47,3 +52,4 @@ namespace osuCrypto
 
 
 }
+#endif

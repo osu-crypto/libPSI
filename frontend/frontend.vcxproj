@@ -91,6 +91,7 @@
     <ClCompile Include="dktMain.cpp" />
     <ClCompile Include="DrrnPSIMain.cpp" />
     <ClCompile Include="ecdhMain.cpp" />
+    <ClCompile Include="fileBasedPSI.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OtBinMain.cpp" />
     <ClCompile Include="util.cpp" />

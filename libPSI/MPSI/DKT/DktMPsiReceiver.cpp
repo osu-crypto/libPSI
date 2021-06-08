@@ -1,10 +1,15 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_DKT_PSI
+#ifndef ENABLE_RELIC
+#pragma error("ENABLE_RELIC must be defined in libOTe")
+#endif
+
 #include "DktMPsiReceiver.h"
 #include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/RandomOracle.h"
 #include "cryptoTools/Common/Log.h"
 
 #include <unordered_map>
-#ifdef ENABLE_RELIC
 
 namespace osuCrypto
 {
@@ -98,11 +103,11 @@ namespace osuCrypto
             if (curve.getOrder().isPrime() == false)
                 throw std::runtime_error("must be prime");
 
-            if (curve.getGenerators().size() < 3)
-            {
-                std::cout << ("DktMPsi require at least 3 generators") << std::endl;
-                throw std::runtime_error("DktMPsi require at least 3 generators");
-            }
+            //if (curve.getGenerators().size() < 3)
+            //{
+            //    std::cout << ("DktMPsi require at least 3 generators") << std::endl;
+            //    throw std::runtime_error("DktMPsi require at least 3 generators");
+            //}
 
             const auto g = curve.getGenerator();
             REccPoint gg; gg.randomize(ZeroBlock);
@@ -442,7 +447,7 @@ namespace osuCrypto
                     sha.Final(hashOut);
 
                     auto blk = toBlock(hashOut);
-                    auto idx = *(u64*)&blk;
+                    auto idx = blk.as<u64>()[0];
                     //std::cout << "r " << blk << "  " << idx << std::endl;
                     
                     if (t == 0)
@@ -473,7 +478,7 @@ namespace osuCrypto
                     auto* inputHashs = fut.get();
                     for (auto& inputHash : *inputHashs)
                     {
-                        auto idx = *(u64*)&inputHash.mHash;
+                        auto idx = inputHash.mHash.as<u64>()[0];
                         hashs.insert({ idx , inputHash });
                     }
                 }

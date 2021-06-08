@@ -1,3 +1,6 @@
+#include "libPSI/config.h"
+#ifdef ENABLE_RR17_PSI
+
 #include "Rr17aMPsiReceiver.h"
 #include <future>
 
@@ -72,7 +75,7 @@ namespace osuCrypto
 
 
         // hash to smaller domain size?
-        if (inputBitSize == -1)
+        if (inputBitSize == u64(-1))
         {
             inputBitSize = statSecParam + log2ceil(n) - 1;
             mHashToSmallerDomain = true;
@@ -90,7 +93,7 @@ namespace osuCrypto
         //mOtMsgBlkSize = (baseOtCount + 127) / 128;
 
 
-        setTimePoint("rr17b.Init.recv.start");
+        setTimePoint("rr17a.Init.recv.start");
         mPrng.SetSeed(seed);
         auto& prng = mPrng;
 
@@ -109,7 +112,7 @@ namespace osuCrypto
         block theirHashingSeed;
         chl0.recv((u8*)&theirHashingSeed, sizeof(block));
 
-        setTimePoint("rr17b.Init.recv.hashSeed");
+        setTimePoint("rr17a.Init.recv.hashSeed");
 
         // compute the hashing seed as the xor of both of ours seeds.
         mHashingSeed = myHashSeed ^ theirHashingSeed;
@@ -119,7 +122,7 @@ namespace osuCrypto
         // to compute how many bins we need, the max size of bins, etc.
         mBins.init(n, inputBitSize, mHashingSeed, statSecParam, binScaler);
 
-        setTimePoint("rr17b.Init.recv.baseStart");
+        setTimePoint("rr17a.Init.recv.baseStart");
         // since we are doing mmlicious PSI, we need OTs going in both directions.
         // This will hold the send OTs
 
@@ -167,7 +170,7 @@ namespace osuCrypto
         }
 
 
-        setTimePoint("rr17b.Init.recv.ExtStart");
+        setTimePoint("rr17a.Init.recv.ExtStart");
 
 
 
@@ -237,7 +240,7 @@ namespace osuCrypto
         for (auto& thrd : thrds)
             thrd.join();
 
-        setTimePoint("rr17b.Init.recv.done");
+        setTimePoint("rr17a.Init.recv.done");
 
 
 
@@ -269,7 +272,7 @@ namespace osuCrypto
     void Rr17aMPsiReceiver::sendInput(std::vector<block>& inputs, span<Channel> chls)
     {
         // this is the online phase.
-        setTimePoint("rr17b.online.recv.start");
+        setTimePoint("rr17a.online.recv.start");
 
         // check that the number of inputs is as expected.
         if (inputs.size() != mN)
@@ -327,7 +330,7 @@ namespace osuCrypto
             thrds[tIdx] = std::thread([&, tIdx, seed]()
             {
 
-                if (tIdx == 0) setTimePoint("rr17b.online.recv.thrdStart");
+                if (tIdx == 0) setTimePoint("rr17a.online.recv.thrdStart");
 
                 auto& otRecv = *mOtRecvs[tIdx];
                 auto& otSend = *mOtSends[tIdx];
@@ -403,7 +406,7 @@ namespace osuCrypto
                 else
                     insertProm.set_value();
 
-                if (tIdx == 0) setTimePoint("rr17b.online.recv.insertDone");
+                if (tIdx == 0) setTimePoint("rr17a.online.recv.insertDone");
 
                 // get the region of the base OTs that this thread should do.
                 auto binStart = tIdx * mBins.mBinCount / thrds.size();
@@ -432,7 +435,7 @@ namespace osuCrypto
 
                         auto bin = mBins.getBin(bIdx);
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u16 swapIdx = u16((prng.get<u16>() % (mBins.mMaxBinSize - i)) + i);
@@ -462,7 +465,7 @@ namespace osuCrypto
                 }
 
 
-                if (tIdx == 0) setTimePoint("rr17b.online.recv.recvMask");
+                if (tIdx == 0) setTimePoint("rr17a.online.recv.recvMask");
 
                 otIdx = 0;
                 //std::cout << IoStream::lock;
@@ -473,7 +476,7 @@ namespace osuCrypto
 
 
                 auto keySize = std::min<u64>(sizeof(u64), maskSize);
-                u64 keyMask = (1ull << (keySize * 8)) - 1;// (~0ull) >> ((sizeof(u64) - keySize) * 8);
+                u64 keyMask = (~0ull) >> ((sizeof(u64) - keySize) * 8);
                 std::unordered_map<u64, std::pair<i64, block>> maskMap;maskMap.reserve(mN * mBins.mMaxBinSize);
 
                 for (u64 bIdx = binStart; bIdx < binEnd;)
@@ -485,7 +488,7 @@ namespace osuCrypto
                     {
                         auto bin = mBins.getBin(bIdx);
 
-                        for (u64 i = 0; i < bin.size(); ++i)
+                        for (u64 i = 0; i < bin.usize(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;
@@ -540,14 +543,14 @@ namespace osuCrypto
 
 
                 {
-                    auto size = insertIter - insertBuffer.data();
+                    u64 size = insertIter - insertBuffer.data();
                     std::lock_guard<std::mutex> lock(mInsertMtx);
                     for (u64 i = 0; i < size; ++i)
                         maskMap.insert(insertBuffer[i]);
                 }
 
 
-                if (tIdx == 0) setTimePoint("rr17b.online.recv.sendMask");
+                if (tIdx == 0) setTimePoint("rr17a.online.recv.sendMask");
 
                 // all masks have been merged
 
@@ -566,7 +569,7 @@ namespace osuCrypto
 
                 u64 numMasks = mN * mBins.mMaxBinSize;
                 u64 chunkSize = std::min<u64>(1 << 20, (numMasks + chls.size() - 1) / chls.size());
-                u64 numChunks = numMasks / chunkSize;
+                u64 numChunks = (numMasks + (chunkSize - 1)) / chunkSize;
 
 
                 //std::array<block, 32> tempMaskBuff;
@@ -625,11 +628,11 @@ namespace osuCrypto
                         mIntersection = std::move(localIntersection);
                     }
                 }
-                if (tIdx == 0) setTimePoint("rr17b.online.recv.done");
+                if (tIdx == 0) setTimePoint("rr17a.online.recv.done");
 
 
                 //if (!tIdx)
-                //    setTimePoint("rr17b.sendInput.done");
+                //    setTimePoint("rr17a.sendInput.done");
             });
         }
 
@@ -639,8 +642,9 @@ namespace osuCrypto
 
         //std::cout << IoStream::lock << "exit" << std::endl << IoStream::unlock;
 
-        setTimePoint("rr17b.online.recv.exit");
+        setTimePoint("rr17a.online.recv.exit");
 
         //std::cout << gTimer;
     }
 }
+#endif

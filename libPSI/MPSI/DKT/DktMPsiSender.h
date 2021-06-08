@@ -1,4 +1,6 @@
 #pragma once
+#include "libPSI/config.h"
+#ifdef ENABLE_DKT_PSI
 
 #include "cryptoTools/Common/Defines.h"
 
@@ -7,7 +9,6 @@
 
 namespace osuCrypto
 {
-#ifdef ENABLE_RELIC
 
 
     class DktMPsiSender
@@ -28,6 +29,6 @@ namespace osuCrypto
         //void sendInput(std::vector<block>& inputs, std::vector<Channel*>& chl);
     };
 
-#endif
 
 }
+#endif

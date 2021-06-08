@@ -1,8 +1,8 @@
 #include "bloomFilterMain.h"
 #include "cryptoTools/Network/Endpoint.h"
 
-#include "libPSI/PSI/DrrnPsiClient.h"
-#include "libPSI/PSI/DrrnPsiServer.h"
+#include "libPSI/PSI/Drrn/DrrnPsiClient.h"
+#include "libPSI/PSI/Drrn/DrrnPsiServer.h"
 
 #include <fstream>
 using namespace osuCrypto;
@@ -19,6 +19,7 @@ using namespace osuCrypto;
 void Drrn17Send(
     LaunchParams& params)
 {
+#ifdef ENABLE_DRRN_PSI
     setThreadName("CP_Test_Thread");
     u8 dummy[1];
 
@@ -81,11 +82,15 @@ void Drrn17Send(
             }
         }
     }
+#else
+    std::cout << Color::Red << "DRRN is not enabled " << std::endl << Color::Default;
+#endif
 }
 
 void Drrn17Recv(
     LaunchParams& params)
 {
+#ifdef ENABLE_DRRN_PSI
     setThreadName("CP_Test_Thread");
     u8 dummy[1];
 
@@ -141,5 +146,8 @@ void Drrn17Recv(
             }
         }
     }
+#else
+    std::cout << Color::Red << "DRRN is not enabled " << std::endl << Color::Default;
+#endif
 }
 

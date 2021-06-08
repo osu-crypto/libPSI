@@ -5,11 +5,14 @@
 #include <cryptoTools/Network/Endpoint.h>
 #include <cryptoTools/Crypto/PRNG.h>
 #include <cryptoTools/Common/BitVector.h>
+#include <cryptoTools/Common/TestCollection.h>
 
 using namespace osuCrypto;
 
 void BgiPir_keyGen_128_test()
 {
+#ifdef ENABLE_DRRN_PSI
+
 	std::vector<block> vv{ CCBlock, OneBlock, AllOneBlock, AllOneBlock };
 
 	u64 depth = 128 - 7;
@@ -39,10 +42,15 @@ void BgiPir_keyGen_128_test()
 
 		target = prng.get<block>();
 	}
+
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 void BgiPir_keyGen_test()
 {
+#ifdef ENABLE_DRRN_PSI
 	std::vector<block> vv{ CCBlock, OneBlock, AllOneBlock, AllOneBlock };
 
 	u64 depth = 3;
@@ -76,10 +84,14 @@ void BgiPir_keyGen_test()
 			}
 		}
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 void BgiPir_PIR_test()
 {
+#ifdef ENABLE_DRRN_PSI
 
 	BgiPirClient client;
 	BgiPirServer s0, s1;
@@ -139,10 +151,14 @@ void BgiPir_PIR_test()
 			throw std::runtime_error(LOCATION);
 		}
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 void BgiPir_FullDomain_test()
 {
+#ifdef ENABLE_DRRN_PSI
 	std::vector<std::array<u64, 2>> params{ {2,1}, {2, 6}, {5, 1}, {5, 5 }, {5,8} };
 
 	for (auto param : params)
@@ -188,6 +204,9 @@ void BgiPir_FullDomain_test()
 			}
 		}
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 
@@ -195,6 +214,7 @@ void BgiPir_FullDomain_test()
 
 void BgiPir_FullDomain_iterator_test()
 {
+#ifdef ENABLE_DRRN_PSI
 	std::vector<std::array<u64, 2>> params{ { 2,1 },{ 2, 6 },{ 5, 1 },{ 5, 5 } };
 
 	for (auto param : params)
@@ -244,7 +264,7 @@ void BgiPir_FullDomain_iterator_test()
 					for (auto& p : r0)
 					{
 						dd += p.second.size();
-						for (u64 j = 0; j < p.second.size(); ++j)
+						for (u64 j = 0; j < p.second.usize(); ++j)
 						{
 							s0 = s0 ^ (data[p.first + j] & zeroAndAllOne[p.second[j]]);
 						}
@@ -255,7 +275,7 @@ void BgiPir_FullDomain_iterator_test()
 					auto r1 = gen1.yeild();
 					for (auto& p : r1) memcpy(d1.data() + p.first, p.second.data(), p.second.size());
 					for (auto& p : r1)
-						for (u64 j = 0; j < p.second.size(); ++j)
+						for (u64 j = 0; j < p.second.usize(); ++j)
 							s1 = s1 ^ (data[p.first + j] & zeroAndAllOne[p.second[j]]);
 
 
@@ -294,6 +314,9 @@ void BgiPir_FullDomain_iterator_test()
 			}
 		}
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 
@@ -301,6 +324,7 @@ void BgiPir_FullDomain_iterator_test()
 
 void BgiPir_FullDomain_multikey_test()
 {
+#ifdef ENABLE_DRRN_PSI
 	std::vector<std::array<u64, 2>> params{ { 2,1 },{ 2, 6 },{ 5, 1 },{ 5, 5 } };
 
 	for (auto param : params)
@@ -347,13 +371,13 @@ void BgiPir_FullDomain_multikey_test()
 				auto r0 = gen0.yeild();
 				for (auto& p : r0) memcpy(d0[k].data() + p.first, p.second.data(), p.second.size());
 				for (auto& p : r0)
-					for (u64 j = 0; j < p.second.size(); ++j)
+					for (u64 j = 0; j < p.second.usize(); ++j)
 						s0 = s0 ^ (data[p.first + j] & zeroAndAllOne[p.second[j]]);
 
 				auto r1 = gen1.yeild();
 				for (auto& p : r1) memcpy(d1[k].data() + p.first, p.second.data(), p.second.size());
 				for (auto& p : r1)
-					for (u64 j = 0; j < p.second.size(); ++j)
+					for (u64 j = 0; j < p.second.usize(); ++j)
 						s1 = s1 ^ (data[p.first + j] & zeroAndAllOne[p.second[j]]);
 			}
 
@@ -371,8 +395,8 @@ void BgiPir_FullDomain_multikey_test()
 			auto bits0 = mk0.yeild();
 			auto bits1 = mk1.yeild();
 
-			if (bits0.size() != numKeys) throw std::runtime_error(LOCATION);
-			if (bits1.size() != numKeys) throw std::runtime_error(LOCATION);
+			if (bits0.usize() != numKeys) throw std::runtime_error(LOCATION);
+			if (bits1.usize() != numKeys) throw std::runtime_error(LOCATION);
 
 			for (u64 k = 0; k < numKeys; ++k)
 			{
@@ -382,6 +406,9 @@ void BgiPir_FullDomain_multikey_test()
 		}
 
 	}
+#else
+throw UnitTestSkipped("Not enabled");
+#endif
 }
 
 

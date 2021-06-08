@@ -294,7 +294,7 @@ void printTimings(
     else
     {
         std::cout << std::dec << std::setw(6) << tag
-            << std::setw(8) << (std::to_string(setSize) + (n2 == -1? "" : "vs"+std::to_string(n2)))
+            << std::setw(8) << (std::to_string(setSize) + (n2 == u64(-1)? "" : "vs"+std::to_string(n2)))
             << std::setw(10) << (std::to_string(numThreads) + " " + std::to_string(s))
             << std::setw(14) << (offlineTime + onlineTime)
             << std::setw(14) << onlineTime

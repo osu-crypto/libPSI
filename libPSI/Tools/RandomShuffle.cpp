@@ -15,8 +15,8 @@ namespace osuCrypto
 
     void RandomShuffle::parallelShuffle(span<u64> vals, u64 t, u64 nt)
     {
-        auto start = vals.size() * t / nt;
-        auto end = vals.size() * t / nt;
+        auto start = vals.usize() * t / nt;
+        auto end = vals.usize() * t / nt;
         PRNG prng(toBlock(t));
         //std::vector<u64> dest(vals.size());
         mergeShuffle({ vals.data() + start, vals.data() + end }, prng);
@@ -37,7 +37,7 @@ namespace osuCrypto
 
         //std::array<u64, 2> u64Masks{ 0ull, ~0ull };
 
-        if (src.size() < k)
+        if (src.usize() < k)
         {
             shuffle(src, prng);
         }
