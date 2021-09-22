@@ -24,7 +24,7 @@ namespace libPSI_Tests
         t.add("Psi_kkrt_FullSet_Test_Impl            ", Psi_kkrt_FullSet_Test_Impl);
         t.add("Psi_kkrt_SingletonSet_Test_Impl       ", Psi_kkrt_SingletonSet_Test_Impl);
 
-        t.add("EcdhPsi_EmptrySet_Test_Impl           ", EcdhPsi_EmptrySet_Test_Impl);
+        t.add("EcdhPsi_EmptySet_Test_Impl           ", EcdhPsi_EmptySet_Test_Impl);
         t.add("EcdhPsi_FullSet_Test_Impl             ", EcdhPsi_FullSet_Test_Impl);
         t.add("EcdhPsi_SingltonSet_Test_Impl         ", EcdhPsi_SingltonSet_Test_Impl);
 
@@ -41,39 +41,39 @@ namespace libPSI_Tests
         t.add("Psi_drrn_FullSet_Test_Impl            ", Psi_drrn_FullSet_Test_Impl);
         t.add("Psi_drrn_EmptySet_Test_Impl           ", Psi_drrn_EmptySet_Test_Impl);
 
-        //t.add("DktPsi_EmptrySet_Test_Impl            ", DktMPsi_EmptrySet_Test_Impl);
+        //t.add("DktPsi_EmptySet_Test_Impl            ", DktMPsi_EmptySet_Test_Impl);
         //t.add("DktPsi_FullSet_Test_Impl              ", DktMPsi_FullSet_Test_Impl);
         //t.add("DktPsi_SingltonSet_Test_Imp           ", DktMPsi_SingltonSet_Test_Impl);
 
 
-        t.add("DcwPsi_EmptrySet_Test_Impl            ", DcwRBfPsi_EmptrySet_Test_Impl);
+        t.add("DcwPsi_EmptySet_Test_Impl            ", DcwRBfPsi_EmptySet_Test_Impl);
         t.add("DcwPsi_FullSet_Test_Impl              ", DcwRBfPsi_FullSet_Test_Impl);
         t.add("DcwPsi_SingltonSet_Test_Imp           ", DcwRBfPsi_SingltonSet_Test_Impl);
 
-        t.add("RR16_EmptrySet_Test_Impl              ", AknBfPsi_EmptrySet_Test_Impl);
+        t.add("RR16_EmptySet_Test_Impl              ", AknBfPsi_EmptySet_Test_Impl);
         t.add("RR16_FullSet_Test_Impl                ", AknBfPsi_FullSet_Test_Impl);
         t.add("RR16_SingltonSet_Test_Impl            ", AknBfPsi_SingltonSet_Test_Impl);
 
         t.add("CuckooHasher_Test_Impl                ", CuckooHasher_Test_Impl);
         t.add("CuckooHasher_parallel_Test_Impl       ", CuckooHasher_parallel_Test_Impl);
 
-        t.add("Rr17a_Oos_EmptrySet_Test_Impl         ", Rr17a_Oos_EmptrySet_Test_Impl);
+        t.add("Rr17a_Oos_EmptySet_Test_Impl         ", Rr17a_Oos_EmptySet_Test_Impl);
         t.add("Rr17a_Oos_SingltonSet_Test_Impl       ", Rr17a_Oos_SingltonSet_Test_Impl);
         t.add("Rr17a_Oos_FullSet_Test_Impl           ", Rr17a_Oos_FullSet_Test_Impl);
         t.add("Rr17a_Oos_parallel_FullSet_Test_Impl  ", Rr17a_Oos_parallel_FullSet_Test_Impl);
 
-        t.add("Rr17a_SM_EmptrySet_Test_Impl          ", Rr17a_SM_EmptrySet_Test_Impl);
+        t.add("Rr17a_SM_EmptySet_Test_Impl          ", Rr17a_SM_EmptySet_Test_Impl);
         t.add("Rr17a_SM_SingltonSet_Test_Impl        ", Rr17a_SM_SingltonSet_Test_Impl);
         t.add("Rr17a_SM_FullSet_Test_Impl            ", Rr17a_SM_FullSet_Test_Impl);
         t.add("Rr17a_SM_parallel_FullSet_Test_Impl   ", Rr17a_SM_parallel_FullSet_Test_Impl);
 
-        t.add("Rr17b_Oos_EmptrySet_Test_Impl         ", Rr17b_Oos_EmptrySet_Test_Impl);
+        t.add("Rr17b_Oos_EmptySet_Test_Impl         ", Rr17b_Oos_EmptySet_Test_Impl);
         t.add("Rr17b_Oos_SingltonSet_Test_Impl       ", Rr17b_Oos_SingltonSet_Test_Impl);
         t.add("Rr17b_Oos_FullSet_Test_Impl           ", Rr17b_Oos_FullSet_Test_Impl);
         t.add("Rr17b_Oos_parallel_FullSet_Test_Impl  ", Rr17b_Oos_parallel_FullSet_Test_Impl);
 
 
-        t.add("Grr18_Oos_EmptrySet_Test_Impl         ", Grr18_Oos_EmptrySet_Test_Impl);
+        t.add("Grr18_Oos_EmptySet_Test_Impl         ", Grr18_Oos_EmptySet_Test_Impl);
         t.add("Grr18_Oos_FullSet_Test_Impl           ", Grr18_Oos_FullSet_Test_Impl);
         t.add("Grr18_Oos_parallel_FullSet_Test_Impl  ", Grr18_Oos_parallel_FullSet_Test_Impl);
         t.add("Grr18_Oos_SingltonSet_Test_Impl       ", Grr18_Oos_SingltonSet_Test_Impl);
