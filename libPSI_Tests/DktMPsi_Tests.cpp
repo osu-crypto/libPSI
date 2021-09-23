@@ -19,7 +19,7 @@ using namespace osuCrypto;
 
 #ifdef ENABLE_DKT_PSI
 
-void DktMPsi_EmptrySet_Test_Impl()
+void DktMPsi_EmptySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -184,7 +184,7 @@ void DktMPsi_SingltonSet_Test_Impl()
 }
 #else
 
-void DktMPsi_EmptrySet_Test_Impl()
+void DktMPsi_EmptySet_Test_Impl()
 {
     throw UnitTestSkipped("not enabled");
 }

@@ -19,7 +19,7 @@ using namespace osuCrypto;
 #ifdef ENABLE_DCW_PSI
 
 
-void DcwRBfPsi_EmptrySet_Test_Impl()
+void DcwRBfPsi_EmptySet_Test_Impl()
 {
     u64 repeatCount = 1;
     u64 setSize = 8, psiSecParam = 40;
@@ -228,7 +228,7 @@ void DcwRBfPsi_SingltonSet_Test_Impl()
 #else
 
 
-void DcwRBfPsi_EmptrySet_Test_Impl() { throw oc::UnitTestSkipped("ENABLE_DCW_PSI not defined"); }
+void DcwRBfPsi_EmptySet_Test_Impl() { throw oc::UnitTestSkipped("ENABLE_DCW_PSI not defined"); }
 void DcwRBfPsi_FullSet_Test_Impl() { throw oc::UnitTestSkipped("ENABLE_DCW_PSI not defined"); }
 void DcwRBfPsi_SingltonSet_Test_Impl() { throw oc::UnitTestSkipped("ENABLE_DCW_PSI not defined"); }
 
