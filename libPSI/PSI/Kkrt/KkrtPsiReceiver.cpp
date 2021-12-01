@@ -115,7 +115,7 @@ throw std::runtime_error("base OTs must be set or enable base OTs and IKNP in li
     void KkrtPsiReceiver::sendInput(span<block> inputs, span<Channel> chls)
     {
         // check that the number of inputs is as expected.
-        if (inputs.usize() != mRecverSize)
+        if (inputs.size() != mRecverSize)
             throw std::runtime_error("inputs.size() != mN");
         setTimePoint("kkrt.R Online.Start");
 

@@ -4,7 +4,7 @@
 #include "cryptoTools/Network/IOService.h"
 
 //using namespace std;
-#include "UnitTests.h"
+#include "libPSI_Tests/UnitTests.h"
 #include "cryptoTools/Common/Defines.h"
 //#include "cryptoTools/Common/Version.h"
 

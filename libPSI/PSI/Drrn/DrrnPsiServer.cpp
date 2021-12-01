@@ -491,11 +491,11 @@ namespace osuCrypto
             ret = left;
 
 
-        if (ret)
-            Expects(mCuckooData[ret - 1].mCuckooIdx < cuckooIdx);
+        //if (ret)
+        //    Expects(mCuckooData[ret - 1].mCuckooIdx < cuckooIdx);
 
-        if (ret != mCuckooData.usize())
-            Expects(mCuckooData[ret].mCuckooIdx >= cuckooIdx);
+        //if (ret != mCuckooData.size())
+        //    Expects(mCuckooData[ret].mCuckooIdx >= cuckooIdx);
 
         return ret;
     }

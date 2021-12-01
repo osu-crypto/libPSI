@@ -14,22 +14,19 @@ Protocols:
  
 ## Install
 
-Our library is cross platform and has been tested on both Windows and Linux. The library should work on Mac but it has not been tested. There are several library dependencies including [libOTe](https://github.com/osu-crypto/libOte), Boost, Miracl. First follow the instructions at libOTe. 
+Our library is cross platform and has been tested on both Windows and Linux. The library should work on Mac but it has not been tested. There are several library dependencies including [libOTe](https://github.com/osu-crypto/libOte). 
 
-
-libOTe and libPSI should share the same parent directory or libOTe should be installed, or similar.
 
 ```
-[libOTe clone build steps](https://github.com/osu-crypto/libOTe)
 git clone https://github.com/osu-crypto/libPSI.git
 cd libPSI
-bash build.sh
+python build.py
 ```
 
 Unit tests can be run by executing the program.
 
 ```
-frontend.exe -u
+/out/build/<platform>/frontend/frontend.exe -u
 ```
 Other options can be seen by executing with no arguments.
 ## Help

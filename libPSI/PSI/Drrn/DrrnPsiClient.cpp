@@ -42,7 +42,7 @@ namespace osuCrypto
 
     void DrrnPsiClient::recv(Channel s0, Channel s1, span<block> inputs)
     {
-        if (inputs.usize() != mClientSetSize)
+        if (inputs.size() != mClientSetSize)
             throw std::runtime_error(LOCATION);
 
         Matrix<u64> bins(mNumSimpleBins, mBinSize);

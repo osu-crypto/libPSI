@@ -164,7 +164,7 @@ namespace osuCrypto
         mOtSends.resize(chls.size());
         mOtRecvs.resize(chls.size());
 
-        for (u64 i = 0; i < chls.usize(); ++i)
+        for (u64 i = 0; i < chls.size(); ++i)
         {
             mOtSends[i] = std::move(otSend.splitBase());
             mOtRecvs[i] = std::move(otRecv.splitBase());
@@ -473,7 +473,7 @@ namespace osuCrypto
                         auto bin = mBins.getBin(bIdx);
                         auto binLoad = theirLoadsMaster[bIdx];
 
-                        for (u64 i = 0; i < bin.usize(); ++i)
+                        for (u64 i = 0; i < bin.size(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;

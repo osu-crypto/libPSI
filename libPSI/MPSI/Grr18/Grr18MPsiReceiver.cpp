@@ -188,7 +188,7 @@ namespace osuCrypto
         mOtSends.resize(chls.size());
 
         // now make the threads that will to the extension
-        for (u64 i = 0; i < chls.usize(); ++i)
+        for (u64 i = 0; i < chls.size(); ++i)
         {
             mOtRecvs[i] = std::move(otRecv.splitBase());
             mOtSends[i] = std::move(otSend.splitBase());
@@ -449,8 +449,6 @@ namespace osuCrypto
 
                 u64 keyMask = (maskSize >= 8) ? ~0ull : ~(~0ull << (maskSize * 8));
 
-                Expects(keyMask);
-
                 //std::unordered_map<u64, std::pair<i64, block>> maskMap; maskMap.reserve(mN * mBins.mMaxBinSize);
 
                 for (u64 bIdx = binStart, i = 0; bIdx < binEnd;)
@@ -464,7 +462,7 @@ namespace osuCrypto
                         auto binLoad = theirLoads[bIdx - binStart];
 
 
-                        for (u64 i = 0; i < bin.usize(); ++i)
+                        for (u64 i = 0; i < bin.size(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u64 innerOtIdx = otIdx;

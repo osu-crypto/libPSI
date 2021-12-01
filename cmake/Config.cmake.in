@@ -1,0 +1,17 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/libPSITargets.cmake")
+
+# when someone finds our project, we must then find our depandancies. 
+include("${CMAKE_CURRENT_LIST_DIR}/findDependancies.cmake")
+
+# define any variables you want consumers of your library ro be able to see.
+set(LIBPSI_ENABLE_X     @LIBPSI_ENABLE_X@)
+
+# set the library location and header location info from the target.
+get_target_property(libPSI_INCLUDE_DIRS oc::libPSI INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(libPSI_LIBRARIES oc::libPSI LOCATION)
+
+# print helper info on where the project was found. 
+message("libPSI_INCLUDE_DIRS=${libPSI_INCLUDE_DIRS}")
+message("libPSI_LIBRARIES=${libPSI_LIBRARIES}")

@@ -364,7 +364,7 @@ namespace osuCrypto
                         auto bin = mBins.getBin(bIdx);
 
                         // For the current bin, loop over the items that are in it.
-                        for (u64 i = 0; i < bin.usize(); ++i)
+                        for (u64 i = 0; i < bin.size(); ++i)
                         {
                             // bin[i] denotes the index if them input item that is stored at that location.
                             u64 inputIdx = bin[i];

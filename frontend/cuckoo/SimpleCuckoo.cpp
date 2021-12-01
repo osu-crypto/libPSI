@@ -130,7 +130,7 @@ namespace osuCrypto
 #endif // ! NDEBUG
 
 
-        for (u64 i = 0; i < inputIdxs.usize(); ++i)
+        for (u64 i = 0; i < inputIdxs.size(); ++i)
         {
             //std::cout << inputIdxs[i] << " hs ";
 

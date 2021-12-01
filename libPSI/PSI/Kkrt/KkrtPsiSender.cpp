@@ -288,7 +288,7 @@ namespace osuCrypto
         {
             // general proceedure for when numHashes != 3
             std::vector<u64> bIdxs(mNumHashFunctions);
-            for (u64 i = 0; i < items.usize(); i += hashs.size())
+            for (u64 i = 0; i < items.size(); i += hashs.size())
             {
                 auto min = std::min<u64>(items.size() - i, hashs.size());
 
@@ -328,7 +328,7 @@ namespace osuCrypto
 
     void KkrtPsiSender::sendInput(span<block> inputs, span<Channel> chls)
     {
-        if (inputs.usize() != mSenderSize)
+        if (inputs.size() != mSenderSize)
             throw std::runtime_error("rt error at " LOCATION);
 
         setTimePoint("kkrt.S Online.online start");
@@ -455,7 +455,7 @@ namespace osuCrypto
         // Also note that we can start sending them before all have been
         // encoded. This will allow us to start communicating data back to the
         // reciever almost right after all the corrections have been recieved.
-        for (u64 i = 0; i < inputs.usize();)
+        for (u64 i = 0; i < inputs.size();)
         {
             auto start = i;
             auto currentStepSize = std::min(stepSize, inputs.size() - i);

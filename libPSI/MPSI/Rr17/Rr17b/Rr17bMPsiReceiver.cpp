@@ -366,7 +366,7 @@ namespace osuCrypto
 
                         auto bin = mBins.getBin(bIdx);
 
-                        for (u64 i = 0; i < bin.usize(); ++i)
+                        for (u64 i = 0; i < bin.size(); ++i)
                         {
                             u64 inputIdx = bin[i];
                             u16 swapIdx = u16((prng.get<u16>() % (mBins.mMaxBinSize - i)) + i);

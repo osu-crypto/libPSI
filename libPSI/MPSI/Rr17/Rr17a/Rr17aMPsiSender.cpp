@@ -484,7 +484,7 @@ namespace osuCrypto
                         auto mm = maskIdx.fetch_add(bin.size(), std::memory_order::memory_order_relaxed);
 
 
-                        for (u64 i = 0; i < bin.usize(); ++i)
+                        for (u64 i = 0; i < bin.size(); ++i)
                         {
 
                             u64 inputIdx = bin[i];

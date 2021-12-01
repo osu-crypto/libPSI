@@ -1,8 +1,9 @@
 #include "EcdhPsiSender.h"
 #ifdef ENABLE_ECDH_PSI
 
+#include "cryptoTools/Crypto/RCurve.h"
 #ifndef ENABLE_RELIC
-#pragma error("ENABLE_RELIC must be defined in libOTe")
+static_assert(0, "ENABLE_RELIC must be defined in libOTe");
 #endif
 
 #include "cryptoTools/Crypto/Curve.h"

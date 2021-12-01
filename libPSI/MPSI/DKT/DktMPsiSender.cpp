@@ -1,9 +1,12 @@
 
 #include "libPSI/config.h"
 #ifdef ENABLE_DKT_PSI
+
+#include "cryptoTools/Crypto/RCurve.h"
 #ifndef ENABLE_RELIC
-#pragma error("ENABLE_RELIC must be defined in libOTe")
+static_assert(0, "ENABLE_RELIC must be defined in libOTe");
 #endif
+
 #include "DktMPsiSender.h"
 #include "cryptoTools/Crypto/RCurve.h"
 #include "cryptoTools/Crypto/RandomOracle.h"

@@ -58,7 +58,7 @@ namespace osuCrypto
 	{
 		auto kDepth = (k.size() - 1);
 		auto exp = (kDepth + log2floor(128 * g.size()) + 7) / 8;
-		if (idx.usize() != exp)  throw std::runtime_error("bad input size. " LOCATION);
+		if (idx.size() != exp)  throw std::runtime_error("bad input size. " LOCATION);
 
 		return  evalOne(BgiPirClient::bytesToUint128_t(idx), k, g, bb, ss, tt);
 	}
@@ -193,7 +193,7 @@ namespace osuCrypto
 		u64 depth = 0;
 		u64 end = (1ull << kDepth);
 
-		if (data.usize() != end * 128 * g.usize())
+		if (data.size() != end * 128 * g.size())
 			throw std::runtime_error(LOCATION);
 
 		std::vector<block> words(k.size());
@@ -231,7 +231,7 @@ namespace osuCrypto
 
 
 				BitIterator iter((u8*)gs, 0);
-				for (u64 i = 0; i < g.usize() * 128; ++i)
+				for (u64 i = 0; i < g.size() * 128; ++i)
 				{
 					if (*iter++)
 						sum = sum ^ *dataIter;
@@ -502,7 +502,7 @@ namespace osuCrypto
 				t[6] = lsb(ss[d][6]);
 				t[7] = lsb(ss[d][7]);
 
-				for (u64 i = 0; i < g.usize(); ++i)
+				for (u64 i = 0; i < g.size(); ++i)
 				{
 					temp[i][0] = (ss[d][0] & notThreeBlock) ^ toBlock(i);
 					temp[i][1] = (ss[d][1] & notThreeBlock) ^ toBlock(i);
@@ -515,9 +515,9 @@ namespace osuCrypto
 				}
 
 				// compute G(s) = AES_{x_i}(s) + s
-				aes[0].ecbEncBlocks(temp[0].data(), 8 * g.usize(), enc[0].data());
+				aes[0].ecbEncBlocks(temp[0].data(), 8 * g.size(), enc[0].data());
 
-				for (u64 i = 0; i < g.usize(); ++i)
+				for (u64 i = 0; i < g.size(); ++i)
 				{
 					//block b = temp[i][0];
 
@@ -552,7 +552,7 @@ namespace osuCrypto
 
 				for (u64 j = 0; j < 8; ++j)
 				{
-					for (u64 i = 0; i < g.usize(); ++i)
+					for (u64 i = 0; i < g.size(); ++i)
 					{
 						//block sss = ss.back()[i];
 						//block convert_;
@@ -602,7 +602,7 @@ namespace osuCrypto
 				auto inputIter6 = data.data() + ((u64(6) << d) + idx) * g.size() * 128;
 				auto inputIter7 = data.data() + ((u64(7) << d) + idx) * g.size() * 128;
 
-				for (u64 i = 0; i < 128 * g.usize(); ++i)
+				for (u64 i = 0; i < 128 * g.size(); ++i)
 				{
 
 					//for (u64 j = 0; j < 8; ++j)
@@ -928,7 +928,7 @@ namespace osuCrypto
 				t[6] = lsb(ss[d][6]);
 				t[7] = lsb(ss[d][7]);
 
-				for (u64 i = 0; i < g.usize(); ++i)
+				for (u64 i = 0; i < g.size(); ++i)
 				{
 					temp[i][0] = (ss[d][0] & notThreeBlock) ^ toBlock(i);
 					temp[i][1] = (ss[d][1] & notThreeBlock) ^ toBlock(i);
@@ -943,7 +943,7 @@ namespace osuCrypto
 				// compute G(s) = AES_{x_i}(s) + s
 				aes[0].ecbEncBlocks(temp[0].data(), 8 * g.size(), enc[0].data());
 
-				for (u64 i = 0; i < g.usize(); ++i)
+				for (u64 i = 0; i < g.size(); ++i)
 				{
 					temp[i][0] = temp[i][0] ^ enc[i][0];
 					temp[i][1] = temp[i][1] ^ enc[i][1];
@@ -969,7 +969,7 @@ namespace osuCrypto
 
 				for (u64 j = 0; j < 8; ++j)
 				{
-					for (u64 i = 0; i < g.usize(); ++i)
+					for (u64 i = 0; i < g.size(); ++i)
 					{
 						dest[0] = mask & _mm_srai_epi16(temp[i][j], 0);
 						dest[1] = mask & _mm_srai_epi16(temp[i][j], 1);
@@ -1067,7 +1067,7 @@ namespace osuCrypto
 			throw std::runtime_error(LOCATION);
 		init(k.size(), k[0].size(), g[0].size());
 
-		for (u64 i = 0; i < k.usize(); ++i)
+		for (u64 i = 0; i < k.size(); ++i)
 		{
 			setKey(i, k[i], g[i]);
 		}
@@ -1097,8 +1097,8 @@ namespace osuCrypto
 	{
 		//auto depth = kSize - 1;
 
-		if (k.usize() != mK.bounds()[0] ||
-			g.usize() != mG.bounds()[0])
+		if (k.size() != mK.bounds()[0] ||
+			g.size() != mG.bounds()[0])
 			throw std::runtime_error(LOCATION);
 
 		mS(0, i) = k[0];
@@ -1118,7 +1118,7 @@ namespace osuCrypto
 
     void BgiPirServer::MultiKey::setKey(u64 i, span<block> kg)
     {
-        if (mG.rows() + mK.rows() != kg.usize())
+        if (mG.rows() + mK.rows() != kg.size())
             throw std::runtime_error(LOCATION);
         span<block> k(kg.data(), mK.rows());
         span<block> g(kg.data() + mK.rows(), mG.rows());
@@ -1147,9 +1147,9 @@ namespace osuCrypto
 
 
 
-		if (GSL_UNLIKELY(mBIdx == 128))
+		if ((mBIdx == 128))
 		{
-			if (GSL_UNLIKELY(mGIdx == mG.bounds()[0]))
+			if ((mGIdx == mG.bounds()[0]))
 			{
 				mGIdx = 0;
 				if (mLeafIdx == end) throw std::runtime_error(LOCATION);

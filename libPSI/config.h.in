@@ -8,18 +8,6 @@ Config ERROR: libOTe is too old.
 
 #define ON 1
 
-#if ENABLE_RELIC !=  @ENABLE_RELIC@
-static_assert(0,"ENABLE_RELIC flag does not match with libOTe");
-#endif
-
-#if !defined(_MSC_VER) && (ENABLE_SIMPLESTOT_ASM !=  @ENABLE_SIMPLESTOT_ASM@)
-static_assert(0,"ENABLE_SIMPLESTOT_ASM flag does not match with libOTe");
-#endif
-
-#if !defined(_MSC_VER) && (ENABLE_MR_KYBER !=  @ENABLE_MR_KYBER@)
-static_assert(0,"ENABLE_MR_KYBER flag does not match with libOTe");
-#endif
-
 // build the library with DCW PSI enabled
 #cmakedefine ENABLE_DCW_PSI  @ENABLE_DCW_PSI@
 
