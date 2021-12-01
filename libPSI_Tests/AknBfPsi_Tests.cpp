@@ -20,7 +20,7 @@ using namespace osuCrypto;
 
 
 
-void AknBfPsi_EmptrySet_Test_Impl()
+void AknBfPsi_EmptySet_Test_Impl()
 {
 #ifdef ENABLE_RR16_PSI
 

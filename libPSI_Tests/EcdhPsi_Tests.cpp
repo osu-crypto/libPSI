@@ -18,7 +18,7 @@ using namespace osuCrypto;
 
 
 #ifdef ENABLE_ECDH_PSI
-void EcdhPsi_EmptrySet_Test_Impl()
+void EcdhPsi_EmptySet_Test_Impl()
 {
 
 	u64 setSize = 8, psiSecParam = 40;
@@ -180,7 +180,7 @@ void EcdhPsi_SingltonSet_Test_Impl()
 
 #else
 
-void EcdhPsi_EmptrySet_Test_Impl()
+void EcdhPsi_EmptySet_Test_Impl()
 {
     throw UnitTestSkipped("not enabled");
 }

@@ -157,7 +157,7 @@ void CuckooHasher_parallel_Test_Impl()
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_RR17_PSI
 
-void Rr17a_Oos_EmptrySet_Test_Impl()
+void Rr17a_Oos_EmptySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -434,7 +434,7 @@ void Rr17a_Oos_SingltonSet_Test_Impl()
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Rr17a_SM_EmptrySet_Test_Impl()
+void Rr17a_SM_EmptySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -667,7 +667,7 @@ void Rr17a_SM_SingltonSet_Test_Impl()
 
 #else
 
-void Rr17a_Oos_EmptrySet_Test_Impl()
+void Rr17a_Oos_EmptySet_Test_Impl()
 {
     throw UnitTestSkipped("Not enabled");
 }
@@ -686,7 +686,7 @@ void Rr17a_Oos_SingltonSet_Test_Impl()
     throw UnitTestSkipped("Not enabled");
 }
 
-void Rr17a_SM_EmptrySet_Test_Impl()
+void Rr17a_SM_EmptySet_Test_Impl()
 {
     throw UnitTestSkipped("Not enabled");
 }
@@ -728,7 +728,7 @@ void Rr17a_SM_SingltonSet_Test_Impl() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef ENABLE_RR17B_PSI
-void Rr17b_Oos_EmptrySet_Test_Impl()
+void Rr17b_Oos_EmptySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -957,7 +957,7 @@ void Rr17b_Oos_SingltonSet_Test_Impl()
 }
 #else
 
-void Rr17b_Oos_EmptrySet_Test_Impl()
+void Rr17b_Oos_EmptySet_Test_Impl()
 {
     throw UnitTestSkipped("Not enabled");
 }

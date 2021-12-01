@@ -39,7 +39,7 @@ using namespace oc;
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_GRR_PSI
 
-void Grr18_Oos_EmptrySet_Test_Impl()
+void Grr18_Oos_EmptySet_Test_Impl()
 {
     u64 setSize = 8, psiSecParam = 40;
     PRNG prng(_mm_set_epi32(4253465, 3434565, 234435, 23987045));
@@ -275,7 +275,7 @@ void Grr18_Oos_SingltonSet_Test_Impl()
 }
 #else
 
-void Grr18_Oos_EmptrySet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
+void Grr18_Oos_EmptySet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
 void Grr18_Oos_FullSet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
 void Grr18_Oos_parallel_FullSet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
 void Grr18_Oos_SingltonSet_Test_Impl() { throw UnitTestSkipped("not enabled"); }
