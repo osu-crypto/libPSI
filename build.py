@@ -87,6 +87,7 @@ def Build(projectName, argv):
     if not sudo:
         argv.append("-DSUDO_FETCH=OFF")
 
+    argv.append("-DENABLE_ALL_PSI=ON")
     generator = getGenerator(argv)
 
     # do not automaticly download dependancies
