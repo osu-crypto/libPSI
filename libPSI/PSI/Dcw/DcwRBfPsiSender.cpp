@@ -74,8 +74,8 @@ namespace osuCrypto {
             auto sendOtRountine = [this](u64 i, u64 total, OtExtSender& ots, block seed, Channel& chl)
             {
                 // compute the region of the OTs im going to do
-                u64 start = std::min(roundUpTo(i * mSendOtMessages.size() / total, 128), mSendOtMessages.size());
-                u64 end = std::min(roundUpTo((i + 1) * mSendOtMessages.size() / total, 128), mSendOtMessages.size());
+                u64 start = std::min<u64>(roundUpTo(i * mSendOtMessages.size() / total, 128), mSendOtMessages.size());
+                u64 end = std::min<u64>(roundUpTo((i + 1) * mSendOtMessages.size() / total, 128), mSendOtMessages.size());
 
                 //std::cout << IoStream::lock << "send Chl " << chl.getName() <<" "<< i << "/"<< total << " get " << start << " - " << end << std::endl << IoStream::unlock;
 
