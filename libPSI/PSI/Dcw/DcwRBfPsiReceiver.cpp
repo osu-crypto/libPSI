@@ -73,8 +73,8 @@ namespace osuCrypto
             auto recvOtRountine = [this](u64 i, u64 total, OtExtReceiver& ots, block seed, Channel& chl)
             {
                 // compute the region of the OTs im going to do
-                u64 start = std::min(roundUpTo(i * mMessages.size() / total, 128), mMessages.size());
-                u64 end = std::min(roundUpTo((i + 1) * mMessages.size() / total, 128), mMessages.size());
+                u64 start = std::min<u64>(roundUpTo(i * mMessages.size() / total, 128), mMessages.size());
+                u64 end = std::min<u64>(roundUpTo((i + 1) * mMessages.size() / total, 128), mMessages.size());
                 //std::cout << IoStream::lock << "recv Chl " << chl.getName() << " get " << start << " - " << end << std::endl << IoStream::unlock;
 
                 if (end - start)
