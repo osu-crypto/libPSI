@@ -171,7 +171,7 @@ namespace osuCrypto
                 auto bIdx60 = CuckooIndex<>::getHash(hashs[6], 0, numBins);
                 auto bIdx70 = CuckooIndex<>::getHash(hashs[7], 0, numBins);
 
-                // update the map with these bin indexs
+                // update the map with these bin indexes
                 mItemToBinMap(itemIdx0, 0) = bIdx00;
                 mItemToBinMap(itemIdx1, 0) = bIdx10;
                 mItemToBinMap(itemIdx2, 0) = bIdx20;
@@ -286,7 +286,7 @@ namespace osuCrypto
         }
         else
         {
-            // general proceedure for when numHashes != 3
+            // general procedure for when numHashes != 3
             std::vector<u64> bIdxs(mNumHashFunctions);
             for (u64 i = 0; i < items.size(); i += hashs.size())
             {
@@ -360,11 +360,11 @@ namespace osuCrypto
         std::atomic<u64> recvedIdx(0);
 
 
-        // spin off anothe thread that will schedule the corrections to be received.
+        // spin off another thread that will schedule the corrections to be received.
         // This thread does not actually do any work and could be removed somehow.
         auto thrd = std::thread([&]() {
 
-            // while there are more corrections for be recieved
+            // while there are more corrections for be received
             while (recvedIdx < numBins)
             {
                 // compute the  size of the current step and the end index
@@ -383,7 +383,7 @@ namespace osuCrypto
         setTimePoint("kkrt.S Online.hashing start");
 
         // hash the items to bins. Instead of inserting items into bins,
-        // we will just keep track of a map mapping input index to bin indexs
+        // we will just keep track of a map mapping input index to bin indexes
         //
         // e.g.   binIdxs[i] -> { h0(input[i]), h1(input[i]), h2(input[i]) }
         //
@@ -396,7 +396,7 @@ namespace osuCrypto
         // of the corrections have beed received. In the case that the current item
         // is mapped to a bin where we do not have the correction, we will simply
         // skip this item for now. Once all corrections have been received, we
-        // will make a second pass over the inputs and enocde them all.
+        // will make a second pass over the inputs and encode them all.
 
         // the current input index
         u64 i = 0;
@@ -404,7 +404,7 @@ namespace osuCrypto
         // the index of the corrections that have been received in the other thread.
         u64 r = 0;
 
-        // while not all the corrections have been recieved, try to encode any that we can
+        // while not all the corrections have been received, try to encode any that we can
         while (r != numBins)
         {
             // process things in steps
@@ -419,7 +419,7 @@ namespace osuCrypto
                 {
                     auto& bIdx = binIdxs(inputIdx, h);
 
-                    // if the bin index is less than r, then we have recieved
+                    // if the bin index is less than r, then we have received
                     // the correction and can encode it
                     if (bIdx < r)
                     {
@@ -445,8 +445,8 @@ namespace osuCrypto
         setTimePoint("kkrt.S Online.linear start");
         auto encoding = myMaskBuff.data();
 
-        // OK, all corrections have been recieved. It is now safe to start sending
-        // masks to the reciever. We will send them in permuted order
+        // OK, all corrections have been received. It is now safe to start sending
+        // masks to the receiver. We will send them in permuted order
         //     mPermute[0],
         //     mPermute[1],
         //        ...
@@ -454,7 +454,7 @@ namespace osuCrypto
         //
         // Also note that we can start sending them before all have been
         // encoded. This will allow us to start communicating data back to the
-        // reciever almost right after all the corrections have been recieved.
+        // receiver almost right after all the corrections have been received.
         for (u64 i = 0; i < inputs.size();)
         {
             auto start = i;
@@ -471,7 +471,7 @@ namespace osuCrypto
 
                     auto bIdx = binIdxs(inputIdx, h);
 
-                    // see if we have alreadt encoded this items
+                    // see if we have already encoded this items
                     if (bIdx != u64(-1))
                     {
                         mOtSender->encode(bIdx, &inputs[inputIdx], encoding, myMaskBuff.stride());
