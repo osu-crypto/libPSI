@@ -12,7 +12,7 @@
 #include "Grr18MPSI_Tests.h"
 #include "BgiPirTests.h"
 #include "DrrnPsi_Tests.h"
-
+#include "FileBase_Tests.h"
 using namespace osuCrypto;
 namespace libPSI_Tests
 {
@@ -24,9 +24,15 @@ namespace libPSI_Tests
         t.add("Psi_kkrt_FullSet_Test_Impl            ", Psi_kkrt_FullSet_Test_Impl);
         t.add("Psi_kkrt_SingletonSet_Test_Impl       ", Psi_kkrt_SingletonSet_Test_Impl);
 
-        t.add("EcdhPsi_EmptySet_Test_Impl           ", EcdhPsi_EmptySet_Test_Impl);
+        t.add("filebase_readSet_Test                 ", filebase_readSet_Test);
+        t.add("filebase_kkrt_bin_Test                ", filebase_kkrt_bin_Test);
+        t.add("filebase_kkrt_csv_Test                ", filebase_kkrt_csv_Test);
+        t.add("filebase_kkrt_csvh_Test               ", filebase_kkrt_csvh_Test);
+
+        t.add("EcdhPsi_EmptySet_Test_Impl            ", EcdhPsi_EmptySet_Test_Impl);
         t.add("EcdhPsi_FullSet_Test_Impl             ", EcdhPsi_FullSet_Test_Impl);
         t.add("EcdhPsi_SingltonSet_Test_Impl         ", EcdhPsi_SingltonSet_Test_Impl);
+        t.add("filebase_ecdh_bin_Test                ", filebase_ecdh_bin_Test);
 
 
         t.add("BgiPir_keyGen_128_test                ", BgiPir_keyGen_128_test);
@@ -46,7 +52,7 @@ namespace libPSI_Tests
         //t.add("DktPsi_SingltonSet_Test_Imp           ", DktMPsi_SingltonSet_Test_Impl);
 
 
-        t.add("DcwPsi_EmptySet_Test_Impl            ", DcwRBfPsi_EmptySet_Test_Impl);
+        t.add("DcwPsi_EmptySet_Test_Impl             ", DcwRBfPsi_EmptySet_Test_Impl);
         t.add("DcwPsi_FullSet_Test_Impl              ", DcwRBfPsi_FullSet_Test_Impl);
         t.add("DcwPsi_SingltonSet_Test_Imp           ", DcwRBfPsi_SingltonSet_Test_Impl);
 
@@ -66,6 +72,7 @@ namespace libPSI_Tests
         t.add("Rr17a_SM_SingltonSet_Test_Impl        ", Rr17a_SM_SingltonSet_Test_Impl);
         t.add("Rr17a_SM_FullSet_Test_Impl            ", Rr17a_SM_FullSet_Test_Impl);
         t.add("Rr17a_SM_parallel_FullSet_Test_Impl   ", Rr17a_SM_parallel_FullSet_Test_Impl);
+        t.add("filebase_rr17a_bin_Test                ", filebase_rr17a_bin_Test);
 
         t.add("Rr17b_Oos_EmptySet_Test_Impl         ", Rr17b_Oos_EmptySet_Test_Impl);
         t.add("Rr17b_Oos_SingltonSet_Test_Impl       ", Rr17b_Oos_SingltonSet_Test_Impl);

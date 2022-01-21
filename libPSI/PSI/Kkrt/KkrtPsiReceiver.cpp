@@ -52,7 +52,7 @@ namespace osuCrypto
         mSenderSize = senderSize;
         mRecverSize = recverSize;
 
-        mIndex.init(recverSize, statSecParam, 0,3);
+        mIndex.init(std::max<u64>(200, recverSize), statSecParam, 0,3);
 
         //mNumStash = get_stash_size(recverSize);
 

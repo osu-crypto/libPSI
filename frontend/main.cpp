@@ -44,6 +44,8 @@ using namespace osuCrypto;
 #include "libPSI/Tools/SimpleIndex.h"
 #include "libOTe/Tools/LinearCode.h"
 #include "libOTe/Tools/bch511.h"
+#include "libPSI/Tools/fileBased.h"
+
 std::vector<std::string>
 DcwrTags{ "dcwr" },
 rr16Tags{ "rr16" },
@@ -377,9 +379,6 @@ void BallsAndBins(CLP& cmd)
     }
 }
 
-void doFilePSI(const CLP& cmd);
-
-void padSmallSet(std::vector<osuCrypto::block>& set, osuCrypto::u64& theirSize, osuCrypto::CLP& cmd);
 
 int main(int argc, char** argv)
 {
