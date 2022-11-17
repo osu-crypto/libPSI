@@ -133,20 +133,28 @@ void banchmarkPIR(
 		auto go = [&](LaunchParams& params)
 		{
 			EpMode m1, m2;
+
+			std::string name0, name1;
 			if (params.mIdx == 0)
 			{
 				m1 = m2 = EpMode::Client;
+				name0 = "client-server0";
+				name1 = "client-server1";
 			}
 			else if (params.mIdx == 1) {
 				m1 = EpMode::Server;
 				m2 = EpMode::Client;
+				name0 = "client-server0";
+				name1 = "server0-server1";
 			}
 			else {
 				m1 = m2 = EpMode::Server;
+				name0 = "client-server1";
+				name1 = "server0-server1";
 			}
 
-			Endpoint ep1(ios, params.mHostName, m1);
-			Endpoint ep2(ios, params.mHostName, m2);
+			Endpoint ep1(ios, params.mHostName, m1, name0);;
+			Endpoint ep2(ios, params.mHostName, m2, name1);
 			params.mChls.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 			params.mChls2.resize(*std::max_element(params.mNumThreads.begin(), params.mNumThreads.end()));
 
