@@ -1,6 +1,8 @@
 # libPSI
-A repository for private set intersection. Most protocols were written just for benchmarking them while (RR17,KKRT,Mea86=ECDH) can be run from the command line and take a file as input. Run the program for details.
+A repository for private set intersection. Most protocols were written just for benchmarking them while (RR17,KKRT,Mea86=ECDH) can be run from the command line and take a file as input. Run the program for details. 
 
+## VolePSI
+Also consider using https://github.com/Visa-Research/volepsi/ for improved performance.
 
 ## Introduction
 Protocols:
