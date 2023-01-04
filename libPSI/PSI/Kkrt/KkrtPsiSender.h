@@ -22,7 +22,7 @@ namespace osuCrypto
 
 		u64 mSenderSize, mRecverSize, mStatSecParam;
         PRNG mPrng;
-        std::vector<u64>mPermute;
+        std::vector<u32> mPermute, mPermuteInv;
 
 		//SimpleIndex mIndex;
         CuckooParam mParams;

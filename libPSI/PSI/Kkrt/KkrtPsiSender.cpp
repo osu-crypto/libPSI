@@ -11,6 +11,7 @@
 #include "cryptoTools/Common/CuckooIndex.h"
 //#include <unordered_map>
 #include "libPSI/Tools/SimpleIndex.h"
+#include <numeric>
 
 
 namespace osuCrypto
@@ -89,12 +90,20 @@ namespace osuCrypto
         //setTimePoint("kkrt.s InitS.extFinished");
 
         setTimePoint("kkrt.S offline.perm start");
+
+        if (mSenderSize > std::numeric_limits<u32>::max())
+            throw RTE_LOC;
         mPermute.resize(mSenderSize);
-        for (u64 i = 0; i < mSenderSize; ++i) mPermute[i] = i;
+        mPermuteInv.resize(mSenderSize);
+        std::iota(mPermute.begin(), mPermute.end(), u32(0));
 
         //mPermute position
-        std::shuffle(mPermute.begin(), mPermute.end(), mPrng);
-
+        for(u64 i =0; i < mPermute.size(); ++i)
+        {
+            auto j = (mPrng.get<u64>() % (mSenderSize - i)) + i;
+            std::swap(mPermute[i], mPermute[j]);
+            mPermuteInv[mPermute[i]] = i;
+        }
         setTimePoint("kkrt.S offline.perm done");
 
     }
@@ -120,7 +129,7 @@ namespace osuCrypto
         u64 numBins,
         PRNG& prng,
         MatrixView<u8> masks,
-        span<u64> perm)
+        span<u32> perm)
     {
 
         std::array<block, 8> hashs;
@@ -252,14 +261,14 @@ namespace osuCrypto
                 mItemToBinMap(itemIdx6, 2) = bIdx62 | (c62 * u64(-1));
                 mItemToBinMap(itemIdx7, 2) = bIdx72 | (c72 * u64(-1));
 
-                prngs[0].get(masks.data() + (perm[itemIdx0] * mNumHashFunctions + 2) * masks.stride(), c01 * masks.stride());
-                prngs[1].get(masks.data() + (perm[itemIdx1] * mNumHashFunctions + 2) * masks.stride(), c11 * masks.stride());
-                prngs[2].get(masks.data() + (perm[itemIdx2] * mNumHashFunctions + 2) * masks.stride(), c21 * masks.stride());
-                prngs[3].get(masks.data() + (perm[itemIdx3] * mNumHashFunctions + 2) * masks.stride(), c31 * masks.stride());
-                prngs[4].get(masks.data() + (perm[itemIdx4] * mNumHashFunctions + 2) * masks.stride(), c41 * masks.stride());
-                prngs[5].get(masks.data() + (perm[itemIdx5] * mNumHashFunctions + 2) * masks.stride(), c51 * masks.stride());
-                prngs[6].get(masks.data() + (perm[itemIdx6] * mNumHashFunctions + 2) * masks.stride(), c61 * masks.stride());
-                prngs[7].get(masks.data() + (perm[itemIdx7] * mNumHashFunctions + 2) * masks.stride(), c71 * masks.stride());
+                prngs[0].get(masks.data() + (perm[itemIdx0] * mNumHashFunctions + 2) * masks.stride(), c02 * masks.stride());
+                prngs[1].get(masks.data() + (perm[itemIdx1] * mNumHashFunctions + 2) * masks.stride(), c12 * masks.stride());
+                prngs[2].get(masks.data() + (perm[itemIdx2] * mNumHashFunctions + 2) * masks.stride(), c22 * masks.stride());
+                prngs[3].get(masks.data() + (perm[itemIdx3] * mNumHashFunctions + 2) * masks.stride(), c32 * masks.stride());
+                prngs[4].get(masks.data() + (perm[itemIdx4] * mNumHashFunctions + 2) * masks.stride(), c42 * masks.stride());
+                prngs[5].get(masks.data() + (perm[itemIdx5] * mNumHashFunctions + 2) * masks.stride(), c52 * masks.stride());
+                prngs[6].get(masks.data() + (perm[itemIdx6] * mNumHashFunctions + 2) * masks.stride(), c62 * masks.stride());
+                prngs[7].get(masks.data() + (perm[itemIdx7] * mNumHashFunctions + 2) * masks.stride(), c72 * masks.stride());
             }
 
             // in case the input does not divide evenly by 8, handle the last few items.
@@ -388,7 +397,7 @@ namespace osuCrypto
         // e.g.   binIdxs[i] -> { h0(input[i]), h1(input[i]), h2(input[i]) }
         //
         Matrix<u64> binIdxs(inputs.size(), mParams.mNumHashes);
-        hashItems(inputs, binIdxs, mHashingSeed, numBins, mPrng, myMaskBuff, mPermute);
+        hashItems(inputs, binIdxs, mHashingSeed, numBins, mPrng, myMaskBuff, mPermuteInv);
 
         setTimePoint("kkrt.S Online.computeBucketMask start");
 
@@ -425,6 +434,7 @@ namespace osuCrypto
                     {
                         // write the encoding into myMaskBuff at position  i, h
                         auto encoding = myMaskBuff.data() + (i * mParams.mNumHashes + h) * myMaskBuff.stride();
+
                         mOtSender->encode(bIdx, &inputs[inputIdx], encoding, myMaskBuff.stride());
 
                         // make this location as already been encoded
