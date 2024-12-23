@@ -132,7 +132,7 @@ namespace osuCrypto
                 recvBaseMsg.begin(),
                 recvBaseMsg.begin() + baseOtCount);
 
-            otSend.setBaseOts(kcoSendBase, kcoSendBaseChoice, chl0);
+            otSend.setBaseOts(kcoSendBase, kcoSendBaseChoice, mPrng, chl0);
 
 
             // now lets extend these recv OTs in the other direction
@@ -282,7 +282,7 @@ namespace osuCrypto
             for (u64 i = 0; i < maskPerm.size(); ++i)
                 maskPerm[i] = i;
 
-            std::random_shuffle(maskPerm.begin(), maskPerm.end(), prng);
+            std::shuffle(maskPerm.begin(), maskPerm.end(), prng);
             //u64 l, u32Max = (u32(-1));
             //for (l = maskPerm.size(); l > u32Max; --l)
             //{
@@ -426,7 +426,7 @@ namespace osuCrypto
                     {
 
                         auto bin = mBins.getBin(bIdx);
-                        std::random_shuffle(permutation.begin(), permutation.end(), prng);
+                        std::shuffle(permutation.begin(), permutation.end(), prng);
 
                         for (u64 i = 0; i < permutation.size(); ++i)
                         {
@@ -481,7 +481,7 @@ namespace osuCrypto
                     for (u64 stepIdx = 0; stepIdx < currentStepSize; ++bIdx, ++stepIdx)
                     {
                         auto bin = mBins.getBin(bIdx);
-                        auto mm = maskIdx.fetch_add(bin.size(), std::memory_order::memory_order_relaxed);
+                        auto mm = maskIdx.fetch_add(bin.size(), std::memory_order_relaxed);
 
 
                         for (u64 i = 0; i < bin.size(); ++i)

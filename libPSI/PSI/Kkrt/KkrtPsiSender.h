@@ -8,7 +8,7 @@
 #include <cryptoTools/Network/Channel.h>
 #include <libOTe/NChooseOne/NcoOtExt.h>
 #include "cryptoTools/Crypto/PRNG.h"
-#include <cryptoTools/Common/CuckooIndex.h>
+#include "libPSI/Tools/CuckooIndex2.h"
 
 namespace osuCrypto
 {
@@ -25,7 +25,7 @@ namespace osuCrypto
         std::vector<u32> mPermute, mPermuteInv;
 
 		//SimpleIndex mIndex;
-        CuckooParam mParams;
+        old::CuckooParam mParams;
 		block mHashingSeed;
 
         NcoOtExtSender* mOtSender;

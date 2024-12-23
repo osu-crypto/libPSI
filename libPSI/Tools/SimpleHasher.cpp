@@ -68,7 +68,7 @@ namespace osuCrypto
 
         for (u64 i = 0; i < mBinCount; ++i)
         {
-            mBinSizes[i].store(0, std::memory_order::memory_order_relaxed);
+            mBinSizes[i].store(0, std::memory_order_relaxed);
         }
 
         if (secParam == 40)

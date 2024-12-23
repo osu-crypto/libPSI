@@ -56,7 +56,7 @@ namespace osuCrypto
             std::vector<u32> pi1(serverPsiInputSize), sigma(mIndex.mParams.mNumHashes);
             for (u32 i = 0; i < sigma.size(); ++i) sigma[i] = i;
             for (u32 i = 0; i < pi1.size(); ++i) pi1[i] = i;
-            std::random_shuffle(pi1.begin(), pi1.end(), prng);
+            std::shuffle(pi1.begin(), pi1.end(), prng);
 
             std::vector<block>
                 r(serverPsiInputSize),
@@ -75,7 +75,7 @@ namespace osuCrypto
             auto rIter = r.begin();
             for (u64 i = 0; i < mClientSetSize; ++i)
             {
-                std::random_shuffle(sigma.begin(), sigma.end(), prng);
+                std::shuffle(sigma.begin(), sigma.end(), prng);
                 for (u64 j = 1; j < sigma.size(); ++j)
                 {
                     std::swap(rIter[j], rIter[sigma[j]]);

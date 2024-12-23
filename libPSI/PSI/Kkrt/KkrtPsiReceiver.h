@@ -8,7 +8,7 @@
 #include "cryptoTools/Network/Channel.h"
 #include "libOTe/NChooseOne/NcoOtExt.h"
 #include "libPSI/Tools/CuckooHasher.h"
-#include "cryptoTools/Common/CuckooIndex.h"
+#include "libPSI/Tools/CuckooIndex2.h"
 
 namespace osuCrypto
 {
@@ -21,7 +21,7 @@ namespace osuCrypto
 
         u64 mRecverSize,mSenderSize,mStatSecParam;
         std::vector<u64> mIntersection;
-        CuckooIndex<NotThreadSafe> mIndex;
+        old::CuckooIndex<old::NotThreadSafe> mIndex;
 
         NcoOtExtReceiver * mOtRecv;
 

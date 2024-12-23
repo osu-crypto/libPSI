@@ -388,7 +388,7 @@ namespace osuCrypto
                         permutation.resize(load);
                         for (size_t i = 0; i < permutation.size(); i++)
                             permutation[i] = (u16)i;
-                        std::random_shuffle(permutation.begin(), permutation.end(), prng);
+                        std::shuffle(permutation.begin(), permutation.end(), prng);
 
                         for (u64 i = 0; i < permutation.size(); ++i)
                         {
@@ -499,7 +499,7 @@ namespace osuCrypto
 
                                 //oo << "   " << sendMask << " ^ " << recvMasks[inputIdx];
                                 sendMask = sendMask ^ inBlock;
-                                key = (sendMask.as<u64>()[0]) & keyMask;
+                                key = (sendMask.get<u64>()[0]) & keyMask;
                                 //oo << " -> " << sendMask << "   ~  " << key << "  ~ " << innerOtIdx << std::endl;
 
 

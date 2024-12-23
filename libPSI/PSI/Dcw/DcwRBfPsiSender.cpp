@@ -181,7 +181,7 @@ namespace osuCrypto {
             for (u64 j = 0; j < mHashs.size(); ++j)
             {
                 auto hashOut = mHashs[j].ecbEncBlock(inputs[i]) ^ inputs[i];
-                auto idx = hashOut.as<u64>();
+                auto idx = hashOut.get<u64>();
                 idx[0] %= mBfBitCount;
                 idx[1] %= mBfBitCount;
 

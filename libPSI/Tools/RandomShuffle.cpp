@@ -10,7 +10,7 @@ namespace osuCrypto
     }
     void RandomShuffle::shuffle(span<u64> vals, PRNG& prng)
     {
-        std::random_shuffle(vals.begin(), vals.end(), prng);
+        std::shuffle(vals.begin(), vals.end(), prng);
     }
 
     void RandomShuffle::parallelShuffle(span<u64> vals, u64 t, u64 nt)

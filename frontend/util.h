@@ -1,6 +1,8 @@
 #pragma once
 #include "cryptoTools/Network/Channel.h"
 #include "cryptoTools/Common/CLP.h"
+#include "cryptoTools/Network/Channel.h"
+
 using namespace osuCrypto;
 
 template<typename ... Args>

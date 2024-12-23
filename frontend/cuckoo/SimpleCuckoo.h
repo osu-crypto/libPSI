@@ -99,7 +99,7 @@ namespace osuCrypto
 			std::vector<block> bb(mParams.mNumHashes);
 			Matrix<u64> hh(hashs.size(), mParams.mNumHashes);
 
-			for (i64 i = 0; i < hashs.size(); ++i)
+			for (i64 i = 0; i < i64(hashs.size()); ++i)
 			{
 				AES aes(hashs[i]);
 				aes.ecbEncCounterMode(0, bb.size(), bb.data());

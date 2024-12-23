@@ -328,7 +328,7 @@ namespace osuCrypto
                         block item = inputHasher.ecbEncBlock(inputs[i]);
 
                         // compute the bin index as the low bits mod #bins
-                        u64 addr =item.as<u64>()[0] % mBins.mBinCount;
+                        u64 addr =item.get<u64>()[0] % mBins.mBinCount;
 
                         // phase the item by removing log( #bin ) low bits. High bits just get ignored.
                         item = shiftRight(item, phaseShift);

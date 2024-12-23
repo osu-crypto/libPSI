@@ -25,3 +25,12 @@ add_executable(frontend.exe ${SRC_FRONTEND})
 #############################################
 
 target_link_libraries(frontend.exe PUBLIC libPSI libPSI_Tests oc::libOTe_Tests oc::tests_cryptoTools)
+
+
+if(MSVC)
+    target_compile_options(frontend.exe PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/std:c++${LIBPSI_STD_VER}>)
+    #target_compile_options(libOTe PRIVATE -openmp:experimental)
+else()
+    target_compile_options(frontend.exe PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-std=c++${LIBPSI_STD_VER}>)
+
+endif()

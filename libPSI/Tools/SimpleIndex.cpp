@@ -2,7 +2,7 @@
 #include "cryptoTools/Crypto/PRNG.h"
 #include <random>
 #include "cryptoTools/Common/Log.h"
-#include "cryptoTools/Common/CuckooIndex.h"
+#include "libPSI/Tools/CuckooIndex2.h"
 #include <numeric>
 #include <boost/math/special_functions/binomial.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
@@ -158,14 +158,14 @@ namespace osuCrypto
                 hashs[6] = hashs[6] ^ items[itemIdx6];
                 hashs[7] = hashs[7] ^ items[itemIdx7];
 
-                auto bIdx00 = CuckooIndex<>::getHash(hashs[0], 0, mNumBins);
-                auto bIdx10 = CuckooIndex<>::getHash(hashs[1], 0, mNumBins);
-                auto bIdx20 = CuckooIndex<>::getHash(hashs[2], 0, mNumBins);
-                auto bIdx30 = CuckooIndex<>::getHash(hashs[3], 0, mNumBins);
-                auto bIdx40 = CuckooIndex<>::getHash(hashs[4], 0, mNumBins);
-                auto bIdx50 = CuckooIndex<>::getHash(hashs[5], 0, mNumBins);
-                auto bIdx60 = CuckooIndex<>::getHash(hashs[6], 0, mNumBins);
-                auto bIdx70 = CuckooIndex<>::getHash(hashs[7], 0, mNumBins);
+                auto bIdx00 = old::CuckooIndex<>::getHash(hashs[0], 0, mNumBins);
+                auto bIdx10 = old::CuckooIndex<>::getHash(hashs[1], 0, mNumBins);
+                auto bIdx20 = old::CuckooIndex<>::getHash(hashs[2], 0, mNumBins);
+                auto bIdx30 = old::CuckooIndex<>::getHash(hashs[3], 0, mNumBins);
+                auto bIdx40 = old::CuckooIndex<>::getHash(hashs[4], 0, mNumBins);
+                auto bIdx50 = old::CuckooIndex<>::getHash(hashs[5], 0, mNumBins);
+                auto bIdx60 = old::CuckooIndex<>::getHash(hashs[6], 0, mNumBins);
+                auto bIdx70 = old::CuckooIndex<>::getHash(hashs[7], 0, mNumBins);
 
                 mBins(bIdx00, mBinSizes[bIdx00]++).set(itemIdx0, 0, false);
                 mBins(bIdx10, mBinSizes[bIdx10]++).set(itemIdx1, 0, false);
@@ -185,14 +185,14 @@ namespace osuCrypto
                 mItemToBinMap(itemIdx6, 0) = bIdx60;
                 mItemToBinMap(itemIdx7, 0) = bIdx70;
 
-                auto bIdx01 = CuckooIndex<>::getHash(hashs[0], 1, mNumBins);
-                auto bIdx11 = CuckooIndex<>::getHash(hashs[1], 1, mNumBins);
-                auto bIdx21 = CuckooIndex<>::getHash(hashs[2], 1, mNumBins);
-                auto bIdx31 = CuckooIndex<>::getHash(hashs[3], 1, mNumBins);
-                auto bIdx41 = CuckooIndex<>::getHash(hashs[4], 1, mNumBins);
-                auto bIdx51 = CuckooIndex<>::getHash(hashs[5], 1, mNumBins);
-                auto bIdx61 = CuckooIndex<>::getHash(hashs[6], 1, mNumBins);
-                auto bIdx71 = CuckooIndex<>::getHash(hashs[7], 1, mNumBins);
+                auto bIdx01 = old::CuckooIndex<>::getHash(hashs[0], 1, mNumBins);
+                auto bIdx11 = old::CuckooIndex<>::getHash(hashs[1], 1, mNumBins);
+                auto bIdx21 = old::CuckooIndex<>::getHash(hashs[2], 1, mNumBins);
+                auto bIdx31 = old::CuckooIndex<>::getHash(hashs[3], 1, mNumBins);
+                auto bIdx41 = old::CuckooIndex<>::getHash(hashs[4], 1, mNumBins);
+                auto bIdx51 = old::CuckooIndex<>::getHash(hashs[5], 1, mNumBins);
+                auto bIdx61 = old::CuckooIndex<>::getHash(hashs[6], 1, mNumBins);
+                auto bIdx71 = old::CuckooIndex<>::getHash(hashs[7], 1, mNumBins);
 
                 bool c01 = bIdx00 == bIdx01;
                 bool c11 = bIdx10 == bIdx11;
@@ -223,14 +223,14 @@ namespace osuCrypto
                 mItemToBinMap(itemIdx7, 1) = bIdx71 | ((u8)c71 & 1) * u64(-1);
 
 
-                auto bIdx02 = CuckooIndex<>::getHash(hashs[0], 2, mNumBins);
-                auto bIdx12 = CuckooIndex<>::getHash(hashs[1], 2, mNumBins);
-                auto bIdx22 = CuckooIndex<>::getHash(hashs[2], 2, mNumBins);
-                auto bIdx32 = CuckooIndex<>::getHash(hashs[3], 2, mNumBins);
-                auto bIdx42 = CuckooIndex<>::getHash(hashs[4], 2, mNumBins);
-                auto bIdx52 = CuckooIndex<>::getHash(hashs[5], 2, mNumBins);
-                auto bIdx62 = CuckooIndex<>::getHash(hashs[6], 2, mNumBins);
-                auto bIdx72 = CuckooIndex<>::getHash(hashs[7], 2, mNumBins);
+                auto bIdx02 = old::CuckooIndex<>::getHash(hashs[0], 2, mNumBins);
+                auto bIdx12 = old::CuckooIndex<>::getHash(hashs[1], 2, mNumBins);
+                auto bIdx22 = old::CuckooIndex<>::getHash(hashs[2], 2, mNumBins);
+                auto bIdx32 = old::CuckooIndex<>::getHash(hashs[3], 2, mNumBins);
+                auto bIdx42 = old::CuckooIndex<>::getHash(hashs[4], 2, mNumBins);
+                auto bIdx52 = old::CuckooIndex<>::getHash(hashs[5], 2, mNumBins);
+                auto bIdx62 = old::CuckooIndex<>::getHash(hashs[6], 2, mNumBins);
+                auto bIdx72 = old::CuckooIndex<>::getHash(hashs[7], 2, mNumBins);
 
 
                 bool c02 = bIdx00 == bIdx02 || bIdx01 == bIdx02;
@@ -270,7 +270,7 @@ namespace osuCrypto
                 std::vector<u64> bIdxs(mNumHashFunctions);
                 for (u64 h = 0; h < mNumHashFunctions; ++h)
                 {
-                    auto bIdx = CuckooIndex<>::getHash(hashs[i], (u8)h, mNumBins);
+                    auto bIdx = old::CuckooIndex<>::getHash(hashs[i], (u8)h, mNumBins);
                     bool collision = false;
 
                     bIdxs[h] = bIdx;
@@ -297,7 +297,7 @@ namespace osuCrypto
 
                     for (u64 h = 0; h < mNumHashFunctions; ++h)
                     {
-                        auto bIdx = CuckooIndex<>::getHash(hashs[j], (u8)h, mNumBins);
+                        auto bIdx = old::CuckooIndex<>::getHash(hashs[j], (u8)h, mNumBins);
                         bool collision = false;
 
                         bIdxs[h] = bIdx;

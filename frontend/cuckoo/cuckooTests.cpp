@@ -1,6 +1,7 @@
 
 #include "SimpleCuckoo.h"
-#include <cryptoTools/Common/CuckooIndex.h>
+#include "libPSI/Tools/CuckooIndex2.h"
+
 using namespace osuCrypto;
 #include "cryptoTools/Common/CLP.h"
 #include "cryptoTools/Common/Timer.h"
@@ -27,7 +28,7 @@ void tt()
 		hashes[i] = prng.get<block>();
 	}
 
-	CuckooIndex<> hashMap1;
+	old::CuckooIndex<> hashMap1;
 	hashMap1.mParams.mBinScaler = e;
 	hashMap1.mParams.mNumHashes = h;
 	hashMap1.mParams.mStashSize = 400;
@@ -142,7 +143,7 @@ void runOne(
 			}
 			else
 			{
-				CuckooIndex<> c;
+				old::CuckooIndex<> c;
 				//throw std::runtime_error(LOCATION);
 				c.mParams.mBinScaler = e;
 				c.mParams.mNumHashes = h;
@@ -301,7 +302,7 @@ void perf(u64 setSize, double e, bool both)
 
 
 		{
-			CuckooIndex<> c;
+			old::CuckooIndex<> c;
 			//throw std::runtime_error(LOCATION);
 			c.mParams.mBinScaler = e;
 			c.mParams.mNumHashes = 3;

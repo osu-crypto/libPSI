@@ -65,7 +65,12 @@ option(ENABLE_KKRT_PSI     "Build the KKRT PSI protocol" OFF)
 option(ENABLE_ECDH_PSI     "Build the EC DH PSI protocol" OFF)
 option(ENABLE_DRRN_PSI     "Build the DRRN PSI protocol" OFF)
 option(ENABLE_PRTY_PSI     "Build the PRTY PSI protocol" OFF)
+option(ENABLE_RELIC        "Build with relic" ON)
+option(ENABLE_SODIUM       "Build with sodium" OFF)
 
+if(NOT DEFINED LIBPSI_STD_VER)
+	set(LIBPSI_STD_VER 20)
+endif()
 
 message(STATUS "General Options\n=======================================================")
 message(STATUS "Option: CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}\n\tRelease\n\tDebug\n\tRELWITHDEBINFO")
@@ -81,6 +86,9 @@ message(STATUS "Option: ENABLE_RR17B_PSI  = ${ENABLE_RR17B_PSI}")
 message(STATUS "Option: ENABLE_KKRT_PSI   = ${ENABLE_KKRT_PSI}")
 message(STATUS "Option: ENABLE_ECDH_PSI   = ${ENABLE_ECDH_PSI}")
 message(STATUS "Option: ENABLE_DRRN_PSI   = ${ENABLE_DRRN_PSI}\n")
+
+message(STATUS "Option: ENABLE_RELIC      = ${ENABLE_RELIC}")
+message(STATUS "Option: ENABLE_SODIUM     = ${ENABLE_SODIUM}\n")
 
 
 configure_file(libPSI/config.h.in libPSI/config.h)

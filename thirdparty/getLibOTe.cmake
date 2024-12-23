@@ -1,9 +1,10 @@
 
 set(DEP_NAME            libOTe)          
 set(GIT_REPOSITORY      "https://github.com/osu-crypto/libOTe.git")
-set(GIT_TAG             7d5c13d8c7a8f56a53e3f5909882c114903fb17c )
+set(GIT_TAG             "f47217d924ceef9b65e04a9ae680b65a79a4425a")
 
-set(CLONE_DIR "${CMAKE_CURRENT_LIST_DIR}/${DEP_NAME}")
+set(OUT_DIR "${CMAKE_CURRENT_LIST_DIR}/../out/")
+set(CLONE_DIR "${OUT_DIR}/${DEP_NAME}")
 set(BUILD_DIR "${CLONE_DIR}/out/build/${LIBPSI_CONFIG}")
 set(LOG_FILE  "${CMAKE_CURRENT_LIST_DIR}/log-${DEP_NAME}.txt")
 
@@ -26,9 +27,12 @@ if(NOT EXISTS ${BUILD_DIR} OR NOT ${DEP_NAME}_FOUND OR LIBOTE_DEV)
     set(CONFIGURE_CMD ${CMAKE_COMMAND} -S ${CLONE_DIR} -B ${BUILD_DIR} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
                        -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE} 
                        -DFETCH_AUTO=ON 
+                       -DLIBOTE_STD_VER=${LIBPSI_STD_VER}
                        -DVERBOSE_FETCH=${VERBOSE_FETCH}
                        -DENABLE_ALL_OT=ON
-                       -DENABLE_RELIC=ON
+                       -DENABLE_RELIC=${ENABLE_RELIC}
+                       -DENABLE_SODIUM=${ENABLE_SODIUM}
+                       -DENABLE_BOOST=ON
                        )
     set(BUILD_CMD     ${CMAKE_COMMAND} --build ${BUILD_DIR} --config ${CMAKE_BUILD_TYPE})
 
@@ -40,7 +44,7 @@ if(NOT EXISTS ${BUILD_DIR} OR NOT ${DEP_NAME}_FOUND OR LIBOTE_DEV)
     # execute the fetch commands.
     message("============= Building ${DEP_NAME} =============")
     if(NOT EXISTS ${CLONE_DIR})
-        run(NAME "Cloning ${GIT_REPOSITORY}" CMD ${DOWNLOAD_CMD} WD ${CMAKE_CURRENT_LIST_DIR})
+        run(NAME "Cloning ${GIT_REPOSITORY} into ${OUT_DIR}" CMD ${DOWNLOAD_CMD} WD ${OUT_DIR})
     endif()
 
     run(NAME "Checkout ${GIT_TAG} " CMD ${CHECKOUT_CMD}  WD ${CLONE_DIR})

@@ -329,7 +329,7 @@ namespace osuCrypto
                     mask = mask ^ mAknOt.mMessages[pIdx];
                 }
 
-                localMasks.emplace(mask.as<u64>()[0], std::pair<block, u64>(mask, i));
+                localMasks.emplace(mask.get<u64>()[0], std::pair<block, u64>(mask, i));
             }
             //std::cout << IoStream::unlock;
 

@@ -26,7 +26,7 @@ namespace osuCrypto
         mHashingSeed = ZeroBlock;
         mBigBlockSize = bigBlockSize;
 
-        mCuckooParams = CuckooIndex<>::selectParams(mServerSetSize, cuckooSsp, 0, numHash);
+        mCuckooParams = old::CuckooIndex<>::selectParams(mServerSetSize, cuckooSsp, 0, numHash);
 
 
 
@@ -63,7 +63,7 @@ namespace osuCrypto
                 hashs[i] = hashs[i] ^ inputs[i];
                 for (u64 j = 0; j < mCuckooParams.mNumHashes; ++j)
                 {
-                    u64 idx = CuckooIndex<>::getHash(hashs[i], (u8)j, numCuckooBins) * mNumSimpleBins / mCuckooParams.numBins();
+                    u64 idx = old::CuckooIndex<>::getHash(hashs[i], (u8)j, numCuckooBins) * mNumSimpleBins / mCuckooParams.numBins();
 
                     // insert this item in this bin. pack together the hash index and input index
                     bins(idx, binSizes[idx]++) = (j << 56) | i;
@@ -72,9 +72,9 @@ namespace osuCrypto
                 //if (!i)
                 //{
                 //    ostreamLock(std::cout) << "cinput[" << i << "] = " << inputs[i] << " -> " << hashs[i] << " ("
-                //        << CuckooIndex<>::getHash(hashs[i], 0, numCuckooBins) << ", "
-                //        << CuckooIndex<>::getHash(hashs[i], 1, numCuckooBins) << ", "
-                //        << CuckooIndex<>::getHash(hashs[i], 2, numCuckooBins) << ")"
+                //        << old::CuckooIndex<>::getHash(hashs[i], 0, numCuckooBins) << ", "
+                //        << old::CuckooIndex<>::getHash(hashs[i], 1, numCuckooBins) << ", "
+                //        << old::CuckooIndex<>::getHash(hashs[i], 2, numCuckooBins) << ")"
                 //        << std::endl;
                 //}
             }
@@ -149,7 +149,7 @@ namespace osuCrypto
 
                 u8 hashIdx = *binIter >> 56;
                 u64 itemIdx = *binIter & mask;
-                u64 cuckooIdx = CuckooIndex<>::getHash(hashs[itemIdx], hashIdx, numCuckooBins) - binOffset;
+                u64 cuckooIdx = old::CuckooIndex<>::getHash(hashs[itemIdx], hashIdx, numCuckooBins) - binOffset;
                 ++binIter;
 
                 auto bigBlockoffset = cuckooIdx % mBigBlockSize;
@@ -203,7 +203,7 @@ namespace osuCrypto
         std::vector<u32> pi1(permSize), pi0(permSize), pi1Inv(permSize);
         for (u32 i = 0; i < pi1.size(); ++i) pi1[i] = i;
         PRNG prng(rSeed ^ OneBlock);
-        std::random_shuffle(pi1.begin(), pi1.end(), prng);
+        std::shuffle(pi1.begin(), pi1.end(), prng);
 
 
         //std::vector<block> pi1RS(pi.size());

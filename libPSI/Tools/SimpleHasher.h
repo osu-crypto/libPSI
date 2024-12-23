@@ -2,6 +2,7 @@
 #include "cryptoTools/Common/Defines.h"
 #include "cryptoTools/Common/BitVector.h"
 #include "cryptoTools/Common/Matrix.h"
+#include <atomic>
 
 
 namespace osuCrypto
@@ -33,7 +34,7 @@ namespace osuCrypto
 
         inline void push(u64 binIdx, u64 value)
         {
-            auto pos = mBinSizes[binIdx].fetch_add(1,std::memory_order::memory_order_relaxed);
+            auto pos = mBinSizes[binIdx].fetch_add(1,std::memory_order_relaxed);
             mBins_(binIdx, pos) = value;
         }
 
@@ -44,7 +45,7 @@ namespace osuCrypto
 
         inline u8 getBinSize(u64 binIdx)
         {
-            return mBinSizes[binIdx].load(std::memory_order::memory_order_relaxed);
+            return mBinSizes[binIdx].load(std::memory_order_relaxed);
         }
 
         void print() const;

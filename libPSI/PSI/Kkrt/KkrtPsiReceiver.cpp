@@ -86,7 +86,7 @@ namespace osuCrypto
 
             IknpOtExtSender base;
             std::vector<std::array<block, 2>> baseOT(otRecv.getBaseOTCount());
-            base.setBaseOts(baseBaseOT, baseBaseChoice, chl0);
+            base.setBaseOts(baseBaseOT, baseBaseChoice, prng, chl0);
             base.send(baseOT, prng, chl0);
 
             otRecv.setBaseOts(baseOT, prng, chl0);
@@ -165,7 +165,7 @@ throw std::runtime_error("base OTs must be set or enable base OTs and IKNP in li
                     auto idx = bin.idx();
 
                     // get the smallest hash function index that maps this item to this bin.
-                    auto hIdx = CuckooIndex<>::minCollidingHashIdx(bIdx,mIndex.mHashes[idx], 3, mIndex.mBins.size());
+                    auto hIdx = old::CuckooIndex<>::minCollidingHashIdx(bIdx,mIndex.mHashes[idx], 3, mIndex.mBins.size());
 
                     auto& item = inputs[idx];
 
@@ -176,7 +176,7 @@ throw std::runtime_error("base OTs must be set or enable base OTs and IKNP in li
                     //std::cout << "r input[" << idx << "] = " << inputs[idx] << " h = " << (int)hIdx << " bIdx = " << bIdx << " -> " << *(u64*)&encoding << std::endl;
 
                     //store my mask into corresponding buff at the permuted position
-                    localMasks[hIdx].emplace(encoding.as<u64>()[0], std::pair<block, u64>(encoding, idx));
+                    localMasks[hIdx].emplace(encoding.get<u64>()[0], std::pair<block, u64>(encoding, idx));
                 }
                 else
                 {

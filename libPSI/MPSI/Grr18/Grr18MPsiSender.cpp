@@ -360,7 +360,7 @@ namespace osuCrypto
                         permutation.resize(loads[bIdx- binStart]);
                         for (size_t i = 0; i < permutation.size(); i++)
                             permutation[i] = (u16)i;
-                        std::random_shuffle(permutation.begin(), permutation.end(), prng);
+                        std::shuffle(permutation.begin(), permutation.end(), prng);
 
                         for (u64 i = 0; i < permutation.size(); ++i)
                         {
@@ -457,7 +457,7 @@ namespace osuCrypto
 
 
 
-                auto maskPermIdx = maskIdx.fetch_add(numLocalMasks, std::memory_order::memory_order_relaxed);
+                auto maskPermIdx = maskIdx.fetch_add(numLocalMasks, std::memory_order_relaxed);
                 //auto maskPermEnd = maskPermIdx + numLocalMasks;
                 //u64 keyMask = (maskSize >= 8) ? ~0ull : ~(~0ull << (maskSize * 8));
 

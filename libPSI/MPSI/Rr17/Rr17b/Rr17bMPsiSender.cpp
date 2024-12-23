@@ -130,7 +130,7 @@ namespace osuCrypto
 
 
 
-            otSend.setBaseOts(recvBaseMsg, recvChoice, chl0);
+            otSend.setBaseOts(recvBaseMsg, recvChoice, mPrng, chl0);
 #else
             throw std::runtime_error("base OTs must be set. " LOCATION);
 #endif
@@ -230,7 +230,7 @@ namespace osuCrypto
             PRNG prng(permSeed);
             for (u64 i = 0; i < itemPermutation.size(); ++i)
                 itemPermutation[i] = i;
-            std::random_shuffle(itemPermutation.begin(), itemPermutation.end(), prng);
+            std::shuffle(itemPermutation.begin(), itemPermutation.end(), prng);
             permProm.set_value();
         });
 
@@ -318,7 +318,7 @@ namespace osuCrypto
                         block item = inputHasher.ecbEncBlock(inputs[i]);
 
                         // compute the bin index as the low bits mod #bins
-                        u64 addr = item.as<u64>()[0] % mBins.mBinCount;
+                        u64 addr = item.get<u64>()[0] % mBins.mBinCount;
 
                         // phase the item by removing log( #bin ) low bits. High bits just get ignored.
                         item = shiftRight(item, phaseShift);

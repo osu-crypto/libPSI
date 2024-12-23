@@ -162,7 +162,7 @@ namespace osuCrypto
             kos.receive(recvChoice, kcoSendBase, prng, chl0);
 
             // now set these ~800 OTs as the base of our N choose 1 OTs.
-            otSend.setBaseOts(kcoSendBase, recvChoice, chl0);
+            otSend.setBaseOts(kcoSendBase, recvChoice, prng, chl0);
 
 #else
             throw std::runtime_error("base OTs must be set. " LOCATION);

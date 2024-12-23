@@ -18,6 +18,7 @@
 #include <libPSI/PSI/Kkrt/KkrtPsiReceiver.h>
 #include <unordered_set>
 #include <libPSI/Tools/SimpleIndex.h>
+#include "libPSI/Tools/CuckooIndex2.h"
 
 
 namespace osuCrypto
@@ -36,7 +37,7 @@ namespace osuCrypto
         void recv(Channel s0, Channel s1, span<block> inputs);
 
         PRNG mPrng;
-        CuckooParam mCuckooParams;
+        old::CuckooParam mCuckooParams;
 
         //Matr
         //SimpleIndex mSimpleIndex;

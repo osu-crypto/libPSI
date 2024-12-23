@@ -1,8 +1,6 @@
 #include "bloomFilterMain.h"
 #include "cryptoTools/Network/Endpoint.h" 
 
-#include "libPSI/MPSI/Rr16/AknBfMPsiReceiver.h"
-#include "libPSI/MPSI/Rr16/AknBfMPsiSender.h"
 
 #include <fstream>
 using namespace osuCrypto;

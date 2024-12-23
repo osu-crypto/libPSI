@@ -357,8 +357,8 @@ namespace osuCrypto
 
 #ifdef THREAD_SAFE_CUCKOO_HASHER
             std::array<u64, 2> val{
-                mBins[addr[0]].mVal.load(std::memory_order::memory_order_relaxed),
-                mBins[addr[1]].mVal.load(std::memory_order::memory_order_relaxed) };
+                mBins[addr[0]].mVal.load(std::memory_order_relaxed),
+                mBins[addr[1]].mVal.load(std::memory_order_relaxed) };
 #else
             std::array<u64, 2> val{
                 mBins[addr[0]].mVal,
@@ -394,7 +394,7 @@ namespace osuCrypto
             while (i < mStash.size() && mStash[i].isEmpty() == false)
             {
 #ifdef THREAD_SAFE_CUCKOO_HASHER
-                u64 val = mStash[i].mVal.load(std::memory_order::memory_order_relaxed);
+                u64 val = mStash[i].mVal.load(std::memory_order_relaxed);
 #else
                 u64 val = mStash[i].mVal;
 #endif
@@ -426,7 +426,7 @@ namespace osuCrypto
 
 
 #ifdef THREAD_SAFE_CUCKOO_HASHER
-                u64 val = mBins[addr].mVal.load(std::memory_order::memory_order_relaxed);
+                u64 val = mBins[addr].mVal.load(std::memory_order_relaxed);
 #else
                 u64 val = mBins[addr].mVal;
 #endif
@@ -452,7 +452,7 @@ namespace osuCrypto
             while (i < mStash.size() && mStash[i].isEmpty() == false)
             {
 #ifdef THREAD_SAFE_CUCKOO_HASHER
-                u64 val = mStash[i].mVal.load(std::memory_order::memory_order_relaxed);
+                u64 val = mStash[i].mVal.load(std::memory_order_relaxed);
 #else
                 u64 val = mStash[i].mVal;
 #endif
@@ -502,8 +502,8 @@ namespace osuCrypto
                 addr[1] = (hashes[i][1]) % mBins.size();
 
 #ifdef THREAD_SAFE_CUCKOO_HASHER
-                w.findVal[i][0] = mBins[addr[0]].mVal.load(std::memory_order::memory_order_relaxed);
-                w.findVal[i][1] = mBins[addr[1]].mVal.load(std::memory_order::memory_order_relaxed);
+                w.findVal[i][0] = mBins[addr[0]].mVal.load(std::memory_order_relaxed);
+                w.findVal[i][1] = mBins[addr[1]].mVal.load(std::memory_order_relaxed);
 #else
                 w.findVal[i][0] = mBins[addr[0]].mVal;
                 w.findVal[i][1] = mBins[addr[1]].mVal;
@@ -541,7 +541,7 @@ namespace osuCrypto
             while (i < mStash.size() && mStash[i].isEmpty() == false)
             {
 #ifdef THREAD_SAFE_CUCKOO_HASHER
-                u64 val = mStash[i].mVal.load(std::memory_order::memory_order_relaxed);
+                u64 val = mStash[i].mVal.load(std::memory_order_relaxed);
 #else
                 u64 val = mStash[i].mVal;
 #endif
